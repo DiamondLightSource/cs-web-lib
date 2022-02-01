@@ -232,6 +232,14 @@ export class DType {
     }
   }
 
+  public static byteArrToString(arr: NumberArray): string {
+    let result = "";
+    for (let i = 0; i < arr.length; i++) {
+      result += String.fromCharCode(Number(arr[i]));
+    }
+    return result;
+  } 
+
   public getStringArrayValue(): string[] | undefined {
     return this.value.stringArray;
   }

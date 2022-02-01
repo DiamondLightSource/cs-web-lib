@@ -22,7 +22,7 @@ import { Color } from "../../../types/color";
 
 const ReadbackProps = {
   precision: IntPropOpt,
-  formatType: ChoicePropOpt(["default", "decimal", "exponential"]),
+  formatType: ChoicePropOpt(["default", "decimal", "exponential", "string"]),
   showUnits: BoolPropOpt,
   precisionFromPv: BoolPropOpt,
   alarmSensitive: BoolPropOpt,
@@ -77,6 +77,13 @@ export const ReadbackComponent = (
         displayedValue = DType.coerceDouble(value).toExponential(prec);
       } else {
         displayedValue = DType.coerceDouble(value).toFixed(prec);
+      }
+    } else if (formatType === "string") {
+      const valarr = value.getArrayValue();
+      if (valarr !== undefined) {
+        displayedValue = DType.byteArrToString(valarr);
+      } else {
+        displayedValue = DType.coerceString(value);
       }
     } else {
       displayedValue = DType.coerceString(value);

@@ -327,7 +327,8 @@ function opiParseFormatType(jsonProp: ElementCompact): string {
   const formats: { [key: number]: string } = {
     0: "default",
     1: "decimal",
-    2: "exponential"
+    2: "exponential",
+    4: "string"
   };
   return formats[opiParseNumber(jsonProp)];
 }
