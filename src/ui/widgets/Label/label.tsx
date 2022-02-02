@@ -21,11 +21,13 @@ const LabelProps = {
   transparent: BoolPropOpt,
   className: StringPropOpt,
   textAlign: ChoicePropOpt(["left", "center", "right"]),
+  textAlignV: ChoicePropOpt(["top", "center", "bottom"]),
   font: FontPropOpt,
   foregroundColor: ColorPropOpt,
   backgroundColor: ColorPropOpt,
   border: BorderPropOpt,
-  rotationAngle: FloatPropOpt
+  rotationAngle: FloatPropOpt,
+  wrapWords: BoolPropOpt
 };
 
 const LabelWidgetProps = {
@@ -42,21 +44,49 @@ export const LabelComponent = (
     transparent: props.transparent ?? true
   };
   const style: CSSProperties = commonCss(editedProps);
-  const { textAlign = "center", text = "", rotationAngle } = props;
+  const {
+    textAlign = "center",
+    textAlignV = "center",
+    text = "",
+    rotationAngle,
+    wrapWords
+  } = props;
   const className = props.className ?? `Label ${classes.Label}`;
   // Since display is "flex", use "flex-start" and "flex-end" to align
   // the content.
   let alignment = "center";
   if (textAlign === "left") {
     alignment = "flex-start";
+    if (wrapWords) {
+      style["textAlign"] = "left";
+    }
   } else if (textAlign === "right") {
     alignment = "flex-end";
+    if (wrapWords) {
+      style["textAlign"] = "right";
+    }
+  } else {
+    if (wrapWords) {
+      style["textAlign"] = "center";
+    }
   }
   style["justifyContent"] = alignment;
   style["cursor"] = "default";
+  let alignmentV = "center";
+  if (textAlignV === "top") {
+    alignmentV = "flex-start";
+  } else if (textAlignV === "bottom") {
+    alignmentV = "flex-end";
+  }
+  style["alignItems"] = alignmentV;
   let transform = undefined;
   if (rotationAngle) {
     transform = `rotate(${rotationAngle}deg)`;
+  }
+
+  if (wrapWords) {
+    style["wordBreak"] = "break-word";
+    style["whiteSpace"] = "normal";
   }
 
   // Simple component to display text - defaults to black text and dark grey background

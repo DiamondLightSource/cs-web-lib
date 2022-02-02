@@ -28,13 +28,15 @@ const ReadbackProps = {
   alarmSensitive: BoolPropOpt,
   text: StringPropOpt,
   textAlign: ChoicePropOpt(["left", "center", "right"]),
+  textAlignV: ChoicePropOpt(["top", "center", "bottom"]),
   transparent: BoolPropOpt,
   font: FontPropOpt,
   foregroundColor: ColorPropOpt,
   backgroundColor: ColorPropOpt,
   border: BorderPropOpt,
   rotationAngle: FloatPropOpt,
-  visible: BoolPropOpt
+  visible: BoolPropOpt,
+  wrapWords: BoolPropOpt
 };
 
 // Needs to be exported for testing
@@ -55,10 +57,12 @@ export const ReadbackComponent = (
     transparent = false,
     text = "######",
     textAlign = "center",
+    textAlignV = "center",
     showUnits = false,
     precisionFromPv = false,
     rotationAngle,
-    visible
+    visible,
+    wrapWords = false
   } = props;
   let { foregroundColor } = props;
   // Decide what to display.
@@ -118,16 +122,18 @@ export const ReadbackComponent = (
   // Use a LabelComponent to display it.
   return (
     <LabelComponent
-      className={className}
-      text={displayedValue}
-      transparent={transparent}
-      textAlign={textAlign}
-      font={font}
-      foregroundColor={foregroundColor}
-      backgroundColor={backgroundColor}
-      border={border}
-      rotationAngle={rotationAngle}
-      visible={visible}
+    className={className}
+    text={displayedValue}
+    transparent={transparent}
+    textAlign={textAlign}
+    textAlignV={textAlignV}
+    font={font}
+    foregroundColor={foregroundColor}
+    backgroundColor={backgroundColor}
+    border={border}
+    rotationAngle={rotationAngle}
+    visible={visible}
+    wrapWords={wrapWords}
     ></LabelComponent>
   );
 };

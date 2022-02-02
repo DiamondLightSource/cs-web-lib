@@ -319,6 +319,20 @@ function opiParseHorizontalAlignment(jsonProp: ElementCompact): string {
 }
 
 /**
+ * Converts a vertical alignment number present in the json properties, into
+ * a string e.g. "top", "center", "bottom"
+ * @param jsonProp
+ */
+ function opiParseVerticalAlignment(jsonProp: ElementCompact): string {
+  const alignments: { [key: number]: string } = {
+    0: "top",
+    1: "center",
+    2: "bottom"
+  };
+  return alignments[opiParseNumber(jsonProp)];
+}
+
+/**
  * Converts an format type number present in the json properties, into
  * a string e.g. "left", "center", "right"
  * @param jsonProp
@@ -464,6 +478,7 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   text: ["text", opiParseString],
   name: ["name", opiParseString],
   textAlign: ["horizontal_alignment", opiParseHorizontalAlignment],
+  textAlignV: ["vertical_alignment", opiParseVerticalAlignment],
   backgroundColor: ["background_color", opiParseColor],
   foregroundColor: ["foreground_color", opiParseColor],
   onColor: ["on_color", opiParseColor],
@@ -476,6 +491,7 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   showUnits: ["show_units", opiParseBoolean],
   transparent: ["transparent", opiParseBoolean],
   horizontal: ["horizontal", opiParseBoolean],
+  wrapWords: ["wrap_words", opiParseBoolean],
   logScale: ["log_scale", opiParseBoolean],
   font: ["font", opiParseFont],
   macroMap: ["macros", opiParseMacros],
