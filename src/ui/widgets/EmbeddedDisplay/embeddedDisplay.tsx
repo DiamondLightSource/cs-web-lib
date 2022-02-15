@@ -61,6 +61,7 @@ export const EmbeddedDisplay = (
       overflow: props.scroll ? "scroll" : "hidden",
       children: [description],
       displayHeight: description.position.height,
+      displayWidth: description.position.width,
       autoZoomToFit: description.autoZoomToFit
     });
   } catch (e) {

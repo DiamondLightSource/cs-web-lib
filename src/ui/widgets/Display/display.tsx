@@ -26,6 +26,7 @@ const DisplayProps = {
   border: BorderPropOpt,
   macros: MacrosPropOpt,
   displayHeight: StringPropOpt,
+  displayWidth: StringPropOpt,
   autoZoomToFit: BoolPropOpt
 };
 
@@ -56,13 +57,21 @@ export const DisplayComponent = (
   style["height"] = "100%";
   if (props.autoZoomToFit) {
     const heightString = typeof props.displayHeight === "undefined" ? "10" : props.displayHeight;
-    // Height property will take form "<num>px"
-    if (heightString.includes("px")) {
+    const widthString = typeof props.displayWidth === "undefined" ? "10" : props.displayWidth;
+    // Height and width property will take form "<num>px"
+    if (heightString.includes("px") && widthString.includes("px")) {
+      // Use the window size and display size to scale
       const heightStrStripPx = heightString.slice(0, -2);
       const heightNum = Number(heightStrStripPx);
-      // Use the window size and display size to scale
-      const scaleVal = window.innerHeight / heightNum;
-      style["transform"] = "scale(" + String(scaleVal) + ")";
+      const scaleHeightVal = window.innerHeight / heightNum;
+      const widthStrStripPx = widthString.slice(0, -2);
+      const widthNum = Number(widthStrStripPx);
+      const scaleWidthVal = window.innerWidth / widthNum;
+      if (scaleWidthVal < scaleHeightVal) {
+        style["transform"] = "scale(" + String(scaleWidthVal) + ")";
+      } else {
+        style["transform"] = "scale(" + String(scaleHeightVal) + ")";
+      }
       style["transformOrigin"] = "center top";
     }
   }
