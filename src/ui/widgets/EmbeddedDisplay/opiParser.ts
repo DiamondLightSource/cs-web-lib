@@ -515,7 +515,8 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   bit: ["bit", opiParseNumber],
   actionsFromPv: ["actions_from_pv", opiParseBoolean],
   itemsFromPv: ["items_from_pv", opiParseBoolean],
-  deviceName: ["device_name", opiParseString]
+  deviceName: ["device_name", opiParseString],
+  autoZoomToFit: ["auto_zoom_to_fit_all", opiParseBoolean]
 };
 
 /**

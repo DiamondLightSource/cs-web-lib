@@ -57,9 +57,11 @@ export const EmbeddedDisplay = (
       position: props.position,
       backgroundColor: new Color("rgb(200,200,200"),
       border:
-        props.border ?? new Border(BorderStyle.Line, new Color("white"), 1),
+        props.border ?? new Border(BorderStyle.Line, new Color("white"), 0),
       overflow: props.scroll ? "scroll" : "hidden",
-      children: [description]
+      children: [description],
+      displayHeight: description.position.height,
+      autoZoomToFit: description.autoZoomToFit
     });
   } catch (e) {
     const message = `Error loading ${props.file.path}: ${e}.`;

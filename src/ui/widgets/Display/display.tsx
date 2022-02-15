@@ -9,7 +9,9 @@ import {
   InferWidgetProps,
   ColorPropOpt,
   BorderPropOpt,
-  MacrosPropOpt
+  MacrosPropOpt,
+  StringPropOpt,
+  BoolPropOpt
 } from "../propTypes";
 import {
   MacroMap,
@@ -22,7 +24,9 @@ const DisplayProps = {
   overflow: ChoicePropOpt(["scroll", "hidden", "auto", "visible"]),
   backgroundColor: ColorPropOpt,
   border: BorderPropOpt,
-  macros: MacrosPropOpt
+  macros: MacrosPropOpt,
+  displayHeight: StringPropOpt,
+  autoZoomToFit: BoolPropOpt
 };
 
 // Generic display widget to put other things inside
@@ -50,6 +54,18 @@ export const DisplayComponent = (
   style["position"] = "relative";
   style["overflow"] = props.overflow;
   style["height"] = "100%";
+  if (props.autoZoomToFit) {
+    const heightString = typeof props.displayHeight === "undefined" ? "10" : props.displayHeight;
+    // Height property will take form "<num>px"
+    if (heightString.includes("px")) {
+      const heightStrStripPx = heightString.slice(0, -2);
+      const heightNum = Number(heightStrStripPx);
+      // Use the window size and display size to scale
+      const scaleVal = window.innerHeight / heightNum;
+      style["transform"] = "scale(" + String(scaleVal) + ")";
+      style["transformOrigin"] = "center top";
+    }
+  }
   return (
     <MacroContext.Provider value={displayMacroContext}>
       <div style={style}>{props.children}</div>
