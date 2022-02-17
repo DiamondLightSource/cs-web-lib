@@ -323,7 +323,7 @@ function opiParseHorizontalAlignment(jsonProp: ElementCompact): string {
  * a string e.g. "top", "center", "bottom"
  * @param jsonProp
  */
- function opiParseVerticalAlignment(jsonProp: ElementCompact): string {
+function opiParseVerticalAlignment(jsonProp: ElementCompact): string {
   const alignments: { [key: number]: string } = {
     0: "top",
     1: "center",
@@ -432,8 +432,8 @@ function opiParseFile(props: any): OpiFile {
 function opiParseAlarmSensitive(props: any): boolean {
   // Only one prop for alarm sensitivity at the moment.
   return (
-   // opiParseBoolean(props.forecolor_alarm_sensitive) ||
-   // opiParseBoolean(props.backcolor_alarm_sensitive) ||
+    // opiParseBoolean(props.forecolor_alarm_sensitive) ||
+    // opiParseBoolean(props.backcolor_alarm_sensitive) ||
     opiParseBoolean(props.border_alarm_sensitive)
   );
 }

@@ -56,8 +56,10 @@ export const DisplayComponent = (
   style["overflow"] = props.overflow;
   style["height"] = "100%";
   if (props.autoZoomToFit) {
-    const heightString = typeof props.displayHeight === "undefined" ? "10" : props.displayHeight;
-    const widthString = typeof props.displayWidth === "undefined" ? "10" : props.displayWidth;
+    const heightString =
+      typeof props.displayHeight === "undefined" ? "10" : props.displayHeight;
+    const widthString =
+      typeof props.displayWidth === "undefined" ? "10" : props.displayWidth;
     // Height and width property will take form "<num>px"
     if (heightString.includes("px") && widthString.includes("px")) {
       // Use the window size and display size to scale

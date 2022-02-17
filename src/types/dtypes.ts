@@ -238,7 +238,7 @@ export class DType {
       result += String.fromCharCode(Number(arr[i]));
     }
     return result;
-  } 
+  }
 
   public getStringArrayValue(): string[] | undefined {
     return this.value.stringArray;

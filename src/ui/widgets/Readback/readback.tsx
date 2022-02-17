@@ -122,18 +122,18 @@ export const ReadbackComponent = (
   // Use a LabelComponent to display it.
   return (
     <LabelComponent
-    className={className}
-    text={displayedValue}
-    transparent={transparent}
-    textAlign={textAlign}
-    textAlignV={textAlignV}
-    font={font}
-    foregroundColor={foregroundColor}
-    backgroundColor={backgroundColor}
-    border={border}
-    rotationAngle={rotationAngle}
-    visible={visible}
-    wrapWords={wrapWords}
+      className={className}
+      text={displayedValue}
+      transparent={transparent}
+      textAlign={textAlign}
+      textAlignV={textAlignV}
+      font={font}
+      foregroundColor={foregroundColor}
+      backgroundColor={backgroundColor}
+      border={border}
+      rotationAngle={rotationAngle}
+      visible={visible}
+      wrapWords={wrapWords}
     ></LabelComponent>
   );
 };
