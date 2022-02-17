@@ -1,3 +1,5 @@
+import log from "loglevel";
+
 export { EmbeddedDisplay } from "./EmbeddedDisplay/embeddedDisplay";
 export { Label } from "./Label/label";
 export { Display } from "./Display/display";
@@ -25,3 +27,9 @@ export { Slideshow } from "./Slideshow/slideshow";
 export { Symbol } from "./Symbol/symbol";
 export { TabBar } from "./Tabs/tabs";
 export { DynamicTabs } from "./Tabs/dynamicTabs";
+
+// By importing and calling this function you ensure all the
+// above widgets are imported and thus registered.
+export function ensureWidgetsRegistered(): void {
+  log.debug("Triggering widget import.");
+}
