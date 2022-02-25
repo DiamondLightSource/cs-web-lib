@@ -235,9 +235,10 @@ export class DType {
   public static byteArrToString(arr: NumberArray): string {
     let result = "";
     for (let i = 0; i < arr.length; i++) {
-      if (Number(arr[i]) !== 0) {
-        result += String.fromCharCode(Number(arr[i]));
+      if (Number(arr[i]) === 0) {
+        break;
       }
+      result += String.fromCharCode(Number(arr[i]));
     }
     return result;
   }
