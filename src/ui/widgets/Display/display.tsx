@@ -69,12 +69,16 @@ export const DisplayComponent = (
       const widthStrStripPx = widthString.slice(0, -2);
       const widthNum = Number(widthStrStripPx);
       const scaleWidthVal = window.innerWidth / widthNum;
+      let globalScale = 1;
       if (scaleWidthVal < scaleHeightVal) {
-        style["transform"] = "scale(" + String(scaleWidthVal) + ")";
+        globalScale = scaleWidthVal;
       } else {
-        style["transform"] = "scale(" + String(scaleHeightVal) + ")";
+        globalScale = scaleHeightVal;
       }
-      style["transformOrigin"] = "center top";
+      if (globalScale < 1) {
+        style["transform"] = "scale(" + String(globalScale) + ")";
+        style["transformOrigin"] = "center top";
+      }
     }
   }
   return (
