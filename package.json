@@ -65,9 +65,6 @@
     "dist"
   ],
   "types": "dist/index.d.ts",
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/dls-controls"
-  },
   "prettier": {
     "trailingComma": "none",
     "arrowParens": "avoid"
