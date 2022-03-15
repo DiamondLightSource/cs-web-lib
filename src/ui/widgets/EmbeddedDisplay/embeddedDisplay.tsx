@@ -18,7 +18,8 @@ import {
   InferWidgetProps,
   FilePropType,
   BoolPropOpt,
-  StringPropOpt
+  StringPropOpt,
+  ColorPropOpt
 } from "../propTypes";
 import { GroupBoxComponent } from "../GroupBox/groupBox";
 import { useOpiFile } from "./useOpiFile";
@@ -28,7 +29,8 @@ const EmbeddedDisplayProps = {
   ...WidgetPropType,
   file: FilePropType,
   name: StringPropOpt,
-  scroll: BoolPropOpt
+  scroll: BoolPropOpt,
+  backgroundColor: ColorPropOpt
 };
 
 export const EmbeddedDisplay = (
@@ -55,7 +57,7 @@ export const EmbeddedDisplay = (
     component = widgetDescriptionToComponent({
       type: "display",
       position: props.position,
-      backgroundColor: new Color("rgb(200,200,200"),
+      backgroundColor: props.backgroundColor ?? new Color("rgb(200,200,200"),
       border:
         props.border ?? new Border(BorderStyle.Line, new Color("white"), 0),
       overflow: props.scroll ? "scroll" : "hidden",
