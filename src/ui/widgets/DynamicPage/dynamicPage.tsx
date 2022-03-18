@@ -12,7 +12,12 @@ import { WidgetPropType } from "../widgetProps";
 import { ActionButton } from "../ActionButton/actionButton";
 import { CLOSE_PAGE } from "../widgetActions";
 import { registerWidget } from "../register";
-import { StringProp, InferWidgetProps, BorderPropOpt } from "../propTypes";
+import {
+  StringProp,
+  InferWidgetProps,
+  BorderPropOpt,
+  StringPropOpt
+} from "../propTypes";
 import { EmbeddedDisplay } from "../EmbeddedDisplay/embeddedDisplay";
 import { Color } from "../../../types/color";
 import { RelativePosition } from "../../../types/position";
@@ -20,7 +25,8 @@ import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 
 const DynamicPageProps = {
   location: StringProp,
-  border: BorderPropOpt
+  border: BorderPropOpt,
+  showCloseButton: StringPropOpt
 };
 
 // Generic display widget to put other things inside
@@ -31,6 +37,14 @@ export const DynamicPageComponent = (
   const fileContext = useContext(FileContext);
 
   const file = fileContext.pageState[props.location];
+
+  // Default behaviour is to show close button
+  let showCloseButton = true;
+  if (props.showCloseButton !== undefined) {
+    if (props.showCloseButton === "false") {
+      showCloseButton = false;
+    }
+  }
 
   if (file === undefined) {
     return (
@@ -46,7 +60,7 @@ export const DynamicPageComponent = (
         <h3>Dynamic page &quot;{props.location}&quot;: no file loaded.</h3>
       </div>
     );
-  } else {
+  } else if (showCloseButton) {
     return (
       <ExitFileContext.Provider
         value={() => fileContext.removePage(props.location)}
@@ -84,6 +98,16 @@ export const DynamicPageComponent = (
               image="/img/x.png"
             />
           </div>
+        </div>
+      </ExitFileContext.Provider>
+    );
+  } else {
+    return (
+      <ExitFileContext.Provider
+        value={() => fileContext.removePage(props.location)}
+      >
+        <div style={style}>
+          <EmbeddedDisplay file={file} position={new RelativePosition()} />
         </div>
       </ExitFileContext.Provider>
     );
