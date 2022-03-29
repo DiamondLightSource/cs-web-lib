@@ -86,7 +86,7 @@ export const LabelComponent = (
 
   if (wrapWords) {
     style["wordBreak"] = "break-word";
-    style["whiteSpace"] = "normal";
+    style["whiteSpace"] = "pre-line";
   }
 
   // Simple component to display text - defaults to black text and dark grey background
