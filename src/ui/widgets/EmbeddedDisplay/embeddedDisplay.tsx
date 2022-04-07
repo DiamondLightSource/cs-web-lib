@@ -50,6 +50,30 @@ export const EmbeddedDisplay = (
     props.position.height = props.position.height || description.height;
     props.position.width = props.position.width || description.width;
   }
+
+  let scaleFactor = "1";
+  if (description.autoZoomToFit) {
+    const heightString =
+      typeof description.position.height === "undefined"
+        ? "10"
+        : description.position.height;
+    const widthString =
+      typeof description.position.width === "undefined"
+        ? "10"
+        : description.position.width;
+    // Height and width property will take form "<num>px"
+    if (heightString.includes("px") && widthString.includes("px")) {
+      // Use the window size and display size to scale
+      const heightStrStripPx = heightString.slice(0, -2);
+      const scaleHeightVal = window.innerHeight / Number(heightStrStripPx);
+      const widthStrStripPx = widthString.slice(0, -2);
+      const scaleWidthVal = window.innerWidth / Number(widthStrStripPx);
+      const minScaleFactor = Math.min(scaleWidthVal, scaleHeightVal);
+      scaleFactor = String(minScaleFactor);
+      // Scale the flexcontainer height to fill window
+      props.position.height = String(window.innerHeight) + "px";
+    }
+  }
   let component: JSX.Element;
   try {
     component = widgetDescriptionToComponent({
@@ -61,8 +85,7 @@ export const EmbeddedDisplay = (
         props.border ?? new Border(BorderStyle.Line, new Color("white"), 0),
       overflow: props.scroll ? "scroll" : "hidden",
       children: [description],
-      displayHeight: description.position.height,
-      displayWidth: description.position.width,
+      scaling: scaleFactor,
       autoZoomToFit: description.autoZoomToFit
     });
   } catch (e) {
