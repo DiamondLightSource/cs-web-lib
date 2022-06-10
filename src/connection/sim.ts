@@ -318,6 +318,25 @@ class LimitData extends SimPv {
   }
 }
 
+class FlipFlopPv extends SimPv {
+  // Switches between true and false on a loop
+  private value: DType = new DType({ doubleValue: 1 }, DAlarm.NONE, dtimeNow());
+
+  public constructor(...args: SimArgs) {
+    super(...args);
+    setInterval(this.publish.bind(this), this.updateRate);
+  }
+
+  public getValue(): DType {
+    let val = 1;
+    if (this.value.value.doubleValue === 1) {
+      val = 0;
+    }
+    this.value = new DType({ doubleValue: val });
+    return this.value;
+  }
+}
+
 class SimCache {
   private store: { [pvName: string]: SimPv | undefined };
   public constructor() {
@@ -475,6 +494,21 @@ export class SimulatorPlugin implements Connection {
       initial = undefined;
       updateRate = 100;
       cls = RampPv;
+    } else if (nameInfo.protocol.includes("sim://flipflop")) {
+      // Default rate if not configured with flipflop(X)
+      updateRate = 1000;
+      const strCmd = nameInfo.protocol;
+      if (strCmd.includes("(") && strCmd.includes(")")) {
+        const intevalSecStr = strCmd.slice(
+          strCmd.indexOf("(") + 1,
+          strCmd.lastIndexOf(")")
+        );
+        if (intevalSecStr !== "") {
+          updateRate = parseFloat(intevalSecStr) * 1000;
+        }
+      }
+      initial = undefined;
+      cls = FlipFlopPv;
     } else {
       return { simulator: undefined, initialValue: undefined };
     }

@@ -55,10 +55,16 @@ export const ImageComponent = (
     height: imageHeight
   };
 
+  // Should we be refreshing image instead of using cache
+  let imageFileName = props.imageFile;
+  if (imageFileName.includes("#")) {
+    imageFileName = imageFileName + new Date().getTime();
+  }
+
   return (
     <div style={style} onClick={onClick}>
       <img
-        src={props.imageFile}
+        src={imageFileName}
         alt={props.alt || undefined}
         style={{
           width: imageWidth,
