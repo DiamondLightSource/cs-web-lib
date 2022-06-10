@@ -495,18 +495,11 @@ export class SimulatorPlugin implements Connection {
       updateRate = 100;
       cls = RampPv;
     } else if (nameInfo.protocol.includes("sim://flipflop")) {
-      // Default rate if not configured with flipflop(X)
-      updateRate = 1000;
-      const strCmd = nameInfo.protocol;
-      if (strCmd.includes("(") && strCmd.includes(")")) {
-        const intevalSecStr = strCmd.slice(
-          strCmd.indexOf("(") + 1,
-          strCmd.lastIndexOf(")")
-        );
-        if (intevalSecStr !== "") {
-          updateRate = parseFloat(intevalSecStr) * 1000;
-        }
-      }
+      // Get the time in sec specified between ()
+      const match = nameInfo.protocol.match(/\((.*)\)/);
+      // Default interval if not defined is 1 sec
+      const intervalSecStr = match?.pop() || "1";
+      updateRate = parseFloat(intervalSecStr) * 1000;
       initial = undefined;
       cls = FlipFlopPv;
     } else {
