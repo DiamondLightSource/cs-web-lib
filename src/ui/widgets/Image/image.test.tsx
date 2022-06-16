@@ -24,6 +24,16 @@ describe("<ImageComponent />", (): void => {
       expect(screen.getByRole("img")).toHaveAttribute("src", "test.jpg");
     });
 
+    test("timestamp is added to source", (): void => {
+      render(<ImageComponent imageFile="test.jpg#" />);
+      // Cannot get the exact timestamp added to the src so just check that
+      // all but the last digits are present in the new src attribute.
+      const timestamp = new Date().getTime().toString().slice(0, -2);
+      expect(screen.getByRole("img").getAttribute("src")).toContain(
+        "test.jpg#" + timestamp
+      );
+    });
+
     test("flips and rotations are applied", (): void => {
       const imageProps = {
         imageFile: "test.svg",
