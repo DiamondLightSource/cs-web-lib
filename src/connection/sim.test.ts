@@ -119,6 +119,43 @@ it("test random values ", (): void => {
   simulator.subscribe("sim://random");
 });
 
+test("test initial flipflop value", (done): void => {
+  getValue("sim://flipflop(10)", (value: DType): void => {
+    expect(value.getDoubleValue()).toBe(0);
+    done();
+  });
+  simulator.subscribe("sim://flipflop(10)");
+});
+
+it("test flipflop default update rate", (done): void => {
+  const values = [];
+  simulator = new SimulatorPlugin();
+  // Flipflop PV with no arguements updates every 1s by default;
+  // expect two updates after 2s.
+  setTimeout((): void => {
+    expect(values.length).toEqual(2);
+    done();
+  }, 2000);
+  getValue("sim://flipflop()", (value: DType): void => {
+    values.push(value);
+  });
+  simulator.subscribe("sim://flipflop()");
+});
+
+it("test flipflop specified update rate", (done): void => {
+  const values = [];
+  simulator = new SimulatorPlugin();
+  // Flipflop PV set to update every 100ms; expect 3 updates after 300ms.
+  setTimeout((): void => {
+    expect(values.length).toEqual(3);
+    done();
+  }, 300);
+  getValue("sim://flipflop(0.1)", (value: DType): void => {
+    values.push(value);
+  });
+  simulator.subscribe("sim://flipflop(0.1)");
+});
+
 it("test illegal names", (): void => {
   expect(simulator.getValue("sim://sineillegalname")).toBe(undefined);
 });
