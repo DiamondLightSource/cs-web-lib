@@ -66,6 +66,7 @@ describe("ConiqlPlugin", (): void => {
     ApolloClient.prototype.subscribe = jest.fn(
       (_): MockObservable => new MockObservable({ float: 42 })
     ) as jest.Mock;
+    Object.defineProperty(cp, "websocketClientConnected", { get: () => true });
     cp.subscribe("hello", { string: true });
     expect(ApolloClient.prototype.subscribe).toHaveBeenCalled();
     expect(mockValUpdate).toHaveBeenCalledWith(
@@ -87,6 +88,7 @@ describe("ConiqlPlugin", (): void => {
           }
         )
     ) as jest.Mock;
+    Object.defineProperty(cp, "websocketClientConnected", { get: () => true });
     cp.subscribe("hello", { string: true });
     expect(ApolloClient.prototype.subscribe).toHaveBeenCalled();
     expect(mockValUpdate).toHaveBeenCalledWith(
@@ -110,6 +112,7 @@ describe("ConiqlPlugin", (): void => {
           }
         })
     ) as jest.Mock;
+    Object.defineProperty(cp, "websocketClientConnected", { get: () => true });
     cp.subscribe("hello", { string: true });
     expect(ApolloClient.prototype.subscribe).toHaveBeenCalled();
     const calls = mockValUpdate.mock.calls;
@@ -117,6 +120,18 @@ describe("ConiqlPlugin", (): void => {
     const [pv, value] = mockValUpdate.mock.calls[0];
     expect(pv).toBe("hello");
     expect(value.time?.datetime?.getFullYear()).toBe(2017);
+  });
+
+  it("only subscribe when websocket connected", (): void => {
+    ApolloClient.prototype.subscribe = jest.fn(
+      (_): MockObservable => new MockObservable({ float: 42 })
+    ) as jest.Mock;
+    Object.defineProperty(cp, "websocketClientConnected", { get: () => false });
+    cp.subscribe("hello", { string: true });
+    expect(ApolloClient.prototype.subscribe).toBeCalledTimes(0);
+    Object.defineProperty(cp, "websocketClientConnected", { get: () => true });
+    cp.subscribe("hello", { string: true });
+    expect(ApolloClient.prototype.subscribe).toBeCalledTimes(1);
   });
 
   it("queries with device query", (): void => {

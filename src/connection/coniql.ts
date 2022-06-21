@@ -274,6 +274,7 @@ export class ConiqlPlugin implements Connection {
   private wsClient: SubscriptionClient;
   private disconnected: string[] = [];
   private subscriptions: { [pvName: string]: ObservableSubscription };
+  private websocketClientConnected: boolean;
 
   public constructor(socket: string, ssl: boolean) {
     if (ssl) {
@@ -297,8 +298,13 @@ export class ConiqlPlugin implements Connection {
         reconnect: true
       }
     );
+    this.wsClient.onConnecting((): void => {
+      log.info("Websocket client connected.");
+      this.websocketClientConnected = true;
+    });
     this.wsClient.onReconnecting((): void => {
       log.info("Websocket client reconnected.");
+      this.websocketClientConnected = true;
       for (const pvName of this.disconnected) {
         this.subscribe(pvName);
       }
@@ -306,6 +312,7 @@ export class ConiqlPlugin implements Connection {
     });
     this.wsClient.onDisconnected((): void => {
       log.error("Websocket client disconnected.");
+      this.websocketClientConnected = false;
       for (const pvName of Object.keys(this.subscriptions)) {
         if (
           this.subscriptions.hasOwnProperty(pvName) &&
@@ -322,6 +329,8 @@ export class ConiqlPlugin implements Connection {
           isReadonly: true
         });
       }
+      this.wsClient.unsubscribeAll();
+      this.wsClient.close();
     });
     const link = this.createLink(socket);
     this.client = new ApolloClient({ link, cache });
@@ -330,6 +339,7 @@ export class ConiqlPlugin implements Connection {
     this.deviceQueried = nullDeviceCallback;
     this.connected = false;
     this.subscriptions = {};
+    this.websocketClientConnected = false;
   }
 
   private createLink(socket: string): ApolloLink {
@@ -426,8 +436,12 @@ export class ConiqlPlugin implements Connection {
 
   public subscribe(pvName: string, type?: SubscriptionType): string {
     // TODO: How to handle multiple subscriptions of different types to the same channel?
-    if (this.subscriptions[pvName] === undefined) {
-      this.subscriptions[pvName] = this._subscribe(pvName);
+    if (this.websocketClientConnected) {
+      if (this.subscriptions[pvName] === undefined) {
+        this.subscriptions[pvName] = this._subscribe(pvName);
+      }
+    } else {
+      this.disconnected.push(pvName);
     }
     return pvName;
   }
