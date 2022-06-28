@@ -4,6 +4,7 @@
 import log from "loglevel";
 import base64js from "base64-js";
 import { ApolloClient, ApolloLink, from } from "@apollo/client";
+import { RetryLink } from "apollo-link-retry";
 import { HttpLink } from "@apollo/client/link/http";
 import { WebSocketLink } from "@apollo/client/link/ws";
 import { onError } from "@apollo/client/link/error";
@@ -23,7 +24,10 @@ import {
   DeviceQueriedCallback,
   nullDeviceCallback
 } from "./plugin";
-import { SubscriptionClient } from "subscriptions-transport-ws";
+import {
+  OperationOptions,
+  SubscriptionClient
+} from "subscriptions-transport-ws";
 import {
   DType,
   DTime,
@@ -274,7 +278,6 @@ export class ConiqlPlugin implements Connection {
   private wsClient: SubscriptionClient;
   private disconnected: string[] = [];
   private subscriptions: { [pvName: string]: ObservableSubscription };
-  private websocketClientConnected: boolean;
 
   public constructor(socket: string, ssl: boolean) {
     if (ssl) {
@@ -292,19 +295,26 @@ export class ConiqlPlugin implements Connection {
         ]
       }
     });
+    let acknowledgementReceived = false;
     this.wsClient = new SubscriptionClient(
       `${this.wsProtocol}://${socket}/ws`,
       {
-        reconnect: true
+        reconnect: true,
+        connectionCallback: (error, result) => (acknowledgementReceived = true)
       }
     );
-    this.wsClient.onConnecting((): void => {
-      log.info("Websocket client connected.");
-      this.websocketClientConnected = true;
-    });
+    this.wsClient.use([
+      {
+        applyMiddleware(options: OperationOptions, next: any) {
+          if (!acknowledgementReceived) {
+            throw new Error("Acknowledgement not received from server.");
+          }
+          next();
+        }
+      }
+    ]);
     this.wsClient.onReconnecting((): void => {
       log.info("Websocket client reconnected.");
-      this.websocketClientConnected = true;
       for (const pvName of this.disconnected) {
         this.subscribe(pvName);
       }
@@ -312,7 +322,7 @@ export class ConiqlPlugin implements Connection {
     });
     this.wsClient.onDisconnected((): void => {
       log.error("Websocket client disconnected.");
-      this.websocketClientConnected = false;
+      acknowledgementReceived = false;
       for (const pvName of Object.keys(this.subscriptions)) {
         if (
           this.subscriptions.hasOwnProperty(pvName) &&
@@ -339,7 +349,6 @@ export class ConiqlPlugin implements Connection {
     this.deviceQueried = nullDeviceCallback;
     this.connected = false;
     this.subscriptions = {};
-    this.websocketClientConnected = false;
   }
 
   private createLink(socket: string): ApolloLink {
@@ -359,6 +368,19 @@ export class ConiqlPlugin implements Connection {
     const httpLink = new HttpLink({
       uri: `${this.httpProtocol}://${socket}/graphql`
     });
+    const retryLink = new RetryLink({
+      delay: {
+        initial: 300,
+        max: 60000,
+        jitter: true
+      },
+      attempts: (count, operation, e) => {
+        if (e && e.response && e.response.status === 401) {
+          return false;
+        }
+        return count < 30;
+      }
+    });
     const link: ApolloLink = ApolloLink.split(
       ({ query }): boolean => {
         // https://github.com/apollographql/apollo-client/issues/3090
@@ -368,8 +390,8 @@ export class ConiqlPlugin implements Connection {
           definition.operation === "subscription"
         );
       },
-      from([errorLink, wsLink]),
-      from([errorLink, httpLink])
+      from([retryLink as any, errorLink, wsLink]),
+      from([retryLink as any, errorLink, httpLink])
     );
 
     return link;
@@ -436,12 +458,8 @@ export class ConiqlPlugin implements Connection {
 
   public subscribe(pvName: string, type?: SubscriptionType): string {
     // TODO: How to handle multiple subscriptions of different types to the same channel?
-    if (this.websocketClientConnected) {
-      if (this.subscriptions[pvName] === undefined) {
-        this.subscriptions[pvName] = this._subscribe(pvName);
-      }
-    } else {
-      this.disconnected.push(pvName);
+    if (this.subscriptions[pvName] === undefined) {
+      this.subscriptions[pvName] = this._subscribe(pvName);
     }
     return pvName;
   }
