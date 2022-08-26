@@ -4,6 +4,7 @@
 import log from "loglevel";
 import base64js from "base64-js";
 import { ApolloClient, ApolloLink, from } from "@apollo/client";
+import { RetryLink } from "apollo-link-retry";
 import { HttpLink } from "@apollo/client/link/http";
 import { WebSocketLink } from "@apollo/client/link/ws";
 import { onError } from "@apollo/client/link/error";
@@ -23,7 +24,10 @@ import {
   DeviceQueriedCallback,
   nullDeviceCallback
 } from "./plugin";
-import { SubscriptionClient } from "subscriptions-transport-ws";
+import {
+  OperationOptions,
+  SubscriptionClient
+} from "subscriptions-transport-ws";
 import {
   DType,
   DTime,
@@ -291,12 +295,24 @@ export class ConiqlPlugin implements Connection {
         ]
       }
     });
+    let acknowledgementReceived = false;
     this.wsClient = new SubscriptionClient(
       `${this.wsProtocol}://${socket}/ws`,
       {
-        reconnect: true
+        reconnect: true,
+        connectionCallback: (error, result) => (acknowledgementReceived = true)
       }
     );
+    this.wsClient.use([
+      {
+        applyMiddleware(options: OperationOptions, next: any) {
+          if (!acknowledgementReceived) {
+            throw new Error("Acknowledgement not received from server.");
+          }
+          next();
+        }
+      }
+    ]);
     this.wsClient.onReconnecting((): void => {
       log.info("Websocket client reconnected.");
       for (const pvName of this.disconnected) {
@@ -306,6 +322,7 @@ export class ConiqlPlugin implements Connection {
     });
     this.wsClient.onDisconnected((): void => {
       log.error("Websocket client disconnected.");
+      acknowledgementReceived = false;
       for (const pvName of Object.keys(this.subscriptions)) {
         if (
           this.subscriptions.hasOwnProperty(pvName) &&
@@ -322,6 +339,8 @@ export class ConiqlPlugin implements Connection {
           isReadonly: true
         });
       }
+      this.wsClient.unsubscribeAll();
+      this.wsClient.close();
     });
     const link = this.createLink(socket);
     this.client = new ApolloClient({ link, cache });
@@ -349,6 +368,19 @@ export class ConiqlPlugin implements Connection {
     const httpLink = new HttpLink({
       uri: `${this.httpProtocol}://${socket}/graphql`
     });
+    const retryLink = new RetryLink({
+      delay: {
+        initial: 300,
+        max: 60000,
+        jitter: true
+      },
+      attempts: (count, operation, e) => {
+        if (e && e.response && e.response.status === 401) {
+          return false;
+        }
+        return count < 30;
+      }
+    });
     const link: ApolloLink = ApolloLink.split(
       ({ query }): boolean => {
         // https://github.com/apollographql/apollo-client/issues/3090
@@ -358,8 +390,8 @@ export class ConiqlPlugin implements Connection {
           definition.operation === "subscription"
         );
       },
-      from([errorLink, wsLink]),
-      from([errorLink, httpLink])
+      from([retryLink as any, errorLink, wsLink]),
+      from([retryLink as any, errorLink, httpLink])
     );
 
     return link;
