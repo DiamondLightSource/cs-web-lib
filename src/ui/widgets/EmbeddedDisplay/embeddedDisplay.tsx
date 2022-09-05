@@ -71,7 +71,9 @@ export const EmbeddedDisplay = (
       const minScaleFactor = Math.min(scaleWidthVal, scaleHeightVal);
       scaleFactor = String(minScaleFactor);
       // Scale the flexcontainer height to fill window
-      props.position.height = String(window.innerHeight) + "px";
+      if (window.innerHeight > Number(heightStrStripPx)) {
+        props.position.height = String(window.innerHeight) + "px";
+      }
     }
   }
   let component: JSX.Element;
