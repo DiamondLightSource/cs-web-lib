@@ -330,7 +330,8 @@ describe("Create axis options object", (): void => {
         dashGridLine: false,
         axisColor: new Color("rgb(255, 255, 255"),
         minimum: 1,
-        maximum: 10
+        maximum: 10,
+        scaleFormat: "0.0"
       }
     ];
     const font = new Font(10, FontStyle.Regular, "sans");
@@ -349,7 +350,8 @@ describe("Create axis options object", (): void => {
         showline: true,
         tickcolor: "rgb(255, 255, 255",
         visible: true,
-        zeroline: false
+        zeroline: false,
+        tickformat: "0.0"
       }
     ]);
   });
@@ -364,7 +366,8 @@ describe("Create axis options object", (): void => {
         dashGridLine: false,
         axisColor: new Color("rgb(255, 255, 255"),
         minimum: 1,
-        maximum: 10
+        maximum: 10,
+        scaleFormat: "0.00"
       }
     ];
     const font = new Font(10, FontStyle.Regular, "sans");
@@ -382,6 +385,7 @@ describe("Create axis options object", (): void => {
         showgrid: true,
         showline: true,
         tickcolor: "rgb(255, 255, 255",
+        tickformat: "0.00",
         title: {
           standoff: 0,
           text: "Test Plot"
@@ -398,21 +402,26 @@ describe("Create axis options object", (): void => {
 
   test("Shift axis if additional y axis", (): void => {
     const axis = {
-      index: 0,
+      index: 1,
       axisTitle: "Test Plot",
       visible: true,
       showGrid: true,
       dashGridLine: false,
       axisColor: new Color("rgb(255, 255, 255"),
       minimum: 1,
-      maximum: 10
+      maximum: 10,
+      leftBottomSide: true,
+      yAxis: false,
+      scaleFormat: ""
     };
     const axis1 = { ...axis };
     axis1.index = 1;
     axis1.minimum = -5;
+    axis1.yAxis = true;
     const axis2 = { ...axis };
     axis2.index = 2;
     axis2.maximum = 50;
+    axis2.yAxis = true;
     const axes: Axis[] = [axis, axis1, axis2];
     const font = new Font(10, FontStyle.Regular, "sans");
     const axisOptions = createAxes(axes, font.css());
@@ -433,6 +442,63 @@ describe("Create axis options object", (): void => {
       showline: true,
       side: "left",
       tickcolor: "rgb(255, 255, 255",
+      tickformat: "",
+      title: {
+        standoff: 0,
+        text: "Test Plot"
+      },
+      titlefont: {
+        family: "sans,sans-serif",
+        size: "1rem"
+      },
+      visible: true,
+      zeroline: false
+    });
+  });
+
+  test("Don't shift axis if additional x axis on opposite side", (): void => {
+    const axis = {
+      index: 0,
+      axisTitle: "Test Plot",
+      visible: true,
+      showGrid: true,
+      dashGridLine: false,
+      axisColor: new Color("rgb(255, 255, 255"),
+      minimum: 1,
+      maximum: 10,
+      yAxis: false,
+      leftBottomSide: true,
+      scaleFormat: ""
+    };
+    const axis1 = { ...axis };
+    axis1.index = 1;
+    axis1.minimum = -5;
+    axis1.yAxis = true;
+    const axis2 = { ...axis };
+    axis2.index = 2;
+    axis2.leftBottomSide = false;
+    axis2.maximum = 50;
+    const axes: Axis[] = [axis, axis1, axis2];
+    const font = new Font(10, FontStyle.Regular, "sans");
+    const axisOptions = createAxes(axes, font.css());
+
+    // Check that third axis has shifted
+    expect(axisOptions[2]).toEqual({
+      anchor: "free",
+      automargin: true,
+      autorange: false,
+      gridcolor: "rgb(255, 255, 255",
+      griddash: false,
+      gridwidth: 0.5,
+      minor: { ticks: "outside" },
+      overlaying: "x",
+      position: 0,
+      range: [1, 50],
+      showgrid: true,
+      showline: true,
+      side: "right",
+      tickcolor: "rgb(255, 255, 255",
+      tickformat: "",
       title: {
         standoff: 0,
         text: "Test Plot"

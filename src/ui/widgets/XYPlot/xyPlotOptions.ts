@@ -151,7 +151,8 @@ export function createAxes(
       automargin: true,
       minor: {
         ticks: "outside"
-      }
+      },
+      tickformat: axis.scaleFormat
     };
     // Only add title labels if they exist
     if (axis.axisTitle !== "") {
@@ -167,13 +168,17 @@ export function createAxes(
     _newAxis.range = [axis.minimum, axis.maximum];
     _newAxis.autorange = false;
 
-    // Only shift to add space for 2nd y-axis if it is visible
-    if (idx > 1 && axis.visible) {
-      _newAxis.side = "left";
-      _newAxis.overlaying = "y";
+    if (axis.logScale) _newAxis.type = "log";
+
+    // More than 2 axes, determine position and location of axes
+    if (idx > 1) {
+      _newAxis.side = axis.leftBottomSide ? "left" : "right";
+      _newAxis.overlaying = axis.yAxis ? "y" : "x";
       _newAxis.position = 0;
       _newAxis.anchor = "free";
-      formattedAxes[0].domain = [0.08 * (axesList.length - 1), 1];
+      // Only shift to add space for 2nd y-axis if it is overlapping and visible
+      if (axis.visible)
+        formattedAxes[0].domain = [0.08 * (axesList.length - 1), 1];
     }
     formattedAxes.push(_newAxis);
     idx += 1;
