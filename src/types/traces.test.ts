@@ -84,31 +84,25 @@ describe("Traces", () => {
 
 describe("Trace", () => {
   it("construct the trace with values", (): void => {
-    type TempClass = {
-      [key: string]: any;
-    };
-    const baseObj: TempClass = {};
-    baseObj.name = "trace 4";
-    baseObj.plotMode = 2;
-    baseObj.lineWidth = 5;
-    baseObj.traceType = 1;
-    baseObj.traceColor = new Color("rgb(255, 254, 253");
-    baseObj.updateDelay = 50;
-    baseObj.updateMode = 3;
-    baseObj.pointStyle = 5;
-    baseObj.pointSize = 3;
-    baseObj.concatenateData = false;
-    baseObj.bufferSize = 1000;
-    baseObj.visible = true;
-    baseObj.xPv = "xPvTest";
-    baseObj.xPvValue = 5;
-    baseObj.xAxisIndex = 0;
-    baseObj.yPv = "yPvTest";
-    baseObj.yPvValue = 4;
-    baseObj.yAxisIndex = 1;
-
-    // Construct trace from base object
-    const trace = Object.assign(new Trace(0), baseObj);
+    const trace = new Trace(0);
+    trace.name = "trace 4";
+    trace.plotMode = 2;
+    trace.lineWidth = 5;
+    trace.traceType = 1;
+    trace.traceColor = new Color("rgb(255, 254, 253");
+    trace.updateDelay = 50;
+    trace.updateMode = 3;
+    trace.pointStyle = 5;
+    trace.pointSize = 3;
+    trace.concatenateData = false;
+    trace.bufferSize = 1000;
+    trace.visible = true;
+    trace.xPv = "xPvTest";
+    trace.xPvValue = 5;
+    trace.xAxisIndex = 0;
+    trace.yPv = "yPvTest";
+    trace.yPvValue = 4;
+    trace.yAxisIndex = 1;
 
     expect(trace).toEqual({
       index: 0,
@@ -135,12 +129,7 @@ describe("Trace", () => {
   });
 
   it("construct the trace with only defaults", (): void => {
-    type TempClass = {
-      [key: string]: any;
-    };
-    const baseObj: TempClass = {};
-    // Construct trace from base object
-    const trace = Object.assign(new Trace(0), baseObj);
+    const trace = new Trace(0);
 
     expect(trace).toEqual({
       index: 0,

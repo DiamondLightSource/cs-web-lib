@@ -474,8 +474,7 @@ function opiParseTraces(props: any): Traces {
   const traces: Trace[] = [];
   // Parse all of the 'trace' properties
   for (let i = 0; i < count; i++) {
-    const _obj = parseMultipleNamedProps("trace", props, i);
-    const trace = Object.assign(new Trace(i), _obj);
+    const trace = parseMultipleNamedProps("trace", props, new Trace(i));
     traces.push(trace);
   }
   return new Traces(count, pvName, traces);
@@ -492,8 +491,7 @@ function opiParseAxes(props: any): Axes {
   const axes: Axis[] = [];
   // Parse all of the 'axis' properties
   for (let i = 0; i < count; i++) {
-    const _obj = parseMultipleNamedProps("axis", props, i);
-    const axis = Object.assign(new Axis(i), _obj);
+    const axis = parseMultipleNamedProps("axis", props, new Axis(i));
     axes.push(axis);
   }
   return new Axes(count, axes);
@@ -528,7 +526,7 @@ function snakeCaseToCamelCase(propName: string) {
  * @param idx number to search for in prop names
  * @returns object containing parsed props
  */
-function parseMultipleNamedProps(name: string, props: any, idx: number) {
+function parseMultipleNamedProps(name: string, props: any, obj: any) {
   // TO DO - this feels clunky, better way to do it?
   const COLOR_PROPS = ["traceColor", "axisColor", "gridColor"];
   const FONT_PROPS = ["scaleFont", "titleFont"];
@@ -570,9 +568,9 @@ function parseMultipleNamedProps(name: string, props: any, idx: number) {
   type TempClass = {
     [key: string]: string | boolean | number | Color | Font;
   };
-  const _obj: TempClass = {};
+  const parsedProps: TempClass = {};
   // Create keyword string and search for matches
-  const num = `${name}_${idx}_`;
+  const num = `${name}_${obj.index}_`;
   const names = Object.getOwnPropertyNames(props);
   const newProps = names.filter(s => s.includes(num));
   newProps.forEach(item => {
@@ -581,22 +579,23 @@ function parseMultipleNamedProps(name: string, props: any, idx: number) {
     try {
       if (newName) {
         if (BOOL_PROPS.includes(newName)) {
-          _obj[newName] = opiParseBoolean(props[item]);
+          parsedProps[newName] = opiParseBoolean(props[item]);
         } else if (NUM_PROPS.includes(newName)) {
-          _obj[newName] = opiParseNumber(props[item]);
+          parsedProps[newName] = opiParseNumber(props[item]);
         } else if (COLOR_PROPS.includes(newName)) {
-          _obj[newName] = opiParseColor(props[item]);
+          parsedProps[newName] = opiParseColor(props[item]);
         } else if (STRING_PROPS.includes(newName)) {
-          _obj[newName] = opiParseString(props[item]);
+          parsedProps[newName] = opiParseString(props[item]);
         } else if (FONT_PROPS.includes(newName)) {
-          _obj[newName] = opiParseFont(props[item]);
+          parsedProps[newName] = opiParseFont(props[item]);
         }
       }
     } catch {
       // do nothing
     }
   });
-  return _obj;
+  // Return instance of trace/axis with parsed props in it
+  return Object.assign(obj, parsedProps);
 }
 
 /**

@@ -54,21 +54,21 @@ export class Trace {
    * csstudio.opibuilder.xygraph.
    */
   public constructor(idx: number) {
-    this.index = idx ?? 0;
-    this.name = this.name ?? "";
-    this.plotMode = this.plotMode ?? 0;
-    this.lineWidth = this.lineWidth ?? 1;
-    this.traceType = this.traceType ?? 0;
-    this.traceColor = this.traceColor ?? TRACE_COLOR_ARRAY[this.index];
-    this.updateDelay = this.updateDelay ?? 100;
-    this.updateMode = this.updateMode ?? 0;
-    this.pointStyle = this.pointStyle ?? 0;
-    this.pointSize = this.pointSize ?? 4;
-    this.concatenateData = this.concatenateData ?? true;
-    this.bufferSize = this.bufferSize ?? 100;
-    this.visible = this.visible ?? true;
-    this.xAxisIndex = this.xAxisIndex ?? 0;
-    this.yAxisIndex = this.yAxisIndex ?? 1;
+    this.index = idx;
+    this.name = "";
+    this.plotMode = 0;
+    this.lineWidth = 1;
+    this.traceType = 0;
+    this.traceColor = TRACE_COLOR_ARRAY[this.index];
+    this.updateDelay = 100;
+    this.updateMode = 0;
+    this.pointStyle = 0;
+    this.pointSize = 4;
+    this.concatenateData = true;
+    this.bufferSize = 100;
+    this.visible = true;
+    this.xAxisIndex = 0;
+    this.yAxisIndex = 1;
   }
 }
 

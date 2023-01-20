@@ -87,30 +87,25 @@ describe("Axes", () => {
 
 describe("Axis", () => {
   it("construct the axis with values", (): void => {
-    type TempClass = {
-      [key: string]: any;
-    };
-    const baseObj: TempClass = {};
-    baseObj.autoScale = false;
-    baseObj.autoScaleThreshold = 0.7;
-    baseObj.axisColor = new Color("rgb(255, 0, 0");
-    baseObj.axisTitle = "Velocity";
-    baseObj.showGrid = true;
-    baseObj.gridColor = new Color("rgb(255, 0, 0");
-    baseObj.dashGridLine = false;
-    baseObj.timeFormat = 2;
-    baseObj.scaleFormat = "0.0";
-    baseObj.scaleFont = new Font(10, FontStyle.Bold, "Comic sans");
-    baseObj.titleFont = new Font(10, FontStyle.Bold, "Comic sans");
-    baseObj.visible = false;
-    baseObj.logScale = true;
-    baseObj.leftBottomSide = false;
-    baseObj.maximum = 40;
-    baseObj.minimum = 10;
-    baseObj.yAxis = true;
+    const axis = new Axis(1);
+    axis.autoScale = false;
+    axis.autoScaleThreshold = 0.7;
+    axis.axisColor = new Color("rgb(255, 0, 0");
+    axis.axisTitle = "Velocity";
+    axis.showGrid = true;
+    axis.gridColor = new Color("rgb(255, 0, 0");
+    axis.dashGridLine = false;
+    axis.timeFormat = 2;
+    axis.scaleFormat = "0.0";
+    axis.scaleFont = new Font(10, FontStyle.Bold, "Comic sans");
+    axis.titleFont = new Font(10, FontStyle.Bold, "Comic sans");
+    axis.visible = false;
+    axis.logScale = true;
+    axis.leftBottomSide = false;
+    axis.maximum = 40;
+    axis.minimum = 10;
+    axis.yAxis = true;
 
-    // Construct trace from base object
-    const axis = Object.assign(new Axis(1), baseObj);
     expect(axis).toEqual({
       index: 1,
       autoScale: false,
@@ -135,12 +130,7 @@ describe("Axis", () => {
   });
 
   it("construct the axis with only defaults", (): void => {
-    type TempClass = {
-      [key: string]: any;
-    };
-    const baseObj: TempClass = {};
-    // Construct trace from base object
-    const axis = Object.assign(new Axis(0), baseObj);
+    const axis = new Axis(0);
 
     expect(axis).toEqual({
       index: 0,
@@ -158,8 +148,8 @@ describe("Axis", () => {
       visible: true,
       logScale: false,
       leftBottomSide: true,
-      maximum: 0,
-      minimum: 100,
+      maximum: 100,
+      minimum: 0,
       yAxis: false
     });
     expect(axis).toBeInstanceOf(Axis);
