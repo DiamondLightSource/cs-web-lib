@@ -39,9 +39,8 @@ export const Webcam = (props: { url: string }): JSX.Element => {
  */
 function onError() {
   const image = document.getElementById("stream") as HTMLImageElement;
-  const alt = `Connection could not be made to Webcam MJPEG stream at ${image.src}`;
+  const alt = `Connection to webcam at ${image.src} failed`;
   (document.getElementById("stream") as HTMLImageElement).alt = alt;
-  console.error(`Connection to ${image.src} failed`);
 }
 
 /**

@@ -34,7 +34,7 @@ describe("<Webcam />", (): void => {
     );
     expect(
       getByAltText(
-        "Connection could not be made to Webcam MJPEG stream at http://fake-stream.diamond.ac.uk/video.mjpg"
+        "Connection to webcam at http://fake-stream.diamond.ac.uk/video.mjpg failed"
       )
     ).toBeInTheDocument();
   });
