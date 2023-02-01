@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
 import classes from "./webcam.module.css";
+import { StringPropOpt, InferWidgetProps } from "../propTypes";
+import { WidgetPropType } from "../widgetProps";
+import { Widget } from "../widget";
+import { registerWidget } from "../register";
+
+const WebcamProps = {
+  url: StringPropOpt
+};
 
 /**
  * Creates a Webcam component for displaying MJPEG
@@ -7,10 +15,12 @@ import classes from "./webcam.module.css";
  * @param props url of webcam stream
  * @returns HTML component
  */
-export const Webcam = (props: { url: string }): JSX.Element => {
+export const WebcamComponent = (
+  props: InferWidgetProps<typeof WebcamProps>
+): JSX.Element => {
   const { width, height } = useWindowDimensions();
   // Create image tag
-  const webcamImg = (
+  return (
     <div
       style={{
         height: height,
@@ -30,7 +40,6 @@ export const Webcam = (props: { url: string }): JSX.Element => {
       />
     </div>
   );
-  return webcamImg;
 };
 
 /**
@@ -76,3 +85,14 @@ function useWindowDimensions() {
 
   return windowDimensions;
 }
+
+const WebcamWidgetProps = {
+  ...WebcamProps,
+  ...WidgetPropType
+};
+
+export const Webcam = (
+  props: InferWidgetProps<typeof WebcamWidgetProps>
+): JSX.Element => <Widget baseWidget={WebcamComponent} {...props} />;
+
+registerWidget(Webcam, WebcamWidgetProps, "webcam");
