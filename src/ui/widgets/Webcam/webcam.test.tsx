@@ -1,7 +1,7 @@
 import React from "react";
 import { contextRender } from "../../../testResources";
 import { fireEvent } from "@testing-library/react";
-import { Webcam, WebcamComponent } from "./webcam";
+import { WebcamComponent } from "./webcam";
 
 describe("<Webcam />", (): void => {
   test("it displays the alt text while loading", (): void => {
