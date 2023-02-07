@@ -95,9 +95,10 @@ export function genericParser(
       newProps[prop] = widget[prop];
     }
   }
-  // For XYPlot, pv name can be a trace value that we found and
-  // set as a property on our new trace prop, so set this here
-  // TO DO - find a better way of doing this?
+  // TO DO - a way of parsing nested macros for PVs needs to be properly implemented.
+  // Currently nested macros are not parsed, which means a PV connection cannot be made.
+  // This is a hack to get it to work for XYPlot, but this will fail for multiple PVs
+  // on a single widget, and is not an ideal way of implementing.
   if (newProps.hasOwnProperty("traces")) {
     newProps.pvName.name = newProps.traces.pvName;
   }

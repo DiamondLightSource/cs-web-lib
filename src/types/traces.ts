@@ -14,15 +14,7 @@ const TRACE_COLOR_ARRAY: { [key: number]: Color } = {
   8: new Color("rgb(0, 255, 11)"), // neon green
   9: new Color("rgb(0, 214, 255)"), // neon blue
   10: new Color("rgb(114, 40, 3)"), // brown
-  11: new Color("rgb(219, 128, 4)"), // orange
-  12: new Color("rgb(21, 21, 196)"), // Repeat colours until 20
-  13: new Color("rgb(242, 26, 26)"),
-  14: new Color("rgb(33, 179, 33)"),
-  15: new Color("rgb(0, 0, 0)"),
-  16: new Color("rgb(128, 0, 255)"),
-  17: new Color("rgb(255, 170, 0)"),
-  18: new Color("rgb(255, 0, 240)"),
-  19: new Color("rgb(243, 132, 132)")
+  11: new Color("rgb(219, 128, 4)") // orange
 };
 
 export class Trace {
@@ -59,7 +51,9 @@ export class Trace {
     this.plotMode = 0;
     this.lineWidth = 1;
     this.traceType = 0;
-    this.traceColor = TRACE_COLOR_ARRAY[this.index];
+    // Repeat colours if enough traces
+    if (idx > 11) idx = idx - 11;
+    this.traceColor = TRACE_COLOR_ARRAY[idx];
     this.updateDelay = 100;
     this.updateMode = 0;
     this.pointStyle = 0;
@@ -81,6 +75,11 @@ export class Traces {
     if (count !== traces.length) {
       throw new Error(
         `Count ${count} is not equal to number of traces ${traces.length}`
+      );
+    }
+    if (count > 20) {
+      throw new Error(
+        `Number of traces ${count} is greater than maximum number 20.`
       );
     }
     this.count = count;

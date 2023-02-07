@@ -59,6 +59,11 @@ export class Axes {
         `Count ${count} is not equal to number of axes ${axes.length}`
       );
     }
+    if (count > 4) {
+      throw new Error(
+        `Number of axes ${count} is greater than maximum number 4.`
+      );
+    }
     this.count = count;
     this.axisOptions = axes;
   }

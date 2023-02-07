@@ -31,6 +31,7 @@ import {
   OPEN_TAB,
   EXIT
 } from "../widgetActions";
+import { snakeCaseToCamelCase } from "../utils";
 
 export interface XmlDescription {
   _attributes: { [key: string]: string };
@@ -498,26 +499,6 @@ function opiParseAxes(props: any): Axes {
 }
 
 /**
- * Converts property name from snake case to camel
- * case. This is needed to dynamically sort through
- * all of each traces properties, although it's a
- * bit messy and clunky.
- * @param propName string to convert
- * @returns newly formatted string
- */
-function snakeCaseToCamelCase(propName: string) {
-  // Split string by underscore
-  const propStringArray = propName.split("_").slice(2);
-  // Remove first element, this shouldn't be uppercase
-  let newName = propStringArray.shift();
-  // Loop over and capitalise first character of each string
-  propStringArray.forEach((word: string) => {
-    newName += word.charAt(0).toUpperCase() + word.slice(1);
-  });
-  return newName;
-}
-
-/**
  * Iterate over and parse props that have
  * format {name}_{number}_{actual prop name}. Returns
  * an array of these props.
@@ -527,48 +508,6 @@ function snakeCaseToCamelCase(propName: string) {
  * @returns object containing parsed props
  */
 function parseMultipleNamedProps(name: string, props: any, obj: any) {
-  // TO DO - this feels clunky, better way to do it?
-  const COLOR_PROPS = ["traceColor", "axisColor", "gridColor"];
-  const FONT_PROPS = ["scaleFont", "titleFont"];
-  const STRING_PROPS = [
-    "name",
-    "xPv",
-    "yPv",
-    "axisTitle",
-    "timeFormat",
-    "scaleFormat"
-  ];
-  const BOOL_PROPS = [
-    "concatenateData",
-    "visible",
-    "autoScale",
-    "showGrid",
-    "dashGridLine",
-    "logScale",
-    "leftBottomSide",
-    "yAxis"
-  ];
-  const NUM_PROPS = [
-    "updateDelay",
-    "updateMode",
-    "bufferSize",
-    "plotMode",
-    "lineWidth",
-    "pointSize",
-    "pointStyle",
-    "traceType",
-    "xPvValue",
-    "yPvValue",
-    "xAxisIndex",
-    "yAxisIndex",
-    "maximum",
-    "minimum"
-  ];
-  // Need to specify this so we can assign values
-  type TempClass = {
-    [key: string]: string | boolean | number | Color | Font;
-  };
-  const parsedProps: TempClass = {};
   // Create keyword string and search for matches
   const num = `${name}_${obj.index}_`;
   const names = Object.getOwnPropertyNames(props);
@@ -578,16 +517,18 @@ function parseMultipleNamedProps(name: string, props: any, obj: any) {
     const newName = snakeCaseToCamelCase(item);
     try {
       if (newName) {
-        if (BOOL_PROPS.includes(newName)) {
-          parsedProps[newName] = opiParseBoolean(props[item]);
-        } else if (NUM_PROPS.includes(newName)) {
-          parsedProps[newName] = opiParseNumber(props[item]);
-        } else if (COLOR_PROPS.includes(newName)) {
-          parsedProps[newName] = opiParseColor(props[item]);
-        } else if (STRING_PROPS.includes(newName)) {
-          parsedProps[newName] = opiParseString(props[item]);
-        } else if (FONT_PROPS.includes(newName)) {
-          parsedProps[newName] = opiParseFont(props[item]);
+        // Get the type of the property
+        const match = obj[newName];
+        if (typeof match === "boolean") {
+          obj[newName] = opiParseBoolean(props[item]);
+        } else if (typeof match === "number") {
+          obj[newName] = opiParseNumber(props[item]);
+        } else if (typeof match === "string") {
+          obj[newName] = opiParseString(props[item]);
+        } else if (match instanceof Color) {
+          obj[newName] = opiParseColor(props[item]);
+        } else if (match instanceof Font) {
+          obj[newName] = opiParseFont(props[item]);
         }
       }
     } catch {
@@ -595,7 +536,7 @@ function parseMultipleNamedProps(name: string, props: any, obj: any) {
     }
   });
   // Return instance of trace/axis with parsed props in it
-  return Object.assign(obj, parsedProps);
+  return obj;
 }
 
 /**

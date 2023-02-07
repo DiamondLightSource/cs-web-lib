@@ -23,6 +23,7 @@ import {
 import { GroupBoxComponent } from "../GroupBox/groupBox";
 import { useOpiFile } from "./useOpiFile";
 import { useId } from "react-id-generator";
+import { trimFromString } from "../utils";
 
 const EmbeddedDisplayProps = {
   ...WidgetPropType,
@@ -53,27 +54,25 @@ export const EmbeddedDisplay = (
 
   let scaleFactor = "1";
   if (description.autoZoomToFit) {
-    const heightString =
+    let heightString =
       typeof description.position.height === "undefined"
         ? "10"
         : description.position.height;
-    const widthString =
+    let widthString =
       typeof description.position.width === "undefined"
         ? "10"
         : description.position.width;
-    // Height and width property will take form "<num>px"
-    if (heightString.includes("px") && widthString.includes("px")) {
-      // Use the window size and display size to scale
-      const heightStrStripPx = heightString.slice(0, -2);
-      const scaleHeightVal = window.innerHeight / Number(heightStrStripPx);
-      const widthStrStripPx = widthString.slice(0, -2);
-      const scaleWidthVal = window.innerWidth / Number(widthStrStripPx);
-      const minScaleFactor = Math.min(scaleWidthVal, scaleHeightVal);
-      scaleFactor = String(minScaleFactor);
-      // Scale the flexcontainer height to fill window
-      if (window.innerHeight > Number(heightStrStripPx)) {
-        props.position.height = String(window.innerHeight) + "px";
-      }
+    // Height and width property will take form "<num>px" so trim
+    heightString = trimFromString(heightString);
+    widthString = trimFromString(widthString);
+    // Use the window size and display size to scale
+    const scaleHeightVal = window.innerHeight / heightString;
+    const scaleWidthVal = window.innerWidth / widthString;
+    const minScaleFactor = Math.min(scaleWidthVal, scaleHeightVal);
+    scaleFactor = String(minScaleFactor);
+    // Scale the flexcontainer height to fill window
+    if (window.innerHeight > heightString) {
+      props.position.height = String(window.innerHeight) + "px";
     }
   }
   let component: JSX.Element;
