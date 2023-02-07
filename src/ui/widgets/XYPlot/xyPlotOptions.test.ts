@@ -3,12 +3,8 @@ import { Color } from "../../../types/color";
 import { DType } from "../../../types/dtypes";
 import { Font, FontStyle } from "../../../types/font";
 import { Traces } from "../../../types/traces";
-import {
-  calculateAxisLimits,
-  createAxes,
-  createTraces,
-  roundValue
-} from "./xyPlotOptions";
+import { roundValue } from "../utils";
+import { calculateAxisLimits, createAxes, createTraces } from "./xyPlotOptions";
 
 const DATA = [0, 3, 4, 8];
 const ARRAY_DATA = new DType({

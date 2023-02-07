@@ -20,6 +20,7 @@ import {
   NewAxisSettings
 } from "./xyPlotOptions";
 import { Color } from "../../../types/color";
+import { trimFromString } from "../utils";
 
 export const XYPlotProps = {
   height: FloatPropOpt,
@@ -69,11 +70,9 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
       style = { border: "1px solid black", padding: "1px" };
     }
     const font = titleFont?.css();
-    // Sometimes font is a string with "px" on the end....
-    if (typeof font?.fontSize === "string") {
-      // Convert string to number
-      font.fontSize = parseFloat(font.fontSize.slice(0, -3)) * 10;
-    }
+    // Sometimes font is a string with "px" on the end
+    if (typeof font.fontSize === "string")
+      font.fontSize = trimFromString(font.fontSize);
 
     const newAxisOptions = createAxes(axes.axisOptions, font);
     newAxisOptions.forEach((newAxis: NewAxisSettings, index: number) => {
@@ -114,7 +113,22 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
       </div>
     );
   }
-  return <></>;
+  // If doesn't pass checks above, render empty box with msg
+  return (
+    <div
+      style={{
+        width: `${width}px`,
+        height: `${height}px`,
+        fontSize: "14px",
+        fontWeight: "bold",
+        border: "2px solid red",
+        padding: "1px"
+      }}
+    >
+      XYPlot could not be displayed. Please check the .opi file and connection
+      to PV {traces?.pvName}.
+    </div>
+  );
 };
 
 const XYPlotWidgetProps = {

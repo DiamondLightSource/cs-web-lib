@@ -3,6 +3,7 @@ import { PlotData } from "plotly.js";
 import { Traces } from "../../../types/traces";
 import type { DType } from "../../../types/dtypes";
 import React from "react";
+import { roundValue } from "../utils";
 
 export type NewAxisSettings = {
   [key: string]: any;
@@ -82,23 +83,17 @@ export function createTraces(
     }
 
     // Set up actual data
-    let tmpX: number[] = [];
     let tmpY: number[] = [];
-    let concatIdx = 0; // This number ensures x index vals aligned
     // TO DO - figure out a way to access previous data values
     // Currently this does NOT work
     if (options.concatenateData && data.y) {
       // If concatenating, keep existing data
-      data.y.forEach((val: any, ind: number) => {
-        tmpX.push(ind);
+      data.y.forEach((val: any) => {
         tmpY.push(val);
       });
-      // Make sure new data has indexes above length
-      concatIdx = tmpX.length;
     }
     // Add new data values
-    arrayValue.forEach((val: any, ind: number) => {
-      tmpX.push(ind + concatIdx);
+    arrayValue.forEach((val: any) => {
       tmpY.push(val);
     });
 
@@ -110,14 +105,12 @@ export function createTraces(
     if (numPoints < tmpY.length && !options.plotMode) {
       // Use the last n points
       tmpY = tmpY.slice(-numPoints);
-      tmpX = tmpX.slice(-numPoints);
     } else if (numPoints < tmpY.length) {
       // Use the first n points
       tmpY = tmpY.slice(0, numPoints);
-      tmpX = tmpX.slice(0, numPoints);
     }
 
-    data.x = tmpX;
+    data.x = Array.from(Array(tmpY.length).keys());
     data.y = tmpY;
     dataSet.push(data);
   });
@@ -209,13 +202,18 @@ export function calculateAxisLimits(
   // Determine if we are using x or y data
   let dataType = "x";
   if (oldAxis.index > 0 && oldAxis.yAxis) dataType = "y";
-  // Combine all data we need into an array of arrays
-  const allData = dataSet.map(val => val[dataType]);
   // Find max and minimum value from all the traces and round to 1sf
-  const actualMin = Math.min(...[].concat(...allData));
-  const actualMax = Math.max(...[].concat(...allData));
-  let min = roundValue(Math.min(actualMin), 0);
-  let max = roundValue(Math.max(actualMax), 1);
+  let actualMin = Math.min(...dataSet[0][dataType]);
+  let actualMax = Math.max(...dataSet[0][dataType]);
+
+  dataSet.forEach(arr => {
+    const nextMin = Math.min(...arr[dataType]);
+    const nextMax = Math.max(...arr[dataType]);
+    if (actualMin > nextMin) actualMin = nextMin;
+    if (actualMax < nextMax) actualMax = nextMax;
+  });
+  let min = roundValue(actualMin, 0);
+  let max = roundValue(actualMax, 1);
   // If number is within autoscale threshold, just use axis limits
   const threshold = 1 - (max - min) / (axMax - axMin);
   if (
@@ -228,32 +226,4 @@ export function calculateAxisLimits(
   }
   newAxis.range = [min, max];
   return newAxis;
-}
-
-/**
- * Round a decimal value up or down to the nearest
- * significant figure.
- * @param value decimal value to round
- * @param mag magnitude to round to
- * @param roundType 0 to round down, 1 to round up
- * @returns rounded number
- */
-export function roundValue(value: number, roundType: number): number {
-  // Can't find magnitude of 0 so skip
-  if (value === 0) return value;
-  // Need to use Math.abs to remove negative numbers
-  const mag = Math.floor(Math.log(Math.abs(value)) / Math.log(10));
-  // Round up or down depending on if it is max or min
-  if (roundType) {
-    return parseFloat(
-      (Math.ceil(value / Math.pow(10, mag)) * Math.pow(10, mag)).toPrecision(
-        Math.abs(mag) + 1
-      )
-    );
-  }
-  return parseFloat(
-    (Math.floor(value / Math.pow(10, mag)) * Math.pow(10, mag)).toPrecision(
-      Math.abs(mag) + 1
-    )
-  );
 }
