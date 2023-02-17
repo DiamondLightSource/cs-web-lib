@@ -514,7 +514,7 @@ function parseMultipleNamedProps(name: string, props: any, obj: any) {
   const newProps = names.filter(s => s.includes(num));
   newProps.forEach(item => {
     // For each match, convert the name and parse
-    const newName = snakeCaseToCamelCase(item);
+    const newName = snakeCaseToCamelCase(item, num.length, undefined);
     try {
       if (newName) {
         // Get the type of the property
@@ -532,7 +532,9 @@ function parseMultipleNamedProps(name: string, props: any, obj: any) {
         }
       }
     } catch {
-      // do nothing
+      // Sometimes properties exist but are empty e.g. <axis_0_axis_title />
+      // and trying to parse this throws an exception. We want to catch and ignore
+      // this, and not include the empty property in our new obj.
     }
   });
   // Return instance of trace/axis with parsed props in it

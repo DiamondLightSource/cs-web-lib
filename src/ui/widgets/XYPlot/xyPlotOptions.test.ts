@@ -269,7 +269,7 @@ describe("Create trace options object", (): void => {
         },
         mode: "markers",
         type: "scatter",
-        x: [1, 2, 3],
+        x: [0, 1, 2],
         y: [3, 4, 8]
       }
     ]);

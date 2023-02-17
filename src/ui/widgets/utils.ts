@@ -2,16 +2,17 @@
  * Converts string from snake case to camel
  * case.
  * @param text string to convert
- * @param sliceIdx number to slice at and remove elements
+ * @param start first index of string to convert
+ * @param end final index of string to convert
  * @returns newly formatted string
  */
 export function snakeCaseToCamelCase(
   text: string,
-  start = undefined,
-  end = undefined
+  start: number | undefined,
+  end: number | undefined
 ): string | undefined {
-  // Split string by underscore
-  const stringArray = text.split("_").slice(start, end);
+  // Remove unneeded characters then split string by underscore
+  const stringArray = text.slice(start, end).split("_");
   // Remove first element, this shouldn't be uppercase
   let newName = stringArray.shift();
   // Loop over and capitalise first character of each string
