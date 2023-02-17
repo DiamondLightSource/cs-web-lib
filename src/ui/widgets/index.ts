@@ -28,6 +28,7 @@ export { Symbol } from "./Symbol/symbol";
 export { TabBar } from "./Tabs/tabs";
 export { DynamicTabs } from "./Tabs/dynamicTabs";
 export { XYPlot } from "./XYPlot/xyPlot";
+export { Webcam } from "./Webcam/webcam";
 
 // By importing and calling this function you ensure all the
 // above widgets are imported and thus registered.
