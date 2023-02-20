@@ -12,6 +12,8 @@ import {
   AbsolutePosition,
   RelativePosition
 } from "../../../types/position";
+import { Traces, Trace } from "../../../types/traces";
+import { Axes, Axis } from "../../../types/axes";
 import {
   ComplexParserDict,
   ParserDict,
@@ -29,6 +31,7 @@ import {
   OPEN_TAB,
   EXIT
 } from "../widgetActions";
+import { snakeCaseToCamelCase } from "../utils";
 
 export interface XmlDescription {
   _attributes: { [key: string]: string };
@@ -63,7 +66,9 @@ const OPI_WIDGET_MAPPING: { [key: string]: any } = {
   "org.csstudio.opibuilder.widgets.LED": "led",
   "org.csstudio.opibuilder.widgets.Image": "image",
   "org.csstudio.opibuilder.widgets.edm.symbolwidget": "pngsymbol",
-  "org.csstudio.opibuilder.widgets.detailpanel": "device"
+  "org.csstudio.opibuilder.widgets.detailpanel": "device",
+  "org.csstudio.opibuilder.widgets.dawn.xygraph": "xyplot",
+  "org.csstudio.opibuilder.widgets.xyGraph": "xyplot"
 };
 
 /**
@@ -455,6 +460,88 @@ function opiParseLabelPosition(props: any): string {
 }
 
 /**
+ * Parses a props object into an Traces object that
+ * contains an array of Trace objects
+ * @param props list of props for this element
+ * @returns a Traces object
+ */
+function opiParseTraces(props: any): Traces {
+  // Find PV value if it's one of the trace properties
+  let pvName = opiParseString(props.pv_name);
+  if (pvName.includes("trace_")) {
+    pvName = opiParseString(props[pvName.slice(2, -1)]);
+  }
+  const count = opiParseNumber(props.trace_count);
+  const traces: Trace[] = [];
+  // Parse all of the 'trace' properties
+  for (let i = 0; i < count; i++) {
+    const trace = parseMultipleNamedProps("trace", props, new Trace(i));
+    traces.push(trace);
+  }
+  return new Traces(count, pvName, traces);
+}
+
+/**
+ * Parses a props object into an AllAxes object that
+ * contains an array of Axis objects
+ * @param props
+ * @returns an Axes object.
+ */
+function opiParseAxes(props: any): Axes {
+  const count = opiParseNumber(props.axis_count);
+  const axes: Axis[] = [];
+  // Parse all of the 'axis' properties
+  for (let i = 0; i < count; i++) {
+    const axis = parseMultipleNamedProps("axis", props, new Axis(i));
+    axes.push(axis);
+  }
+  return new Axes(count, axes);
+}
+
+/**
+ * Iterate over and parse props that have
+ * format {name}_{number}_{actual prop name}. Returns
+ * an array of these props.
+ * @param name string to search for in prop names
+ * @param props props to parse
+ * @param idx number to search for in prop names
+ * @returns object containing parsed props
+ */
+function parseMultipleNamedProps(name: string, props: any, obj: any) {
+  // Create keyword string and search for matches
+  const num = `${name}_${obj.index}_`;
+  const names = Object.getOwnPropertyNames(props);
+  const newProps = names.filter(s => s.includes(num));
+  newProps.forEach(item => {
+    // For each match, convert the name and parse
+    const newName = snakeCaseToCamelCase(item, num.length, undefined);
+    try {
+      if (newName) {
+        // Get the type of the property
+        const match = obj[newName];
+        if (typeof match === "boolean") {
+          obj[newName] = opiParseBoolean(props[item]);
+        } else if (typeof match === "number") {
+          obj[newName] = opiParseNumber(props[item]);
+        } else if (typeof match === "string") {
+          obj[newName] = opiParseString(props[item]);
+        } else if (match instanceof Color) {
+          obj[newName] = opiParseColor(props[item]);
+        } else if (match instanceof Font) {
+          obj[newName] = opiParseFont(props[item]);
+        }
+      }
+    } catch {
+      // Sometimes properties exist but are empty e.g. <axis_0_axis_title />
+      // and trying to parse this throws an exception. We want to catch and ignore
+      // this, and not include the empty property in our new obj.
+    }
+  });
+  // Return instance of trace/axis with parsed props in it
+  return obj;
+}
+
+/**
  * Attempt to return the widget associated with a props object, failing
  * that will return a shape object
  * @param props
@@ -516,7 +603,13 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   actionsFromPv: ["actions_from_pv", opiParseBoolean],
   itemsFromPv: ["items_from_pv", opiParseBoolean],
   deviceName: ["device_name", opiParseString],
-  autoZoomToFit: ["auto_zoom_to_fit_all", opiParseBoolean]
+  autoZoomToFit: ["auto_zoom_to_fit_all", opiParseBoolean],
+  plotBackgroundColor: ["plot_area_background_color", opiParseColor], //these are all plot props
+  title: ["title", opiParseString],
+  titleFont: ["title_font", opiParseFont],
+  showLegend: ["show_legend", opiParseBoolean],
+  showPlotBorder: ["show_plot_area_border", opiParseBoolean],
+  showToolbar: ["show_toolbar", opiParseBoolean]
 };
 
 /**
@@ -529,7 +622,9 @@ export const OPI_COMPLEX_PARSERS: ComplexParserDict = {
   position: opiParsePosition,
   border: opiParseBorder,
   file: opiParseFile,
-  alarmSensitive: opiParseAlarmSensitive
+  alarmSensitive: opiParseAlarmSensitive,
+  traces: opiParseTraces,
+  axes: opiParseAxes
 };
 
 function opiPatchRules(widgetDescription: WidgetDescription): void {

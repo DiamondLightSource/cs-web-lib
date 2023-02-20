@@ -282,4 +282,131 @@ describe("opi widget parser", (): void => {
     expect(widget.showUnits).toBeUndefined();
     log.setLevel("info");
   });
+  const xygraphString = `
+  <display typeId="org.csstudio.opibuilder.Display" version="1.0">
+  <x>87</x>
+  <y>387</y>
+  <width>456</width>
+  <height>473</height>
+  <font>
+    <fontdata fontName="helvetica" height="8" pixels="true" style="0" />
+  </font>
+  <foreground_color>
+    <color blue="0" green="0" name="Black" red="0" />
+  </foreground_color>
+  <background_color>
+    <color blue="200" green="200" name="Canvas" red="200" />
+  </background_color>
+  <show_grid>true</show_grid>
+  <widget typeId="org.csstudio.opibuilder.widgets.dawn.xygraph" version="1.0">
+    <axis_0_auto_scale>false</axis_0_auto_scale>
+    <axis_0_auto_scale_threshold>0.95</axis_0_auto_scale_threshold>
+    <axis_0_axis_color>
+      <color blue="0" green="0" name="Black" red="0" />
+    </axis_0_axis_color>
+    <axis_0_axis_title />
+    <axis_0_grid_color>
+      <color blue="0" green="0" name="Black" red="0" />
+    </axis_0_grid_color>
+    <axis_0_log_scale>false</axis_0_log_scale>
+    <axis_0_maximum>1024.0</axis_0_maximum>
+    <axis_0_minimum>-10.0</axis_0_minimum>
+    <axis_0_scale_font>
+      <fontdata fontName="helvetica" height="12" pixels="true" style="0" />
+    </axis_0_scale_font>
+    <axis_0_show_grid>false</axis_0_show_grid>
+    <axis_0_time_format>0</axis_0_time_format>
+    <axis_0_title_font>
+      <fontdata fontName="helvetica" height="12" pixels="true" style="0" />
+    </axis_0_title_font>
+    <axis_0_visible>true</axis_0_visible>
+    <axis_1_auto_scale>true</axis_1_auto_scale>
+    <axis_1_auto_scale_threshold>0.95</axis_1_auto_scale_threshold>
+    <axis_1_axis_color>
+      <color blue="0" green="0" name="Black" red="0" />
+    </axis_1_axis_color>
+    <axis_1_axis_title />
+    <axis_1_grid_color>
+      <color blue="0" green="0" name="Black" red="0" />
+    </axis_1_grid_color>
+    <axis_1_logScale>false</axis_1_logScale>
+    <axis_1_log_scale>false</axis_1_log_scale>
+    <axis_1_maximum>1.0</axis_1_maximum>
+    <axis_1_minimum>0.0</axis_1_minimum>
+    <axis_1_scale_font>
+      <fontdata fontName="helvetica" height="12" pixels="true" style="0" />
+    </axis_1_scale_font>
+    <axis_1_show_grid>false</axis_1_show_grid>
+    <axis_1_time_format>0</axis_1_time_format>
+    <axis_1_title_font>
+      <fontdata fontName="helvetica" height="12" pixels="true" style="0" />
+    </axis_1_title_font>
+    <axis_1_visible>true</axis_1_visible>
+    <axis_2_auto_scale>true</axis_2_auto_scale>
+    <axis_2_axis_color>
+      <color blue="0" green="0" name="Black" red="0" />
+    </axis_2_axis_color>
+    <axis_2_axis_title />
+    <axis_2_grid_color>
+      <color blue="0" green="0" name="Black" red="0" />
+    </axis_2_grid_color>
+    <axis_2_left_bottom_side>false</axis_2_left_bottom_side>
+    <axis_2_logScale>false</axis_2_logScale>
+    <axis_2_maximum>16600.0</axis_2_maximum>
+    <axis_2_minimum>8300.0</axis_2_minimum>
+    <axis_2_show_grid>false</axis_2_show_grid>
+    <axis_2_time_format>0</axis_2_time_format>
+    <axis_2_visible>false</axis_2_visible>
+    <axis_count>3</axis_count>
+    <background_color>
+      <color blue="200" green="200" name="Canvas" red="200" />
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+    <border_style>0</border_style>
+    <border_width>0</border_width>
+    <font>
+      <fontdata fontName="helvetica" height="12" pixels="true" style="0" />
+    </font>
+    <foreground_color>
+      <color blue="0" green="0" name="Black" red="0" />
+    </foreground_color>
+    <height>200</height>
+    <name>EDM xyGraph</name>
+    <plot_area_background_color>
+      <color blue="200" green="200" name="Canvas" red="200" />
+    </plot_area_background_color>
+    <pv_name>$(trace_0_y_pv)</pv_name>
+    <show_legend>false</show_legend>
+    <show_plot_area_border>false</show_plot_area_border>
+    <show_toolbar>false</show_toolbar>
+    <title>Bunch motion standard deviation</title>
+    <title_font>
+      <fontdata fontName="helvetica" height="12" pixels="true" style="0" />
+    </title_font>
+    <tooltip>$(trace_0_y_pv)
+$(trace_0_y_pv_value)</tooltip>
+    <trace_0_anti_alias>false</trace_0_anti_alias>
+    <trace_0_buffer_size>65536</trace_0_buffer_size>
+    <trace_0_concatenate_data>false</trace_0_concatenate_data>
+    <trace_0_trace_color>
+      <color blue="192" green="0" name="blue-27" red="0" />
+    </trace_0_trace_color>
+    <trace_0_trace_type>0</trace_0_trace_type>
+    <trace_0_update_delay>0</trace_0_update_delay>
+    <trace_0_update_mode>3</trace_0_update_mode>
+    <trace_0_y_pv>$(device):$(adc_axis):ADC:MMS:STD</trace_0_y_pv>
+    <trace_count>1</trace_count>
+    <width>440</width>
+    <x>8</x>
+    <y>168</y>
+  </widget>
+  </display>`;
+  it("parses xygraph widget", (): void => {
+    const widget = parseOpi(xygraphString, "ca", PREFIX)
+      .children?.[0] as WidgetDescription;
+    expect(widget.traces.count).toEqual(1);
+    expect(widget.axes.count).toEqual(3);
+    expect(widget.traces.traceOptions[0].bufferSize).toEqual(65536);
+    expect(widget.axes.axisOptions[2].leftBottomSide).toEqual(false);
+  });
 });
