@@ -1,4 +1,5 @@
 import React from "react";
+import "jest-canvas-mock";
 import { DeviceComponent } from "./device";
 import { render } from "@testing-library/react";
 import * as deviceHook from "../../hooks/useDevice";

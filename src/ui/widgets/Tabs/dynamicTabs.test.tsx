@@ -1,4 +1,5 @@
 import React from "react";
+import "jest-canvas-mock";
 import { FileDescription, TabState } from "../../../misc/fileContext";
 import { contextRender } from "../../../testResources";
 import { DynamicTabsComponent } from "./dynamicTabs";
