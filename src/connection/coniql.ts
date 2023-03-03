@@ -307,7 +307,7 @@ export class ConiqlPlugin implements Connection {
       {
         applyMiddleware(options: OperationOptions, next: any) {
           if (!acknowledgementReceived) {
-            throw new Error("Acknowledgement not received from server.");
+            log.warn("Acknowledgement not received from server.");
           }
           next();
         }
@@ -497,7 +497,9 @@ export class ConiqlPlugin implements Connection {
     // Note that connectionMiddleware handles multiple subscriptions
     // for the same PV at present, so if this method is called then
     // there is no further need for this PV.
-    this.subscriptions[pvName].unsubscribe();
-    delete this.subscriptions[pvName];
+    if (this.subscriptions[pvName]) {
+      this.subscriptions[pvName].unsubscribe();
+      delete this.subscriptions[pvName];
+    }
   }
 }
