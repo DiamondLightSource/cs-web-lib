@@ -1,3 +1,4 @@
+import "jest-canvas-mock";
 import { Color } from "../../../types/color";
 import { AbsolutePosition } from "../../../types/position";
 import { parseBob } from "./bobParser";

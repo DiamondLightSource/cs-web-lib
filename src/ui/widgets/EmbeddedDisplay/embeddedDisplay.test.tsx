@@ -1,3 +1,4 @@
+import "jest-canvas-mock";
 import React from "react";
 import log from "loglevel";
 import { EmbeddedDisplay } from "./embeddedDisplay";

@@ -1,4 +1,5 @@
 import React from "react";
+import "jest-canvas-mock";
 import log from "loglevel";
 
 import { render, fireEvent } from "@testing-library/react";

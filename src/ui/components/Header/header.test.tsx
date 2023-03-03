@@ -1,4 +1,5 @@
 import React from "react";
+import "jest-canvas-mock";
 import { contextRender } from "../../../testResources";
 import { Header } from "./header";
 

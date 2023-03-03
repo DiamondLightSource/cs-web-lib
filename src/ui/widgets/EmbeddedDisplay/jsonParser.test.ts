@@ -1,3 +1,4 @@
+import "jest-canvas-mock";
 import { Label } from "..";
 import { parseJson } from "./jsonParser";
 import { RelativePosition, AbsolutePosition } from "../../../types/position";
