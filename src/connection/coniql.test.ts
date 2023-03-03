@@ -136,4 +136,8 @@ describe("ConiqlPlugin", (): void => {
       variables: { device: "stuff" }
     });
   });
+
+  it("unsubscribes_with_no_errors", (): void => {
+    expect(() => cp.unsubscribe("hello")).not.toThrow(TypeError);
+  });
 });
