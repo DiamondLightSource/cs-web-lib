@@ -1,5 +1,4 @@
 import React from "react";
-import "jest-canvas-mock";
 
 import { waitFor } from "@testing-library/react";
 import { DynamicPageComponent } from "./dynamicPage";

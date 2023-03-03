@@ -1,5 +1,4 @@
 import log from "loglevel";
-import "jest-canvas-mock";
 import { Color } from "../../../types/color";
 import { Border } from "../../../types/border";
 import { Rule } from "../../../types/props";
