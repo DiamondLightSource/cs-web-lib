@@ -12,7 +12,8 @@ import {
 } from "../propTypes";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
-import Plot from "react-plotly.js";
+import Plotly from "plotly.js-basic-dist";
+import createPlotlyComponent from "react-plotly.js/factory";
 import {
   calculateAxisLimits,
   createAxes,
@@ -34,6 +35,11 @@ export const XYPlotProps = {
   traces: TracesPropOpt,
   axes: AxesPropOpt
 };
+
+// Create plot component from minimal Plotly package
+// This is necessary because normal Plot component is too large,
+// and causing issues in clients using cs-web-lib with memory
+const Plot = createPlotlyComponent(Plotly);
 
 export type XYPlotComponentProps = InferWidgetProps<typeof XYPlotProps> &
   PVComponent;
