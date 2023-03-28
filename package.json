@@ -21,7 +21,8 @@
     "apollo-link-retry": "^2.2.16",
     "bufferutil": "^4.0.7",
     "loglevel": "^1.8.0",
-    "plotly.js": "^2.17.1",
+    "plotly.js": "^2.20.0",
+    "plotly.js-basic-dist": "^2.20.0",
     "react-plotly.js": "^2.6.0",
     "redux": "^4.1.2",
     "utf-8-validate": "^5.0.10"
