@@ -47,7 +47,7 @@ export const WebcamComponent = (
 function onError(event: any) {
   const image = document.getElementById(event.target.id) as HTMLImageElement;
   const alt = `Connection to webcam at ${image.src} failed`;
-  (document.getElementById(event.target.id) as HTMLImageElement).alt = alt;
+  image.alt = alt;
 }
 
 /**
@@ -56,7 +56,7 @@ function onError(event: any) {
 function onLoad(event: any) {
   const image = document.getElementById(event.target.id) as HTMLImageElement;
   const alt = `Webcam MJPEG stream at ${image.src}`;
-  (document.getElementById(event.target.id) as HTMLImageElement).alt = alt;
+  image.alt = alt;
 }
 
 const WebcamWidgetProps = {
