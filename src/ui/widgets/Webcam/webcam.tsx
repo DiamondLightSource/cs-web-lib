@@ -23,6 +23,8 @@ export const WebcamComponent = (
   return (
     <div
       style={{
+        width: "100%",
+        height: "100%",
         fontSize: "14px", // Set properties for image alt text
         fontWeight: "bold",
         color: "#a6190f"
