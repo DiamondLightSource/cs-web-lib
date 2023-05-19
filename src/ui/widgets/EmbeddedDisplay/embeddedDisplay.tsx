@@ -38,7 +38,7 @@ export const EmbeddedDisplay = (
 ): JSX.Element => {
   const description = useOpiFile(props.file);
   const id = useId();
-  
+
   log.debug(description);
 
   // Check whether to override OPI autoZoomToFit
