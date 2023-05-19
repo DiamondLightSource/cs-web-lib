@@ -11,7 +11,6 @@ import {
   MacroContextType,
   resolveMacros
 } from "../../../types/macros";
-import { RelativePosition } from "../../../types/position";
 import { WidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import {
@@ -29,7 +28,9 @@ const EmbeddedDisplayProps = {
   ...WidgetPropType,
   file: FilePropType,
   name: StringPropOpt,
-  scroll: BoolPropOpt
+  scroll: BoolPropOpt,
+  scalingOrigin: StringPropOpt,
+  autoZoomToFitOverride: BoolPropOpt
 };
 
 export const EmbeddedDisplay = (
@@ -37,44 +38,59 @@ export const EmbeddedDisplay = (
 ): JSX.Element => {
   const description = useOpiFile(props.file);
   const id = useId();
-
+  
   log.debug(description);
 
-  // Apply the height to the top level if relative layout and none have been provided
-  if (props.position instanceof RelativePosition) {
-    props.position.height = props.position.height || description.height;
-    props.position.width = props.position.width || description.width;
-  }
+  // Check whether to override OPI autoZoomToFit
+  const autoZoomToFitOverride =
+    typeof props.autoZoomToFitOverride === "undefined"
+      ? true
+      : props.autoZoomToFitOverride;
 
-  // Apply the height to the top level if relative layout and none have been provided
-  if (props.position instanceof RelativePosition) {
-    props.position.height = props.position.height || description.height;
-    props.position.width = props.position.width || description.width;
-  }
+  // Get the screen height
+  const heightString =
+    typeof description.position.height === "undefined"
+      ? "10"
+      : description.position.height;
+  const widthString =
+    typeof description.position.width === "undefined"
+      ? "10"
+      : description.position.width;
 
+  // Height and width property will take form "<num>px" so trim
+  const heightInt = trimFromString(heightString);
+  const widthInt = trimFromString(widthString);
   let scaleFactor = "1";
-  if (description.autoZoomToFit) {
-    let heightString =
-      typeof description.position.height === "undefined"
-        ? "10"
-        : description.position.height;
-    let widthString =
-      typeof description.position.width === "undefined"
-        ? "10"
-        : description.position.width;
-    // Height and width property will take form "<num>px" so trim
-    heightString = trimFromString(heightString);
-    widthString = trimFromString(widthString);
+  if (description.autoZoomToFit && autoZoomToFitOverride) {
     // Use the window size and display size to scale
-    const scaleHeightVal = window.innerHeight / heightString;
-    const scaleWidthVal = window.innerWidth / widthString;
+    const scaleHeightVal = window.innerHeight / heightInt;
+    const scaleWidthVal = window.innerWidth / widthInt;
     const minScaleFactor = Math.min(scaleWidthVal, scaleHeightVal);
     scaleFactor = String(minScaleFactor);
-    // Scale the flexcontainer height to fill window
-    if (window.innerHeight > heightString) {
-      props.position.height = String(window.innerHeight) + "px";
+  }
+
+  const displayChildern =
+    typeof description.children === "undefined" ? [] : description.children;
+  for (let i = 0; i < displayChildern.length; i++) {
+    // Check for nested embeddedDisplays
+    if (displayChildern[i].type === "embeddedDisplay") {
+      if (description.autoZoomToFit && autoZoomToFitOverride) {
+        // If we have scaled the parent then do not scale
+        // the child display as this will result in double scaling
+        displayChildern[i].autoZoomToFitOverride = false;
+      } else {
+        // Otherwise pass on the scalingOrigin so if the child should
+        // be scaled, then it will use the same transform-origin
+        displayChildern[i].scalingOrigin = props.scalingOrigin;
+        // Update the parent container area to be the full area for the child
+        // embedded display so it can be scale into it if needed
+        if (window.innerHeight > heightInt) {
+          props.position.height = String(window.innerHeight) + "px";
+        }
+      }
     }
   }
+
   let component: JSX.Element;
   try {
     component = widgetDescriptionToComponent({
@@ -87,7 +103,8 @@ export const EmbeddedDisplay = (
       overflow: props.scroll ? "scroll" : "hidden",
       children: [description],
       scaling: scaleFactor,
-      autoZoomToFit: description.autoZoomToFit
+      autoZoomToFit: description.autoZoomToFit,
+      scalingOrigin: props.scalingOrigin
     });
   } catch (e) {
     const message = `Error loading ${props.file.path}: ${e}.`;

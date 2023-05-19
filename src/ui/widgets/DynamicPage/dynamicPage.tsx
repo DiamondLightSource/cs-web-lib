@@ -66,7 +66,11 @@ export const DynamicPageComponent = (
         value={() => fileContext.removePage(props.location)}
       >
         <div style={style}>
-          <EmbeddedDisplay file={file} position={new RelativePosition()} />
+          <EmbeddedDisplay
+            file={file}
+            position={new RelativePosition()}
+            scalingOrigin={"0 0"}
+          />
           <div
             style={{
               position: "absolute",
@@ -107,7 +111,11 @@ export const DynamicPageComponent = (
         value={() => fileContext.removePage(props.location)}
       >
         <div style={style}>
-          <EmbeddedDisplay file={file} position={new RelativePosition()} />
+          <EmbeddedDisplay
+            file={file}
+            position={new RelativePosition()}
+            scalingOrigin={"0 0"}
+          />
         </div>
       </ExitFileContext.Provider>
     );

@@ -26,7 +26,8 @@ const DisplayProps = {
   border: BorderPropOpt,
   macros: MacrosPropOpt,
   scaling: StringPropOpt,
-  autoZoomToFit: BoolPropOpt
+  autoZoomToFit: BoolPropOpt,
+  scalingOrigin: StringPropOpt
 };
 
 // Generic display widget to put other things inside
@@ -54,11 +55,15 @@ export const DisplayComponent = (
   style["position"] = "relative";
   style["overflow"] = props.overflow;
   style["height"] = "100%";
-  if (props.autoZoomToFit) {
-    const internalScale =
-      typeof props.scaling === "undefined" ? "1" : props.scaling;
+  const internalScale =
+    typeof props.scaling === "undefined" ? "1" : props.scaling;
+  if (props.autoZoomToFit && internalScale !== "1") {
     style["transform"] = "scale(" + internalScale + ")";
-    style["transformOrigin"] = "center top";
+    const scalingOrigin =
+      typeof props.scalingOrigin === "undefined"
+        ? "center top"
+        : props.scalingOrigin;
+    style["transformOrigin"] = scalingOrigin;
   }
   return (
     <MacroContext.Provider value={displayMacroContext}>
