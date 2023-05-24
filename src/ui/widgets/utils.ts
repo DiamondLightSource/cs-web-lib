@@ -63,3 +63,15 @@ export function trimFromString(value: string): number {
   }
   return num;
 }
+
+/**
+ * Return the value of an optional parameter that may be undefined.
+ * If it is undefined (i.e. not set) then return the default value
+ * (defValue) provided in the input.
+ * @param optionalParam parameter to get value from
+ * @param defValue default value if optionalParam is undefined
+ */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function getOptionalValue(optionalParam: any, defValue: any): any {
+  return typeof optionalParam === "undefined" ? defValue : optionalParam;
+}
