@@ -18,6 +18,7 @@ import {
   MacroContext,
   MacroContextType
 } from "../../../types/macros";
+import { getOptionalValue } from "../utils";
 
 const DisplayProps = {
   children: ChildrenPropOpt,
@@ -26,7 +27,8 @@ const DisplayProps = {
   border: BorderPropOpt,
   macros: MacrosPropOpt,
   scaling: StringPropOpt,
-  autoZoomToFit: BoolPropOpt
+  autoZoomToFit: BoolPropOpt,
+  scalingOrigin: StringPropOpt
 };
 
 // Generic display widget to put other things inside
@@ -54,11 +56,16 @@ export const DisplayComponent = (
   style["position"] = "relative";
   style["overflow"] = props.overflow;
   style["height"] = "100%";
-  if (props.autoZoomToFit) {
-    const internalScale =
-      typeof props.scaling === "undefined" ? "1" : props.scaling;
+  // Check whether the scaling property has been set and if
+  // not set the scaling to 1 (i.e. no scaling)
+  const internalScale = getOptionalValue(props.scaling, "1");
+  // Only configure the scaling transform if autoZoomToFit is
+  // true AND the scale factor provided is not 1 where 1
+  // implies no scaling
+  if (props.autoZoomToFit && internalScale !== "1") {
     style["transform"] = "scale(" + internalScale + ")";
-    style["transformOrigin"] = "center top";
+    const scalingOrigin = getOptionalValue(props.scalingOrigin, "center top");
+    style["transformOrigin"] = scalingOrigin;
   }
   return (
     <MacroContext.Provider value={displayMacroContext}>

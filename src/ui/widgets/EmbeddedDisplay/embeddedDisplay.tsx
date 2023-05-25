@@ -11,7 +11,6 @@ import {
   MacroContextType,
   resolveMacros
 } from "../../../types/macros";
-import { RelativePosition } from "../../../types/position";
 import { WidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import {
@@ -23,13 +22,15 @@ import {
 import { GroupBoxComponent } from "../GroupBox/groupBox";
 import { useOpiFile } from "./useOpiFile";
 import { useId } from "react-id-generator";
-import { trimFromString } from "../utils";
+import { getOptionalValue, trimFromString } from "../utils";
 
 const EmbeddedDisplayProps = {
   ...WidgetPropType,
   file: FilePropType,
   name: StringPropOpt,
-  scroll: BoolPropOpt
+  scroll: BoolPropOpt,
+  scalingOrigin: StringPropOpt,
+  overrideAutoZoomToFitValue: BoolPropOpt
 };
 
 export const EmbeddedDisplay = (
@@ -40,41 +41,62 @@ export const EmbeddedDisplay = (
 
   log.debug(description);
 
-  // Apply the height to the top level if relative layout and none have been provided
-  if (props.position instanceof RelativePosition) {
-    props.position.height = props.position.height || description.height;
-    props.position.width = props.position.width || description.width;
-  }
+  // The autoZoomToFit value is parsed directly from the opi input file. This
+  // can be overridden by a property set on the EmbeddedDisplay widget. Check
+  // whether this override property has been set. If so then the value of this
+  // property will be used instead of the opi autoZoomToFit value. If it has
+  // not been set then the value from the opi autoZoomToFit parameter is used
+  const applyAutoZoomToFit = getOptionalValue(
+    props.overrideAutoZoomToFitValue,
+    description.autoZoomToFit
+  );
 
-  // Apply the height to the top level if relative layout and none have been provided
-  if (props.position instanceof RelativePosition) {
-    props.position.height = props.position.height || description.height;
-    props.position.width = props.position.width || description.width;
-  }
+  // Get the screen height and width. If not provided then set to
+  // the window height and width, repectively.
+  const heightString = getOptionalValue(
+    description.position.height,
+    `${String(window.innerHeight)}px`
+  );
+  const widthString = getOptionalValue(
+    description.position.width,
+    `${String(window.innerWidth)}px`
+  );
 
   let scaleFactor = "1";
-  if (description.autoZoomToFit) {
-    let heightString =
-      typeof description.position.height === "undefined"
-        ? "10"
-        : description.position.height;
-    let widthString =
-      typeof description.position.width === "undefined"
-        ? "10"
-        : description.position.width;
-    // Height and width property will take form "<num>px" so trim
-    heightString = trimFromString(heightString);
-    widthString = trimFromString(widthString);
+  if (applyAutoZoomToFit) {
+    // Height and width from parsed opi file will always take the form
+    // "<num>px" so trim
+    const heightInt = trimFromString(heightString);
+    const widthInt = trimFromString(widthString);
     // Use the window size and display size to scale
-    const scaleHeightVal = window.innerHeight / heightString;
-    const scaleWidthVal = window.innerWidth / widthString;
+    const scaleHeightVal = window.innerHeight / heightInt;
+    const scaleWidthVal = window.innerWidth / widthInt;
     const minScaleFactor = Math.min(scaleWidthVal, scaleHeightVal);
     scaleFactor = String(minScaleFactor);
-    // Scale the flexcontainer height to fill window
-    if (window.innerHeight > heightString) {
-      props.position.height = String(window.innerHeight) + "px";
+  }
+
+  const displayChildren = getOptionalValue(description.children, []);
+  for (let i = 0; i < displayChildren.length; i++) {
+    // Check for nested embeddedDisplays
+    if (displayChildren[i].type === "embeddedDisplay") {
+      if (applyAutoZoomToFit) {
+        // If we have scaled the parent then do not scale
+        // the child display as this will result in double scaling
+        displayChildren[i].overrideAutoZoomToFitValue = false;
+      } else {
+        // Otherwise pass on the scalingOrigin so if the child should
+        // be scaled, then it will use the same transform-origin
+        displayChildren[i].scalingOrigin = props.scalingOrigin;
+        // Update the parent container area to be the full area for the child
+        // embedded display so it can be scaled into it if needed. Note height
+        // from parsed opi file will always take the form "<num>px" so trim
+        if (window.innerHeight > trimFromString(heightString)) {
+          props.position.height = `${String(window.innerHeight)}px`;
+        }
+      }
     }
   }
+
   let component: JSX.Element;
   try {
     component = widgetDescriptionToComponent({
@@ -87,7 +109,8 @@ export const EmbeddedDisplay = (
       overflow: props.scroll ? "scroll" : "hidden",
       children: [description],
       scaling: scaleFactor,
-      autoZoomToFit: description.autoZoomToFit
+      autoZoomToFit: applyAutoZoomToFit,
+      scalingOrigin: props.scalingOrigin
     });
   } catch (e) {
     const message = `Error loading ${props.file.path}: ${e}.`;
