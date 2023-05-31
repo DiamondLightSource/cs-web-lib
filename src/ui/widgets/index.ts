@@ -26,6 +26,7 @@ export { SlideControl } from "./SlideControl/slideControl";
 export { Slideshow } from "./Slideshow/slideshow";
 export { Symbol } from "./Symbol/symbol";
 export { TabBar } from "./Tabs/tabs";
+export { TabContainer } from "./Tabs/tabContainer";
 export { DynamicTabs } from "./Tabs/dynamicTabs";
 export { XYPlot } from "./XYPlot/xyPlot";
 export { Webcam } from "./Webcam/webcam";
