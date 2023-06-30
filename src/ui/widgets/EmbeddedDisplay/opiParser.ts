@@ -49,6 +49,7 @@ export interface XmlDescription {
  */
 const OPI_WIDGET_MAPPING: { [key: string]: any } = {
   "org.csstudio.opibuilder.Display": "display",
+  "org.csstudio.opibuilder.widgets.Ellipse": "ellipse",
   "org.csstudio.opibuilder.widgets.TextUpdate": "readback",
   "org.csstudio.opibuilder.widgets.TextInput": "input",
   "org.csstudio.opibuilder.widgets.Label": "label",
@@ -609,7 +610,13 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   titleFont: ["title_font", opiParseFont],
   showLegend: ["show_legend", opiParseBoolean],
   showPlotBorder: ["show_plot_area_border", opiParseBoolean],
-  showToolbar: ["show_toolbar", opiParseBoolean]
+  showToolbar: ["show_toolbar", opiParseBoolean],
+  bgGradientColor: ["background_color", opiParseColor],
+  fgGradientColor: ["foreground_color", opiParseColor],
+  gradient: ["gradient", opiParseBoolean],
+  fillLevel: ["fill_level", opiParseNumber],
+  horizontalFill: ["horizontal_fill", opiParseBoolean],
+  lineColor: ["line_color", opiParseColor]
 };
 
 /**
