@@ -32,6 +32,7 @@ import {
   EXIT
 } from "../widgetActions";
 import { snakeCaseToCamelCase } from "../utils";
+import { Point, Points } from "../../../types/points";
 
 export interface XmlDescription {
   _attributes: { [key: string]: string };
@@ -543,6 +544,24 @@ function parseMultipleNamedProps(name: string, props: any, obj: any) {
 }
 
 /**
+ * Parseas a props point object into an array of number arrays
+ * with x and y coordinates
+ * @param props
+ */
+function opiParsePoints(props: any): Points {
+  const points: Array<Point> = [];
+  const x = opiParseNumber(props.x);
+  const y = opiParseNumber(props.y);
+  props.points.point.forEach((point: any) => {
+    const pointData = point._attributes;
+    points.push(
+      new Point(Number(pointData["x"]) - x, Number(pointData["y"]) - y)
+    );
+  });
+  return new Points(points);
+}
+
+/**
  * Attempt to return the widget associated with a props object, failing
  * that will return a shape object
  * @param props
@@ -631,7 +650,8 @@ export const OPI_COMPLEX_PARSERS: ComplexParserDict = {
   file: opiParseFile,
   alarmSensitive: opiParseAlarmSensitive,
   traces: opiParseTraces,
-  axes: opiParseAxes
+  axes: opiParseAxes,
+  points: opiParsePoints
 };
 
 function opiPatchRules(widgetDescription: WidgetDescription): void {
