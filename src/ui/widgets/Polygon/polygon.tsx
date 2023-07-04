@@ -57,7 +57,7 @@ export const PolygonComponent = (
       </svg>
     );
   }
-  // if no points defined, return nothing
+  // If no points, plot nothing
   return <></>;
 };
 
