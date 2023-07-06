@@ -57,6 +57,7 @@ const OPI_WIDGET_MAPPING: { [key: string]: any } = {
   "org.csstudio.opibuilder.widgets.groupingContainer": "groupingcontainer",
   "org.csstudio.opibuilder.widgets.Rectangle": "shape",
   "org.csstudio.opibuilder.widgets.ActionButton": "actionbutton",
+  "org.csstudio.opibuilder.widgets.BoolButton": "boolButton",
   "org.csstudio.opibuilder.widgets.MenuButton": "menubutton",
   "org.csstudio.opibuilder.widgets.combo": "menubutton",
   "org.csstudio.opibuilder.widgets.checkbox": "checkbox",
@@ -635,7 +636,12 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   gradient: ["gradient", opiParseBoolean],
   fillLevel: ["fill_level", opiParseNumber],
   horizontalFill: ["horizontal_fill", opiParseBoolean],
-  lineColor: ["line_color", opiParseColor]
+  lineColor: ["line_color", opiParseColor],
+  onLabel: ["on_label", opiParseString],
+  offLabel: ["off_label", opiParseString],
+  onState: ["on_state", opiParseNumber],
+  offState: ["off_state", opiParseNumber],
+  showBoolean: ["show_boolean", opiParseBoolean]
 };
 
 /**
