@@ -50,6 +50,7 @@ export interface XmlDescription {
  */
 const OPI_WIDGET_MAPPING: { [key: string]: any } = {
   "org.csstudio.opibuilder.Display": "display",
+  "org.csstudio.opibuilder.widgets.arc": "arc",
   "org.csstudio.opibuilder.widgets.Ellipse": "ellipse",
   "org.csstudio.opibuilder.widgets.TextUpdate": "readback",
   "org.csstudio.opibuilder.widgets.TextInput": "input",
@@ -641,7 +642,9 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   offLabel: ["off_label", opiParseString],
   onState: ["on_state", opiParseNumber],
   offState: ["off_state", opiParseNumber],
-  showBoolean: ["show_boolean", opiParseBoolean]
+  showBoolean: ["show_boolean", opiParseBoolean],
+  startAngle: ["start_angle", opiParseNumber],
+  totalAngle: ["total_angle", opiParseNumber]
 };
 
 /**
