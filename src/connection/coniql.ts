@@ -295,7 +295,25 @@ export class ConiqlPlugin implements Connection {
     this.wsClient = createClient({
       url: `${this.wsProtocol}://${socket}/ws`,
       retryAttempts: Infinity,
-      shouldRetry: () => true
+      shouldRetry: () => true,
+      on: {
+        closed: () => {
+          if (this.connected) {
+            for (const pvName of Object.keys(this.subscriptions)) {
+              // Websocket closed so set connection status to disconnected and
+              // readonly
+              this.onConnectionUpdate(pvName, {
+                isConnected: false,
+                isReadonly: true
+              });
+            }
+          }
+          this.connected = false;
+        },
+        connected: () => {
+          this.connected = true;
+        }
+      }
     });
     const link = this.createLink(socket);
     this.client = new ApolloClient({ link, cache });
