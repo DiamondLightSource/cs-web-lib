@@ -1,7 +1,7 @@
 .Bit {
-    border-style: solid
+    border-style: solid;
 }
 
 .ByteMonitor {
-    border-style: solid
+    overflow: hidden;
 }

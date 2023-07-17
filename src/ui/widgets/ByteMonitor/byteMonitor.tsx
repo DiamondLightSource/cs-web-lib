@@ -5,8 +5,7 @@ import {
   FloatPropOpt,
   ColorPropOpt,
   IntPropOpt,
-  BoolPropOpt,
-  StringPropOpt
+  BoolPropOpt
 } from "../propTypes";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
@@ -23,10 +22,8 @@ export const ByteMonitorProps = {
   horizontal: BoolPropOpt,
   bitReverse: BoolPropOpt,
   squareLed: BoolPropOpt,
-  labels: StringPropOpt,
   ledBorder: IntPropOpt,
   ledBorderColor: ColorPropOpt,
-  ledPacked: BoolPropOpt,
   effect3d: BoolPropOpt
 };
 
@@ -35,48 +32,55 @@ export type ByteMonitorComponentProps = InferWidgetProps<
 > &
   PVComponent;
 
+/**
+ * @param props properties to pass in, these will be handled by the below BYteMonitor
+ * function and only extra props defined on ByteMonitorProps need to be passed in as well
+ * Currently discarding props ledPacked and labels, because they don't seem to be useful
+ */
 export const ByteMonitorComponent = (
   props: ByteMonitorComponentProps
 ): JSX.Element => {
   const {
     value,
-    numBits = 16,
     startBit = 0,
     horizontal = true,
     bitReverse = false,
-    labels = [],
     onColor = Color.fromRgba(0, 255, 0),
     offColor = Color.fromRgba(0, 100, 0),
     ledBorder = 3,
     ledBorderColor = Color.fromRgba(150, 150, 150), // dark grey
-    ledPacked = false,
     squareLed = false,
     effect3d = true,
     width,
     height
   } = props;
 
-  const stringValue = value?.getStringValue();
-  const bitArray = [];
-  // TO DO - LED PACKED
-  // TO DO - EFFECT 3D
-  // TO DO - HORIZONTAL
-  // TO DO - GIVE EACH KEY
-  // TO DO - RULES
+  const doubleValue = value?.getDoubleValue();
+  // Check numBits isn't out of bounds
+  let numBits = props.numBits || 16;
+  if (numBits < 1) numBits = 1;
+  if (numBits > 64) numBits = 64;
 
-  if (stringValue !== undefined && width) {
-    // Convert string to array of numbers
-    const dataValues = stringValue.split(",").map(Number);
-    // make sizes similar to size in CS-Studio, five taken
-    // away from default in css file too
-    const bitWidth = Math.floor(width - 5 / numBits);
-    // If multiple bits, loop over them
-    for (let i = startBit; i < startBit + numBits; i++) {
+  if (doubleValue !== undefined && width !== undefined) {
+    const dataValues = getBytes(doubleValue, numBits, startBit, bitReverse);
+    const [bitWidth, bitHeight, borderWidth] = recalculateDimensions(
+      numBits,
+      width,
+      height,
+      ledBorder,
+      horizontal
+    );
+
+    const ledArray: Array<JSX.Element> = [];
+    dataValues.forEach((data: number, idx: number) => {
       const style: CSSProperties = {};
-      let data = dataValues[i];
-      // Flip bit. 1 -> 0, 0 -> 1
-      if (bitReverse) {
-        data = 1 - data;
+      // Set CSS formatting if vertically or horizontally aligned
+      if (horizontal) {
+        style.display = "inline-block";
+        style["flexFlow"] = "row wrap";
+        style["marginRight"] = `-${Math.round(borderWidth)}px`;
+      } else {
+        style["marginBottom"] = `-${Math.round(borderWidth)}px`;
       }
       // Set color based on bit
       style["backgroundColor"] = data
@@ -84,31 +88,106 @@ export const ByteMonitorComponent = (
         : offColor?.toString();
       // Set border color and thickness
       style["borderColor"] = ledBorderColor.toString();
-      style["borderWidth"] = ledBorder + "px";
-      // set to be round or circular
+      style["borderWidth"] = `${borderWidth}px`;
+      // Set shape as square or circular
       if (squareLed) {
-        // make sizes similar to size in CS-Studio, five taken
-        // away from default in css file too
         style.width = `${bitWidth}px`;
-        // If height not specified, use width
-        style.height = height ? `${height - 5}px` : style.width;
+        style.height = `${bitHeight}px`;
       } else {
         // If circular led, width and height are the same
-        // make sizes similar to size in CS-Studio, five taken
-        // away from default in css file too
-        style.width = `${bitWidth}px`;
+        style.width = horizontal ? `${bitWidth}px` : `${bitHeight}px`;
         style.height = style.width;
         style["borderRadius"] = "50%";
       }
+      // Add shadow for 3D effect
+      if (effect3d)
+        style["boxShadow"] = `${borderWidth}px ${borderWidth}px darkgray`;
       const className = classes.Bit;
       const bitDiv = (
-        <div key={`bit${i}`} className={className} style={style} />
+        <div key={`bit${idx}`} className={className} style={style} />
       );
-      bitArray.push(bitDiv);
+      ledArray.push(bitDiv);
+    });
+    const byteStyle: CSSProperties = {};
+    byteStyle.width = `${width}px`;
+    byteStyle.height = `${height ? height : width}px`;
+
+    return (
+      <div className={classes.ByteMonitor} style={byteStyle}>
+        {ledArray}
+      </div>
+    );
+  }
+  return <></>;
+};
+
+/**
+ * Recalculate size of led and border if necessary to
+ * ensure it fits within width/height boundaries if possible
+ * @param numBits number of LEDs to display
+ * @param width width of bytemonitor
+ * @param height height of bytemonitor
+ * @param ledBorder thickness of border around each led
+ * @param horizontal whether displayed horizontal or vertical
+ * @returns array of bit width, height and border thickness
+ */
+export function recalculateDimensions(
+  numBits: number,
+  width: number,
+  height: number | undefined,
+  ledBorder: number,
+  horizontal: boolean
+): number[] {
+  width = width - 5;
+  height = height ? height - 5 : width - 5;
+  // If horizontal, width is the value we split bits along
+  const size = horizontal ? width : height;
+  // Calculate how wide led can be if we use existing bit Size
+  let bitSize = (size - ledBorder * (numBits - 1)) / numBits;
+  // If bitSize < 1 only show border not led
+  if (bitSize < 1) {
+    const val = size / (numBits - 1);
+    if (val < 1) {
+      // If less than zero it means there's so many bits
+      // we can't fit them all in display even without border
+      // so we set both to zero and display nothing
+      ledBorder = 0;
+      bitSize = 0;
+    } else {
+      // If greater than 1 we can set border to some value
+      ledBorder = Math.round(size / (numBits - 1));
     }
   }
-  return <div className={"ByteMonitor"}>{bitArray}</div>;
-};
+  return [
+    horizontal ? bitSize : width,
+    horizontal ? height : bitSize,
+    ledBorder
+  ];
+}
+
+/**
+ * Convert integer into bytes to display as LEDs
+ * @param num
+ * @returns
+ */
+export function getBytes(
+  num: number,
+  numBits: number,
+  startBit: number,
+  bitReverse: boolean
+): number[] {
+  if (numBits + startBit > 32) numBits = 32 - startBit;
+  const bitArray: number[] = [];
+  // Mimic Java's Integer.toUnsignedLong method
+  if (num < 0) num = 4294967296 + num;
+  for (let i = 0; i < numBits; i++) {
+    // Determine whether each bit is 0 or 1
+    // This is done identically to how it is in Phoebus
+    bitArray[bitReverse ? i : numBits - 1 - i] =
+      (num & (1 << (startBit + i))) === 0 ? 0 : 1;
+  }
+  return bitArray;
+}
 
 const ByteMonitorWidgetProps = {
   ...ByteMonitorProps,

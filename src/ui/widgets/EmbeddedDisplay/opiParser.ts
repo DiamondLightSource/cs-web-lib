@@ -644,7 +644,12 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   offState: ["off_state", opiParseNumber],
   showBoolean: ["show_boolean", opiParseBoolean],
   startAngle: ["start_angle", opiParseNumber],
-  totalAngle: ["total_angle", opiParseNumber]
+  totalAngle: ["total_angle", opiParseNumber],
+  numBits: ["numBits", opiParseNumber],
+  startBit: ["startBit", opiParseNumber],
+  ledBorder: ["led_border", opiParseNumber],
+  ledBorderColor: ["led_border_color", opiParseColor],
+  bitReverse: ["bitReverse", opiParseBoolean]
 };
 
 /**
