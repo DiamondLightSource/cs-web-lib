@@ -12,6 +12,16 @@ import {
 import { Color } from "../../../types/color";
 import classes from "./ellipse.module.css";
 
+export type FillOptions = {
+  transparent: boolean;
+  horizontalFill: boolean;
+  gradient: boolean;
+  bgGradientColor: Color | undefined;
+  fgGradientColor: Color | undefined;
+  bgColor: Color;
+  level: number | string;
+};
+
 export const EllipseProps = {
   height: IntPropOpt,
   width: IntPropOpt,
@@ -40,7 +50,7 @@ export const EllipseComponent = (
       props.lineColor?.toString() || Color.fromRgba(0, 0, 255).toString()
   };
   // Set filling options
-  const fillOptions = {
+  const fillOptions: FillOptions = {
     transparent: props.transparent ?? false,
     horizontalFill: props.horizontalFill ?? false,
     gradient: props.gradient ?? false,
@@ -55,7 +65,7 @@ export const EllipseComponent = (
 
 export function setFillOptions(
   style: CSSProperties,
-  fillOpts: any
+  fillOpts: FillOptions
 ): CSSProperties {
   // Set filling options
   let fillDirection = "bottom";

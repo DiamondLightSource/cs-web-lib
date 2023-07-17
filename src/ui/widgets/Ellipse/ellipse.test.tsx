@@ -1,5 +1,5 @@
-import React, { CSSProperties } from "react";
-import { setFillOptions } from "./ellipse";
+import { CSSProperties } from "react";
+import { FillOptions, setFillOptions } from "./ellipse";
 import { Color } from "../../../types/color";
 
 const DEFAULT_FILL_OPTIONS = {
@@ -28,7 +28,7 @@ describe("<EllipseComponent />", (): void => {
   });
   test("set gradient color fill horizontal", (): void => {
     let style: CSSProperties = {};
-    const fillOptions = {
+    const fillOptions: FillOptions = {
       ...DEFAULT_FILL_OPTIONS,
       gradient: true,
       horizontalFill: true,
