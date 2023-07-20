@@ -23,8 +23,6 @@ export type FillOptions = {
 };
 
 export const EllipseProps = {
-  height: IntPropOpt,
-  width: IntPropOpt,
   gradient: BoolPropOpt,
   bgGradientColor: ColorPropOpt,
   fgGradientColor: ColorPropOpt,
@@ -42,8 +40,8 @@ export const EllipseComponent = (
 ): JSX.Element => {
   // Set up CSS style
   let style: CSSProperties = {
-    width: props.width ? props.width - 5 : "100%",
-    height: props.height ? props.height - 5 : "100%",
+    width: "100%",
+    height: "100%",
     borderStyle: "solid",
     borderWidth: props.lineWidth || 3,
     borderColor:

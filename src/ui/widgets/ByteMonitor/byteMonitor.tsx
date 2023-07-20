@@ -108,12 +108,12 @@ export const ByteMonitorComponent = (
       );
       ledArray.push(bitDiv);
     });
-    const byteStyle: CSSProperties = {};
-    byteStyle.width = `${width}px`;
-    byteStyle.height = `${height ? height : width}px`;
 
     return (
-      <div className={classes.ByteMonitor} style={byteStyle}>
+      <div
+        className={classes.ByteMonitor}
+        style={{ height: "100%", width: "100%" }}
+      >
         {ledArray}
       </div>
     );
