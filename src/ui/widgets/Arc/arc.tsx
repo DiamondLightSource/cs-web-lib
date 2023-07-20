@@ -17,7 +17,6 @@ const ArcProps = {
   fill: BoolPropOpt,
   startAngle: IntPropOpt,
   totalAngle: IntPropOpt,
-  lineStyle: IntPropOpt,
   lineWidth: IntPropOpt
 };
 

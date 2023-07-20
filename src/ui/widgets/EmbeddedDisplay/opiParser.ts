@@ -639,6 +639,7 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   gradient: ["gradient", opiParseBoolean],
   fillLevel: ["fill_level", opiParseNumber],
   horizontalFill: ["horizontal_fill", opiParseBoolean],
+  fill: ["fill", opiParseBoolean],
   lineColor: ["line_color", opiParseColor],
   onLabel: ["on_label", opiParseString],
   offLabel: ["off_label", opiParseString],
@@ -651,7 +652,10 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   startBit: ["startBit", opiParseNumber],
   ledBorder: ["led_border", opiParseNumber],
   ledBorderColor: ["led_border_color", opiParseColor],
-  bitReverse: ["bitReverse", opiParseBoolean]
+  bitReverse: ["bitReverse", opiParseBoolean],
+  squareLed: ["square_led", opiParseBoolean],
+  squareButton: ["square_button", opiParseBoolean],
+  effect3d: ["effect_3d", opiParseBoolean]
 };
 
 /**

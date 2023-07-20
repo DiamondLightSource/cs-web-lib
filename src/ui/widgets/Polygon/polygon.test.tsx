@@ -15,7 +15,6 @@ describe("<PolygonComponent />", (): void => {
       height: 10,
       width: 20,
       lineWidth: 2,
-      lineStyle: 1,
       lineColor: Color.fromRgba(0, 1, 255),
       backgroundColor: Color.fromRgba(200, 1, 60),
       points: {
@@ -44,7 +43,6 @@ describe("<PolygonComponent />", (): void => {
       height: 10,
       width: 20,
       lineWidth: 2,
-      lineStyle: 1,
       lineColor: Color.fromRgba(0, 1, 255),
       backgroundColor: Color.fromRgba(200, 1, 60),
       rotationAngle: 0

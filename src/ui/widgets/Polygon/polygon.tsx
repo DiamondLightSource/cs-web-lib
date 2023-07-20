@@ -16,7 +16,6 @@ const PolygonProps = {
   width: IntPropOpt,
   border: BorderPropOpt,
   lineWidth: IntPropOpt,
-  lineStyle: IntPropOpt,
   lineColor: ColorPropOpt,
   backgroundColor: ColorPropOpt,
   points: PointsPropOpt,
