@@ -198,4 +198,4 @@ export const ByteMonitor = (
   props: InferWidgetProps<typeof ByteMonitorWidgetProps>
 ): JSX.Element => <Widget baseWidget={ByteMonitorComponent} {...props} />;
 
-registerWidget(ByteMonitor, ByteMonitorWidgetProps, "byteMonitor");
+registerWidget(ByteMonitor, ByteMonitorWidgetProps, "bytemonitor");

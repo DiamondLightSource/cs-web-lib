@@ -51,7 +51,7 @@ export interface XmlDescription {
 const OPI_WIDGET_MAPPING: { [key: string]: any } = {
   "org.csstudio.opibuilder.Display": "display",
   "org.csstudio.opibuilder.widgets.arc": "arc",
-  "org.csstudio.opibuilder.widgets.bytemonitor": "byteMonitor",
+  "org.csstudio.opibuilder.widgets.bytemonitor": "bytemonitor",
   "org.csstudio.opibuilder.widgets.Ellipse": "ellipse",
   "org.csstudio.opibuilder.widgets.TextUpdate": "readback",
   "org.csstudio.opibuilder.widgets.TextInput": "input",
@@ -59,7 +59,7 @@ const OPI_WIDGET_MAPPING: { [key: string]: any } = {
   "org.csstudio.opibuilder.widgets.groupingContainer": "groupingcontainer",
   "org.csstudio.opibuilder.widgets.Rectangle": "shape",
   "org.csstudio.opibuilder.widgets.ActionButton": "actionbutton",
-  "org.csstudio.opibuilder.widgets.BoolButton": "boolButton",
+  "org.csstudio.opibuilder.widgets.BoolButton": "boolbutton",
   "org.csstudio.opibuilder.widgets.MenuButton": "menubutton",
   "org.csstudio.opibuilder.widgets.combo": "menubutton",
   "org.csstudio.opibuilder.widgets.checkbox": "checkbox",

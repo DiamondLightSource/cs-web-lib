@@ -131,4 +131,4 @@ export const BoolButton = (
   props: InferWidgetProps<typeof BoolButtonWidgetProps>
 ): JSX.Element => <Widget baseWidget={BoolButtonComponent} {...props} />;
 
-registerWidget(BoolButton, BoolButtonWidgetProps, "boolButton");
+registerWidget(BoolButton, BoolButtonWidgetProps, "boolbutton");
