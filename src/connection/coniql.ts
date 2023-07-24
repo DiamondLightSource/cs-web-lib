@@ -6,7 +6,6 @@ import base64js from "base64-js";
 import { ApolloClient, ApolloLink, from } from "@apollo/client";
 import { RetryLink } from "apollo-link-retry";
 import { HttpLink } from "@apollo/client/link/http";
-import { WebSocketLink } from "@apollo/client/link/ws";
 import { onError } from "@apollo/client/link/error";
 import { InMemoryCache, NormalizedCacheObject } from "@apollo/client/cache";
 import {
@@ -24,10 +23,8 @@ import {
   DeviceQueriedCallback,
   nullDeviceCallback
 } from "./plugin";
-import {
-  OperationOptions,
-  SubscriptionClient
-} from "subscriptions-transport-ws";
+import { Client, createClient } from "graphql-ws";
+import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import {
   DType,
   DTime,
@@ -275,7 +272,7 @@ export class ConiqlPlugin implements Connection {
   private onValueUpdate: ValueChangedCallback;
   private deviceQueried: DeviceQueriedCallback;
   private connected: boolean;
-  private wsClient: SubscriptionClient;
+  private wsClient: Client;
   private disconnected: string[] = [];
   private subscriptions: { [pvName: string]: ObservableSubscription };
 
@@ -295,52 +292,28 @@ export class ConiqlPlugin implements Connection {
         ]
       }
     });
-    let acknowledgementReceived = false;
-    this.wsClient = new SubscriptionClient(
-      `${this.wsProtocol}://${socket}/ws`,
-      {
-        reconnect: true,
-        connectionCallback: (error, result) => (acknowledgementReceived = true)
-      }
-    );
-    this.wsClient.use([
-      {
-        applyMiddleware(options: OperationOptions, next: any) {
-          if (!acknowledgementReceived) {
-            log.warn("Acknowledgement not received from server.");
+    this.wsClient = createClient({
+      url: `${this.wsProtocol}://${socket}/ws`,
+      retryAttempts: Infinity,
+      shouldRetry: () => true,
+      on: {
+        closed: () => {
+          if (this.connected) {
+            for (const pvName of Object.keys(this.subscriptions)) {
+              // Websocket closed so set connection status to disconnected and
+              // readonly
+              this.onConnectionUpdate(pvName, {
+                isConnected: false,
+                isReadonly: true
+              });
+            }
           }
-          next();
+          this.connected = false;
+        },
+        connected: () => {
+          this.connected = true;
         }
       }
-    ]);
-    this.wsClient.onReconnecting((): void => {
-      log.info("Websocket client reconnected.");
-      for (const pvName of this.disconnected) {
-        this.subscribe(pvName);
-      }
-      this.disconnected = [];
-    });
-    this.wsClient.onDisconnected((): void => {
-      log.error("Websocket client disconnected.");
-      acknowledgementReceived = false;
-      for (const pvName of Object.keys(this.subscriptions)) {
-        if (
-          this.subscriptions.hasOwnProperty(pvName) &&
-          this.subscriptions[pvName]
-        ) {
-          this.subscriptions[pvName].unsubscribe();
-          delete this.subscriptions[pvName];
-          this.disconnected.push(pvName);
-        } else {
-          log.error(`Attempt to unsubscribe from ${pvName} failed`);
-        }
-        this.onConnectionUpdate(pvName, {
-          isConnected: false,
-          isReadonly: true
-        });
-      }
-      this.wsClient.unsubscribeAll();
-      this.wsClient.close();
     });
     const link = this.createLink(socket);
     this.client = new ApolloClient({ link, cache });
@@ -352,7 +325,7 @@ export class ConiqlPlugin implements Connection {
   }
 
   private createLink(socket: string): ApolloLink {
-    const wsLink = new WebSocketLink(this.wsClient);
+    const wsLink = new GraphQLWsLink(this.wsClient);
     const errorLink = onError(({ graphQLErrors, networkError }) => {
       if (graphQLErrors) {
         log.error("GraphQL errors:");
