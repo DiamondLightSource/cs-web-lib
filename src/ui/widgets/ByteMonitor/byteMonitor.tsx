@@ -61,14 +61,21 @@ export const ByteMonitorComponent = (
   if (numBits < 1) numBits = 1;
   if (numBits > 64) numBits = 64;
 
-  if (doubleValue !== undefined && width !== undefined) {
+  if (
+    doubleValue !== undefined &&
+    width !== undefined &&
+    height !== undefined
+  ) {
     const dataValues = getBytes(doubleValue, numBits, startBit, bitReverse);
+    // If 3D effect, there is no border but we must leave space for shadow
+    const border = effect3d ? 1 : ledBorder;
     const [bitWidth, bitHeight, borderWidth] = recalculateDimensions(
       numBits,
       width,
       height,
-      ledBorder,
-      horizontal
+      border,
+      horizontal,
+      squareLed
     );
 
     const ledArray: Array<JSX.Element> = [];
@@ -88,7 +95,8 @@ export const ByteMonitorComponent = (
         : offColor?.toString();
       // Set border color and thickness
       style["borderColor"] = ledBorderColor.toString();
-      style["borderWidth"] = `${borderWidth}px`;
+      // If 3D, no border
+      style["borderWidth"] = effect3d ? 0 : `${borderWidth}px`;
       // Set shape as square or circular
       if (squareLed) {
         style.width = `${bitWidth}px`;
@@ -100,8 +108,12 @@ export const ByteMonitorComponent = (
         style["borderRadius"] = "50%";
       }
       // Add shadow for 3D effect
-      if (effect3d)
-        style["boxShadow"] = `${borderWidth}px ${borderWidth}px darkgray`;
+      if (effect3d) {
+        style["margin"] = "0.5px"; // Margin to ensure LEDs don't overlap
+        style["boxShadow"] = `inset ${bitWidth / 4}px ${bitWidth / 4}px ${
+          bitWidth * 0.4
+        }px rgba(255,255,255,.5), 1px 1px white, -1px -1px darkgray`;
+      }
       const className = classes.Bit;
       const bitDiv = (
         <div key={`bit${idx}`} className={className} style={style} />
@@ -134,17 +146,24 @@ export const ByteMonitorComponent = (
 export function recalculateDimensions(
   numBits: number,
   width: number,
-  height: number | undefined,
+  height: number,
   ledBorder: number,
-  horizontal: boolean
+  horizontal: boolean,
+  squareLed: boolean
 ): number[] {
-  width = width - 5;
-  height = height ? height - 5 : width - 5;
+  width = width - 2;
+  height = height - 2;
   // If horizontal, width is the value we split bits along
   const size = horizontal ? width : height;
   // Calculate how wide led can be if we use existing bit Size
   let bitSize = (size - ledBorder * (numBits - 1)) / numBits;
   // If bitSize < 1 only show border not led
+  if (!squareLed) {
+    // Check that bitSize fits in other axis if circular led
+    const otherDimension = horizontal ? height : width;
+    // If bigger, we must use other dimension
+    if (bitSize > otherDimension) bitSize = otherDimension;
+  }
   if (bitSize < 1) {
     const val = size / (numBits - 1);
     if (val < 1) {

@@ -26,10 +26,12 @@ describe("<ByteMonitorComponent />", (): void => {
     const bits = byteMonitor.children as Array<ReactTestRendererJSON>;
     expect(bits.length).toEqual(16);
 
-    expect(bits[0].props.style.marginRight).toEqual("-2px");
-    expect(bits[1].props.style.borderWidth).toEqual("2px");
+    expect(bits[0].props.style.marginRight).toEqual("-1px");
+    expect(bits[1].props.style.borderWidth).toEqual(0);
     expect(bits[5].props.style.backgroundColor).toEqual("rgba(0,100,0,255)");
-    expect(bits[10].props.style.boxShadow).toEqual("2px 2px darkgray");
+    expect(bits[10].props.style.boxShadow).toEqual(
+      "inset 0.359375px 0.359375px 0.5750000000000001px rgba(255,255,255,.5), 1px 1px white, -1px -1px darkgray"
+    );
     expect(bits[15].props.style.borderRadius).toEqual("50%");
   });
   test("overwrite bytemonitor defautl values", (): void => {
@@ -66,9 +68,9 @@ describe("<ByteMonitorComponent />", (): void => {
 
 describe("ByteMonitor functions", (): void => {
   test("recalculateDimensions()", (): void => {
-    const [dx, dy, border] = recalculateDimensions(4, 40, 40, 2, true);
-    expect(dx).toEqual(7.25);
-    expect(dy).toEqual(35);
+    const [dx, dy, border] = recalculateDimensions(4, 40, 40, 2, true, false);
+    expect(dx).toEqual(8);
+    expect(dy).toEqual(38);
     expect(border).toEqual(2);
   });
 
