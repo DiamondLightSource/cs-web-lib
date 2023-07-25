@@ -43,10 +43,13 @@ export const EllipseComponent = (
     width: "100%",
     height: "100%",
     borderStyle: "solid",
-    borderWidth: props.lineWidth || 3,
+    borderWidth: 3,
     borderColor:
       props.lineColor?.toString() || Color.fromRgba(0, 0, 255).toString()
   };
+  // This has to be done separately because otherwise if width = 0, default
+  // border width of 3 is set
+  if (props.lineWidth !== undefined) style.borderWidth = props.lineWidth;
   // Set filling options
   const fillOptions: FillOptions = {
     transparent: props.transparent ?? false,
