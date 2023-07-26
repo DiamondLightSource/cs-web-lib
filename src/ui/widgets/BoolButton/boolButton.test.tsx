@@ -37,7 +37,7 @@ describe("<BoolButton />", (): void => {
       squareButton: true,
       backgroundColor: Color.fromRgba(20, 20, 200),
       foregroundColor: Color.fromRgba(10, 60, 40),
-      showBoolean: true,
+      showBooleanLabel: true,
       onState: 1,
       offState: 0
     };
@@ -53,7 +53,7 @@ describe("<BoolButton />", (): void => {
   test("no text if showboolean is false", (): void => {
     const boolButtonProps = {
       value: new DType({ doubleValue: 0 }),
-      showBoolean: false,
+      showBooleanLabel: false,
       onState: 1,
       offState: 0
     };
@@ -75,7 +75,7 @@ describe("<BoolButton />", (): void => {
       squareButton: true,
       backgroundColor: Color.fromRgba(20, 20, 200),
       foregroundColor: Color.fromRgba(10, 60, 40),
-      showBoolean: true,
+      showBooleanLabel: true,
       onState: 1,
       offState: 0
     };

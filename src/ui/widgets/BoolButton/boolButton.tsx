@@ -11,6 +11,9 @@ import {
   StringPropOpt
 } from "../propTypes";
 import { Color } from "../../../types/color";
+import classes from "./boolButton.module.css";
+
+const LED_POSITION = 4.8 / 6;
 
 const BoolButtonProps = {
   height: IntPropOpt,
@@ -27,7 +30,8 @@ const BoolButtonProps = {
   points: PointsPropOpt,
   rotationAngle: IntPropOpt,
   effect3d: BoolPropOpt,
-  showBoolean: BoolPropOpt,
+  showBooleanLabel: BoolPropOpt,
+  showLed: BoolPropOpt,
   confirmMessage: StringPropOpt
 };
 
@@ -58,35 +62,67 @@ export const BoolButtonComponent = (
     squareButton = false,
     backgroundColor = Color.fromRgba(200, 200, 200),
     foregroundColor = Color.fromRgba(0, 0, 0),
-    showBoolean = true
+    showBooleanLabel = true,
+    showLed = false
   } = props;
 
   // Use useState for properties that change on click - text and color
-  const [label, setLabel] = useState("");
-  const [color, setColor] = useState(backgroundColor.toString());
+  const [label, setLabel] = useState(showBooleanLabel ? offLabel : "");
+  const [ledColor, setLedColor] = useState(offColor.toString());
   const doubleValue = value?.getDoubleValue();
 
   // Establish style
   const style: CSSProperties = {
     width: width,
     height: height,
-    backgroundColor: color, // This is changed by state
+    backgroundColor: backgroundColor.toString(),
     color: foregroundColor.toString()
   };
   if (!squareButton) style["borderRadius"] = "50%";
+
+  // Configure LED settings
+  let ledDiameter = (0.25 * (width + height)) / 2;
+  if (ledDiameter > Math.min(width, height))
+    ledDiameter = Math.min(width, height) - 8;
+  let ledX = 0;
+  let ledY = 0;
+  if (width >= height) {
+    ledX = width * LED_POSITION - ledDiameter / 2;
+    ledY = height / 2 - ledDiameter / 2;
+  } else {
+    ledX = width / 2 - ledDiameter / 2;
+    ledY = height * (1 - LED_POSITION) - ledDiameter / 2;
+  }
+  const ledStyle: CSSProperties = {
+    width: (0.25 * (width + height)) / 2,
+    height: (0.25 * (width + height)) / 2,
+    backgroundColor: ledColor,
+    top: ledY,
+    left: ledX,
+    boxShadow: `inset ${ledDiameter / 4}px ${ledDiameter / 4}px ${
+      ledDiameter * 0.4
+    }px rgba(255,255,255,.5)`,
+    visibility: "hidden"
+  };
+  // Hide LED if it isn't visible
+  if (showLed) {
+    // Shift text to the side for LED
+    if (width > height) style["paddingRight"] = ledDiameter;
+    ledStyle["visibility"] = "visible";
+  }
 
   // This is necessary in order to set the initial label value
   // after connection to PV established, as setState cannot be
   // established inside a conditional, or called in the main body
   // of the component as it causes too many re-renders error
   useEffect(() => {
-    if (doubleValue !== undefined && showBoolean) {
+    if (doubleValue !== undefined && showBooleanLabel) {
       if (doubleValue === onState) {
         setLabel(onLabel);
-        setColor(onColor.toString());
+        setLedColor(onColor.toString());
       } else if (doubleValue === offState) {
         setLabel(offLabel);
-        setColor(offColor.toString());
+        setLedColor(offColor.toString());
       }
     }
   }, [
@@ -97,28 +133,35 @@ export const BoolButtonComponent = (
     offState,
     offLabel,
     offColor,
-    showBoolean
+    showBooleanLabel
   ]);
 
   // TO DO - currently we check existing value and change label. When
   // we have PV write ability, change value and label
-  // TO DO - extra features such as show led and confirmation modal?...
+  // TO DO - extra features such as confirmation modal?...
   function handleClick(e: React.MouseEvent) {
-    if (showBoolean) {
+    if (showBooleanLabel) {
       if ((e.target as HTMLButtonElement).innerHTML === onLabel) {
         setLabel(offLabel);
-        setColor(offColor.toString());
+        setLedColor(offColor.toString());
       } else if ((e.target as HTMLButtonElement).innerHTML === offLabel) {
         setLabel(onLabel);
-        setColor(onColor.toString());
+        setLedColor(onColor.toString());
       }
     }
   }
 
   return (
-    <button style={style} onClick={event => handleClick(event)}>
-      {label}
-    </button>
+    <>
+      <button
+        className={classes.BoolButton}
+        style={style}
+        onClick={event => handleClick(event)}
+      >
+        {label}
+        <span className={classes.Led} style={ledStyle} />
+      </button>
+    </>
   );
 };
 

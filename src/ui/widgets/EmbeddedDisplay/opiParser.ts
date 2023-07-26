@@ -645,7 +645,6 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   offLabel: ["off_label", opiParseString],
   onState: ["on_state", opiParseNumber],
   offState: ["off_state", opiParseNumber],
-  showBoolean: ["show_boolean", opiParseBoolean],
   startAngle: ["start_angle", opiParseNumber],
   totalAngle: ["total_angle", opiParseNumber],
   numBits: ["numBits", opiParseNumber],
@@ -655,7 +654,8 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   bitReverse: ["bitReverse", opiParseBoolean],
   squareLed: ["square_led", opiParseBoolean],
   squareButton: ["square_button", opiParseBoolean],
-  effect3d: ["effect_3d", opiParseBoolean]
+  effect3d: ["effect_3d", opiParseBoolean],
+  showLed: ["show_led", opiParseBoolean]
 };
 
 /**
