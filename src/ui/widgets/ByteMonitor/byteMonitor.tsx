@@ -77,7 +77,6 @@ export const ByteMonitorComponent = (
       horizontal,
       squareLed
     );
-
     const ledArray: Array<JSX.Element> = [];
     dataValues.forEach((data: number, idx: number) => {
       const style: CSSProperties = {};
@@ -85,9 +84,9 @@ export const ByteMonitorComponent = (
       if (horizontal) {
         style.display = "inline-block";
         style["flexFlow"] = "row wrap";
-        style["marginRight"] = `-${Math.round(borderWidth)}px`;
+        style["marginRight"] = `-${borderWidth}px`;
       } else {
-        style["marginBottom"] = `-${Math.round(borderWidth)}px`;
+        style["marginBottom"] = `-${borderWidth}px`;
       }
       // Set color based on bit
       style["backgroundColor"] = data
@@ -156,7 +155,7 @@ export function recalculateDimensions(
   // If horizontal, width is the value we split bits along
   const size = horizontal ? width : height;
   // Calculate how wide led can be if we use existing bit Size
-  let bitSize = (size - ledBorder * (numBits - 1)) / numBits;
+  let bitSize = (size - ledBorder * (numBits + 1)) / numBits;
   // If bitSize < 1 only show border not led
   if (!squareLed) {
     // Check that bitSize fits in other axis if circular led
