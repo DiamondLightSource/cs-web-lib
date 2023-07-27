@@ -1,0 +1,79 @@
+:root {
+  box-sizing: border-box;
+  --disconnected: white;
+  --invalid: white;
+  --warning: yellow;
+  --alarm: red;
+  --changing: white;
+  --undefined: white;
+  --diamond-blue: #072b5d;
+  --diamond-yellow: #ffcf00;
+  --light-text: #cccccc;
+  --dark-text: #555555;
+  --light-background: #dddddd;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  background-color: var(--diamond-blue);
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--diamond-blue);
+  color: var(--color-text);
+  font-family: sans-serif;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+.App {
+  height: 100%;
+  text-align: center;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 40vmin;
+  pointer-events: none;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+.Label {
+  color: var(--colour-text);
+}
+
+.Readback {
+  font-weight: bold;
+  color: #2fdb04;
+}
+
+.Slider {
+  cursor: grab;
+}
+.top {
+  width: 100%;
+  background: var(--diamond-blue);
+  text-align: right;
+  height: 200px;
+}

@@ -1,0 +1,16 @@
+{
+  "type": "flexcontainer",
+  "position": "relative",
+  "children": [
+    {
+      "type": "embeddedDisplay",
+      "position": "relative",
+      "margin": "10px",
+      "file": {
+        "path": "/performanceTestPage.opi",
+        "macros": {},
+        "defaultProtocol": "ca"
+      }
+    }
+  ]
+}

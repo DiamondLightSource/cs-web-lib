@@ -1,2 +1,5 @@
 dist
 node_modules
+performance/*.db
+performance/node_modules
+performance/public/*.opi
