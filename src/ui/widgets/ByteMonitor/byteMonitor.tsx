@@ -68,14 +68,15 @@ export const ByteMonitorComponent = (
   ) {
     const dataValues = getBytes(doubleValue, numBits, startBit, bitReverse);
     // If 3D effect, there is no border but we must leave space for shadow
-    const border = effect3d ? 1 : ledBorder;
+    const border = effect3d ? 2 : ledBorder;
     const [bitWidth, bitHeight, borderWidth] = recalculateDimensions(
       numBits,
       width,
       height,
       border,
       horizontal,
-      squareLed
+      squareLed,
+      effect3d
     );
     const ledArray: Array<JSX.Element> = [];
     dataValues.forEach((data: number, idx: number) => {
@@ -108,7 +109,7 @@ export const ByteMonitorComponent = (
       }
       // Add shadow for 3D effect
       if (effect3d) {
-        style["margin"] = "0.5px"; // Margin to ensure LEDs don't overlap
+        style["margin"] = "1px"; // Margin to ensure LEDs don't overlap
         style["boxShadow"] = `inset ${bitWidth / 4}px ${bitWidth / 4}px ${
           bitWidth * 0.4
         }px rgba(255,255,255,.5), 1px 1px white, -1px -1px darkgray`;
@@ -148,14 +149,16 @@ export function recalculateDimensions(
   height: number,
   ledBorder: number,
   horizontal: boolean,
-  squareLed: boolean
+  squareLed: boolean,
+  effect3d: boolean
 ): number[] {
   width = width - 2;
   height = height - 2;
   // If horizontal, width is the value we split bits along
   const size = horizontal ? width : height;
   // Calculate how wide led can be if we use existing bit Size
-  let bitSize = (size - ledBorder * (numBits + 1)) / numBits;
+  let bitSize = size / numBits;
+  if (effect3d) bitSize = (size - ledBorder * (numBits + 1)) / numBits;
   // If bitSize < 1 only show border not led
   if (!squareLed) {
     // Check that bitSize fits in other axis if circular led
