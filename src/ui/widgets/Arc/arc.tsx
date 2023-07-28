@@ -8,6 +8,7 @@ import {
   ColorPropOpt,
   IntPropOpt
 } from "../propTypes";
+import classes from "./arc.module.css";
 
 const ArcProps = {
   width: IntPropOpt,
@@ -30,7 +31,8 @@ export const ArcComponent = (
     foregroundColor,
     fill = false,
     startAngle = 0,
-    totalAngle = 90
+    totalAngle = 90,
+    lineWidth = 1
   } = props;
   const fillColor = fill ? backgroundColor?.toString() : "transparent";
   if (width !== undefined && height !== undefined) {
@@ -46,9 +48,8 @@ export const ArcComponent = (
     // If remainder isn't zero, add non-90 segment
     const residualAngle = totalAngle - factor * 90;
     if (residualAngle > 0) segments.push(residualAngle);
-    // SVG path goes clockwise but CSStudio goes clockwise - this is needed
-    // in order to fill in the right direction from correct start point
-    let theta = ((180 - totalAngle + startAngle) * Math.PI) / 180;
+    // Set start angle
+    let theta = (startAngle * Math.PI) / 180;
     segments.forEach((angle: number, idx: number) => {
       const ratio = angle / 360;
       // Get the angle of the segment (delta)
@@ -72,32 +73,43 @@ export const ArcComponent = (
       // Add previous segment angle to stack segments
       theta += delta;
 
-      // Set up SVG path commands
-      const arc = [
-        `M ${radiusX} ${radiusY}`, // Set point
-        `L ${startPos.join(" ")}`, // Line
-        `A ${radiusX} ${radiusY} 0 0 1 ${endPos.join(" ")}`, // Make line elliptical
-        "Z" // Close path
-      ];
+      // Set up SVG path commands - filled shape and border
+      // Don't add fill element if set to not fill
+      if (fill) {
+        const arc = [
+          `M ${radiusX} ${radiusY}`, // Set point
+          `L ${startPos.join(" ")}`, // Line
+          `A ${radiusX} ${radiusY} ${startAngle} 0 1 ${endPos.join(" ")}`, // Make line elliptical
+          "Z" // Close path
+        ];
+
+        elements.push(
+          <path
+            className={classes.ArcPath}
+            d={arc.join("\n")}
+            fill={fillColor}
+            key={`arc${idx}`}
+          ></path>
+        );
+      }
+
       const border = [
         `M ${startPos.join(" ")}`, // Set start point on arc
-        `A ${radiusX} ${radiusY} 0 0 1 ${endPos.join(" ")}` // Draw elliptical line
+        `A ${radiusX} ${radiusY} ${startAngle} 0 1 ${endPos.join(" ")}` // Draw elliptical line
       ];
-      // Each segment has 2 path elements - filled shape and border
-      elements.push(
-        <path d={arc.join("\n")} fill={fillColor} key={`arc${idx}`}></path>
-      );
       elements.push(
         <path
+          className={classes.BorderPath}
           d={border.join("\n")}
           stroke={foregroundColor?.toString()}
           fill="transparent"
           key={`border${idx}`}
+          strokeWidth={lineWidth}
         ></path>
       );
     });
     return (
-      <svg className="arc" viewBox={`0 0 ${width} ${height}`}>
+      <svg className={classes.Arc} viewBox={`0 0 ${width} ${height}`}>
         {elements}
       </svg>
     );

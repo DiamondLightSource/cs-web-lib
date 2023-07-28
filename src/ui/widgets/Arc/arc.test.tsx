@@ -22,17 +22,12 @@ describe("<ArcComponent />", (): void => {
     expect(svg.props.viewBox).toEqual("0 0 100 100");
 
     const pathArray = svg.children as Array<ReactTestRendererJSON>;
-    // Fill and border paths of arc
-    expect(pathArray.length).toEqual(2);
+    // Default doesn't fill, expect just border paths of arc
+    expect(pathArray.length).toEqual(1);
     // Filled arc
-    expect(pathArray[0].props.d).toEqual(
-      "M 50 50\nL 50 100\nA 50 50 0 0 1 0 50\nZ"
-    );
+    expect(pathArray[0].props.d).toEqual("M 100 50\nA 50 50 0 0 1 50 100");
     expect(pathArray[0].props.fill).toEqual("transparent");
-    // Border path
-    expect(pathArray[1].props.d).toEqual("M 50 100\nA 50 50 0 0 1 0 50");
-    expect(pathArray[1].props.stroke).toEqual("rgba(0,1,255,255)");
-    expect(pathArray[1].props.fill).toEqual("transparent");
+    expect(pathArray[0].props.stroke).toEqual("rgba(0,1,255,255)");
   });
 
   test("create arc of angle > 180 degrees", (): void => {
@@ -53,8 +48,9 @@ describe("<ArcComponent />", (): void => {
     expect(pathArray.length).toEqual(6);
     // Filled arc
     expect(pathArray[0].props.d).toEqual(
-      "M 50 50\nL 99 61\nA 50 50 0 0 1 39 99\nZ"
+      "M 50 50\nL 91 78\nA 50 50 34 0 1 22 91\nZ"
     );
+
     for (let i = 0; i < pathArray.length; i++) {
       if (i % 2) {
         // Even numbers are border elements
