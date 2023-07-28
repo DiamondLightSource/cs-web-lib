@@ -6,4 +6,5 @@
 .BorderPath {
     transform: scaleY(-1);
     transform-origin: center;
+    box-sizing: border-box;
 }

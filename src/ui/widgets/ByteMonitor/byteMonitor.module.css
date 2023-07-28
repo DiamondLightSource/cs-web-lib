@@ -1,5 +1,6 @@
 .Bit {
     border-style: solid;
+    box-sizing: border-box;
 }
 
 .ByteMonitor {
