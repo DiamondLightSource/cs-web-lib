@@ -140,14 +140,25 @@ export const BoolButtonComponent = (
   // we have PV write ability, change value and label
   // TO DO - extra features such as confirmation modal?...
   function handleClick(e: React.MouseEvent) {
-    if (showBooleanLabel) {
-      if ((e.target as HTMLButtonElement).innerHTML === onLabel) {
-        setLabel(offLabel);
-        setLedColor(offColor.toString());
-      } else if ((e.target as HTMLButtonElement).innerHTML === offLabel) {
-        setLabel(onLabel);
-        setLedColor(onColor.toString());
-      }
+    // Remove span element to get just text
+    const text = (e.target as HTMLButtonElement).innerHTML.split("<")[0];
+    // Fetch RGB colour from background-color property
+    const colorProp = (e.target as HTMLButtonElement).innerHTML
+      .split("; ")[2] // Remove "background-color"
+      .split("rgb(")[1] // Remove "rgb(""
+      .slice(0, -1) // Remove final bracket
+      .replace(/\s/g, ""); // Remove whitespace
+    const color = "rgba(" + colorProp + ",255)";
+    // If no label, we use led color as our parameter
+    const param = showBooleanLabel ? text : color;
+    const onParam = showBooleanLabel ? onLabel : onColor.toString();
+    const offParam = showBooleanLabel ? offLabel : offColor.toString();
+    if (param === onParam) {
+      setLabel(offLabel);
+      setLedColor(offColor.toString());
+    } else if (param === offParam) {
+      setLabel(onLabel);
+      setLedColor(onColor.toString());
     }
   }
 
