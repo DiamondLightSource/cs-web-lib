@@ -40,13 +40,15 @@ export const ArcComponent = (
     const radiusY = Math.floor(height / 2);
     const elements: Array<JSX.Element> = [];
     const segments: number[] = [];
+    const negAngle = totalAngle < 0 ? true : false;
     // We create the arc as segments of 90 degrees or less
-    const factor = Math.floor(totalAngle / 90);
+    // eslint-disable-next-line prettier/prettier
+    const factor = negAngle ? Math.abs(Math.ceil(totalAngle / 90)) : Math.floor(totalAngle / 90);
     for (let i = 1; i <= factor; i++) {
       segments.push(90);
     }
     // If remainder isn't zero, add non-90 segment
-    const residualAngle = totalAngle - factor * 90;
+    const residualAngle = Math.abs(totalAngle) - factor * 90;
     if (residualAngle > 0) segments.push(residualAngle);
     // Set start angle
     let theta = (startAngle * Math.PI) / 180;
@@ -67,11 +69,11 @@ export const ArcComponent = (
         radiusY,
         radiusX,
         radiusY,
-        theta + delta
+        negAngle ? theta - delta : theta + delta // Arc coordinates are different if -totalAngle
       );
 
-      // Add previous segment angle to stack segments
-      theta += delta;
+      // Combine previous segment angle to stack segments
+      negAngle ? (theta -= delta) : (theta += delta);
 
       // Set up SVG path commands - filled shape and border
       // Don't add fill element if set to not fill
@@ -79,7 +81,9 @@ export const ArcComponent = (
         const arc = [
           `M ${radiusX} ${radiusY}`, // Set point
           `L ${startPos.join(" ")}`, // Line
-          `A ${radiusX} ${radiusY} ${startAngle} 0 1 ${endPos.join(" ")}`, // Make line elliptical
+          `A ${radiusX} ${radiusY} ${startAngle} 0 ${
+            negAngle ? 0 : 1
+          } ${endPos.join(" ")}`, // Make line elliptical
           "Z" // Close path
         ];
 
@@ -95,7 +99,9 @@ export const ArcComponent = (
 
       const border = [
         `M ${startPos.join(" ")}`, // Set start point on arc
-        `A ${radiusX} ${radiusY} ${startAngle} 0 1 ${endPos.join(" ")}` // Draw elliptical line
+        `A ${radiusX} ${radiusY} ${startAngle} 0 ${
+          negAngle ? 0 : 1
+        } ${endPos.join(" ")}` // Draw elliptical line
       ];
       elements.push(
         <path
