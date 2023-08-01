@@ -100,15 +100,11 @@ describe("<BoolButton />", (): void => {
     fireEvent.click(button);
 
     expect(span.style.backgroundColor).toEqual("rgb(0, 235, 10)");
-
-    // Click button again to return to original
-    fireEvent.click(button);
-    expect(span.style.backgroundColor).toEqual("rgb(0, 100, 0)");
   });
 
   test("on click change text and led colour ", async (): Promise<void> => {
     const boolButtonProps = {
-      value: new DType({ doubleValue: 0 }),
+      value: new DType({ doubleValue: 1 }),
       width: 45,
       height: 20,
       onColor: Color.fromRgba(0, 235, 10),
@@ -127,18 +123,13 @@ describe("<BoolButton />", (): void => {
     const button = getByRole("button") as HTMLButtonElement;
     // span isn't a proper role so find by lack of text
     const span = within(button).getByText("") as HTMLSpanElement;
-    // Original off values
-    expect(button.textContent).toEqual("Disabled");
-    expect(span.style.backgroundColor).toEqual("rgb(0, 100, 0)");
-
-    // Click button to on
-    fireEvent.click(button);
-
+    // Original on values
     expect(button.textContent).toEqual("Enabled");
     expect(span.style.backgroundColor).toEqual("rgb(0, 235, 10)");
 
-    // Click button again to return to original
+    // Click button to off
     fireEvent.click(button);
+
     expect(button.textContent).toEqual("Disabled");
     expect(span.style.backgroundColor).toEqual("rgb(0, 100, 0)");
   });

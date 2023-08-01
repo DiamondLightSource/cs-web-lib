@@ -61,6 +61,72 @@ describe("<ArcComponent />", (): void => {
       }
     }
   });
+
+  test("create arc with negative start angle", (): void => {
+    const arcProps = {
+      height: 100,
+      width: 100,
+      startAngle: -60,
+      totalAngle: 40,
+      fill: true,
+      foregroundColor: Color.fromRgba(0, 100, 200),
+      backgroundColor: Color.fromRgba(45, 1, 180)
+    };
+
+    const svg = ArcRenderer(arcProps);
+
+    const pathArray = svg.children as Array<ReactTestRendererJSON>;
+    // Fill and border paths of arc
+    expect(pathArray.length).toEqual(2);
+    // Filled arc
+    expect(pathArray[0].props.d).toEqual(
+      "M 50 50\nL 75 7\nA 50 50 -60 0 1 97 33\nZ"
+    );
+  });
+
+  test("create arc with negative start and total angle", (): void => {
+    const arcProps = {
+      height: 100,
+      width: 100,
+      startAngle: -100,
+      totalAngle: -90,
+      fill: true,
+      foregroundColor: Color.fromRgba(0, 100, 200),
+      backgroundColor: Color.fromRgba(45, 1, 180)
+    };
+
+    const svg = ArcRenderer(arcProps);
+
+    const pathArray = svg.children as Array<ReactTestRendererJSON>;
+    // Fill and border paths of arc
+    expect(pathArray.length).toEqual(2);
+    // Filled arc
+    expect(pathArray[0].props.d).toEqual(
+      "M 50 50\nL 41 1\nA 50 50 -100 0 0 1 59\nZ"
+    );
+  });
+
+  test("create arc with negative total angle", (): void => {
+    const arcProps = {
+      height: 100,
+      width: 100,
+      startAngle: 40,
+      totalAngle: -120,
+      fill: true,
+      foregroundColor: Color.fromRgba(0, 100, 200),
+      backgroundColor: Color.fromRgba(45, 1, 180)
+    };
+
+    const svg = ArcRenderer(arcProps);
+
+    const pathArray = svg.children as Array<ReactTestRendererJSON>;
+    // Fill and border paths of arc
+    expect(pathArray.length).toEqual(4);
+    // Filled arc
+    expect(pathArray[0].props.d).toEqual(
+      "M 50 50\nL 88 82\nA 50 50 40 0 0 82 12\nZ"
+    );
+  });
 });
 
 describe("circumPointFromAngle()", (): void => {
