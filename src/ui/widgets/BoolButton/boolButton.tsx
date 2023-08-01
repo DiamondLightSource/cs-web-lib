@@ -12,10 +12,13 @@ import {
 } from "../propTypes";
 import { Color } from "../../../types/color";
 import classes from "./boolButton.module.css";
+import { writePv } from "../../hooks/useSubscription";
+import { DType } from "../../../types/dtypes";
 
 const LED_POSITION = 4.8 / 6;
 
 const BoolButtonProps = {
+  pvName: StringPropOpt,
   height: IntPropOpt,
   width: IntPropOpt,
   onState: IntPropOpt,
@@ -50,11 +53,12 @@ export const BoolButtonComponent = (
   props: BoolButtonComponentProps
 ): JSX.Element => {
   const {
+    pvName,
     value,
     width = 100,
     height = 50,
-    onState,
-    offState,
+    onState = 1,
+    offState = 0,
     onColor = Color.fromRgba(0, 255, 0),
     offColor = Color.fromRgba(0, 100, 0),
     onLabel = "ON",
@@ -79,8 +83,81 @@ export const BoolButtonComponent = (
     color: foregroundColor.toString()
   };
   if (!squareButton) style["borderRadius"] = "50%";
+  // Establish LED style
+  const [ledStyle, ledDiameter] = createLed(width, height, ledColor);
+  // Hide LED if it isn't visible
+  if (showLed) {
+    if (width > height) style["paddingRight"] = ledDiameter;
+    ledStyle["visibility"] = "visible";
+  }
 
-  // Configure LED settings
+  // This is necessary in order to set the initial label value
+  // after connection to PV established, as setState cannot be
+  // established inside a conditional, or called in the main body
+  // of the component as it causes too many re-renders error
+  useEffect(() => {
+    if (doubleValue === onState) {
+      if (showBooleanLabel) setLabel(onLabel);
+      setLedColor(onColor.toString());
+    } else if (doubleValue === offState) {
+      if (showBooleanLabel) setLabel(offLabel);
+      setLedColor(offColor.toString());
+    }
+  }, [
+    doubleValue,
+    onState,
+    onLabel,
+    onColor,
+    offState,
+    offLabel,
+    offColor,
+    showBooleanLabel
+  ]);
+
+  function handleClick() {
+    // Update button
+    if (doubleValue === onState) {
+      if (showBooleanLabel) setLabel(offLabel);
+      setLedColor(offColor.toString());
+    } else if (doubleValue === offState) {
+      if (showBooleanLabel) setLabel(onLabel);
+      setLedColor(onColor.toString());
+    }
+    // Write to PV
+    if (pvName) {
+      let newValue = offState;
+      if (doubleValue === offState) newValue = onState;
+      writePv(pvName, new DType({ doubleValue: newValue }));
+    }
+  }
+
+  return (
+    <>
+      <button
+        className={classes.BoolButton}
+        style={style}
+        onClick={handleClick}
+      >
+        {label}
+        <span className={classes.Led} style={ledStyle} />
+      </button>
+    </>
+  );
+};
+
+/**
+ * Create an LED to display on BoolButton
+ * @param width button width in px
+ * @param height button height in px
+ * @param color color of led
+ * @returns CSSProperties for led
+ */
+export function createLed(
+  width: number,
+  height: number,
+  color: string
+): [CSSProperties, number] {
+  // This is done the same as in phoebus/csstudio
   let ledDiameter = (0.25 * (width + height)) / 2;
   if (ledDiameter > Math.min(width, height))
     ledDiameter = Math.min(width, height) - 8;
@@ -96,7 +173,7 @@ export const BoolButtonComponent = (
   const ledStyle: CSSProperties = {
     width: (0.25 * (width + height)) / 2,
     height: (0.25 * (width + height)) / 2,
-    backgroundColor: ledColor,
+    backgroundColor: color,
     top: ledY,
     left: ledX,
     boxShadow: `inset ${ledDiameter / 4}px ${ledDiameter / 4}px ${
@@ -104,77 +181,9 @@ export const BoolButtonComponent = (
     }px rgba(255,255,255,.5)`,
     visibility: "hidden"
   };
-  // Hide LED if it isn't visible
-  if (showLed) {
-    // Shift text to the side for LED
-    if (width > height) style["paddingRight"] = ledDiameter;
-    ledStyle["visibility"] = "visible";
-  }
 
-  // This is necessary in order to set the initial label value
-  // after connection to PV established, as setState cannot be
-  // established inside a conditional, or called in the main body
-  // of the component as it causes too many re-renders error
-  useEffect(() => {
-    if (doubleValue !== undefined && showBooleanLabel) {
-      if (doubleValue === onState) {
-        setLabel(onLabel);
-        setLedColor(onColor.toString());
-      } else if (doubleValue === offState) {
-        setLabel(offLabel);
-        setLedColor(offColor.toString());
-      }
-    }
-  }, [
-    doubleValue,
-    onState,
-    onLabel,
-    onColor,
-    offState,
-    offLabel,
-    offColor,
-    showBooleanLabel
-  ]);
-
-  // TO DO - currently we check existing value and change label. When
-  // we have PV write ability, change value and label
-  // TO DO - extra features such as confirmation modal?...
-  function handleClick(e: React.MouseEvent) {
-    // Remove span element to get just text
-    const text = (e.target as HTMLButtonElement).innerHTML.split("<")[0];
-    // Fetch RGB colour from background-color property
-    const colorProp = (e.target as HTMLButtonElement).innerHTML
-      .split("; ")[2] // Remove "background-color"
-      .split("rgb(")[1] // Remove "rgb(""
-      .slice(0, -1) // Remove final bracket
-      .replace(/\s/g, ""); // Remove whitespace
-    const color = "rgba(" + colorProp + ",255)";
-    // If no label, we use led color as our parameter
-    const param = showBooleanLabel ? text : color;
-    const onParam = showBooleanLabel ? onLabel : onColor.toString();
-    const offParam = showBooleanLabel ? offLabel : offColor.toString();
-    if (param === onParam) {
-      setLabel(offLabel);
-      setLedColor(offColor.toString());
-    } else if (param === offParam) {
-      setLabel(onLabel);
-      setLedColor(onColor.toString());
-    }
-  }
-
-  return (
-    <>
-      <button
-        className={classes.BoolButton}
-        style={style}
-        onClick={event => handleClick(event)}
-      >
-        {label}
-        <span className={classes.Led} style={ledStyle} />
-      </button>
-    </>
-  );
-};
+  return [ledStyle, ledDiameter];
+}
 
 const BoolButtonWidgetProps = {
   ...BoolButtonProps,
