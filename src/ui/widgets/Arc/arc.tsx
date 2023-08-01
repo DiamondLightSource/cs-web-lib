@@ -42,8 +42,9 @@ export const ArcComponent = (
     const segments: number[] = [];
     const negAngle = totalAngle < 0 ? true : false;
     // We create the arc as segments of 90 degrees or less
-    // eslint-disable-next-line prettier/prettier
-    const factor = negAngle ? Math.abs(Math.ceil(totalAngle / 90)) : Math.floor(totalAngle / 90);
+    const factor = negAngle
+      ? Math.abs(Math.ceil(totalAngle / 90))
+      : Math.floor(totalAngle / 90);
     for (let i = 1; i <= factor; i++) {
       segments.push(90);
     }
