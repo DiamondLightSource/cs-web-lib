@@ -62,6 +62,10 @@ fi
 
 # Setup: create db file for EPICS 
 echo "-> Creating EPICS db with $N_PVS PVs"
+echo "record(bo, "TEST:BO"){
+    field(ZNAM, "Off")
+    field(ONAM, "On")
+}" >performanceTestDb.db
 for ((i=0;i<$N_PVS;i++))
 do
     record_name="TEST:REC$i"
@@ -75,4 +79,4 @@ record(calcout, "$record_name")
     field(OUT, "$record_name.A")
 }
 EOF
-done >performanceTestDb.db
+done >>performanceTestDb.db
