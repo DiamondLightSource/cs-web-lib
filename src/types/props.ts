@@ -7,6 +7,7 @@ import { Position } from "./position";
 import { PV } from "./pv";
 import { Traces } from "./traces";
 import { Axes } from "./axes";
+import { Points } from "./points";
 
 export type GenericProp =
   | string
@@ -22,7 +23,8 @@ export type GenericProp =
   | WidgetActions
   | OpiFile
   | Traces
-  | Axes;
+  | Axes
+  | Points;
 
 export interface Expression {
   boolExp: string;

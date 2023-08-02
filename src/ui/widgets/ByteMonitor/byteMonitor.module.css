@@ -1,0 +1,9 @@
+.Bit {
+    border-style: solid;
+    box-sizing: border-box;
+}
+
+.ByteMonitor {
+    overflow: hidden;
+    padding: 1px;
+}

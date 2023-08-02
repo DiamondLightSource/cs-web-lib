@@ -32,6 +32,7 @@ import {
   EXIT
 } from "../widgetActions";
 import { snakeCaseToCamelCase } from "../utils";
+import { Point, Points } from "../../../types/points";
 
 export interface XmlDescription {
   _attributes: { [key: string]: string };
@@ -49,17 +50,22 @@ export interface XmlDescription {
  */
 const OPI_WIDGET_MAPPING: { [key: string]: any } = {
   "org.csstudio.opibuilder.Display": "display",
+  "org.csstudio.opibuilder.widgets.arc": "arc",
+  "org.csstudio.opibuilder.widgets.bytemonitor": "bytemonitor",
+  "org.csstudio.opibuilder.widgets.Ellipse": "ellipse",
   "org.csstudio.opibuilder.widgets.TextUpdate": "readback",
   "org.csstudio.opibuilder.widgets.TextInput": "input",
   "org.csstudio.opibuilder.widgets.Label": "label",
   "org.csstudio.opibuilder.widgets.groupingContainer": "groupingcontainer",
   "org.csstudio.opibuilder.widgets.Rectangle": "shape",
   "org.csstudio.opibuilder.widgets.ActionButton": "actionbutton",
+  "org.csstudio.opibuilder.widgets.BoolButton": "boolbutton",
   "org.csstudio.opibuilder.widgets.MenuButton": "menubutton",
   "org.csstudio.opibuilder.widgets.combo": "menubutton",
   "org.csstudio.opibuilder.widgets.checkbox": "checkbox",
   "org.csstudio.opibuilder.widgets.linkingContainer": "embeddedDisplay",
   "org.csstudio.opibuilder.widgets.polyline": "line",
+  "org.csstudio.opibuilder.widgets.polygon": "polygon",
   "org.csstudio.opibuilder.widgets.symbol.multistate.MultistateMonitorWidget":
     "symbol",
   "org.csstudio.opibuilder.widgets.progressbar": "progressbar",
@@ -542,6 +548,24 @@ function parseMultipleNamedProps(name: string, props: any, obj: any) {
 }
 
 /**
+ * Parseas a props point object into an array of number arrays
+ * with x and y coordinates
+ * @param props
+ */
+function opiParsePoints(props: any): Points {
+  const points: Array<Point> = [];
+  const x = opiParseNumber(props.x);
+  const y = opiParseNumber(props.y);
+  props.points.point.forEach((point: any) => {
+    const pointData = point._attributes;
+    points.push(
+      new Point(Number(pointData["x"]) - x, Number(pointData["y"]) - y)
+    );
+  });
+  return new Points(points);
+}
+
+/**
  * Attempt to return the widget associated with a props object, failing
  * that will return a shape object
  * @param props
@@ -609,7 +633,29 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   titleFont: ["title_font", opiParseFont],
   showLegend: ["show_legend", opiParseBoolean],
   showPlotBorder: ["show_plot_area_border", opiParseBoolean],
-  showToolbar: ["show_toolbar", opiParseBoolean]
+  showToolbar: ["show_toolbar", opiParseBoolean],
+  bgGradientColor: ["background_color", opiParseColor],
+  fgGradientColor: ["foreground_color", opiParseColor],
+  gradient: ["gradient", opiParseBoolean],
+  fillLevel: ["fill_level", opiParseNumber],
+  horizontalFill: ["horizontal_fill", opiParseBoolean],
+  fill: ["fill", opiParseBoolean],
+  lineColor: ["line_color", opiParseColor],
+  onLabel: ["on_label", opiParseString],
+  offLabel: ["off_label", opiParseString],
+  onState: ["on_state", opiParseNumber],
+  offState: ["off_state", opiParseNumber],
+  startAngle: ["start_angle", opiParseNumber],
+  totalAngle: ["total_angle", opiParseNumber],
+  numBits: ["numBits", opiParseNumber],
+  startBit: ["startBit", opiParseNumber],
+  ledBorder: ["led_border", opiParseNumber],
+  ledBorderColor: ["led_border_color", opiParseColor],
+  bitReverse: ["bitReverse", opiParseBoolean],
+  squareLed: ["square_led", opiParseBoolean],
+  squareButton: ["square_button", opiParseBoolean],
+  effect3d: ["effect_3d", opiParseBoolean],
+  showLed: ["show_led", opiParseBoolean]
 };
 
 /**
@@ -624,7 +670,8 @@ export const OPI_COMPLEX_PARSERS: ComplexParserDict = {
   file: opiParseFile,
   alarmSensitive: opiParseAlarmSensitive,
   traces: opiParseTraces,
-  axes: opiParseAxes
+  axes: opiParseAxes,
+  points: opiParsePoints
 };
 
 function opiPatchRules(widgetDescription: WidgetDescription): void {

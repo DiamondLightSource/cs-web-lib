@@ -7,6 +7,7 @@ import { PV } from "../../types/pv";
 import { FileDescription } from "../../misc/fileContext";
 import { Traces } from "../../types/traces";
 import { Axes } from "../../types/axes";
+import { Points } from "../../types/points";
 
 export type ExcludeNulls<T> = {
   [P in keyof T]: Exclude<T[P], null>;
@@ -51,6 +52,9 @@ export const AxesPropOpt = PropTypes.instanceOf(Axes);
 
 export const FuncPropOpt = PropTypes.instanceOf(Function);
 export const FuncProp = FuncPropOpt.isRequired;
+
+export const PointsProp = PropTypes.instanceOf(Points).isRequired;
+export const PointsPropOpt = PropTypes.instanceOf(Points);
 
 export const PositionProp = PropTypes.oneOfType([
   PropTypes.instanceOf(AbsolutePosition),

@@ -1,0 +1,10 @@
+.ArcPath {
+    transform: scaleY(-1);
+    transform-origin: center;
+}
+
+.BorderPath {
+    transform: scaleY(-1);
+    transform-origin: center;
+    box-sizing: border-box;
+}
