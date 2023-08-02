@@ -36,6 +36,8 @@ import {
   DisplayForm
 } from "../types/dtypes";
 
+const PERFORMANCE_DEBUG = process.env.REACT_APP_PERFORMANCE_DEBUG === "true";
+
 export interface ConiqlStatus {
   quality: "ALARM" | "WARNING" | "VALID" | "INVALID" | "UNDEFINED" | "CHANGING";
   message: string;
@@ -275,6 +277,17 @@ export class ConiqlPlugin implements Connection {
   private wsClient: Client;
   private disconnected: string[] = [];
   private subscriptions: { [pvName: string]: ObservableSubscription };
+  // Variables to measure performance metrics
+  private timestamp = Date.now();
+  private startTime = Date.now();
+  private subscriptionsStarted = false;
+  private totalTime = 0;
+  private numUpdates = 0;
+  private timestampAny = Date.now();
+  private totalTimeAny = 0;
+  private numUpdatesAny = 0;
+  private finalSubscription = "";
+  private firstSubscription = "";
 
   public constructor(socket: string, ssl: boolean) {
     if (ssl) {
@@ -413,6 +426,47 @@ export class ConiqlPlugin implements Connection {
       })
       .subscribe({
         next: (data): void => {
+          if (PERFORMANCE_DEBUG) {
+            this.numUpdatesAny++;
+            const intervalAny = Date.now() - this.timestampAny;
+            this.totalTimeAny = this.totalTimeAny + intervalAny;
+            if (pvName === this.firstSubscription) {
+              this.numUpdates++;
+              const interval = Date.now() - this.timestamp;
+              this.totalTime = this.totalTime + interval;
+              if (this.numUpdates % 10 === 0) {
+                // eslint-disable-next-line no-console
+                console.debug(
+                  "Update Rates | 1 PV: " +
+                    (this.totalTime / this.numUpdates).toFixed(0) +
+                    " ms | Any: " +
+                    (this.totalTimeAny / this.numUpdatesAny).toFixed(2) +
+                    " ms"
+                );
+                // Now reset
+                this.totalTime = 0;
+                this.numUpdates = 0;
+                this.totalTimeAny = 0;
+                this.numUpdatesAny = 0;
+              }
+              this.timestamp = Date.now();
+            }
+            this.timestampAny = Date.now();
+            if (
+              pvName === this.finalSubscription &&
+              !this.subscriptionsStarted
+            ) {
+              // eslint-disable-next-line no-console
+              console.debug(
+                "Final PV (" +
+                  this.finalSubscription +
+                  ") updated after " +
+                  (Date.now() - this.startTime) +
+                  " ms"
+              );
+              this.subscriptionsStarted = true;
+            }
+          }
           this._process(data, pvName, "subscribeChannel");
         },
         error: (err): void => {
@@ -433,6 +487,12 @@ export class ConiqlPlugin implements Connection {
     // TODO: How to handle multiple subscriptions of different types to the same channel?
     if (this.subscriptions[pvName] === undefined) {
       this.subscriptions[pvName] = this._subscribe(pvName);
+      if (PERFORMANCE_DEBUG) {
+        if (!this.firstSubscription) {
+          this.firstSubscription = pvName;
+        }
+        this.finalSubscription = pvName;
+      }
     }
     return pvName;
   }
