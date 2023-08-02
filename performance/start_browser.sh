@@ -8,13 +8,15 @@ Help()
     echo "       ./start_browser.sh <options...>"
     echo "     options:"
     echo "      -h | --help:      display this help message"
-    echo "      -n | --windows:   [optional] number of browser windows to open. If not "
-    echo "                         provided then default is 1."
+    echo "      -w | --windows:   [optional] number of browser windows to open. If "
+    echo "                         not provided then default is 1."
+    echo "      -t | --tabs:      [optional] number of tabs to open in a single  "
+    echo "                         window. If not provided then default is 1."
     echo " ************************************************************************ "
 }
 
 # Parse command line options
-VALID_ARGS=$(getopt -o hn: --long help,windows:, -- "$@")
+VALID_ARGS=$(getopt -o hw:t: --long help,windows:tabs:, -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -26,10 +28,18 @@ while [ : ]; do
             Help
             exit 1
             ;;
-        -n | --windows)
+        -w | --windows)
             N_WINDOWS="$2"
             if ! [[ $N_WINDOWS =~ ^[0-9]+$ ]]; then
                 echo "Number of windows must be an integer"
+                exit
+            fi
+            shift 2
+            ;;
+        -t | --tabs)
+            N_TABS="$2"
+            if ! [[ $N_TABS =~ ^[0-9]+$ ]]; then
+                echo "Number of tabs must be an integer"
                 exit
             fi
             shift 2
@@ -44,10 +54,19 @@ if [ -z $N_WINDOWS ]; then
     N_WINDOWS=1
     echo "Number of windows not provided, defaulting to $N_WINDOWS"
 fi
+if [ -z $N_TABS ]; then
+    N_TABS=1
+    echo "Number of tabs not provided, defaulting to $N_TABS"
+fi
+
 
 URL=http://localhost:3000/performancePage
 for ((i=0;i<$N_WINDOWS;i++))
 do
     firefox -new-window $URL
     sleep 1
+    for ((j=1;j<$N_TABS;j++))
+    do
+        firefox --url $URL
+    done
 done
