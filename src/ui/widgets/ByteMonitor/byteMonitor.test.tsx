@@ -26,11 +26,11 @@ describe("<ByteMonitorComponent />", (): void => {
     const bits = byteMonitor.children as Array<ReactTestRendererJSON>;
     expect(bits.length).toEqual(16);
 
-    expect(bits[0].props.style.marginRight).toEqual("-3px");
-    expect(bits[1].props.style.borderWidth).toEqual(0);
+    expect(bits[0].props.style.marginRight).toEqual("-2px");
+    expect(bits[1].props.style.borderWidth).toEqual("2px");
     expect(bits[5].props.style.backgroundColor).toEqual("rgba(0,100,0,255)");
-    expect(bits[10].props.style.boxShadow).toEqual(
-      "inset 0.0625px 0.0625px 0.1px rgba(255,255,255,.5), 1px 1px white, -1px -1px darkgray"
+    expect(bits[10].props.style.backgroundImage).toEqual(
+      "radial-gradient(circle at top left, white, rgba(0,100,0,255)), radial-gradient(circle at top left, black,white)"
     );
     expect(bits[15].props.style.borderRadius).toEqual("50%");
   });
@@ -67,31 +67,8 @@ describe("<ByteMonitorComponent />", (): void => {
 });
 
 describe("ByteMonitor functions", (): void => {
-  test("recalculateDimensions() for 3d bits", (): void => {
-    const [dx, dy, border] = recalculateDimensions(
-      4,
-      40,
-      40,
-      2,
-      true,
-      false,
-      true
-    );
-    expect(dx).toEqual(7);
-    expect(dy).toEqual(38);
-    expect(border).toEqual(2);
-  });
-
-  test("recalculateDimensions() for 2d bits", (): void => {
-    const [dx, dy, border] = recalculateDimensions(
-      4,
-      40,
-      40,
-      2,
-      true,
-      false,
-      false
-    );
+  test("recalculateDimensions() for bits", (): void => {
+    const [dx, dy, border] = recalculateDimensions(4, 40, 40, 2, true, false);
     expect(dx).toEqual(9.5);
     expect(dy).toEqual(38);
     expect(border).toEqual(2);

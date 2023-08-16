@@ -75,8 +75,7 @@ export const ByteMonitorComponent = (
       height,
       border,
       horizontal,
-      squareLed,
-      effect3d
+      squareLed
     );
     const ledArray: Array<JSX.Element> = [];
     dataValues.forEach((data: number, idx: number) => {
@@ -95,29 +94,42 @@ export const ByteMonitorComponent = (
         : offColor?.toString();
       // Set border color and thickness
       style["borderColor"] = ledBorderColor.toString();
-      // If 3D, no border
-      style["borderWidth"] = effect3d ? 0 : `${borderWidth}px`;
+      style["borderWidth"] = `${borderWidth}px`;
       // Set shape as square or circular
       if (squareLed) {
-        style.width = `${bitWidth}px`;
-        style.height = `${bitHeight}px`;
+        style.width = `${bitWidth + borderWidth}px`;
+        style.height = `${bitHeight + borderWidth}px`;
       } else {
+        // If 3d, border width is slightly narrower
         // If circular led, width and height are the same
-        style.width = horizontal ? `${bitWidth}px` : `${bitHeight}px`;
+        style.width = horizontal
+          ? `${bitWidth + borderWidth}px`
+          : `${bitHeight + borderWidth}px`;
         style.height = style.width;
         style["borderRadius"] = "50%";
       }
-      // Add shadow for 3D effect
+      // Add 3D effect
       if (effect3d) {
-        style["margin"] = "1px"; // Margin to ensure LEDs don't overlap
-        style["boxShadow"] = `inset ${bitWidth / 4}px ${bitWidth / 4}px ${
-          bitWidth * 0.4
-        }px rgba(255,255,255,.5), 1px 1px white, -1px -1px darkgray`;
+        // For ellipse, border is different in 3D. For square it is the same
+        // but the LED has a shadow
+        style[
+          "backgroundImage"
+        ] = `radial-gradient(circle at top left, white, ${
+          data ? onColor?.toString() : offColor?.toString()
+        })`;
+        if (!squareLed) {
+          style["borderColor"] = "transparent";
+          style["backgroundImage"] +=
+            ", radial-gradient(circle at top left, black,white)";
+          style["backgroundOrigin"] = "border-box";
+          style["backgroundClip"] = "padding-box, border-box";
+        }
       }
       const className = classes.Bit;
       const bitDiv = (
         <div key={`bit${idx}`} className={className} style={style} />
       );
+
       ledArray.push(bitDiv);
     });
 
@@ -149,8 +161,7 @@ export function recalculateDimensions(
   height: number,
   ledBorder: number,
   horizontal: boolean,
-  squareLed: boolean,
-  effect3d: boolean
+  squareLed: boolean
 ): number[] {
   width = width - 2;
   height = height - 2;
@@ -158,7 +169,6 @@ export function recalculateDimensions(
   const size = horizontal ? width : height;
   // Calculate how wide led can be if we use existing bit Size
   let bitSize = size / numBits;
-  if (effect3d) bitSize = (size - ledBorder * (numBits + 1)) / numBits;
   // If bitSize < 1 only show border not led
   if (!squareLed) {
     // Check that bitSize fits in other axis if circular led
