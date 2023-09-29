@@ -50,8 +50,30 @@ fi
 
 N_COLS=20
 N_ROWS=$(( ($N_PVS/$N_COLS) + 1 ))
-FILENAME="public/performanceTestPage.opi"
+FILENAME="performanceTestPage.opi"
+JSON_FILE="public/performancePage.json"
 
+# Create JSON file
+echo '
+{
+  "type": "flexcontainer",
+  "position": "relative",
+  "children": [
+    {
+      "type": "embeddedDisplay",
+      "position": "relative",
+      "margin": "10px",
+      "file": {
+        "path": "/'$FILENAME'",
+        "macros": {},
+        "defaultProtocol": "ca"
+      }
+    }
+  ]
+}
+' >$JSON_FILE
+
+FILENAME="public/"$FILENAME
 
 # Setup: create opi file for PVs
 echo "-> Creating OPI filewith $N_PVS PVs"
