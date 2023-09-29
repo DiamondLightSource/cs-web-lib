@@ -6,18 +6,94 @@ N_PV_5Hz=50
 N_PV_1Hz=250
 
 
+Help()
+{
+    echo " ************************************************************************ "
+    echo " Script to create the performance test OPI file "
+
+    echo " - Usage:"
+    echo "       ./create_example_opi.sh <options...>"
+    echo "     options:"
+    echo "      -h | --help:      display this help message"
+    echo "      -n | --screen:    [optional] number of screens. Default is 1"
+    echo "     E.g."
+    echo "      ./create_example_opi.sh"
+    echo "      ./create_example_opi.sh -n 2"
+    echo " ************************************************************************ "
+}
+
+# Parse command line options
+VALID_ARGS=$(getopt -o hs:n: --long help,start:nscreens:, -- "$@")
+if [[ $? -ne 0 ]]; then
+    exit 1;
+fi
+
+eval set -- "$VALID_ARGS"
+while [ : ]; do
+    case "$1" in
+        -h | --help)
+            Help
+            exit 1
+            ;;
+        -n | --nscreens)
+            N_SCREENS="$2"
+            if ! [[ $N_SCREENS =~ ^[0-9]+$ ]]; then
+                echo "Screen index must be an integer"
+                exit
+            fi
+            shift 2
+            ;;
+        --) shift; 
+            break 
+            ;;
+    esac
+done
+
+if [ -z $N_SCREENS ]; then
+    N_SCREENS=1
+fi
+
+
 N_PVS=$(($N_PV_10Hz+$N_PV_5Hz+$N_PV_1Hz))
-
 N_COLS=30
-
-FILENAME="public/performanceTestPage.opi"
-
 
 # Setup: create opi file for PVs
 echo "-> Creating OPI filewith $N_PVS PVs"
 
+
+for ((repeat=0;repeat<$N_SCREENS;repeat++))
+do 
+    echo "Creating repeat: $repeat"
+    START=$(($N_PVS*$repeat))
+
+    FILENAME="performanceTestPage$repeat.opi"
+    JSON_FILE="public/performancePage$repeat.json"
+
+    # Create JSON file
+    echo '
+    {
+      "type": "flexcontainer",
+      "position": "relative",
+      "children": [
+        {
+          "type": "embeddedDisplay",
+          "position": "relative",
+          "margin": "10px",
+          "file": {
+            "path": "/'$FILENAME'",
+            "macros": {},
+            "defaultProtocol": "ca"
+          }
+        }
+      ]
+    }
+    ' >$JSON_FILE
+
+
+    FILENAME="public/"$FILENAME
+
 # Add screen boilerplate
-echo '<?xml version="1.0" encoding="UTF-8"?>
+    echo '<?xml version="1.0" encoding="UTF-8"?>
 <display typeId="org.csstudio.opibuilder.Display" version="1.0.0">
   <actions hook="false" hook_all="false" />
     <auto_scale_widgets>
@@ -91,48 +167,44 @@ echo '<?xml version="1.0" encoding="UTF-8"?>
     <y>0</y>
   </widget>' >$FILENAME
 
-HEIGHT=20 
-WIDTH=40
-YPOS=100
-XZERO=0
-COL_COUNT=0           
-for ((i=0;i<$N_PVS;i++))
-do
-    MARGIN=1
-    #if (( $i % 10 == 0 )); then
-    #    MARGIN=10
-    #fi
-
-
-    if [[ $i -eq $(($N_PV_10Hz+$N_PV_5Hz)) ]]; then 
-        YPOS=$(( $YPOS + ($HEIGHT+20) ))
-        XPOS=XZERO
-        COL_COUNT=0
-    elif [[ $i -eq $(($N_PV_10Hz)) ]]; then
-        YPOS=$(( $YPOS + ($HEIGHT+20) ))
-        XPOS=XZERO
-        COL_COUNT=0
-    elif [[ $i -eq 0 ]]; then
-        XPOS=XZERO
-    else
-        echo $COL_COUNT $N_COLS
-	if [[ $COL_COUNT -eq $(($N_COLS)) ]]; then
-            MARGIN=10
-            COL_COUNT=0
-    	    YPOS=$(( $YPOS + ($HEIGHT+$MARGIN) ))
+    HEIGHT=20 
+    WIDTH=40
+    YPOS=100
+    XZERO=0
+    COL_COUNT=0
+      
+    for ((i=0;i<$N_PVS;i++))
+    do
+        MARGIN=1
+        if [[ $i -eq $(($N_PV_10Hz+$N_PV_5Hz)) ]]; then 
+            YPOS=$(( $YPOS + ($HEIGHT+20) ))
             XPOS=XZERO
-        else
-            if [[ $COL_COUNT -eq $(($N_COLS/2)) ]]; then
-                MARGIN=20
+            COL_COUNT=0
+        elif [[ $i -eq $(($N_PV_10Hz)) ]]; then
+            YPOS=$(( $YPOS + ($HEIGHT+20) ))
+            XPOS=XZERO
+            COL_COUNT=0
+        elif [[ $i -eq 0 ]]; then
+            XPOS=XZERO
+        else 
+	        if [[ $COL_COUNT -eq $(($N_COLS)) ]]; then
+                    MARGIN=1
+                    COL_COUNT=0
+            	    YPOS=$(( $YPOS + ($HEIGHT+$MARGIN) ))
+                    XPOS=XZERO
+                else
+                    if [[ $COL_COUNT -eq $(($N_COLS/2)) ]]; then
+                        MARGIN=20
+                    fi
+	            XPOS=$(( $XPOS + ($WIDTH+$MARGIN) ))
+                fi
             fi
-	    XPOS=$(( $XPOS + ($WIDTH+$MARGIN) ))
-        fi
-    fi
-    COL_COUNT=$(( $COL_COUNT + 1 ))
-    echo $COL_COUNT
-    
-        record_name="TEST:REC$i"
-        cat <<EOF
+        COL_COUNT=$(( $COL_COUNT + 1 ))
+        echo $COL_COUNT
+        
+	    index=$(($START+$i))
+        record_name="TEST:REC$index"
+            cat <<EOF
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <actions hook="false" hook_all="false" />
     <alarm_pulsing>false</alarm_pulsing>
@@ -185,16 +257,11 @@ do
   </widget>
 EOF
         
-done >>$FILENAME
+    done >>$FILENAME
 
+    YPOS=450
 
-
-
-
-YPOS=500
-
-# Add plot widget
-echo '
+    echo '
   <widget typeId="org.csstudio.opibuilder.widgets.xyGraph" version="1.0.0">
     <actions hook="false" hook_all="false" />
     <alarm_pulsing>false</alarm_pulsing>
@@ -265,7 +332,7 @@ echo '
     <plot_area_background_color>
       <color red="255" green="255" blue="255" />
     </plot_area_background_color>
-    <pv_name>TEST:ARR0</pv_name>
+    <pv_name>TEST:ARR'$repeat'</pv_name>
     <pv_value />
     <rules />
     <scale_options>
@@ -315,6 +382,7 @@ $(trace_0_y_pv_value)</tooltip>
     <x>185</x>
     <y>'$YPOS'</y>
   </widget>' >>$FILENAME
+done
 
 
 
