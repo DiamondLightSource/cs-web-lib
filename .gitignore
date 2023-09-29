@@ -1,5 +1,7 @@
 dist
 node_modules
 performance/*.db
+performance/build/
 performance/node_modules
 performance/public/*.opi
+performance/public/*.json
