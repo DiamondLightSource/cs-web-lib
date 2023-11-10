@@ -17,7 +17,7 @@ Help()
 }
 
 # Parse command line options
-VALID_ARGS=$(getopt -o hn: --long help,npvs:, -- "$@")
+VALID_ARGS=$(getopt -o hn:s: --long help,npvs:,screens:, -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -37,6 +37,10 @@ while [ : ]; do
             fi
             shift 2
             ;;
+        -s | --screens)
+            N_REPEATS="$2"
+            shift 2
+            ;;
         --) shift; 
             break 
             ;;
@@ -47,14 +51,24 @@ if [ -z $N_PVS ]; then
     N_PVS=100
     echo "Number of PVs not provided, defaulting to $N_PVS"
 fi
+if [ -z $N_REPEATS ]; then
+    N_REPEATS=1
+fi
 
 N_COLS=20
 N_ROWS=$(( ($N_PVS/$N_COLS) + 1 ))
-FILENAME="performanceTestPage.opi"
-JSON_FILE="public/performancePage.json"
 
-# Create JSON file
-echo '
+for ((n=0;n<$N_REPEATS;n++))
+do
+    FILENAME="performanceTestPage.opi"
+    JSON_FILE="public/performancePage.json"
+    if [[ $n > 0 ]]; then
+        FILENAME="performanceTestPage$n.opi"
+        JSON_FILE="public/performancePage$n.json"
+    fi
+
+    # Create JSON file
+    echo '
 {
   "type": "flexcontainer",
   "position": "relative",
@@ -73,13 +87,13 @@ echo '
 }
 ' >$JSON_FILE
 
-FILENAME="public/"$FILENAME
+    FILENAME="public/"$FILENAME
 
 # Setup: create opi file for PVs
-echo "-> Creating OPI filewith $N_PVS PVs"
+    echo "-> Creating OPI filewith $N_PVS PVs"
 
 # Add screen boilerplate
-echo '<?xml version="1.0" encoding="UTF-8"?>
+    echo '<?xml version="1.0" encoding="UTF-8"?>
 <display typeId="org.csstudio.opibuilder.Display" version="1.0.0">
   <actions hook="false" hook_all="false" />
     <auto_scale_widgets>
@@ -95,7 +109,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>
     <color red="192" green="192" blue="192" />
   </foreground_color>
   <grid_space>5</grid_space>
-  <height>4000</height>
+  <height>1500</height>
   <macros>
     <include_parent_macros>true</include_parent_macros>
   </macros>
@@ -193,32 +207,32 @@ echo '<?xml version="1.0" encoding="UTF-8"?>
     <y>13</y>
   </widget>' >$FILENAME
 
-HEIGHT=20 
-WIDTH=60
-YPOS=50
-XZERO=0
-COUNT=0           
-for ((i=0;i<$N_ROWS;i++))
-do
-    MARGIN=1
-    if (( $i % 10 == 0 )); then
-        MARGIN=10
-    fi
-    YPOS=$(( $YPOS + ($HEIGHT+$MARGIN) ))
-    XPOS=XZERO
-    for ((j=0;j<$N_COLS;j++))
+    HEIGHT=20 
+    WIDTH=60
+    YPOS=50
+    XZERO=0
+    COUNT=$(($N_PVS*$n))  
+    for ((i=0;i<$N_ROWS;i++))
     do
-        if (( $COUNT >= $N_PVS )); then 
-            echo $COUNT
-            break
-        fi
         MARGIN=1
-        if (( $j % 10 == 0 )); then
-            MARGIN=10            
+        if (( $i % 10 == 0 )); then
+            MARGIN=10
         fi
-        XPOS=$(( $XPOS + ($WIDTH+$MARGIN) ))
-        record_name="TEST:REC$COUNT"
-        cat <<EOF
+        YPOS=$(( $YPOS + ($HEIGHT+$MARGIN) ))
+        XPOS=XZERO
+        for ((j=0;j<$N_COLS;j++))
+        do
+            if (( $COUNT >= $(($N_PVS*($n+1))) )); then 
+                echo $COUNT
+                break
+            fi
+            MARGIN=1
+            if (( $j % 10 == 0 )); then
+                MARGIN=10            
+            fi
+            XPOS=$(( $XPOS + ($WIDTH+$MARGIN) ))
+            record_name="TEST:REC$COUNT"
+            cat <<EOF
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <actions hook="false" hook_all="false" />
     <alarm_pulsing>false</alarm_pulsing>
@@ -270,14 +284,14 @@ do
     <y>$YPOS</y>  
   </widget>
 EOF
-        COUNT=$(( $COUNT + 1 ))
-    done
-done >>$FILENAME
+            COUNT=$(( $COUNT + 1 ))
+        done
+    done >>$FILENAME
 
 # Add a menu button to test browser response. Must come last as subscriptions happen in
 # the order they appear in the OPI and we need TEST:REC0 to be first for performance
 # debugging reasons
-echo '  <widget typeId="org.csstudio.opibuilder.widgets.MenuButton" version="1.0.0">
+    echo '  <widget typeId="org.csstudio.opibuilder.widgets.MenuButton" version="1.0.0">
     <actions_from_pv>true</actions_from_pv>
     <alarm_pulsing>false</alarm_pulsing>
     <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>
@@ -322,3 +336,4 @@ $(pv_value)</tooltip>
     <y>25</y>
   </widget>
 </display>' >>$FILENAME
+done
