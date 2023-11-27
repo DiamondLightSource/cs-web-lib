@@ -1,0 +1,6 @@
+record(waveform, "test:waveform")
+{
+    field(DESC, "Performance test record")
+    field(NELM,"1000000")
+    field(FTVL, "DOUBLE")
+}
