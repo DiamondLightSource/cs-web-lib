@@ -74,7 +74,7 @@ do
         URL=http://localhost:3000/performancePage$i
     fi
     firefox -new-window $URL
-    #sleep 1
+    sleep 0.5
     for ((j=1;j<$N_TABS;j++))
     do
         firefox --url $URL
