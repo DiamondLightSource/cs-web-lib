@@ -1,0 +1,15 @@
+{
+  "name": "ElectronApp",
+  "version": "0.1.0",
+  "description": "Electron",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "author": "aawdls",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "electron": "^18.0.0"
+  }
+}
