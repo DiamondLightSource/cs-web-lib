@@ -1,12 +1,9 @@
-import matplotlib
 import numpy as np
 import wave, math
 from aioca import caput, run
 import time
 import datetime
 import argparse
-
-from matplotlib import pyplot as plt
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-n", "--nSamples", type=int)

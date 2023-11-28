@@ -13,7 +13,7 @@ Help()
     echo "      -a | --average:   [optional] average CPU usage over 10 seconds."
     echo "                         Useful if CPU fluctuates."
     echo "     E.g."
-    echo "      ./create_opi.sh -n 100"
+    echo "      ./cpu_monitor.sh -p 13370"
     echo " ************************************************************************ "
 }
 

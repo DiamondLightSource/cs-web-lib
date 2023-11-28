@@ -1,4 +1,4 @@
-nPages = 50;
+nPages = 10;
 
 for (var i = 0; i < nPages; i++) {
   if (i > 0) {

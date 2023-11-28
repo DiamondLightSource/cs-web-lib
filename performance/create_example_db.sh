@@ -32,7 +32,7 @@ eval set -- "$VALID_ARGS"
 while [ : ]; do
     case "$1" in
         -h | --help)
-            #Help
+            Help
             exit 1
             ;;
         -n | --nrepeats)
