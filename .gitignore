@@ -5,3 +5,5 @@ performance/build/
 performance/node_modules
 performance/public/*.opi
 performance/public/*.json
+performance/electron/node_modules
+performance/venv
