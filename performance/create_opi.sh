@@ -11,6 +11,8 @@ Help()
     echo "      -h | --help:      display this help message"
     echo "      -n | --npvs:      [optional] number of PVs to display. If not "
     echo "                         provided then default is 100."
+    echo "      -s | --screens:   [optional] number of screens with unique PVs If not "
+    echo "                         provided then default is 1."
     echo "     E.g."
     echo "      ./create_opi.sh -n 100"
     echo " ************************************************************************ "
