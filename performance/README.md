@@ -55,6 +55,15 @@ The `-a` argument can also be used to average the CPU usage over 10 seconds.
 ### Rendering times
 The time it takes for a webpage to render can either be timed manually by eye or by using the Console in the Developers Tool, where the render time with be printed as a debug statement.
 
+## Configurations
+
+### PVWS
+If running these performance tests against PVWS, some of the default settings of PVWS need to be overwritten the defaults or not sufficient. If running the PVWS docker container, add the following settings to the pvws/docker/setenv.sh to lower the throttling and increase the max array size:
+
+	export PV_THROTTLE_MS=10
+	export PV_ARRAY_THROTTLE_MS=10
+	export EPICS_CA_MAX_ARRAY_BYTES=10000000
+
 ## Performance tests
 
 ### Single screen
@@ -113,6 +122,11 @@ There are two methods of starting up _M_ screens automatically from the terminal
 
 	First modify the `open_windows/open_ff_windows.js` script and update the `nPages` variable to reflect the number of performance pages to be opened.
 
+	Configure Firefox: by default this script will open the new screens in new tabs. To force them to be opened as new windows, a Firefox preference needs to be changed:
+
+	- From a browser navigate to: `about:config`
+	- Search for the preference: `browser.link.open_newwindow` and set this to `2` (default is `3`).
+
 	Now start the `open_windows/open_ff_windows.html` to open the windows.
 
 
@@ -145,7 +159,6 @@ To run the Javascript code run:
 	node throughput/throughput_XXX.js
 
 These tests can take up to 30 seconds to run. The rate at which data is received by the client will be printed to the console at the end of the test. The argument `-p` can be appended to both of the above commands to indicate that processing/decoding of the incoming result should be done. This tests the impact of decoding the result on the performance.
-
 
 
 ### Electron
