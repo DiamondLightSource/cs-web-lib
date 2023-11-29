@@ -178,20 +178,20 @@ do
         MARGIN=1
         if [[ $i -eq $(($N_PV_10Hz+$N_PV_5Hz)) ]]; then 
             YPOS=$(( $YPOS + ($HEIGHT+20) ))
-            XPOS=XZERO
+            XPOS=$XZERO
             COL_COUNT=0
         elif [[ $i -eq $(($N_PV_10Hz)) ]]; then
             YPOS=$(( $YPOS + ($HEIGHT+20) ))
-            XPOS=XZERO
+            XPOS=$XZERO
             COL_COUNT=0
         elif [[ $i -eq 0 ]]; then
-            XPOS=XZERO
+            XPOS=$XZERO
         else 
 	        if [[ $COL_COUNT -eq $(($N_COLS)) ]]; then
                     MARGIN=1
                     COL_COUNT=0
             	    YPOS=$(( $YPOS + ($HEIGHT+$MARGIN) ))
-                    XPOS=XZERO
+                  XPOS=$XZERO
                 else
                     if [[ $COL_COUNT -eq $(($N_COLS/2)) ]]; then
                         MARGIN=20
@@ -381,10 +381,9 @@ $(trace_0_y_pv_value)</tooltip>
     <wuid>22a9b511:18a4ba4f815:-7e8a</wuid>
     <x>185</x>
     <y>'$YPOS'</y>
-  </widget>' >>$FILENAME
+  </widget>
+</display>' >>$FILENAME
 done
-
-
 
 
 
