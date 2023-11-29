@@ -86,11 +86,11 @@ The `.create_opi.sh` script can be used to create _M_ screens displaying _N_ PVs
 
 	./create_opi.sh -n <number-of-pvs> -s <number-of-screens>
 
-These will be created under public/performanceTestPageXX.opi and public/performancePageXX.json.
+These will be created under public/performanceTestPageXX.opi and public/performancePageXX.json (the first file will have no index).
 
 Remember to adjust the number of PVs in the DB file to match this (i.e. `<number-of-pvs> x <number-of-screens>`)
 
-To display each of these in the web-browser, navigate to: localhost:3000/performancePageXX
+To display each of these in the web-browser, navigate to: localhost:3000/performancePage, localhost:3000/performancePage1, ... etc.
 
 
 ### Diamond representative screens
@@ -99,7 +99,7 @@ A set of more representative screens with a mixture of update rates and a plotti
 	`./create_example_db.sh -n <number-of-screens>`
 	`./create_example_opi.sh -n <number-of-screens>`
 
-This will generate a set of screens each with unique PVs. Again, these will be generated in the public directory and can be accessed from: localhost:3000/performancePageXX.
+This will generate a set of screens each with unique PVs. Again, these will be generated in the public/ directory and will need to be copied to the build/ directory to be available at: localhost:3000/performancePage0, localhost:3000/performancePage1, localhost:3000/performancePage2, ... etc.
 
 In order to update the plotting widget with array data, also run the `./caput_to_array.py` script with `-n` for the number of screens:
 
