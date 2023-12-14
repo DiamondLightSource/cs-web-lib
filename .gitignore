@@ -4,6 +4,7 @@ performance/*.db
 performance/build/
 performance/node_modules
 performance/public/*.opi
+performance/public/*.bob
 performance/public/*.json
 performance/electron/node_modules
 performance/venv
