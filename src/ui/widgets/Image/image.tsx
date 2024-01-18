@@ -77,7 +77,8 @@ export const ImageComponent = (
           display: "block",
           transform: `rotate(${rotation}deg) scaleX(${
             flipHorizontal ? -1 : 1
-          }) scaleY(${flipVertical ? -1 : 1})`
+          }) scaleY(${flipVertical ? -1 : 1})`,
+          objectFit: props.stretchToFit ? "fill": "none"
         }}
       />
     </div>

@@ -7,7 +7,7 @@ exports[`<Symbol /> matches snapshot 1`] = `
   >
     <img
       src="img 1.gif"
-      style="display: block; transform: rotate(0deg) scaleX(1) scaleY(1);"
+      style="display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: none;"
     />
   </div>
   <div
