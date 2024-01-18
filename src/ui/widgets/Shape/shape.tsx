@@ -28,8 +28,8 @@ export const ShapeComponent = (
 ): JSX.Element => {
   // Calculate radii of corners
   let cornerRadius = "0";
-  if (props.cornerHeight && props.cornerWidth){
-    cornerRadius = `${props.cornerWidth}px / ${props.cornerHeight}px`
+  if (props.cornerHeight && props.cornerWidth) {
+    cornerRadius = `${props.cornerWidth}px / ${props.cornerHeight}px`;
   }
   const style = {
     ...commonCss(props),
