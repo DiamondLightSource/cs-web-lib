@@ -70,14 +70,14 @@ export function setFillOptions(
 ): CSSProperties {
   // Set filling options
   let fillDirection = "bottom";
-  if (fillOpts.horizontalFill) fillDirection = "left";
+  if (!fillOpts.horizontalFill) fillDirection = "left";
   if (fillOpts.transparent) {
     style.background = "transparent";
   } else if (fillOpts.gradient) {
     // to do - figure out default colours for fill
     style.background = `-webkit-linear-gradient(${fillDirection}, ${fillOpts.bgGradientColor?.toString()} ${
       fillOpts.level
-    }%, ${fillOpts.fgGradientColor?.toString()})`;
+    }%, ${fillOpts.bgColor.toString()})`;
   } else {
     style.background = fillOpts.bgColor.toString();
   }
