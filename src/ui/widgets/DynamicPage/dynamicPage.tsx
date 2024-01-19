@@ -16,7 +16,8 @@ import {
   StringProp,
   InferWidgetProps,
   BorderPropOpt,
-  StringPropOpt
+  StringPropOpt,
+  BoolPropOpt
 } from "../propTypes";
 import { EmbeddedDisplay } from "../EmbeddedDisplay/embeddedDisplay";
 import { Color } from "../../../types/color";
@@ -26,7 +27,8 @@ import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 const DynamicPageProps = {
   location: StringProp,
   border: BorderPropOpt,
-  showCloseButton: StringPropOpt
+  showCloseButton: StringPropOpt,
+  scroll: BoolPropOpt
 };
 
 // Generic display widget to put other things inside
@@ -70,6 +72,7 @@ export const DynamicPageComponent = (
             file={file}
             position={new RelativePosition()}
             scalingOrigin={"0 0"}
+            scroll={props.scroll ?? false}
           />
           <div
             style={{
@@ -115,6 +118,7 @@ export const DynamicPageComponent = (
             file={file}
             position={new RelativePosition()}
             scalingOrigin={"0 0"}
+            scroll={props.scroll ?? false}
           />
         </div>
       </ExitFileContext.Provider>
