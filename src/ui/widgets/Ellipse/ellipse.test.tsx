@@ -36,7 +36,7 @@ describe("<EllipseComponent />", (): void => {
     };
     style = setFillOptions(style, fillOptions);
     expect(style.background).toEqual(
-      "-webkit-linear-gradient(bottom, rgba(0,0,0,255) 50%%, rgba(0,255,255,255))"
+      "-webkit-linear-gradient(bottom, rgba(0,255,255,255) 50%%, rgba(0,0,0,255))"
     );
   });
   test("set transparent", (): void => {
