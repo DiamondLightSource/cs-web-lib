@@ -15,8 +15,9 @@ const ShapeProps = {
   pvName: PvPropOpt,
   shapeWidth: StringPropOpt,
   shapeHeight: StringPropOpt,
-  shapeRadius: StringPropOpt,
   shapeTransform: StringPropOpt,
+  cornerWidth: StringPropOpt,
+  cornerHeight: StringPropOpt,
   transparent: BoolPropOpt,
   backgroundColor: ColorPropOpt,
   border: BorderPropOpt
@@ -25,11 +26,16 @@ const ShapeProps = {
 export const ShapeComponent = (
   props: InferWidgetProps<typeof ShapeProps>
 ): JSX.Element => {
+  // Calculate radii of corners
+  let cornerRadius = "0";
+  if (props.cornerHeight && props.cornerWidth) {
+    cornerRadius = `${props.cornerWidth}px / ${props.cornerHeight}px`;
+  }
   const style = {
     ...commonCss(props),
     width: props.shapeWidth ?? "100%",
     height: props.shapeHeight ?? "100%",
-    borderRadius: props.shapeRadius ?? "",
+    borderRadius: cornerRadius,
     transform: props.shapeTransform ?? ""
   };
   return <div style={style} />;

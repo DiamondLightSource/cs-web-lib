@@ -58,6 +58,7 @@ const OPI_WIDGET_MAPPING: { [key: string]: any } = {
   "org.csstudio.opibuilder.widgets.Label": "label",
   "org.csstudio.opibuilder.widgets.groupingContainer": "groupingcontainer",
   "org.csstudio.opibuilder.widgets.Rectangle": "shape",
+  "org.csstudio.opibuilder.widgets.RoundedRectangle": "shape",
   "org.csstudio.opibuilder.widgets.ActionButton": "actionbutton",
   "org.csstudio.opibuilder.widgets.BoolButton": "boolbutton",
   "org.csstudio.opibuilder.widgets.MenuButton": "menubutton",
@@ -634,8 +635,8 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   showLegend: ["show_legend", opiParseBoolean],
   showPlotBorder: ["show_plot_area_border", opiParseBoolean],
   showToolbar: ["show_toolbar", opiParseBoolean],
-  bgGradientColor: ["background_color", opiParseColor],
-  fgGradientColor: ["foreground_color", opiParseColor],
+  bgGradientColor: ["bg_gradient_color", opiParseColor],
+  fgGradientColor: ["fg_gradient_color", opiParseColor],
   gradient: ["gradient", opiParseBoolean],
   fillLevel: ["fill_level", opiParseNumber],
   horizontalFill: ["horizontal_fill", opiParseBoolean],
@@ -655,7 +656,9 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   squareLed: ["square_led", opiParseBoolean],
   squareButton: ["square_button", opiParseBoolean],
   effect3d: ["effect_3d", opiParseBoolean],
-  showLed: ["show_led", opiParseBoolean]
+  showLed: ["show_led", opiParseBoolean],
+  cornerWidth: ["corner_width", opiParseString],
+  cornerHeight: ["corner_height", opiParseString]
 };
 
 /**
