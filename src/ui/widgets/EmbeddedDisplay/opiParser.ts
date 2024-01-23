@@ -58,6 +58,7 @@ const OPI_WIDGET_MAPPING: { [key: string]: any } = {
   "org.csstudio.opibuilder.widgets.Label": "label",
   "org.csstudio.opibuilder.widgets.groupingContainer": "groupingcontainer",
   "org.csstudio.opibuilder.widgets.Rectangle": "shape",
+  "org.csstudio.opibuilder.widgets.RoundedRectangle": "shape",
   "org.csstudio.opibuilder.widgets.ActionButton": "actionbutton",
   "org.csstudio.opibuilder.widgets.BoolButton": "boolbutton",
   "org.csstudio.opibuilder.widgets.MenuButton": "menubutton",
