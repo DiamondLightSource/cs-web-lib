@@ -2,8 +2,18 @@
 
 exports[`<LineComponent /> matches snapshot 1`] = `
 <DocumentFragment>
-  <div
-    style="background-color: rgb(0, 255, 255); width: 50px; height: 4px; border-radius: 0; transform: rotate(45deg);"
-  />
+  <svg
+    viewBox="0 0 20 15"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <polyline
+      fill="none"
+      overflow="visible"
+      points="2,20 6,30 15,4 "
+      stroke="rgba(0,255,255,255)"
+      stroke-width="4"
+      transform="rotation(45,0,0)"
+    />
+  </svg>
 </DocumentFragment>
 `;

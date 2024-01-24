@@ -1,12 +1,13 @@
 import React from "react";
-import renderer, { ReactTestRenderer } from "react-test-renderer";
+import renderer, { ReactTestRendererJSON } from "react-test-renderer";
 import { render } from "@testing-library/react";
 import { LineComponent } from "./line";
-import { ShapeComponent } from "../Shape/shape";
 import { Color } from "../../../types/color";
 
-const LineRenderer = (lineProps: any): ReactTestRenderer => {
-  return renderer.create(<LineComponent {...lineProps} readonly={true} />);
+const LineRenderer = (lineProps: any): ReactTestRendererJSON => {
+  return renderer
+    .create(<LineComponent {...lineProps} />)
+    .toJSON() as ReactTestRendererJSON;
 };
 
 describe("<LineComponent />", (): void => {
@@ -15,9 +16,17 @@ describe("<LineComponent />", (): void => {
       <LineComponent
         {...({
           backgroundColor: Color.fromRgba(0, 255, 255),
-          width: 50,
+          width: 20,
+          height: 15,
           lineWidth: 4,
-          rotationAngle: 45
+          rotationAngle: 45,
+          points: {
+            values: [
+              { x: 2, y: 20 },
+              { x: 6, y: 30 },
+              { x: 15, y: 4 }
+            ]
+          }
         } as any)}
       />
     );
@@ -28,36 +37,65 @@ describe("<LineComponent />", (): void => {
   test("default properties are added to line component", (): void => {
     const lineProps = {
       width: 20,
-      lineWidth: 4,
-      backgroundColor: Color.fromRgba(0, 255, 255)
+      height: 25,
+      backgroundColor: Color.fromRgba(0, 255, 255),
+      points: {
+        values: [
+          { x: 1, y: 10 },
+          { x: 15, y: 20 },
+          { x: 4, y: 15 }
+        ]
+      }
     };
 
-    const testRenderer = LineRenderer(lineProps);
+    const svg = LineRenderer(lineProps);
+    expect(svg.props.viewBox).toEqual("0 0 20 25");
 
-    const shapeProps = testRenderer.root.findByType(ShapeComponent).props;
+    const lines = svg.children as Array<ReactTestRendererJSON>;
 
-    expect(shapeProps.shapeWidth).toBe("20px");
-    expect(shapeProps.shapeHeight).toBe("4px");
-    expect(shapeProps.backgroundColor.text).toEqual("rgba(0,255,255,255)");
-    expect(shapeProps.visible).toBe(true);
+    expect(lines[0].props.stroke).toEqual("rgba(0,255,255,255)");
+    expect(lines[0].props.strokeWidth).toEqual(1);
+    expect(lines[0].props.transform).toEqual("rotation(0,0,0)");
+    expect(lines[0].props.points).toEqual("1,10 15,20 4,15 ");
   });
 
   test("props override default properties", (): void => {
     const lineProps = {
-      width: 15,
+      width: 30,
+      height: 20,
       lineWidth: 15,
-      backgroundColor: Color.fromRgba(0, 255, 255),
+      backgroundColor: Color.fromRgba(0, 254, 250),
       transparent: true,
       rotationAngle: 45,
-      visible: false
+      visible: true,
+      points: {
+        values: [
+          { x: 16, y: 4 },
+          { x: 25, y: 10 },
+          { x: 4, y: 15 }
+        ]
+      }
     };
 
-    const testRenderer = LineRenderer(lineProps);
+    const svg = LineRenderer(lineProps);
+    expect(svg.props.viewBox).toEqual("0 0 30 20");
 
-    const shapeProps = testRenderer.root.findByType(ShapeComponent).props;
+    const lines = svg.children as Array<ReactTestRendererJSON>;
 
-    expect(shapeProps.backgroundColor.text).toBe(Color.TRANSPARENT.toString());
-    expect(shapeProps.shapeTransform).toBe("rotate(45deg)");
-    expect(shapeProps.visible).toBe(false);
+    expect(lines[0].props.stroke).toEqual("rgba(0,0,0,0)");
+    expect(lines[0].props.strokeWidth).toEqual(15);
+    expect(lines[0].props.transform).toEqual("rotation(45,0,0)");
+    expect(lines[0].props.points).toEqual("16,4 25,10 4,15 ");
+  });
+
+  test("line component not created if no points to plot", (): void => {
+    const lineProps = {
+      width: 20,
+      height: 25,
+      backgroundColor: Color.fromRgba(0, 255, 255)
+    };
+
+    const svg = LineRenderer(lineProps);
+    expect(svg).toBeNull();
   });
 });
