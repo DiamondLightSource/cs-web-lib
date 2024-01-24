@@ -6,19 +6,22 @@ import {
   FloatPropOpt,
   ColorPropOpt,
   BoolPropOpt,
-  FloatProp
+  FloatProp,
+  PointsPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
-import { ShapeComponent } from "../Shape/shape";
 import { Color } from "../../../types/color";
+import { Point } from "../../../types/points";
 
 const LineProps = {
   width: FloatProp,
+  height: FloatProp,
   lineWidth: FloatPropOpt,
   backgroundColor: ColorPropOpt,
   visible: BoolPropOpt,
   transparent: BoolPropOpt,
-  rotationAngle: FloatPropOpt
+  rotationAngle: FloatPropOpt,
+  points: PointsPropOpt
 };
 
 export type LineComponentProps = InferWidgetProps<typeof LineProps> &
@@ -31,27 +34,40 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
     backgroundColor,
     rotationAngle = 0,
     width,
-    lineWidth = 1
+    height,
+    lineWidth = 1,
+    points
   } = props;
 
-  const styleProps = {
-    backgroundColor: transparent ? Color.TRANSPARENT : backgroundColor,
-    visible
-  };
+  const transform = `rotation(${rotationAngle},0,0)`;
 
-  const shapeProps = {
-    shapeWidth: `${width}px`,
-    shapeHeight: `${lineWidth}px`
-  };
-
-  const transform = `rotate(${rotationAngle}deg)`;
-
-  return (
-    <ShapeComponent
-      {...{ ...shapeProps, ...styleProps }}
-      shapeTransform={transform}
-    />
-  );
+  let coordinates = "";
+  if (points !== undefined && visible) {
+    points.values.forEach((point: Point) => {
+      coordinates += `${point.x},${point.y} `;
+    });
+    return (
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <polyline
+          overflow={"visible"}
+          stroke={
+            transparent
+              ? Color.TRANSPARENT.toString()
+              : backgroundColor?.toString()
+          }
+          fill={"none"}
+          strokeWidth={lineWidth}
+          transform={transform}
+          points={coordinates}
+        />
+      </svg>
+    );
+  } else {
+    return <></>;
+  }
 };
 
 const LineWidgetProps = {
