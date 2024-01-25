@@ -49,9 +49,11 @@ describe("<LineComponent />", (): void => {
     };
 
     const svg = LineRenderer(lineProps);
+    console.log(svg);
     expect(svg.props.viewBox).toEqual("0 0 20 25");
 
     const lines = svg.children as Array<ReactTestRendererJSON>;
+    console.log(lines);
 
     expect(lines[0].props.stroke).toEqual("rgba(0,255,255,255)");
     expect(lines[0].props.strokeWidth).toEqual(1);
@@ -74,18 +76,28 @@ describe("<LineComponent />", (): void => {
           { x: 25, y: 10 },
           { x: 4, y: 15 }
         ]
-      }
+      },
+      arrows: 3,
+      arrowLength: 10
     };
 
     const svg = LineRenderer(lineProps);
     expect(svg.props.viewBox).toEqual("0 0 30 20");
 
     const lines = svg.children as Array<ReactTestRendererJSON>;
+    const marker = lines[0].children as Array<ReactTestRendererJSON>;
 
-    expect(lines[0].props.stroke).toEqual("rgba(0,0,0,0)");
-    expect(lines[0].props.strokeWidth).toEqual(15);
-    expect(lines[0].props.transform).toEqual("rotation(45,0,0)");
-    expect(lines[0].props.points).toEqual("16,4 25,10 4,15 ");
+    // Check arrowhead definitions were created
+    expect(marker[0].props.markerWidth).toEqual("10");
+    expect(marker[0].props.markerHeight).toEqual("10");
+    expect(marker[0].props.orient).toEqual("auto-start-reverse");
+
+    expect(lines[1].props).toHaveProperty("markerStart");
+    expect(lines[1].props).toHaveProperty("markerEnd");
+    expect(lines[1].props.stroke).toEqual("rgba(0,0,0,0)");
+    expect(lines[1].props.strokeWidth).toEqual(15);
+    expect(lines[1].props.transform).toEqual("rotation(45,0,0)");
+    expect(lines[1].props.points).toEqual("16,4 25,10 4,15 ");
   });
 
   test("line component not created if no points to plot", (): void => {
