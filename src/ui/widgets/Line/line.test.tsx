@@ -49,11 +49,9 @@ describe("<LineComponent />", (): void => {
     };
 
     const svg = LineRenderer(lineProps);
-    console.log(svg);
     expect(svg.props.viewBox).toEqual("0 0 20 25");
 
     const lines = svg.children as Array<ReactTestRendererJSON>;
-    console.log(lines);
 
     expect(lines[0].props.stroke).toEqual("rgba(0,255,255,255)");
     expect(lines[0].props.strokeWidth).toEqual(1);
