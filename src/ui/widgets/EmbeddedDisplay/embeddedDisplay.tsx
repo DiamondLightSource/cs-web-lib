@@ -106,7 +106,7 @@ export const EmbeddedDisplay = (
         description.backgroundColor ?? new Color("rgb(200,200,200"),
       border:
         props.border ?? new Border(BorderStyle.Line, new Color("white"), 0),
-      overflow: props.scroll ? "scroll" : "hidden",
+      overflow: props.scroll ? "auto" : "hidden",
       children: [description],
       scaling: scaleFactor,
       autoZoomToFit: applyAutoZoomToFit,
