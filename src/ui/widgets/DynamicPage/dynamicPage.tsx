@@ -16,7 +16,6 @@ import {
   StringProp,
   InferWidgetProps,
   BorderPropOpt,
-  StringPropOpt,
   BoolPropOpt
 } from "../propTypes";
 import { EmbeddedDisplay } from "../EmbeddedDisplay/embeddedDisplay";
@@ -27,7 +26,7 @@ import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 const DynamicPageProps = {
   location: StringProp,
   border: BorderPropOpt,
-  showCloseButton: StringPropOpt,
+  showCloseButton: BoolPropOpt,
   scroll: BoolPropOpt
 };
 
@@ -41,12 +40,8 @@ export const DynamicPageComponent = (
   const file = fileContext.pageState[props.location];
 
   // Default behaviour is to show close button
-  let showCloseButton = true;
-  if (props.showCloseButton !== undefined) {
-    if (props.showCloseButton === "false") {
-      showCloseButton = false;
-    }
-  }
+  const showCloseButton =
+    props.showCloseButton === undefined ? true : props.showCloseButton;
 
   if (file === undefined) {
     return (
