@@ -658,7 +658,10 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   effect3d: ["effect_3d", opiParseBoolean],
   showLed: ["show_led", opiParseBoolean],
   cornerWidth: ["corner_width", opiParseString],
-  cornerHeight: ["corner_height", opiParseString]
+  cornerHeight: ["corner_height", opiParseString],
+  arrows: ["arrows", opiParseNumber],
+  arrowLength: ["arrow_length", opiParseNumber],
+  fillArrow: ["fill_arrow", opiParseBoolean]
 };
 
 /**
