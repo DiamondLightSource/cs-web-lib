@@ -660,7 +660,8 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   cornerWidth: ["corner_width", opiParseString],
   cornerHeight: ["corner_height", opiParseString],
   arrows: ["arrows", opiParseNumber],
-  arrowLength: ["arrow_length", opiParseNumber]
+  arrowLength: ["arrow_length", opiParseNumber],
+  fillArrow: ["fill_arrow", opiParseBoolean]
 };
 
 /**

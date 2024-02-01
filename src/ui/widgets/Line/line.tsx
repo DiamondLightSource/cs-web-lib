@@ -1,4 +1,5 @@
 import React from "react";
+import { v4 as uuidv4 } from "uuid";
 import { Widget } from "../widget";
 import { PVWidgetPropType, PVComponent } from "../widgetProps";
 import {
@@ -23,7 +24,8 @@ const LineProps = {
   transparent: BoolPropOpt,
   rotationAngle: FloatPropOpt,
   arrows: FloatPropOpt,
-  arrowLength: FloatPropOpt
+  arrowLength: FloatPropOpt,
+  fillArrow: BoolPropOpt
 };
 
 export type LineComponentProps = InferWidgetProps<typeof LineProps> &
@@ -40,34 +42,70 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
     lineWidth = 1,
     points,
     arrowLength = 2,
-    arrows = 0
+    arrows = 0,
+    fillArrow
   } = props;
 
   const transform = `rotation(${rotationAngle},0,0)`;
 
   // Each marker definition needs a unique ID or colours overlap
   // Get random decimal number, take decimal part and truncate
-  const uid = String(Math.random()).split(".")[1].substring(0, 6);
+  const uid = uuidv4();
+
   // Create a marker if arrows set
   let arrowSize = "";
   let arrowConfig = {};
   let markerConfig = <></>;
+  const linePoints = points ? points.values : [];
   if (arrows) {
     arrowSize = `M 0 0 L ${arrowLength} ${arrowLength / 4} L 0 ${
       arrowLength / 2
-    } z`;
+    } ${fillArrow ? "z" : ""}`; // add z to close path if filling
     switch (arrows) {
+      // Arrow from
       case 1:
         arrowConfig = { markerStart: `url(#arrow${uid})` };
+        // If filled, shorten line length to prevent overlap
+        if (fillArrow) {
+          linePoints[0] = recalculateLineLength(
+            linePoints[1],
+            linePoints[0],
+            arrowLength
+          );
+        }
         break;
+
+      // Arrow to
       case 2:
         arrowConfig = { markerEnd: `url(#arrow${uid})` };
+        // If filled, shorten line length to prevent overlap
+        if (fillArrow) {
+          linePoints[linePoints.length - 1] = recalculateLineLength(
+            linePoints[linePoints.length - 2],
+            linePoints[linePoints.length - 1],
+            arrowLength
+          );
+        }
         break;
+
+      // Arrow both
       case 3:
         arrowConfig = {
           markerStart: `url(#arrow${uid})`,
           markerEnd: `url(#arrow${uid})`
         };
+        if (fillArrow) {
+          linePoints[linePoints.length - 1] = recalculateLineLength(
+            linePoints[linePoints.length - 2],
+            linePoints[linePoints.length - 1],
+            arrowLength
+          );
+          linePoints[0] = recalculateLineLength(
+            linePoints[1],
+            linePoints[0],
+            arrowLength
+          );
+        }
         break;
     }
     markerConfig = (
@@ -75,22 +113,29 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
         <marker
           id={`arrow${uid}`}
           viewBox={`0 0 ${arrowLength} ${arrowLength}`}
-          refX={`${arrowLength - 2}`}
+          refX={fillArrow ? 0 : arrowLength}
           refY={`${arrowLength / 4}`}
-          markerWidth={`${arrowLength}`}
-          markerHeight={`${arrowLength}`}
+          markerWidth={
+            fillArrow ? `${arrowLength}` : `${arrowLength / lineWidth}`
+          }
+          markerHeight={
+            fillArrow ? `${arrowLength}` : `${arrowLength / lineWidth}`
+          }
           orient="auto-start-reverse"
+          markerUnits={props.fillArrow ? "userSpaceOnUse" : "strokeWidth"}
+          overflow={"visible"}
         >
           <path
             d={arrowSize}
             stroke={backgroundColor?.toString()}
-            fill={backgroundColor?.toString()}
+            fill={fillArrow ? backgroundColor?.toString() : "none"}
+            strokeWidth={fillArrow ? 2 : lineWidth}
+            overflow={"visible"}
           />
         </marker>
       </defs>
     );
   }
-  // 0 is none, 1 is from (marker start), 2 is to (marker end), 3 is both
 
   let coordinates = "";
   if (points !== undefined && visible) {
@@ -123,6 +168,43 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
     return <></>;
   }
 };
+
+/**
+ * Recalculate the length of the line when a filled arrow
+ * is present. This prevents the line from obscuring the
+ * arrow. SVG does not include any easy way to layer an arrow
+ * on top of a line without having the line show if it is thicker
+ * than the arrow width, so we shorten the line to prevent this.
+ * Calculate hypoteneuse of line and shorten by arrow length, then map
+ * this change to the x, y coordinates
+ * @param startPoint the first set of x,y coordinates of line segment
+ * @param endPoint the second set of x, y coordinates of line segment
+ */
+function recalculateLineLength(
+  startPoint: Point,
+  endPoint: Point,
+  arrowLen: number
+): Point {
+  // Determine x and y distance between coordinate sets
+  let xLen = endPoint.x - startPoint.x;
+  let yLen = endPoint.y - startPoint.y;
+  // Calculate hypoteneuse length
+  const lineLen = Math.hypot(xLen, yLen);
+  // Calculate new length by subtracting arrowlength
+  const newLineLen = lineLen - arrowLen;
+  // If arrowLen longer than lineLen, make line short as possible
+  // Ideally shouldn't be used this way as arrow should be shorter
+  // Determine what fraction smaller new length is
+  const frac = (arrowLen >= lineLen ? 2 : newLineLen) / lineLen;
+  // Multiply lengths by fraction to get new lengths
+  xLen *= frac;
+  yLen *= frac;
+  // Calculate new final x y coordinates
+  endPoint.x = startPoint.x + Math.round(xLen);
+  endPoint.y = startPoint.y + Math.round(yLen);
+  // Return newly calculated final coordinates
+  return endPoint;
+}
 
 const LineWidgetProps = {
   ...LineProps,
