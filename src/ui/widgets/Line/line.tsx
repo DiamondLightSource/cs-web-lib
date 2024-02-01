@@ -49,7 +49,6 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
   const transform = `rotation(${rotationAngle},0,0)`;
 
   // Each marker definition needs a unique ID or colours overlap
-  // Get random decimal number, take decimal part and truncate
   const uid = uuidv4();
 
   // Create a marker if arrows set
