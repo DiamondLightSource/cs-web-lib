@@ -82,7 +82,7 @@ const OPI_WIDGET_MAPPING: { [key: string]: any } = {
  * Attempts to return the text from a json property, otherwise throws an error
  * @param jsonProp
  */
-function opiParseString(jsonProp: ElementCompact): string {
+export function opiParseString(jsonProp: ElementCompact): string {
   if (typeof jsonProp._text === "string") {
     return jsonProp._text;
   } else {
@@ -148,7 +148,7 @@ export function opiParseFont(jsonProp: ElementCompact): Font {
  * Returns a macro map from a json object
  * @param jsonProp
  */
-function opiParseMacros(jsonProp: ElementCompact): MacroMap {
+export function opiParseMacros(jsonProp: ElementCompact): MacroMap {
   const macroMap: MacroMap = {};
   Object.entries(jsonProp as Record<string, any>).forEach(
     ([key, value]): void => {
@@ -441,7 +441,7 @@ function opiParseFile(props: any): OpiFile {
   };
 }
 
-function opiParseAlarmSensitive(props: any): boolean {
+export function opiParseAlarmSensitive(props: any): boolean {
   // Only one prop for alarm sensitivity at the moment.
   return (
     // opiParseBoolean(props.forecolor_alarm_sensitive) ||

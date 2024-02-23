@@ -8,7 +8,10 @@ import {
   opiParseRules,
   opiParsePvName,
   opiParseActions,
-  opiParseColor
+  opiParseColor,
+  opiParseAlarmSensitive,
+  opiParseString,
+  opiParseMacros
 } from "./opiParser";
 import { xml2js, ElementCompact } from "xml-js";
 import log from "loglevel";
@@ -18,7 +21,7 @@ import {
   RelativePosition
 } from "../../../types/position";
 import { PV } from "../../../types/pv";
-import { Rule } from "../../../types/props";
+import { OpiFile, Rule } from "../../../types/props";
 import { WidgetActions } from "../widgetActions";
 import { Font, FontStyle } from "../../../types/font";
 import { Border, BorderStyle } from "../../../types/border";
@@ -26,13 +29,26 @@ import { Color } from "../../../types/color";
 import { WidgetDescription } from "../createComponent";
 
 const BOB_WIDGET_MAPPING: { [key: string]: any } = {
+  action_button: "actionbutton",
+  arc: "arc",
+  bool_button: "boolbutton",
+  byte_monitor: "bytemonitor",
+  checkbox: "checkbox",
+  combo: "menubutton",
   display: "display",
+  ellipse: "ellipse",
+  embedded: "embeddedDisplay",
+  group: "groupingcontainer",
+  label: "label",
+  led: "led",
   textupdate: "readback",
   textentry: "input",
-  label: "label",
-  group: "grouping",
+  picture: "image",
+  polygon: "shape",
+  polyline: "line",
+  progressbar: "progressbar",
   rectangle: "shape",
-  action_button: "actionbutton"
+  scaledslider: "slidecontrol"
 };
 
 function bobParseType(props: any): string {
@@ -89,6 +105,24 @@ function bobParseBorder(props: any): Border {
   }
 }
 
+/**
+ * Parse file for Embedded Display widgets
+ * @param props 
+ * @returns 
+ */
+function bobParseFile(props: any): OpiFile {
+  const filename = opiParseString(props.file);
+  let macros = {};
+  if (props.macros) {
+    macros = opiParseMacros(props.macros);
+  }
+  return {
+    path: filename,
+    macros,
+    defaultProtocol: "ca"
+  };
+}
+
 function bobGetTargetWidget(props: any): React.FC {
   const typeid = bobParseType(props);
   let targetWidget;
@@ -104,7 +138,9 @@ const BOB_COMPLEX_PARSERS: ComplexParserDict = {
   ...OPI_COMPLEX_PARSERS,
   type: bobParseType,
   position: bobParsePosition,
-  border: bobParseBorder
+  border: bobParseBorder,
+  alarmSensitive: opiParseAlarmSensitive,
+  file: bobParseFile,
 };
 
 export function parseBob(
@@ -134,7 +170,8 @@ export function parseBob(
       "actions",
       (actions: ElementCompact): WidgetActions =>
         opiParseActions(actions, defaultProtocol)
-    ]
+    ],
+    imageFile: ["file", opiParseString]
   };
 
   const complexParsers = {
