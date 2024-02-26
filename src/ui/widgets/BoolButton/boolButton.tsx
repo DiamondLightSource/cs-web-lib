@@ -63,11 +63,11 @@ export const BoolButtonComponent = (
     offColor = Color.fromRgba(0, 100, 0),
     onLabel = "ON",
     offLabel = "OFF",
-    squareButton = false,
+    squareButton = true,
     backgroundColor = Color.fromRgba(200, 200, 200),
     foregroundColor = Color.fromRgba(0, 0, 0),
     showBooleanLabel = true,
-    showLed = false
+    showLed = true
   } = props;
 
   // Use useState for properties that change on click - text and color
@@ -176,9 +176,8 @@ export function createLed(
     backgroundColor: color,
     top: ledY,
     left: ledX,
-    boxShadow: `inset ${ledDiameter / 4}px ${ledDiameter / 4}px ${
-      ledDiameter * 0.4
-    }px rgba(255,255,255,.5)`,
+    boxShadow: `inset ${ledDiameter / 4}px ${ledDiameter / 4}px ${ledDiameter * 0.4
+      }px rgba(255,255,255,.5)`,
     visibility: "hidden"
   };
 
