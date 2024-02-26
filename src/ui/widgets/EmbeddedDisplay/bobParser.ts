@@ -27,6 +27,7 @@ import { Font, FontStyle } from "../../../types/font";
 import { Border, BorderStyle } from "../../../types/border";
 import { Color } from "../../../types/color";
 import { WidgetDescription } from "../createComponent";
+import { Point, Points } from "../../../types/points";
 
 const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   action_button: "actionbutton",
@@ -123,6 +124,23 @@ function bobParseFile(props: any): OpiFile {
   };
 }
 
+/**
+ * Parse points object into an array of number arrays
+ * with x and y coordinates. Compared to opi, bob uses
+ * coordinates relative to widget x and y
+ * @param props
+ */
+function bobParsePoints(props: any): Points {
+  const points: Array<Point> = [];
+  props.point.forEach((point: any) => {
+    const pointData = point._attributes;
+    points.push(
+      new Point(Number(pointData["x"]), Number(pointData["y"]))
+    );
+  });
+  return new Points(points);
+}
+
 function bobGetTargetWidget(props: any): React.FC {
   const typeid = bobParseType(props);
   let targetWidget;
@@ -171,7 +189,8 @@ export function parseBob(
       (actions: ElementCompact): WidgetActions =>
         opiParseActions(actions, defaultProtocol)
     ],
-    imageFile: ["file", opiParseString]
+    imageFile: ["file", opiParseString],
+    points: ["points", bobParsePoints]
   };
 
   const complexParsers = {
