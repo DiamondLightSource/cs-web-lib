@@ -64,7 +64,7 @@ export const ActionButtonComponent = (
           <figcaption>{props.text}</figcaption>
         </figure>
       ) : (
-        <span style={{ whiteSpace: "normal" }}>{props.text}</span>
+        <span style={{ whiteSpace: "normal" }}>{props.text || "EMPTY"}</span>
       )}
     </button>
   );

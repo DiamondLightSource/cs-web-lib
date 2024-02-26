@@ -47,7 +47,7 @@ export const LabelComponent = (
   const {
     textAlign = "center",
     textAlignV = "center",
-    text = "",
+    text = "Label",
     rotationAngle,
     wrapWords
   } = props;
