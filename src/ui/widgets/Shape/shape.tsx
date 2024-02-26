@@ -8,35 +8,47 @@ import {
   InferWidgetProps,
   BorderPropOpt,
   ColorPropOpt,
-  PvPropOpt
+  PvPropOpt,
+  IntPropOpt
 } from "../propTypes";
+import { Color } from "../../../types";
 
 const ShapeProps = {
   pvName: PvPropOpt,
-  shapeWidth: StringPropOpt,
-  shapeHeight: StringPropOpt,
+  width: IntPropOpt,
+  height: IntPropOpt,
   shapeTransform: StringPropOpt,
   cornerWidth: StringPropOpt,
   cornerHeight: StringPropOpt,
   transparent: BoolPropOpt,
   backgroundColor: ColorPropOpt,
+  lineColor: ColorPropOpt,
+  lineWidth: IntPropOpt,
   border: BorderPropOpt
 };
 
 export const ShapeComponent = (
   props: InferWidgetProps<typeof ShapeProps>
 ): JSX.Element => {
+  const {
+    width = 100,
+    height = 20,
+    backgroundColor = Color.fromRgba(30, 144, 255),
+    lineColor = Color.fromRgba(0, 0, 255),
+    lineWidth = 3,
+    cornerHeight = 0,
+    cornerWidth = 0
+  } = props;
   // Calculate radii of corners
-  let cornerRadius = "0";
-  if (props.cornerHeight && props.cornerWidth) {
-    cornerRadius = `${props.cornerWidth}px / ${props.cornerHeight}px`;
-  }
+  let cornerRadius = `${cornerWidth}px / ${cornerHeight}px`;
   const style = {
     ...commonCss(props),
-    width: props.shapeWidth ?? "100%",
-    height: props.shapeHeight ?? "100%",
+    width: width,
+    height: height,
     borderRadius: cornerRadius,
-    transform: props.shapeTransform ?? ""
+    border: `${lineWidth}px solid ${lineColor.toString()}`,
+    transform: props.shapeTransform ?? "",
+    backgroundColor: props.transparent ? "transparent" : backgroundColor.toString()
   };
   return <div style={style} />;
 };
