@@ -11,6 +11,7 @@ import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import classes from "./led.module.css";
 import { DAlarm } from "../../../types/dtypes";
+import { Color } from "../../../types";
 
 /**
  * width: the diameter of the LED
@@ -19,6 +20,7 @@ export const LedProps = {
   width: FloatPropOpt,
   onColor: ColorPropOpt,
   offColor: ColorPropOpt,
+  lineColor: ColorPropOpt,
   alarmSensitive: BoolPropOpt,
   bit: IntPropOpt
 };
@@ -34,11 +36,12 @@ export type LedComponentProps = InferWidgetProps<typeof LedProps> & PVComponent;
 export const LedComponent = (props: LedComponentProps): JSX.Element => {
   const {
     value,
-    onColor,
-    offColor,
-    width,
+    onColor = Color.fromRgba(0, 255, 0),
+    offColor = Color.fromRgba(60, 100, 60),
+    lineColor = Color.fromRgba(50, 50, 50, 178),
+    width = 20,
     alarmSensitive = false,
-    bit = -1
+    bit = -1,
   } = props;
 
   const style: CSSProperties = {};
@@ -55,6 +58,7 @@ export const LedComponent = (props: LedComponentProps): JSX.Element => {
     }
   }
   style["backgroundColor"] = ledOn ? onColor?.toString() : offColor?.toString();
+  style["border"] = `2px solid ${lineColor.toString()}`
 
   if (width) {
     // make sizes similar to size in CS-Studio, five taken

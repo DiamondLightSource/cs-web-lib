@@ -47,102 +47,95 @@ export const ByteMonitorComponent = (
     bitReverse = false,
     onColor = Color.fromRgba(0, 255, 0),
     offColor = Color.fromRgba(0, 100, 0),
-    ledBorder = 3,
+    ledBorder = 2,
     ledBorderColor = Color.fromRgba(150, 150, 150), // dark grey
     squareLed = false,
-    effect3d = true,
-    width,
-    height
+    effect3d = false,
+    width = 160,
+    height = 20
   } = props;
 
-  const doubleValue = value?.getDoubleValue();
+  // Check for a value, otherwise set to 0
+  const doubleValue = value?.getDoubleValue() || 0;
   // Check numBits isn't out of bounds
-  let numBits = props.numBits || 16;
+  let numBits = props.numBits || 8;
   if (numBits < 1) numBits = 1;
   if (numBits > 64) numBits = 64;
 
-  if (
-    doubleValue !== undefined &&
-    width !== undefined &&
-    height !== undefined
-  ) {
-    const dataValues = getBytes(doubleValue, numBits, startBit, bitReverse);
-    // If 3D effect, there is no border but we must leave space for shadow
-    const border = effect3d ? 2 : ledBorder;
-    const [bitWidth, bitHeight, borderWidth] = recalculateDimensions(
-      numBits,
-      width,
-      height,
-      border,
-      horizontal,
-      squareLed
+  const dataValues = getBytes(doubleValue, numBits, startBit, bitReverse);
+  // If 3D effect, there is no border but we must leave space for shadow
+  const border = effect3d ? 2 : ledBorder;
+  const [bitWidth, bitHeight, borderWidth] = recalculateDimensions(
+    numBits,
+    width,
+    height,
+    border,
+    horizontal,
+    squareLed
+  );
+  const ledArray: Array<JSX.Element> = [];
+  dataValues.forEach((data: number, idx: number) => {
+    const style: CSSProperties = {};
+    // Set CSS formatting if vertically or horizontally aligned
+    if (horizontal) {
+      style.display = "inline-block";
+      style["flexFlow"] = "row wrap";
+      style["marginRight"] = `-${borderWidth}px`;
+    } else {
+      style["marginBottom"] = `-${borderWidth}px`;
+    }
+    // Set color based on bit
+    style["backgroundColor"] = data
+      ? onColor?.toString()
+      : offColor?.toString();
+    // Set border color and thickness
+    style["borderColor"] = ledBorderColor.toString();
+    style["borderWidth"] = `${borderWidth}px`;
+    // Set shape as square or circular
+    if (squareLed) {
+      style.width = `${bitWidth + borderWidth}px`;
+      style.height = `${bitHeight + borderWidth}px`;
+    } else {
+      // If 3d, border width is slightly narrower
+      // If circular led, width and height are the same
+      style.width = horizontal
+        ? `${bitWidth + borderWidth}px`
+        : `${bitHeight + borderWidth}px`;
+      style.height = style.width;
+      style["borderRadius"] = "50%";
+    }
+    // Add 3D effect
+    if (effect3d) {
+      // For ellipse, border is different in 3D. For square it is the same
+      // but the LED has a shadow
+      style[
+        "backgroundImage"
+      ] = `radial-gradient(circle at top left, white, ${data ? onColor?.toString() : offColor?.toString()
+      })`;
+      if (!squareLed) {
+        style["borderColor"] = "transparent";
+        style["backgroundImage"] +=
+          ", radial-gradient(circle at top left, black,white)";
+        style["backgroundOrigin"] = "border-box";
+        style["backgroundClip"] = "padding-box, border-box";
+      }
+    }
+    const className = classes.Bit;
+    const bitDiv = (
+      <div key={`bit${idx}`} className={className} style={style} />
     );
-    const ledArray: Array<JSX.Element> = [];
-    dataValues.forEach((data: number, idx: number) => {
-      const style: CSSProperties = {};
-      // Set CSS formatting if vertically or horizontally aligned
-      if (horizontal) {
-        style.display = "inline-block";
-        style["flexFlow"] = "row wrap";
-        style["marginRight"] = `-${borderWidth}px`;
-      } else {
-        style["marginBottom"] = `-${borderWidth}px`;
-      }
-      // Set color based on bit
-      style["backgroundColor"] = data
-        ? onColor?.toString()
-        : offColor?.toString();
-      // Set border color and thickness
-      style["borderColor"] = ledBorderColor.toString();
-      style["borderWidth"] = `${borderWidth}px`;
-      // Set shape as square or circular
-      if (squareLed) {
-        style.width = `${bitWidth + borderWidth}px`;
-        style.height = `${bitHeight + borderWidth}px`;
-      } else {
-        // If 3d, border width is slightly narrower
-        // If circular led, width and height are the same
-        style.width = horizontal
-          ? `${bitWidth + borderWidth}px`
-          : `${bitHeight + borderWidth}px`;
-        style.height = style.width;
-        style["borderRadius"] = "50%";
-      }
-      // Add 3D effect
-      if (effect3d) {
-        // For ellipse, border is different in 3D. For square it is the same
-        // but the LED has a shadow
-        style[
-          "backgroundImage"
-        ] = `radial-gradient(circle at top left, white, ${
-          data ? onColor?.toString() : offColor?.toString()
-        })`;
-        if (!squareLed) {
-          style["borderColor"] = "transparent";
-          style["backgroundImage"] +=
-            ", radial-gradient(circle at top left, black,white)";
-          style["backgroundOrigin"] = "border-box";
-          style["backgroundClip"] = "padding-box, border-box";
-        }
-      }
-      const className = classes.Bit;
-      const bitDiv = (
-        <div key={`bit${idx}`} className={className} style={style} />
-      );
 
-      ledArray.push(bitDiv);
-    });
+    ledArray.push(bitDiv);
+  });
 
-    return (
-      <div
-        className={classes.ByteMonitor}
-        style={{ height: "100%", width: "100%" }}
-      >
-        {ledArray}
-      </div>
-    );
-  }
-  return <></>;
+  return (
+    <div
+      className={classes.ByteMonitor}
+      style={{ height: "100%", width: "100%" }}
+    >
+      {ledArray}
+    </div>
+  );
 };
 
 /**
