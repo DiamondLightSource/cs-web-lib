@@ -26,6 +26,7 @@
       { "allow": ["arrowFunctions"] }
     ],
     "import/no-cycle": "error",
+    "import/no-named-as-default": 0,
     "prettier/prettier": [
       "error",
       {

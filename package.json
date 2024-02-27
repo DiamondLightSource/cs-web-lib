@@ -49,6 +49,7 @@
     "eslint-plugin-unicorn": "^33.0.0",
     "graphql-ws": "^5.9.1",
     "jest-canvas-mock": "^2.4.0",
+    "jest-websocket-mock": "^2.5.0",
     "loglevel": "^1.8.0",
     "prettier": "^2.2.1",
     "react-id-generator": "^3.0.0",

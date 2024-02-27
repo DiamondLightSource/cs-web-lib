@@ -5,26 +5,25 @@ import { connectionMiddleware } from "./connectionMiddleware";
 import { throttleMiddleware, UpdateThrottle } from "./throttleMiddleware";
 import { Connection } from "../connection/plugin";
 import { SimulatorPlugin } from "../connection/sim";
-import { ConiqlPlugin } from "../connection/coniql";
+import { PvwsPlugin } from "../connection/pvws";
 import { ConnectionForwarder } from "../connection/forwarder";
 
-const CONIQL_SOCKET = process.env.REACT_APP_CONIQL_SOCKET;
-const CONIQL_SSL = process.env.REACT_APP_CONIQL_SSL === "true";
+const PVWS_SOCKET = process.env.REACT_APP_PVWS_SOCKET;
+const PVWS_SSL = process.env.REACT_APP_PVWS_SSL === "true";
 const THROTTLE_PERIOD = parseFloat(
   process.env.REACT_APP_THROTTLE_PERIOD ?? "100"
 );
 
 const simulator = new SimulatorPlugin();
-const plugins: [string, Connection][] = [
-  ["sim://", simulator],
-  ["loc://", simulator]
-];
-if (CONIQL_SOCKET !== undefined) {
-  const coniql = new ConiqlPlugin(CONIQL_SOCKET, CONIQL_SSL);
-  plugins.unshift(["pva://", coniql]);
-  plugins.unshift(["ca://", coniql]);
-  plugins.unshift(["ssim://", coniql]);
-  plugins.unshift(["dev://", coniql]);
+const plugins: [string, Connection][] = [["sim://", simulator]];
+if (PVWS_SOCKET !== undefined) {
+  const pvws = new PvwsPlugin(PVWS_SOCKET, PVWS_SSL);
+  plugins.unshift(["pva://", pvws]);
+  plugins.unshift(["ca://", pvws]);
+  plugins.unshift(["loc://", pvws]);
+  plugins.unshift(["sim://", pvws]);
+  plugins.unshift(["ssim://", pvws]);
+  plugins.unshift(["dev://", pvws]);
 }
 const connection = new ConnectionForwarder(plugins);
 
