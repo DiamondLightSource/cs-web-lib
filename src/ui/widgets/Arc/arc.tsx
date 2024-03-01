@@ -94,7 +94,7 @@ export const ArcComponent = (
           className={classes.ArcPath}
           d={arc.join("\n")}
           fill={fillColor}
-          stroke={lineColor.toString()}
+          stroke={fillColor}
           key={`arc${idx}`}
           strokeWidth={lineWidth}
         ></path>
