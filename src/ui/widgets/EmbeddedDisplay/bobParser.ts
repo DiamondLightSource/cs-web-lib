@@ -108,8 +108,8 @@ function bobParseBorder(props: any): Border {
 
 /**
  * Parse file for Embedded Display widgets
- * @param props 
- * @returns 
+ * @param props
+ * @returns
  */
 function bobParseFile(props: any): OpiFile {
   const filename = opiParseString(props.file);
@@ -134,9 +134,7 @@ function bobParsePoints(props: any): Points {
   const points: Array<Point> = [];
   props.point.forEach((point: any) => {
     const pointData = point._attributes;
-    points.push(
-      new Point(Number(pointData["x"]), Number(pointData["y"]))
-    );
+    points.push(new Point(Number(pointData["x"]), Number(pointData["y"])));
   });
   return new Points(points);
 }
@@ -179,7 +177,7 @@ const BOB_COMPLEX_PARSERS: ComplexParserDict = {
   position: bobParsePosition,
   border: bobParseBorder,
   alarmSensitive: opiParseAlarmSensitive,
-  file: bobParseFile,
+  file: bobParseFile
 };
 
 export function parseBob(

@@ -52,6 +52,5 @@ describe("<PolygonComponent />", (): void => {
     const polygons = svg.children as Array<ReactTestRendererJSON>;
     expect(polygons.length).toEqual(1);
     expect(polygons[0].props.points).toEqual("");
-
   });
 });

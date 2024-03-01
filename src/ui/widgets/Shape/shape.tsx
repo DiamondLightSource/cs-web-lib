@@ -40,7 +40,7 @@ export const ShapeComponent = (
     cornerWidth = 0
   } = props;
   // Calculate radii of corners
-  let cornerRadius = `${cornerWidth}px / ${cornerHeight}px`;
+  const cornerRadius = `${cornerWidth}px / ${cornerHeight}px`;
   const style = {
     ...commonCss(props),
     width: width,
@@ -48,7 +48,9 @@ export const ShapeComponent = (
     borderRadius: cornerRadius,
     border: `${lineWidth}px solid ${lineColor.toString()}`,
     transform: props.shapeTransform ?? "",
-    backgroundColor: props.transparent ? "transparent" : backgroundColor.toString()
+    backgroundColor: props.transparent
+      ? "transparent"
+      : backgroundColor.toString()
   };
   return <div style={style} />;
 };

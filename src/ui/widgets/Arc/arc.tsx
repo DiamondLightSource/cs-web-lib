@@ -30,7 +30,6 @@ export const ArcComponent = (
     width = 100,
     height = 100,
     backgroundColor = Color.fromRgba(30, 144, 255),
-    foregroundColor,
     fill = true,
     startAngle = 0,
     totalAngle = 90,
@@ -84,7 +83,8 @@ export const ArcComponent = (
       const arc = [
         `M ${radiusX} ${radiusY}`, // Set point
         `L ${startPos.join(" ")}`, // Line
-        `A ${radiusX} ${radiusY} ${startAngle} 0 ${negAngle ? 0 : 1
+        `A ${radiusX} ${radiusY} ${startAngle} 0 ${
+          negAngle ? 0 : 1
         } ${endPos.join(" ")}`, // Make line elliptical
         "Z" // Close path
       ];
@@ -103,14 +103,15 @@ export const ArcComponent = (
 
     const border = [
       `M ${startPos.join(" ")}`, // Set start point on arc
-      `A ${radiusX} ${radiusY} ${startAngle} 0 ${negAngle ? 0 : 1
+      `A ${radiusX} ${radiusY} ${startAngle} 0 ${
+        negAngle ? 0 : 1
       } ${endPos.join(" ")}` // Draw elliptical line
     ];
     elements.push(
       <path
         className={classes.BorderPath}
         d={border.join("\n")}
-        stroke={foregroundColor?.toString()}
+        stroke={lineColor.toString()}
         fill="transparent"
         key={`border${idx}`}
         strokeWidth={lineWidth}
@@ -118,7 +119,11 @@ export const ArcComponent = (
     );
   });
   return (
-    <svg className={classes.Arc} viewBox={`0 0 ${width} ${height}`} overflow={"visible"}>
+    <svg
+      className={classes.Arc}
+      viewBox={`0 0 ${width} ${height}`}
+      overflow={"visible"}
+    >
       {elements}
     </svg>
   );

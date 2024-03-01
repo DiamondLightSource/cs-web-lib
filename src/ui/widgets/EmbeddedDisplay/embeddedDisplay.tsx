@@ -58,11 +58,11 @@ export const EmbeddedDisplay = (
 
   // Get the screen height and width. If not provided then set to
   // the window height and width, repectively.
-  let heightString = getOptionalValue(
+  const heightString = getOptionalValue(
     description.position.height,
     `${String(window.innerHeight)}px`
   );
-  let widthString = getOptionalValue(
+  const widthString = getOptionalValue(
     description.position.width,
     `${String(window.innerWidth)}px`
   );
@@ -72,7 +72,7 @@ export const EmbeddedDisplay = (
   switch (resize) {
     case "scroll-content":
       // Give the display scrollbars if needed
-      overflow = "auto"
+      overflow = "auto";
       break;
     case "size-content":
       // Resize the content
@@ -95,7 +95,7 @@ export const EmbeddedDisplay = (
   }
 
   let scaleFactorX = "1";
-  let scaleFactorY = "1"
+  let scaleFactorY = "1";
   if (applyAutoZoomToFit) {
     // Height and width from parsed opi file will always take the form
     // "<num>px" so trim
@@ -115,7 +115,7 @@ export const EmbeddedDisplay = (
     // For everything except stretch-content, scale equally in both directions
     if (resize !== "stretch-content") {
       scaleHeightVal = minScaleFactor;
-      scaleWidthVal = minScaleFactor
+      scaleWidthVal = minScaleFactor;
     }
     scaleFactorX = String(scaleWidthVal);
     scaleFactorY = String(scaleHeightVal);
@@ -156,7 +156,7 @@ export const EmbeddedDisplay = (
       children: [description],
       scaling: [scaleFactorX, scaleFactorY],
       autoZoomToFit: applyAutoZoomToFit,
-      scalingOrigin: props.scalingOrigin,
+      scalingOrigin: props.scalingOrigin
     });
   } catch (e) {
     const message = `Error loading ${props.file.path}: ${e}.`;
@@ -170,7 +170,7 @@ export const EmbeddedDisplay = (
   const embeddedDisplayMacros = props.file.macros ?? {};
   const embeddedDisplayMacroContext: MacroContextType = {
     // Currently not allowing changing the macros of an embedded display.
-    updateMacro: (key: string, value: string): void => { },
+    updateMacro: (key: string, value: string): void => {},
     macros: {
       ...parentMacros, // lower priority
       ...embeddedDisplayMacros, // higher priority

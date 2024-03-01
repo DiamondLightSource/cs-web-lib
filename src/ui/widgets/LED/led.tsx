@@ -41,7 +41,7 @@ export const LedComponent = (props: LedComponentProps): JSX.Element => {
     lineColor = Color.fromRgba(50, 50, 50, 178),
     width = 20,
     alarmSensitive = false,
-    bit = -1,
+    bit = -1
   } = props;
 
   const style: CSSProperties = {};
@@ -58,7 +58,7 @@ export const LedComponent = (props: LedComponentProps): JSX.Element => {
     }
   }
   style["backgroundColor"] = ledOn ? onColor?.toString() : offColor?.toString();
-  style["border"] = `2px solid ${lineColor.toString()}`
+  style["border"] = `2px solid ${lineColor.toString()}`;
 
   if (width) {
     // make sizes similar to size in CS-Studio, five taken

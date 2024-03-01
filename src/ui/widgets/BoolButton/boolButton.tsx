@@ -176,8 +176,9 @@ export function createLed(
     backgroundColor: color,
     top: ledY,
     left: ledX,
-    boxShadow: `inset ${ledDiameter / 4}px ${ledDiameter / 4}px ${ledDiameter * 0.4
-      }px rgba(255,255,255,.5)`,
+    boxShadow: `inset ${ledDiameter / 4}px ${ledDiameter / 4}px ${
+      ledDiameter * 0.4
+    }px rgba(255,255,255,.5)`,
     visibility: "hidden"
   };
 
