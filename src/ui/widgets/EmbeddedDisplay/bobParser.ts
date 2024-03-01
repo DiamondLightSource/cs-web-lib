@@ -141,6 +141,27 @@ function bobParsePoints(props: any): Points {
   return new Points(points);
 }
 
+/**
+ * Parse numbers for resizing into strings that say what
+ * time of resizing should be performed
+ * @param jsonProp
+ */
+function bobParseResizing(jsonProp: ElementCompact): string {
+  const resizeOpt = bobParseNumber(jsonProp);
+  switch (resizeOpt) {
+    case 1:
+      return "size-content";
+    case 2:
+      return "crop-widget";
+    case 3:
+      return "stretch-content";
+    case 4:
+      return "crop-content";
+    default:
+      return "scroll-widget";
+  }
+}
+
 function bobGetTargetWidget(props: any): React.FC {
   const typeid = bobParseType(props);
   let targetWidget;
@@ -190,7 +211,8 @@ export function parseBob(
         opiParseActions(actions, defaultProtocol)
     ],
     imageFile: ["file", opiParseString],
-    points: ["points", bobParsePoints]
+    points: ["points", bobParsePoints],
+    resize: ["resize", bobParseResizing]
   };
 
   const complexParsers = {

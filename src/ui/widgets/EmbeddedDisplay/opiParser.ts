@@ -567,6 +567,27 @@ function opiParsePoints(props: any): Points {
 }
 
 /**
+ * Parse numbers for resizing into strings that say what
+ * time of resizing should be performed
+ * @param jsonProp
+ */
+function opiParseResizing(jsonProp: ElementCompact): string {
+  const resizeOpt = opiParseNumber(jsonProp);
+  switch (resizeOpt) {
+    case 0:
+      return "size-content";
+    case 1:
+      return "size-widget";
+    case 2:
+      return "crop-content";
+    case 3:
+      return "scroll-widget";
+    default:
+      return "size-widget";
+  }
+}
+
+/**
  * Attempt to return the widget associated with a props object, failing
  * that will return a shape object
  * @param props
@@ -661,7 +682,8 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   cornerHeight: ["corner_height", opiParseString],
   arrows: ["arrows", opiParseNumber],
   arrowLength: ["arrow_length", opiParseNumber],
-  fillArrow: ["fill_arrow", opiParseBoolean]
+  fillArrow: ["fill_arrow", opiParseBoolean],
+  resize: ["resize_behaviour", opiParseResizing]
 };
 
 /**
