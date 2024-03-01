@@ -22,12 +22,17 @@ describe("<ArcComponent />", (): void => {
     expect(svg.props.viewBox).toEqual("0 0 100 100");
 
     const pathArray = svg.children as Array<ReactTestRendererJSON>;
-    // Default doesn't fill, expect just border paths of arc
-    expect(pathArray.length).toEqual(1);
+    console.log(pathArray);
+    // Default fills, expect border path and fill of arc
+    expect(pathArray.length).toEqual(2);
     // Filled arc
-    expect(pathArray[0].props.d).toEqual("M 100 50\nA 50 50 0 0 1 50 100");
-    expect(pathArray[0].props.fill).toEqual("transparent");
-    expect(pathArray[0].props.stroke).toEqual("rgba(0,1,255,255)");
+    expect(pathArray[0].props.d).toEqual("M 50 50\nL 100 50\nA 50 50 0 0 1 50 100\nZ");
+    expect(pathArray[0].props.fill).toEqual("rgba(200,1,60,255)");
+    expect(pathArray[0].props.stroke).toEqual("rgba(200,1,60,255)");
+    // BOrder
+    expect(pathArray[1].props.d).toEqual("M 100 50\nA 50 50 0 0 1 50 100");
+    expect(pathArray[1].props.fill).toEqual("transparent");
+    expect(pathArray[1].props.stroke).toEqual("rgba(0,1,255,255)");
   });
 
   test("create arc of angle > 180 degrees", (): void => {

@@ -38,7 +38,7 @@ describe("<PolygonComponent />", (): void => {
     expect(polygons[0].props.strokeWidth).toEqual(2);
   });
 
-  test("no points props, component doesn't render", (): void => {
+  test("no points props, component renders without points", (): void => {
     const polygonProps = {
       height: 10,
       width: 20,
@@ -49,6 +49,9 @@ describe("<PolygonComponent />", (): void => {
     };
 
     const svg = PolygonRenderer(polygonProps);
-    expect(svg).toBeNull();
+    const polygons = svg.children as Array<ReactTestRendererJSON>;
+    expect(polygons.length).toEqual(1);
+    expect(polygons[0].props.points).toEqual("");
+
   });
 });

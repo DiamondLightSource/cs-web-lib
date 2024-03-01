@@ -22,7 +22,7 @@ describe("<BoolButton />", (): void => {
     expect(button.style.height).toEqual("50px");
     expect(button.style.width).toEqual("100px");
     expect(button.style.backgroundColor).toEqual("rgb(200, 200, 200)");
-    expect(button.style.borderRadius).toEqual("50%");
+    expect(button.style.borderRadius).toEqual("");
   });
 
   test("it renders a button with led and overwrites default values", (): void => {
