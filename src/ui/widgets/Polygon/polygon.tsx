@@ -35,12 +35,14 @@ export const PolygonComponent = (
     points,
     rotationAngle = 0
   } = props;
-  console.log(props);
   //Loop over points and convert to string for svg
   let coordinates = "";
-  points.values.forEach((point: Point) => {
-    coordinates += `${point.x},${point.y} `;
-  });
+  if (points) {
+    points.values.forEach((point: Point) => {
+      coordinates += `${point.x},${point.y} `;
+    });
+  }
+
   return (
     <svg
       viewBox={`0 0 ${width} ${height}`}
