@@ -38,6 +38,32 @@ describe("<PolygonComponent />", (): void => {
     expect(polygons[0].props.strokeWidth).toEqual(2);
   });
 
+  test("make polygon transparent", (): void => {
+    const polygonProps = {
+      height: 10,
+      width: 20,
+      lineWidth: 2,
+      lineColor: Color.fromRgba(0, 1, 255),
+      backgroundColor: Color.fromRgba(200, 1, 60),
+      points: {
+        values: [
+          { x: 1, y: 10 },
+          { x: 10, y: 20 },
+          { x: 7, y: 15 }
+        ]
+      },
+      rotationAngle: 0,
+      transparent: true
+    };
+
+    const svg = PolygonRenderer(polygonProps);
+
+    const polygons = svg.children as Array<ReactTestRendererJSON>;
+
+    expect(polygons[0].props.fill).toEqual("transparent");
+    expect(polygons[0].props.stroke).toEqual("rgba(0,1,255,255)");
+  });
+
   test("no points props, component renders without points", (): void => {
     const polygonProps = {
       height: 10,

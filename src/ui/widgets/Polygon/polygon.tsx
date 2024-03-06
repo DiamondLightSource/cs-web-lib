@@ -7,7 +7,8 @@ import {
   BorderPropOpt,
   ColorPropOpt,
   IntPropOpt,
-  PointsProp
+  PointsProp,
+  BoolPropOpt
 } from "../propTypes";
 import { Point } from "../../../types/points";
 import { Color } from "../../../types";
@@ -20,7 +21,8 @@ const PolygonProps = {
   lineColor: ColorPropOpt,
   backgroundColor: ColorPropOpt,
   points: PointsProp,
-  rotationAngle: IntPropOpt
+  rotationAngle: IntPropOpt,
+  transparent: BoolPropOpt
 };
 
 export const PolygonComponent = (
@@ -33,7 +35,8 @@ export const PolygonComponent = (
     lineColor = Color.fromRgba(0, 0, 255),
     backgroundColor = Color.fromRgba(50, 50, 255),
     points,
-    rotationAngle = 0
+    rotationAngle = 0,
+    transparent = false
   } = props;
   //Loop over points and convert to string for svg
   let coordinates = "";
@@ -53,7 +56,7 @@ export const PolygonComponent = (
         overflow={"visible"}
         stroke={lineColor.toString()}
         strokeWidth={lineWidth}
-        fill={backgroundColor.toString()} // background colour
+        fill={transparent ? "transparent" : backgroundColor.toString()} // background colour
         transform={`rotation(${rotationAngle},0,0)`}
         points={coordinates}
       />
