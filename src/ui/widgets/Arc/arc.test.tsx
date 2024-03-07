@@ -1,6 +1,11 @@
 import React from "react";
 import renderer, { ReactTestRendererJSON } from "react-test-renderer";
-import { ArcComponent, circumPointFromAngle } from "./arc";
+import {
+  ArcComponent,
+  circumPointFromAngle,
+  findFillOption,
+  findLineColor
+} from "./arc";
 import { Color } from "../../../types/color";
 
 const ArcRenderer = (arcProps: any): ReactTestRendererJSON => {
@@ -14,7 +19,6 @@ describe("<ArcComponent />", (): void => {
     const arcProps = {
       height: 100,
       width: 100,
-      foregroundColor: Color.fromRgba(0, 1, 255),
       backgroundColor: Color.fromRgba(200, 1, 60)
     };
 
@@ -36,14 +40,14 @@ describe("<ArcComponent />", (): void => {
     expect(pathArray[1].props.stroke).toEqual("rgba(0,0,255,255)");
   });
 
-  test("create arc of angle > 180 degrees", (): void => {
+  test("create arc of angle > 180 degrees with fill (phoebus)", (): void => {
     const arcProps = {
       height: 100,
       width: 100,
       startAngle: 34,
       totalAngle: 201,
-      fill: true,
-      foregroundColor: Color.fromRgba(0, 100, 200),
+      transparent: false,
+      lineColor: Color.fromRgba(0, 100, 200),
       backgroundColor: Color.fromRgba(45, 1, 180)
     };
 
@@ -60,7 +64,7 @@ describe("<ArcComponent />", (): void => {
     for (let i = 0; i < pathArray.length; i++) {
       if (i % 2) {
         // Even numbers are border elements
-        expect(pathArray[i].props.stroke).toEqual("rgba(0,0,255,255)");
+        expect(pathArray[i].props.stroke).toEqual("rgba(0,100,200,255)");
       } else {
         // Odd numbers are filled arc elements
         expect(pathArray[i].props.fill).toEqual("rgba(45,1,180,255)");
@@ -68,7 +72,7 @@ describe("<ArcComponent />", (): void => {
     }
   });
 
-  test("create arc with negative start angle", (): void => {
+  test("create arc with negative start angle, with fill (css)", (): void => {
     const arcProps = {
       height: 100,
       width: 100,
@@ -90,35 +94,33 @@ describe("<ArcComponent />", (): void => {
     );
   });
 
-  test("create arc with negative start and total angle", (): void => {
+  test("create arc with negative start and total angle, no fill (phoebus)", (): void => {
     const arcProps = {
       height: 100,
       width: 100,
       startAngle: -100,
       totalAngle: -90,
-      fill: true,
-      foregroundColor: Color.fromRgba(0, 100, 200),
+      transparent: true,
+      lineColor: Color.fromRgba(0, 101, 200),
       backgroundColor: Color.fromRgba(45, 1, 180)
     };
 
     const svg = ArcRenderer(arcProps);
 
     const pathArray = svg.children as Array<ReactTestRendererJSON>;
-    // Fill and border paths of arc
-    expect(pathArray.length).toEqual(2);
-    // Filled arc
-    expect(pathArray[0].props.d).toEqual(
-      "M 50 50\nL 41 1\nA 50 50 -100 0 0 1 59\nZ"
-    );
+    // Border paths of arc
+    expect(pathArray.length).toEqual(1);
+    // Arc
+    expect(pathArray[0].props.d).toEqual("M 41 1\nA 50 50 -100 0 0 1 59");
   });
 
-  test("create arc with negative total angle", (): void => {
+  test("create arc with negative total angle, no fill (css)", (): void => {
     const arcProps = {
       height: 100,
       width: 100,
       startAngle: 40,
       totalAngle: -120,
-      fill: true,
+      fill: false,
       foregroundColor: Color.fromRgba(0, 100, 200),
       backgroundColor: Color.fromRgba(45, 1, 180)
     };
@@ -126,12 +128,10 @@ describe("<ArcComponent />", (): void => {
     const svg = ArcRenderer(arcProps);
 
     const pathArray = svg.children as Array<ReactTestRendererJSON>;
-    // Fill and border paths of arc
-    expect(pathArray.length).toEqual(4);
+    // Border paths of arc
+    expect(pathArray.length).toEqual(2);
     // Filled arc
-    expect(pathArray[0].props.d).toEqual(
-      "M 50 50\nL 88 82\nA 50 50 40 0 0 82 12\nZ"
-    );
+    expect(pathArray[0].props.d).toEqual("M 88 82\nA 50 50 40 0 0 82 12");
   });
 });
 
@@ -139,5 +139,35 @@ describe("circumPointFromAngle()", (): void => {
   test("calculate circumference point", (): void => {
     const coords = circumPointFromAngle(0, 0, 20, 20, 45);
     expect(coords).toEqual([11, 17]);
+  });
+});
+
+describe("findFillOption()", (): void => {
+  test("Use Phoebus fill option", (): void => {
+    const fillOpt = findFillOption(false, undefined);
+    expect(fillOpt).toEqual(true);
+  });
+  test("Use CSStudio fill option", (): void => {
+    const fillOpt = findFillOption(undefined, true);
+    expect(fillOpt).toEqual(true);
+  });
+  test("Use default fill option", (): void => {
+    const fillOpt = findFillOption(undefined, undefined);
+    expect(fillOpt).toEqual(true);
+  });
+});
+
+describe("findLineColor()", (): void => {
+  test("Use Phoebus line color", (): void => {
+    const lineColor = findLineColor(Color.fromRgba(20, 15, 100), undefined);
+    expect(lineColor).toEqual(Color.fromRgba(20, 15, 100));
+  });
+  test("Use CSStudio foreground color", (): void => {
+    const lineColor = findLineColor(undefined, Color.fromRgba(40, 250, 100));
+    expect(lineColor).toEqual(Color.fromRgba(40, 250, 100));
+  });
+  test("Use default line color", (): void => {
+    const lineColor = findLineColor(undefined, undefined);
+    expect(lineColor).toEqual(Color.fromRgba(0, 0, 255, 255));
   });
 });

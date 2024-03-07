@@ -20,7 +20,8 @@ const ArcProps = {
   startAngle: IntPropOpt,
   totalAngle: IntPropOpt,
   lineWidth: IntPropOpt,
-  lineColor: ColorPropOpt
+  lineColor: ColorPropOpt,
+  transparent: BoolPropOpt
 };
 
 export const ArcComponent = (
@@ -30,13 +31,20 @@ export const ArcComponent = (
     width = 100,
     height = 100,
     backgroundColor = Color.fromRgba(30, 144, 255),
-    fill = true,
     startAngle = 0,
     totalAngle = 90,
-    lineWidth = 3,
-    lineColor = Color.fromRgba(0, 0, 255)
+    lineWidth = 3
   } = props;
-  const fillColor = fill ? backgroundColor?.toString() : "transparent";
+
+  // CSS uses "Fill", Phoebus uses "transparent"
+  // CSS uses "Foreground Color", Phoebus uses "Line Color"
+  const fillOpt = findFillOption(props.transparent, props.fill);
+  const borderColor = findLineColor(
+    props.lineColor,
+    props.foregroundColor
+  ).toString();
+  const fillColor = fillOpt ? backgroundColor?.toString() : "transparent";
+
   const radiusX = Math.floor(width / 2);
   const radiusY = Math.floor(height / 2);
   const elements: Array<JSX.Element> = [];
@@ -79,7 +87,7 @@ export const ArcComponent = (
 
     // Set up SVG path commands - filled shape and border
     // Don't add fill element if set to not fill
-    if (fill) {
+    if (fillOpt) {
       const arc = [
         `M ${radiusX} ${radiusY}`, // Set point
         `L ${startPos.join(" ")}`, // Line
@@ -111,7 +119,7 @@ export const ArcComponent = (
       <path
         className={classes.BorderPath}
         d={border.join("\n")}
-        stroke={lineColor.toString()}
+        stroke={borderColor.toString()}
         fill="transparent"
         key={`border${idx}`}
         strokeWidth={lineWidth}
@@ -139,6 +147,41 @@ export function circumPointFromAngle(
   a: number
 ): [number, number] {
   return [Math.round(cx + rx * Math.cos(a)), Math.round(cy + ry * Math.sin(a))];
+}
+
+/**
+ * Determine whether to use lineColor or foregroundColor prop
+ * for lineColor
+ */
+export function findLineColor(
+  bobColor: Color | undefined,
+  opiColor: Color | undefined
+): Color {
+  if (bobColor !== undefined) {
+    return bobColor;
+  } else if (opiColor !== undefined) {
+    return opiColor;
+  }
+  // If neither present, use Phoebus default
+  return Color.fromRgba(0, 0, 255);
+}
+
+/**
+ * Determine whether to use fill or transparent prop
+ * for filling Arc
+ */
+export function findFillOption(
+  bobOpt: boolean | undefined,
+  opiOpt: boolean | undefined
+): boolean {
+  if (bobOpt !== undefined) {
+    // Return opposite of what value transparent has
+    return !bobOpt;
+  } else if (opiOpt !== undefined) {
+    return opiOpt;
+  }
+  // If neither present, fill
+  return true;
 }
 
 const ArcWidgetProps = {
