@@ -18,7 +18,7 @@ import {
   FilePropType,
   BoolPropOpt,
   StringPropOpt,
-  IntPropOpt
+  StringOrNumPropOpt
 } from "../propTypes";
 import { GroupBoxComponent } from "../GroupBox/groupBox";
 import { useOpiFile } from "./useOpiFile";
@@ -28,8 +28,8 @@ import { getOptionalValue, trimFromString } from "../utils";
 const EmbeddedDisplayProps = {
   ...WidgetPropType,
   file: FilePropType,
-  height: IntPropOpt,
-  width: IntPropOpt,
+  height: StringOrNumPropOpt,
+  width: StringOrNumPropOpt,
   name: StringPropOpt,
   scroll: BoolPropOpt,
   scalingOrigin: StringPropOpt,
@@ -107,8 +107,19 @@ export const EmbeddedDisplay = (
     // If we are scaling down opi to fit into embedded window size use
     // display size and file size
     if (resize === "stretch-content" || resize === "size-content") {
-      if (props.height) scaleHeightVal = props.height / heightInt;
-      if (props.width) scaleWidthVal = props.width / widthInt;
+      // Height and width from parsed opi file will always take the form
+      // "<num>px" but bob files can be numbers
+      if (typeof props.height === "string") {
+        scaleHeightVal = trimFromString(props.height) / heightInt;
+      } else if (typeof props.height === "number") {
+        scaleHeightVal = props.height / heightInt;
+      }
+
+      if (typeof props.width === "string") {
+        scaleWidthVal = trimFromString(props.width) / widthInt;
+      } else if (typeof props.width === "number") {
+        scaleWidthVal = props.width / widthInt;
+      }
     }
 
     const minScaleFactor = Math.min(scaleWidthVal, scaleHeightVal);
