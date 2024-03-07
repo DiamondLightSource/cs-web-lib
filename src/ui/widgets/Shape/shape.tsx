@@ -9,14 +9,15 @@ import {
   BorderPropOpt,
   ColorPropOpt,
   PvPropOpt,
-  IntPropOpt
+  IntPropOpt,
+  StringOrNumPropOpt
 } from "../propTypes";
 import { Color } from "../../../types";
 
 const ShapeProps = {
   pvName: PvPropOpt,
-  width: IntPropOpt,
-  height: IntPropOpt,
+  width: StringOrNumPropOpt,
+  height: StringOrNumPropOpt,
   shapeTransform: StringPropOpt,
   cornerWidth: StringPropOpt,
   cornerHeight: StringPropOpt,
@@ -33,25 +34,24 @@ export const ShapeComponent = (
   const {
     width = 100,
     height = 20,
-    backgroundColor = Color.fromRgba(30, 144, 255),
     lineColor = Color.fromRgba(0, 0, 255),
     lineWidth = 3,
-    cornerHeight = 0,
-    cornerWidth = 0
+    backgroundColor = Color.fromRgba(30, 144, 255)
   } = props;
   // Calculate radii of corners
-  const cornerRadius = `${cornerWidth}px / ${cornerHeight}px`;
+  const cornerRadius = `${props.cornerWidth || 0}px / ${
+    props.cornerHeight || 0
+  }px`;
   const style = {
     ...commonCss(props),
     width: width,
     height: height,
     borderRadius: cornerRadius,
-    border: `${lineWidth}px solid ${lineColor.toString()}`,
-    transform: props.shapeTransform ?? "",
-    backgroundColor: props.transparent
-      ? "transparent"
-      : backgroundColor.toString()
+    backgroundColor: backgroundColor.toString(),
+    transform: props.shapeTransform ?? ""
   };
+  // Set line options
+  style.border = `${lineWidth}px solid ${lineColor.toString()}`;
   return <div style={style} />;
 };
 
