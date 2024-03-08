@@ -179,7 +179,7 @@ export class PvwsPlugin implements Connection {
           isReadonly: jm.readonly
         });
       }
-      
+
       const dtype = pvwsToDType(jm);
       this.onValueUpdate(jm.pv, dtype);
     }
