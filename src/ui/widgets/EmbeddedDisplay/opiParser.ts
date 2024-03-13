@@ -95,7 +95,7 @@ export function opiParseString(jsonProp: ElementCompact): string {
  * on a json property, otherwise throws an error
  * @param jsonProp
  */
-function opiParseBoolean(jsonProp: ElementCompact): boolean {
+export function opiParseBoolean(jsonProp: ElementCompact): boolean {
   const boolText = jsonProp._text;
   if (boolText === "false") {
     return false;

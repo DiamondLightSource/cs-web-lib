@@ -11,7 +11,8 @@ import {
   opiParseColor,
   opiParseAlarmSensitive,
   opiParseString,
-  opiParseMacros
+  opiParseMacros,
+  opiParseBoolean
 } from "./opiParser";
 import { xml2js, ElementCompact } from "xml-js";
 import log from "loglevel";
@@ -210,7 +211,8 @@ export function parseBob(
     ],
     imageFile: ["file", opiParseString],
     points: ["points", bobParsePoints],
-    resize: ["resize", bobParseResizing]
+    resize: ["resize", bobParseResizing],
+    squareLed: ["square", opiParseBoolean]
   };
 
   const complexParsers = {
