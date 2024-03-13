@@ -13,6 +13,7 @@ import {
 import { registerWidget } from "../register";
 import { Color } from "../../../types/color";
 import { Point } from "../../../types/points";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const LineProps = {
   width: FloatProp,
@@ -37,8 +38,8 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
     transparent = false,
     backgroundColor = Color.fromRgba(0, 0, 255),
     rotationAngle = 0,
-    width,
-    height,
+    width = WIDGET_DEFAULT_SIZES["polyline"][0],
+    height = WIDGET_DEFAULT_SIZES["polyline"][1],
     lineWidth = 3,
     points,
     arrowLength = 2,
@@ -57,9 +58,8 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
   let markerConfig = <></>;
   const linePoints = points ? points.values : [];
   if (arrows) {
-    arrowSize = `M 0 0 L ${arrowLength} ${arrowLength / 4} L 0 ${
-      arrowLength / 2
-    } ${fillArrow ? "z" : ""}`; // add z to close path if filling
+    arrowSize = `M 0 0 L ${arrowLength} ${arrowLength / 4} L 0 ${arrowLength / 2
+      } ${fillArrow ? "z" : ""}`; // add z to close path if filling
     switch (arrows) {
       // Arrow from
       case 1:

@@ -12,6 +12,7 @@ import {
 } from "../propTypes";
 import { Point } from "../../../types/points";
 import { Color } from "../../../types";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const PolygonProps = {
   height: IntPropOpt,
@@ -29,8 +30,8 @@ export const PolygonComponent = (
   props: InferWidgetProps<typeof PolygonProps>
 ): JSX.Element => {
   const {
-    width = 100,
-    height = 20,
+    width = WIDGET_DEFAULT_SIZES["polygon"][0],
+    height = WIDGET_DEFAULT_SIZES["polygon"][1],
     lineWidth = 3,
     lineColor = Color.fromRgba(0, 0, 255),
     backgroundColor = Color.fromRgba(50, 50, 255),

@@ -8,12 +8,14 @@ import {
   IntPropOpt,
   PointsPropOpt,
   BoolPropOpt,
-  StringPropOpt
+  StringPropOpt,
+  PositionProp
 } from "../propTypes";
 import { Color } from "../../../types/color";
 import classes from "./boolButton.module.css";
 import { writePv } from "../../hooks/useSubscription";
 import { DType } from "../../../types/dtypes";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const LED_POSITION = 4.8 / 6;
 
@@ -53,10 +55,10 @@ export const BoolButtonComponent = (
   props: BoolButtonComponentProps
 ): JSX.Element => {
   const {
+    width = WIDGET_DEFAULT_SIZES["bool_button"][0],
+    height = WIDGET_DEFAULT_SIZES["bool_button"][1],
     pvName,
     value,
-    width = 100,
-    height = 50,
     onState = 1,
     offState = 0,
     onColor = Color.fromRgba(0, 255, 0),
@@ -138,8 +140,8 @@ export const BoolButtonComponent = (
         style={style}
         onClick={handleClick}
       >
-        {label}
         <span className={classes.Led} style={ledStyle} />
+        {label}
       </button>
     </>
   );
@@ -176,9 +178,8 @@ export function createLed(
     backgroundColor: color,
     top: ledY,
     left: ledX,
-    boxShadow: `inset ${ledDiameter / 4}px ${ledDiameter / 4}px ${
-      ledDiameter * 0.4
-    }px rgba(255,255,255,.5)`,
+    boxShadow: `inset ${ledDiameter / 4}px ${ledDiameter / 4}px ${ledDiameter * 0.4
+      }px rgba(255,255,255,.5)`,
     visibility: "hidden"
   };
 

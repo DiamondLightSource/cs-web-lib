@@ -19,7 +19,7 @@ describe("<BoolButton />", (): void => {
     const button = getByRole("button") as HTMLButtonElement;
 
     expect(button.textContent).toEqual("ON");
-    expect(button.style.height).toEqual("50px");
+    expect(button.style.height).toEqual("30px");
     expect(button.style.width).toEqual("100px");
     expect(button.style.backgroundColor).toEqual("rgb(200, 200, 200)");
     expect(button.style.borderRadius).toEqual("");

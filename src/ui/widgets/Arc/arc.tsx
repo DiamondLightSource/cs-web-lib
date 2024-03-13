@@ -10,6 +10,7 @@ import {
 } from "../propTypes";
 import classes from "./arc.module.css";
 import { Color } from "../../../types";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const ArcProps = {
   width: IntPropOpt,
@@ -28,8 +29,8 @@ export const ArcComponent = (
   props: InferWidgetProps<typeof ArcProps>
 ): JSX.Element => {
   const {
-    width = 100,
-    height = 100,
+    width = WIDGET_DEFAULT_SIZES["arc"][0],
+    height = WIDGET_DEFAULT_SIZES["arc"][1],
     backgroundColor = Color.fromRgba(30, 144, 255),
     startAngle = 0,
     totalAngle = 90,
@@ -91,8 +92,7 @@ export const ArcComponent = (
       const arc = [
         `M ${radiusX} ${radiusY}`, // Set point
         `L ${startPos.join(" ")}`, // Line
-        `A ${radiusX} ${radiusY} ${startAngle} 0 ${
-          negAngle ? 0 : 1
+        `A ${radiusX} ${radiusY} ${startAngle} 0 ${negAngle ? 0 : 1
         } ${endPos.join(" ")}`, // Make line elliptical
         "Z" // Close path
       ];
@@ -111,8 +111,7 @@ export const ArcComponent = (
 
     const border = [
       `M ${startPos.join(" ")}`, // Set start point on arc
-      `A ${radiusX} ${radiusY} ${startAngle} 0 ${
-        negAngle ? 0 : 1
+      `A ${radiusX} ${radiusY} ${startAngle} 0 ${negAngle ? 0 : 1
       } ${endPos.join(" ")}` // Draw elliptical line
     ];
     elements.push(
@@ -129,7 +128,7 @@ export const ArcComponent = (
   return (
     <svg
       className={classes.Arc}
-      viewBox={`0 0 ${width} ${height}`}
+      viewBox={`0 0 ${props.width} ${props.height}`}
       overflow={"visible"}
     >
       {elements}

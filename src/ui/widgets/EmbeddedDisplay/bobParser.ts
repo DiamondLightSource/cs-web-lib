@@ -53,6 +53,30 @@ const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   scaledslider: "slidecontrol"
 };
 
+// Default width and height of widgets in Phoebus
+export const WIDGET_DEFAULT_SIZES: { [key: string]: [number, number] } = {
+  "action_button": [100, 30],
+  "arc": [100, 100],
+  "bool_button": [100, 30],
+  "byte_monitor": [160, 20],
+  "checkbox": [100, 20],
+  "combo": [100, 30],
+  "display": [800, 800],
+  "ellipse": [100, 50],
+  "embedded": [400, 300],
+  "group": [300, 200],
+  "label": [100, 20],
+  "led": [20, 20],
+  "textupdate": [100, 20],
+  "textentry": [100, 20],
+  "picture": [150, 100],
+  "polygon": [100, 20],
+  "polyline": [100, 20],
+  "progressbar": [100, 20],
+  "rectangle": [100, 20],
+  "scaledslider": [400, 55]
+};
+
 function bobParseType(props: any): string {
   const typeId = props._attributes.type;
   if (BOB_WIDGET_MAPPING.hasOwnProperty(typeId)) {
@@ -71,11 +95,13 @@ export function bobParseNumber(jsonProp: ElementCompact): number | undefined {
 }
 
 function bobParsePosition(props: any): Position {
+  // Find type of widget and map to default width and height for that widget
+  const widget = props._attributes.type;
   return new AbsolutePosition(
     `${bobParseNumber(props.x) ?? 0}px`,
     `${bobParseNumber(props.y) ?? 0}px`,
-    `${bobParseNumber(props.width) ?? 300}px`,
-    `${bobParseNumber(props.height) ?? 200}px`
+    `${bobParseNumber(props.width) ?? WIDGET_DEFAULT_SIZES[widget][0]}px`,
+    `${bobParseNumber(props.height) ?? WIDGET_DEFAULT_SIZES[widget][1]}px`
   );
 }
 

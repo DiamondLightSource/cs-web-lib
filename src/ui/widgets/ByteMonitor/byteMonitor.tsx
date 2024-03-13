@@ -2,19 +2,20 @@ import React, { CSSProperties } from "react";
 import { Widget } from "../widget";
 import {
   InferWidgetProps,
-  FloatPropOpt,
   ColorPropOpt,
   IntPropOpt,
-  BoolPropOpt
+  BoolPropOpt,
+  IntProp
 } from "../propTypes";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import classes from "./byteMonitor.module.css";
 import { Color } from "../../../types/color";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 export const ByteMonitorProps = {
-  width: FloatPropOpt,
-  height: FloatPropOpt,
+  width: IntProp,
+  height: IntProp,
   onColor: ColorPropOpt,
   offColor: ColorPropOpt,
   numBits: IntPropOpt,
@@ -51,8 +52,8 @@ export const ByteMonitorComponent = (
     ledBorderColor = Color.fromRgba(150, 150, 150), // dark grey
     squareLed = false,
     effect3d = false,
-    width = 160,
-    height = 20
+    width = WIDGET_DEFAULT_SIZES["byte_monitor"][0],
+    height = WIDGET_DEFAULT_SIZES["byte_monitor"][1],
   } = props;
 
   // Check for a value, otherwise set to 0
@@ -108,9 +109,8 @@ export const ByteMonitorComponent = (
     if (effect3d) {
       // For ellipse, border is different in 3D. For square it is the same
       // but the LED has a shadow
-      style["backgroundImage"] = `radial-gradient(circle at top left, white, ${
-        data ? onColor?.toString() : offColor?.toString()
-      })`;
+      style["backgroundImage"] = `radial-gradient(circle at top left, white, ${data ? onColor?.toString() : offColor?.toString()
+        })`;
       if (!squareLed) {
         style["borderColor"] = "transparent";
         style["backgroundImage"] +=
