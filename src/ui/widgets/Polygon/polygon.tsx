@@ -7,8 +7,8 @@ import {
   BorderPropOpt,
   ColorPropOpt,
   IntPropOpt,
-  PointsProp,
-  BoolPropOpt
+  BoolPropOpt,
+  PointsPropOpt
 } from "../propTypes";
 import { Point } from "../../../types/points";
 import { Color } from "../../../types";
@@ -20,7 +20,7 @@ const PolygonProps = {
   lineWidth: IntPropOpt,
   lineColor: ColorPropOpt,
   backgroundColor: ColorPropOpt,
-  points: PointsProp,
+  points: PointsPropOpt,
   rotationAngle: IntPropOpt,
   transparent: BoolPropOpt
 };

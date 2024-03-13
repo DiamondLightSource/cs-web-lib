@@ -557,7 +557,7 @@ function opiParsePoints(props: any): Points {
   const points: Array<Point> = [];
   const x = opiParseNumber(props.x);
   const y = opiParseNumber(props.y);
-  props.points.point.forEach((point: any) => {
+  props.points?.point.forEach((point: any) => {
     const pointData = point._attributes;
     points.push(
       new Point(Number(pointData["x"]) - x, Number(pointData["y"]) - y)
