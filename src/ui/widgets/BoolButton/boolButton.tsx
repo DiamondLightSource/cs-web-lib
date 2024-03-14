@@ -8,8 +8,7 @@ import {
   IntPropOpt,
   PointsPropOpt,
   BoolPropOpt,
-  StringPropOpt,
-  PositionProp
+  StringPropOpt
 } from "../propTypes";
 import { Color } from "../../../types/color";
 import classes from "./boolButton.module.css";
@@ -37,7 +36,8 @@ const BoolButtonProps = {
   effect3d: BoolPropOpt,
   showBooleanLabel: BoolPropOpt,
   showLed: BoolPropOpt,
-  confirmMessage: StringPropOpt
+  confirmMessage: StringPropOpt,
+  labelsFromPv: BoolPropOpt
 };
 
 export type BoolButtonComponentProps = InferWidgetProps<
@@ -63,14 +63,27 @@ export const BoolButtonComponent = (
     offState = 0,
     onColor = Color.fromRgba(0, 255, 0),
     offColor = Color.fromRgba(0, 100, 0),
-    onLabel = "ON",
-    offLabel = "OFF",
     squareButton = true,
     backgroundColor = Color.fromRgba(200, 200, 200),
     foregroundColor = Color.fromRgba(0, 0, 0),
     showBooleanLabel = true,
-    showLed = true
+    showLed = true,
+    labelsFromPv = false
   } = props;
+
+  // These could be overwritten by  PV labels
+  let {
+    onLabel = "ON",
+    offLabel = "OFF"
+  } = props;
+
+  // Use labels from PV
+  if (labelsFromPv) {
+    if (value?.display.choices) {
+      offLabel = value.display.choices[0]
+      onLabel = value.display.choices[1]
+    }
+  }
 
   // Use useState for properties that change on click - text and color
   const [label, setLabel] = useState(showBooleanLabel ? offLabel : "");
@@ -89,7 +102,7 @@ export const BoolButtonComponent = (
   const [ledStyle, ledDiameter] = createLed(width, height, ledColor);
   // Hide LED if it isn't visible
   if (showLed) {
-    if (width > height) style["paddingRight"] = ledDiameter;
+    if (width > height) style["paddingLeft"] = ledDiameter;
     ledStyle["visibility"] = "visible";
   }
 
@@ -163,13 +176,11 @@ export function createLed(
   let ledDiameter = (0.25 * (width + height)) / 2;
   if (ledDiameter > Math.min(width, height))
     ledDiameter = Math.min(width, height) - 8;
-  let ledX = 0;
+  const ledX = width / 2 - (ledDiameter + 2);
   let ledY = 0;
   if (width >= height) {
-    ledX = width * LED_POSITION - ledDiameter / 2;
     ledY = height / 2 - ledDiameter / 2;
   } else {
-    ledX = width / 2 - ledDiameter / 2;
     ledY = height * (1 - LED_POSITION) - ledDiameter / 2;
   }
   const ledStyle: CSSProperties = {

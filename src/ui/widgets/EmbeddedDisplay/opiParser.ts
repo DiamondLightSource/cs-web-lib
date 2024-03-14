@@ -683,7 +683,8 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   arrows: ["arrows", opiParseNumber],
   arrowLength: ["arrow_length", opiParseNumber],
   fillArrow: ["fill_arrow", opiParseBoolean],
-  resize: ["resize_behaviour", opiParseResizing]
+  resize: ["resize_behaviour", opiParseResizing],
+  labelsFromPv: ["labels_from_pv", opiParseBoolean]
 };
 
 /**
