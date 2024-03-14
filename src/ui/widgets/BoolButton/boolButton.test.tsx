@@ -52,7 +52,7 @@ describe("<BoolButton />", (): void => {
     expect(button.style.backgroundColor).toEqual("rgb(20, 20, 200)");
     expect(span.style.backgroundColor).toEqual("rgb(0, 235, 10)");
     expect(span.style.height).toEqual("8.125px");
-    expect(span.style.left).toEqual("31.9375px");
+    expect(span.style.left).toEqual("12.375px");
     expect(span.style.boxShadow).toEqual(
       "inset 2.03125px 2.03125px 3.25px rgba(255,255,255,.5)"
     );
