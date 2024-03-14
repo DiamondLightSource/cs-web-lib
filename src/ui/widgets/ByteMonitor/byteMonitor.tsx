@@ -53,7 +53,7 @@ export const ByteMonitorComponent = (
     squareLed = false,
     effect3d = false,
     width = WIDGET_DEFAULT_SIZES["byte_monitor"][0],
-    height = WIDGET_DEFAULT_SIZES["byte_monitor"][1],
+    height = WIDGET_DEFAULT_SIZES["byte_monitor"][1]
   } = props;
 
   // Check for a value, otherwise set to 0
@@ -109,8 +109,9 @@ export const ByteMonitorComponent = (
     if (effect3d) {
       // For ellipse, border is different in 3D. For square it is the same
       // but the LED has a shadow
-      style["backgroundImage"] = `radial-gradient(circle at top left, white, ${data ? onColor?.toString() : offColor?.toString()
-        })`;
+      style["backgroundImage"] = `radial-gradient(circle at top left, white, ${
+        data ? onColor?.toString() : offColor?.toString()
+      })`;
       if (!squareLed) {
         style["borderColor"] = "transparent";
         style["backgroundImage"] +=

@@ -58,8 +58,9 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
   let markerConfig = <></>;
   const linePoints = points ? points.values : [];
   if (arrows) {
-    arrowSize = `M 0 0 L ${arrowLength} ${arrowLength / 4} L 0 ${arrowLength / 2
-      } ${fillArrow ? "z" : ""}`; // add z to close path if filling
+    arrowSize = `M 0 0 L ${arrowLength} ${arrowLength / 4} L 0 ${
+      arrowLength / 2
+    } ${fillArrow ? "z" : ""}`; // add z to close path if filling
     switch (arrows) {
       // Arrow from
       case 1:

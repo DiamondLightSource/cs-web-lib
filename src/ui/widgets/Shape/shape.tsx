@@ -40,8 +40,9 @@ export const ShapeComponent = (
     backgroundColor = Color.fromRgba(30, 144, 255)
   } = props;
   // Calculate radii of corners
-  const cornerRadius = `${props.cornerWidth || 0}px / ${props.cornerHeight || 0
-    }px`;
+  const cornerRadius = `${props.cornerWidth || 0}px / ${
+    props.cornerHeight || 0
+  }px`;
   const style = {
     ...commonCss(props),
     width: width,

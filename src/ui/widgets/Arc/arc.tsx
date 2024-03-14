@@ -98,7 +98,8 @@ export const ArcComponent = (
       const arc = [
         `M ${radiusX} ${radiusY}`, // Set point
         `L ${startPos.join(" ")}`, // Line
-        `A ${radiusX} ${radiusY} ${startAngle} 0 ${negAngle ? 0 : 1
+        `A ${radiusX} ${radiusY} ${startAngle} 0 ${
+          negAngle ? 0 : 1
         } ${endPos.join(" ")}`, // Make line elliptical
         "Z" // Close path
       ];
@@ -117,8 +118,9 @@ export const ArcComponent = (
 
     const border = [
       `M ${startPos.join(" ")}`, // Set start point on arc
-      `A ${radiusX} ${radiusY} ${startAngle} 0 ${negAngle ? 0 : 1
-      } ${endPos.join(" ")}`, // Draw elliptical line
+      `A ${radiusX} ${radiusY} ${startAngle} 0 ${
+        negAngle ? 0 : 1
+      } ${endPos.join(" ")}` // Draw elliptical line
     ];
 
     // Check if this is the last segment
@@ -127,7 +129,7 @@ export const ArcComponent = (
       border.push(
         `L ${radiusX} ${radiusY}`, // Line from end to center
         `L ${firstStartPos.join(" ")}` // Line from center to first start
-      )
+      );
     }
 
     elements.push(

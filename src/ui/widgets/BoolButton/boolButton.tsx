@@ -72,16 +72,13 @@ export const BoolButtonComponent = (
   } = props;
 
   // These could be overwritten by  PV labels
-  let {
-    onLabel = "ON",
-    offLabel = "OFF"
-  } = props;
+  let { onLabel = "ON", offLabel = "OFF" } = props;
 
   // Use labels from PV
   if (labelsFromPv) {
     if (value?.display.choices) {
-      offLabel = value.display.choices[0]
-      onLabel = value.display.choices[1]
+      offLabel = value.display.choices[0];
+      onLabel = value.display.choices[1];
     }
   }
 
@@ -189,8 +186,9 @@ export function createLed(
     backgroundColor: color,
     top: ledY,
     left: ledX,
-    boxShadow: `inset ${ledDiameter / 4}px ${ledDiameter / 4}px ${ledDiameter * 0.4
-      }px rgba(255,255,255,.5)`,
+    boxShadow: `inset ${ledDiameter / 4}px ${ledDiameter / 4}px ${
+      ledDiameter * 0.4
+    }px rgba(255,255,255,.5)`,
     visibility: "hidden"
   };
 
