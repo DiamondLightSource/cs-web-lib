@@ -63,6 +63,9 @@ export const ArcComponent = (
   if (residualAngle > 0) segments.push(residualAngle);
   // Set start angle
   let theta = (startAngle * Math.PI) / 180;
+
+  // Very first start point of arc
+  let firstStartPos: number[];
   segments.forEach((angle: number, idx: number) => {
     const ratio = angle / 360;
     // Get the angle of the segment (delta)
@@ -82,6 +85,9 @@ export const ArcComponent = (
       radiusY,
       negAngle ? theta - delta : theta + delta // Arc coordinates are different if -totalAngle
     );
+
+    /// For first loop, save the startPos
+    if (idx === 0) firstStartPos = startPos;
 
     // Combine previous segment angle to stack segments
     negAngle ? (theta -= delta) : (theta += delta);
@@ -112,8 +118,18 @@ export const ArcComponent = (
     const border = [
       `M ${startPos.join(" ")}`, // Set start point on arc
       `A ${radiusX} ${radiusY} ${startAngle} 0 ${negAngle ? 0 : 1
-      } ${endPos.join(" ")}` // Draw elliptical line
+      } ${endPos.join(" ")}`, // Draw elliptical line
     ];
+
+    // Check if this is the last segment
+    if (segments.length - 1 === idx) {
+      // If yes, add border edging
+      border.push(
+        `L ${radiusX} ${radiusY}`, // Line from end to center
+        `L ${firstStartPos.join(" ")}` // Line from center to first start
+      )
+    }
+
     elements.push(
       <path
         className={classes.BorderPath}
@@ -128,7 +144,7 @@ export const ArcComponent = (
   return (
     <svg
       className={classes.Arc}
-      viewBox={`0 0 ${props.width} ${props.height}`}
+      viewBox={`0 0 ${width} ${height}`}
       overflow={"visible"}
     >
       {elements}

@@ -35,7 +35,7 @@ describe("<ArcComponent />", (): void => {
     expect(pathArray[0].props.fill).toEqual("rgba(200,1,60,255)");
     expect(pathArray[0].props.stroke).toEqual("rgba(200,1,60,255)");
     // BOrder
-    expect(pathArray[1].props.d).toEqual("M 100 50\nA 50 50 0 0 1 50 100");
+    expect(pathArray[1].props.d).toEqual("M 100 50\nA 50 50 0 0 1 50 100\nL 50 50\nL 100 50");
     expect(pathArray[1].props.fill).toEqual("transparent");
     expect(pathArray[1].props.stroke).toEqual("rgba(0,0,255,255)");
   });
@@ -111,7 +111,7 @@ describe("<ArcComponent />", (): void => {
     // Border paths of arc
     expect(pathArray.length).toEqual(1);
     // Arc
-    expect(pathArray[0].props.d).toEqual("M 41 1\nA 50 50 -100 0 0 1 59");
+    expect(pathArray[0].props.d).toEqual("M 41 1\nA 50 50 -100 0 0 1 59\nL 50 50\nL 41 1");
   });
 
   test("create arc with negative total angle, no fill (css)", (): void => {
