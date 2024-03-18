@@ -1,12 +1,11 @@
 import React, { CSSProperties } from "react";
-import { commonCss, Widget } from "../widget";
+import { Widget } from "../widget";
 import { WidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import {
   BoolPropOpt,
   StringPropOpt,
   InferWidgetProps,
-  BorderPropOpt,
   ColorPropOpt,
   PvPropOpt,
   IntPropOpt,
@@ -41,9 +40,10 @@ export const ShapeComponent = (
     visible = true
   } = props;
   // Calculate radii of corners
-  const cornerRadius = `${props.cornerWidth || 0}px / ${props.cornerHeight || 0
-    }px`;
-  const borderCss = new Border(1, lineColor, lineWidth).css()
+  const cornerRadius = `${props.cornerWidth || 0}px / ${
+    props.cornerHeight || 0
+  }px`;
+  const borderCss = new Border(1, lineColor, lineWidth).css();
   borderCss.borderRadius = cornerRadius;
   // Use line properties to set border, unless alarm border
   const style: CSSProperties = {
@@ -54,7 +54,7 @@ export const ShapeComponent = (
       ? "transparent"
       : backgroundColor.toString(),
     transform: props.shapeTransform ?? "",
-    visibility: visible ? undefined : "hidden",
+    visibility: visible ? undefined : "hidden"
   };
   return <div style={style} />;
 };
