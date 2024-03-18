@@ -25,6 +25,14 @@ import { useOpiFile } from "./useOpiFile";
 import { useId } from "react-id-generator";
 import { getOptionalValue, trimFromString } from "../utils";
 
+const RESIZE_STRINGS = [
+  "scroll-widget",
+  "size-content",
+  "crop-widget",
+  "stretch-content",
+  "crop-content"
+];
+
 const EmbeddedDisplayProps = {
   ...WidgetPropType,
   file: FilePropType,
@@ -34,7 +42,7 @@ const EmbeddedDisplayProps = {
   scroll: BoolPropOpt,
   scalingOrigin: StringPropOpt,
   overrideAutoZoomToFitValue: BoolPropOpt,
-  resize: StringPropOpt
+  resize: StringOrNumPropOpt
 };
 
 export const EmbeddedDisplay = (
@@ -42,7 +50,9 @@ export const EmbeddedDisplay = (
 ): JSX.Element => {
   const description = useOpiFile(props.file);
   const id = useId();
-  const resize = props.resize || "scroll-content";
+  let resize = props.resize || "scroll-content";
+  // If number, convert back to string
+  if (typeof resize === "number") resize = RESIZE_STRINGS[resize];
 
   log.debug(description);
 

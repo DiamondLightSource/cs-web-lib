@@ -581,7 +581,7 @@ function opiParseResizing(jsonProp: ElementCompact): string {
     case 2:
       return "crop-content";
     case 3:
-      return "scroll-widget";
+      return "scroll-content";
     default:
       return "size-widget";
   }

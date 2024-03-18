@@ -183,7 +183,7 @@ function bobParseResizing(jsonProp: ElementCompact): string {
     case 4:
       return "crop-content";
     default:
-      return "scroll-widget";
+      return "scroll-content";
   }
 }
 
