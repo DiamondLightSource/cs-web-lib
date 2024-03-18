@@ -716,7 +716,7 @@ function opiPatchPaths(
 ): void {
   log.debug(`opiPatchPaths ${parentDir}`);
   // file: OpiFile type
-  if (widgetDescription["file"] && parentDir) {
+  if (widgetDescription["file"] && parentDir && !widgetDescription["file"].path.startsWith("http")) {
     widgetDescription["file"].path = normalisePath(
       widgetDescription["file"].path,
       parentDir
