@@ -1,4 +1,4 @@
-import React from "react";
+import React, { CSSProperties } from "react";
 import { commonCss, Widget } from "../widget";
 import { WidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
@@ -12,7 +12,7 @@ import {
   IntPropOpt,
   StringOrNumPropOpt
 } from "../propTypes";
-import { Color } from "../../../types";
+import { Border, Color } from "../../../types";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const ShapeProps = {
@@ -26,7 +26,7 @@ const ShapeProps = {
   backgroundColor: ColorPropOpt,
   lineColor: ColorPropOpt,
   lineWidth: IntPropOpt,
-  border: BorderPropOpt
+  visible: BoolPropOpt
 };
 
 export const ShapeComponent = (
@@ -37,22 +37,25 @@ export const ShapeComponent = (
     height = WIDGET_DEFAULT_SIZES["rectangle"][1],
     lineColor = Color.fromRgba(0, 0, 255),
     lineWidth = 3,
-    backgroundColor = Color.fromRgba(30, 144, 255)
+    backgroundColor = Color.fromRgba(30, 144, 255),
+    visible = true
   } = props;
   // Calculate radii of corners
-  const cornerRadius = `${props.cornerWidth || 0}px / ${
-    props.cornerHeight || 0
-  }px`;
-  const style = {
-    ...commonCss(props),
+  const cornerRadius = `${props.cornerWidth || 0}px / ${props.cornerHeight || 0
+    }px`;
+  const borderCss = new Border(1, lineColor, lineWidth).css()
+  borderCss.borderRadius = cornerRadius;
+  // Use line properties to set border, unless alarm border
+  const style: CSSProperties = {
+    ...borderCss,
     width: width,
     height: height,
-    borderRadius: cornerRadius,
-    backgroundColor: backgroundColor.toString(),
-    transform: props.shapeTransform ?? ""
+    backgroundColor: props.transparent
+      ? "transparent"
+      : backgroundColor.toString(),
+    transform: props.shapeTransform ?? "",
+    visibility: visible ? undefined : "hidden",
   };
-  // Set line options
-  style.border = `${lineWidth}px solid ${lineColor.toString()}`;
   return <div style={style} />;
 };
 
