@@ -17,6 +17,9 @@ import { WidgetDescription } from "../createComponent";
 import { StringProp, PositionProp } from "../propTypes";
 import { ElementCompact } from "xml-js";
 
+// Specific widgets we should allow empty string parsing for
+const PARSE_EMPTY_STRINGS = ["text", "label", "on_label", "off_label", "title"]
+
 function isEmpty(obj: any): boolean {
   for (const prop in obj) {
     if (obj.hasOwnProperty(prop)) return false;
@@ -69,11 +72,17 @@ export function genericParser(
       const [opiPropName, propParser] = simpleParsers[prop];
       try {
         if (
-          widget.hasOwnProperty(opiPropName) &&
-          !isEmpty(widget[opiPropName])
+          widget.hasOwnProperty(opiPropName)
         ) {
-          newProps[prop] = propParser(widget[opiPropName]);
-          log.debug(`result ${newProps[prop]}`);
+          if (!isEmpty(widget[opiPropName])) {
+            newProps[prop] = propParser(widget[opiPropName]);
+            log.debug(`result ${newProps[prop]}`);
+            // For certain simple string props we want to accept an empty value e.g. text
+          } else if (isEmpty(widget[opiPropName]) && PARSE_EMPTY_STRINGS.includes(opiPropName)) {
+            newProps[prop] = "";
+            log.debug(`result ${newProps[prop]}`);
+          }
+
         }
       } catch (e) {
         log.warn(`Could not convert simple prop ${prop}:`);
@@ -94,6 +103,7 @@ export function genericParser(
     } else if (passThrough) {
       newProps[prop] = widget[prop];
     }
+    console.log(newProps);
   }
   // TO DO - a way of parsing nested macros for PVs needs to be properly implemented.
   // Currently nested macros are not parsed, which means a PV connection cannot be made.
