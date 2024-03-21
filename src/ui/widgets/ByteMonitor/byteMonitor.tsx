@@ -14,8 +14,8 @@ import { Color } from "../../../types/color";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 export const ByteMonitorProps = {
-  width: IntProp,
-  height: IntProp,
+  width: IntPropOpt,
+  height: IntPropOpt,
   onColor: ColorPropOpt,
   offColor: ColorPropOpt,
   numBits: IntPropOpt,
@@ -109,9 +109,8 @@ export const ByteMonitorComponent = (
     if (effect3d) {
       // For ellipse, border is different in 3D. For square it is the same
       // but the LED has a shadow
-      style["backgroundImage"] = `radial-gradient(circle at top left, white, ${
-        data ? onColor?.toString() : offColor?.toString()
-      })`;
+      style["backgroundImage"] = `radial-gradient(circle at top left, white, ${data ? onColor?.toString() : offColor?.toString()
+        })`;
       if (!squareLed) {
         style["borderColor"] = "transparent";
         style["backgroundImage"] +=
