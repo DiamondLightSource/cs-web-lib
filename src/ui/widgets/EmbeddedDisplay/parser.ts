@@ -103,7 +103,6 @@ export function genericParser(
     } else if (passThrough) {
       newProps[prop] = widget[prop];
     }
-    console.log(newProps);
   }
   // TO DO - a way of parsing nested macros for PVs needs to be properly implemented.
   // Currently nested macros are not parsed, which means a PV connection cannot be made.
