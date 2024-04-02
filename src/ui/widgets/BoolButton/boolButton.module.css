@@ -1,6 +1,21 @@
+.LedAndText {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    word-wrap: break-word;
+    overflow: hidden;
+}
+
 .Led {
+    display: flex;
+    visibility: hidden;
     border-radius: 50%;
-    z-index: 1;
-    position: absolute;
-    display: inline-block
+}
+
+.Text {
+    text-align: center;
+    display: flex;
+    overflow: hidden;
+    padding-left: 4px;
 }
