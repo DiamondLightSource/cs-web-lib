@@ -18,7 +18,7 @@ import { StringProp, PositionProp } from "../propTypes";
 import { ElementCompact } from "xml-js";
 
 // Specific widgets we should allow empty string parsing for
-const PARSE_EMPTY_STRINGS = ["text", "label", "on_label", "off_label", "title"]
+const PARSE_EMPTY_STRINGS = ["text", "label", "on_label", "off_label", "title"];
 
 function isEmpty(obj: any): boolean {
   for (const prop in obj) {
@@ -71,18 +71,18 @@ export function genericParser(
       log.debug(`simple parser for ${prop}`);
       const [opiPropName, propParser] = simpleParsers[prop];
       try {
-        if (
-          widget.hasOwnProperty(opiPropName)
-        ) {
+        if (widget.hasOwnProperty(opiPropName)) {
           if (!isEmpty(widget[opiPropName])) {
             newProps[prop] = propParser(widget[opiPropName]);
             log.debug(`result ${newProps[prop]}`);
             // For certain simple string props we want to accept an empty value e.g. text
-          } else if (isEmpty(widget[opiPropName]) && PARSE_EMPTY_STRINGS.includes(opiPropName)) {
+          } else if (
+            isEmpty(widget[opiPropName]) &&
+            PARSE_EMPTY_STRINGS.includes(opiPropName)
+          ) {
             newProps[prop] = "";
             log.debug(`result ${newProps[prop]}`);
           }
-
         }
       } catch (e) {
         log.warn(`Could not convert simple prop ${prop}:`);
