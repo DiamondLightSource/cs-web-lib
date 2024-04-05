@@ -661,7 +661,9 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   cornerHeight: ["corner_height", opiParseString],
   arrows: ["arrows", opiParseNumber],
   arrowLength: ["arrow_length", opiParseNumber],
-  fillArrow: ["fill_arrow", opiParseBoolean]
+  fillArrow: ["fill_arrow", opiParseBoolean],
+  selectedColor: ["selected_color", opiParseColor],
+  enabled: ["enabled", opiParseBoolean]
 };
 
 /**

@@ -32,7 +32,9 @@ const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   label: "label",
   group: "grouping",
   rectangle: "shape",
-  action_button: "actionbutton"
+  action_button: "actionbutton",
+  choice: "choicebutton",
+  embedded: "embeddedDisplay"
 };
 
 function bobParseType(props: any): string {
@@ -89,6 +91,14 @@ function bobParseBorder(props: any): Border {
   }
 }
 
+function bobParseItems(jsonProp: ElementCompact): string[] {
+  const items: string[] = [];
+  jsonProp["item"].forEach((item: any) => {
+    items.push(item._text)
+  });
+  return items;
+}
+
 function bobGetTargetWidget(props: any): React.FC {
   const typeid = bobParseType(props);
   let targetWidget;
@@ -134,7 +144,8 @@ export function parseBob(
       "actions",
       (actions: ElementCompact): WidgetActions =>
         opiParseActions(actions, defaultProtocol)
-    ]
+    ],
+    items: ["items", bobParseItems]
   };
 
   const complexParsers = {

@@ -13,6 +13,7 @@ export { ActionButton } from "./ActionButton/actionButton";
 export { BoolButton } from "./BoolButton/boolButton";
 export { ByteMonitor } from "./ByteMonitor/byteMonitor";
 export { Checkbox } from "./Checkbox/checkbox";
+export { ChoiceButton } from "./ChoiceButton/choiceButton";
 export { Device } from "./Device/device";
 export { DrawerWidget } from "./Drawer/drawer";
 export { DropDown } from "./DropDown/dropDown";
