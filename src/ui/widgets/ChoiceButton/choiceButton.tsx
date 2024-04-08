@@ -132,6 +132,7 @@ const ChoiceButtonWidgetProps = {
   actionsFromPv: BoolPropOpt,
   itemsFromPv: BoolPropOpt,
   label: StringPropOpt,
+  font: FontPropOpt,
   foregroundColor: ColorPropOpt,
   backgroundColor: ColorPropOpt,
   selectedColor: ColorPropOpt,
