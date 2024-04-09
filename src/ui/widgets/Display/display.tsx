@@ -11,7 +11,8 @@ import {
   BorderPropOpt,
   MacrosPropOpt,
   StringPropOpt,
-  BoolPropOpt
+  BoolPropOpt,
+  StringArrayPropOpt
 } from "../propTypes";
 import {
   MacroMap,
@@ -26,7 +27,7 @@ const DisplayProps = {
   backgroundColor: ColorPropOpt,
   border: BorderPropOpt,
   macros: MacrosPropOpt,
-  scaling: StringPropOpt,
+  scaling: StringArrayPropOpt,
   autoZoomToFit: BoolPropOpt,
   scalingOrigin: StringPropOpt
 };
@@ -58,18 +59,21 @@ export const DisplayComponent = (
   style["height"] = "100%";
   // Check whether the scaling property has been set and if
   // not set the scaling to 1 (i.e. no scaling)
-  const internalScale = getOptionalValue(props.scaling, "1");
+  const internalScaleX = getOptionalValue(props.scaling?.at(0), "1");
+  const internalScaleY = getOptionalValue(props.scaling?.at(1), "1");
   // Only configure the scaling transform if autoZoomToFit is
   // true AND the scale factor provided is not 1 where 1
   // implies no scaling
-  if (props.autoZoomToFit && internalScale !== "1") {
-    style["transform"] = "scale(" + internalScale + ")";
+  if (props.autoZoomToFit && internalScaleX !== "1" && internalScaleY !== "1") {
+    style["transform"] = `scale(${internalScaleX}, ${internalScaleY})`;
     const scalingOrigin = getOptionalValue(props.scalingOrigin, "center top");
     style["transformOrigin"] = scalingOrigin;
   }
   return (
     <MacroContext.Provider value={displayMacroContext}>
-      <div style={style}>{props.children}</div>
+      <div style={style} className="display">
+        {props.children}
+      </div>
     </MacroContext.Provider>
   );
 };

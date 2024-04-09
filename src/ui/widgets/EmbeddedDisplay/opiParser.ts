@@ -82,7 +82,7 @@ const OPI_WIDGET_MAPPING: { [key: string]: any } = {
  * Attempts to return the text from a json property, otherwise throws an error
  * @param jsonProp
  */
-function opiParseString(jsonProp: ElementCompact): string {
+export function opiParseString(jsonProp: ElementCompact): string {
   if (typeof jsonProp._text === "string") {
     return jsonProp._text;
   } else {
@@ -95,7 +95,7 @@ function opiParseString(jsonProp: ElementCompact): string {
  * on a json property, otherwise throws an error
  * @param jsonProp
  */
-function opiParseBoolean(jsonProp: ElementCompact): boolean {
+export function opiParseBoolean(jsonProp: ElementCompact): boolean {
   const boolText = jsonProp._text;
   if (boolText === "false") {
     return false;
@@ -148,7 +148,7 @@ export function opiParseFont(jsonProp: ElementCompact): Font {
  * Returns a macro map from a json object
  * @param jsonProp
  */
-function opiParseMacros(jsonProp: ElementCompact): MacroMap {
+export function opiParseMacros(jsonProp: ElementCompact): MacroMap {
   const macroMap: MacroMap = {};
   Object.entries(jsonProp as Record<string, any>).forEach(
     ([key, value]): void => {
@@ -441,7 +441,7 @@ function opiParseFile(props: any): OpiFile {
   };
 }
 
-function opiParseAlarmSensitive(props: any): boolean {
+export function opiParseAlarmSensitive(props: any): boolean {
   // Only one prop for alarm sensitivity at the moment.
   return (
     // opiParseBoolean(props.forecolor_alarm_sensitive) ||
@@ -557,13 +557,34 @@ function opiParsePoints(props: any): Points {
   const points: Array<Point> = [];
   const x = opiParseNumber(props.x);
   const y = opiParseNumber(props.y);
-  props.points.point.forEach((point: any) => {
+  props.points?.point.forEach((point: any) => {
     const pointData = point._attributes;
     points.push(
       new Point(Number(pointData["x"]) - x, Number(pointData["y"]) - y)
     );
   });
   return new Points(points);
+}
+
+/**
+ * Parse numbers for resizing into strings that say what
+ * time of resizing should be performed
+ * @param jsonProp
+ */
+function opiParseResizing(jsonProp: ElementCompact): string {
+  const resizeOpt = opiParseNumber(jsonProp);
+  switch (resizeOpt) {
+    case 0:
+      return "size-content";
+    case 1:
+      return "size-widget";
+    case 2:
+      return "crop-content";
+    case 3:
+      return "scroll-content";
+    default:
+      return "size-widget";
+  }
 }
 
 /**
@@ -661,7 +682,9 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   cornerHeight: ["corner_height", opiParseString],
   arrows: ["arrows", opiParseNumber],
   arrowLength: ["arrow_length", opiParseNumber],
-  fillArrow: ["fill_arrow", opiParseBoolean]
+  fillArrow: ["fill_arrow", opiParseBoolean],
+  resize: ["resize_behaviour", opiParseResizing],
+  labelsFromPv: ["labels_from_pv", opiParseBoolean]
 };
 
 /**
