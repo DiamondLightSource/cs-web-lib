@@ -111,8 +111,8 @@ export const ChoiceButtonComponent = (
             boxShadow:
               selected === idx
                 ? `inset 0px ${Math.round(height / 6)}px ${Math.round(
-                    height / 4
-                  )}px 0px rgba(0,0,0,0.3)`
+                  height / 4
+                )}px 0px rgba(0,0,0,0.3)`
                 : "none"
           }}
           key={item}
@@ -133,18 +133,8 @@ export const ChoiceButtonComponent = (
 };
 
 const ChoiceButtonWidgetProps = {
-  ...PVWidgetPropType,
-  width: IntPropOpt,
-  height: IntPropOpt,
-  enabled: BoolPropOpt,
-  itemsFromPv: BoolPropOpt,
-  label: StringPropOpt,
-  font: FontPropOpt,
-  foregroundColor: ColorPropOpt,
-  backgroundColor: ColorPropOpt,
-  selectedColor: ColorPropOpt,
-  items: StringArrayPropOpt,
-  horizontal: BoolPropOpt
+  ...ChoiceButtonProps,
+  ...PVWidgetPropType
 };
 
 export const ChoiceButton = (
