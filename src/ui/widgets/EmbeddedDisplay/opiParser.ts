@@ -567,16 +567,15 @@ function opiParsePoints(props: any): Points {
   return new Points(points);
 }
 
-
 /**
  * Parse an array of items
- * @param jsonProp 
- * @returns 
+ * @param jsonProp
+ * @returns items (array of strings)
  */
 function opiParseItems(jsonProp: ElementCompact): string[] {
   const items: string[] = [];
   jsonProp["s"].forEach((item: any) => {
-    items.push(item._text)
+    items.push(item._text);
   });
   return items;
 }

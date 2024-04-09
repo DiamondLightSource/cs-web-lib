@@ -94,7 +94,7 @@ function bobParseBorder(props: any): Border {
 function bobParseItems(jsonProp: ElementCompact): string[] {
   const items: string[] = [];
   jsonProp["item"].forEach((item: any) => {
-    items.push(item._text)
+    items.push(item._text);
   });
   return items;
 }

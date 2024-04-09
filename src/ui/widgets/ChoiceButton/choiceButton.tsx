@@ -58,7 +58,6 @@ export const ChoiceButtonComponent = (
   } = props;
   const [selected, setSelected] = useState(value?.getDoubleValue());
 
-
   // Use items from file, unless itemsFRomPv set
   let options = items;
   if (itemsFromPv && value?.display.choices) options = value?.display.choices;
@@ -71,13 +70,13 @@ export const ChoiceButtonComponent = (
     if (value) {
       setSelected(value.getDoubleValue());
     }
-  });
+  }, [value]);
 
   // Number of buttons to create
   const numButtons = options.length || 1;
   // Determine width and height of buttons if horizontal or vertically placed
-  let buttonHeight = horizontal ? height : (height / numButtons) - 4;
-  let buttonWidth = horizontal ? (width / numButtons) - 4 : width;
+  const buttonHeight = horizontal ? height : height / numButtons - 4;
+  const buttonWidth = horizontal ? width / numButtons - 4 : width;
 
   const style: CSSProperties = {
     height: buttonHeight,
@@ -88,10 +87,7 @@ export const ChoiceButtonComponent = (
     ...font.css()
   };
 
-
   function handleClick(index: number) {
-    // Update selected to be buton just clicked
-    setSelected(index);
     // Write to PV
     if (pvName) {
       writePv(pvName, new DType({ doubleValue: index }));
@@ -109,19 +105,31 @@ export const ChoiceButtonComponent = (
           onClick={() => handleClick(idx)}
           style={{
             ...style,
-            backgroundColor: selected === idx ? selectedColor.toString() : backgroundColor.toString(),
-            boxShadow: selected === idx ? `inset 0px ${height / 6}px ${height / 4}px 0px rgba(0,0,0,0.3)` : "none"
+            backgroundColor:
+              selected === idx
+                ? selectedColor.toString()
+                : backgroundColor.toString(),
+            boxShadow:
+              selected === idx
+                ? `inset 0px ${Math.round(height / 6)}px ${Math.round(
+                    height / 4
+                  )}px 0px rgba(0,0,0,0.3)`
+                : "none"
           }}
           key={item}
         >
           {item}
-        </button >
+        </button>
       );
     }
   });
 
   return (
-    <div style={{ display: "flex", flexDirection: horizontal ? "row" : "column" }}>{elements}</div>
+    <div
+      style={{ display: "flex", flexDirection: horizontal ? "row" : "column" }}
+    >
+      {elements}
+    </div>
   );
 };
 
