@@ -11,6 +11,7 @@ import { Points } from "./points";
 
 export type GenericProp =
   | string
+  | string[]
   | boolean
   | number
   | PV
