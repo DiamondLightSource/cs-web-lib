@@ -8,7 +8,11 @@ import {
   opiParseRules,
   opiParsePvName,
   opiParseActions,
-  opiParseColor
+  opiParseColor,
+  opiParseAlarmSensitive,
+  opiParseString,
+  opiParseMacros,
+  opiParseBoolean
 } from "./opiParser";
 import { xml2js, ElementCompact } from "xml-js";
 import log from "loglevel";
@@ -18,23 +22,62 @@ import {
   RelativePosition
 } from "../../../types/position";
 import { PV } from "../../../types/pv";
-import { Rule } from "../../../types/props";
+import { OpiFile, Rule } from "../../../types/props";
 import { WidgetActions } from "../widgetActions";
 import { Font, FontStyle } from "../../../types/font";
 import { Border, BorderStyle } from "../../../types/border";
 import { Color } from "../../../types/color";
 import { WidgetDescription } from "../createComponent";
+import { Point, Points } from "../../../types/points";
 
 const BOB_WIDGET_MAPPING: { [key: string]: any } = {
+  action_button: "actionbutton",
+  arc: "arc",
+  bool_button: "boolbutton",
+  byte_monitor: "bytemonitor",
+  checkbox: "checkbox",
+  combo: "menubutton",
   display: "display",
+  ellipse: "ellipse",
+  embedded: "embeddedDisplay",
+  group: "groupingcontainer",
+  label: "label",
+  led: "led",
   textupdate: "readback",
   textentry: "input",
-  label: "label",
-  group: "grouping",
+  picture: "image",
+  polygon: "polygon",
+  polyline: "line",
+  progressbar: "progressbar",
   rectangle: "shape",
   action_button: "actionbutton",
   choice: "choicebutton",
-  embedded: "embeddedDisplay"
+  embedded: "embeddedDisplay",
+  scaledslider: "slidecontrol"
+};
+
+// Default width and height of widgets in Phoebus
+export const WIDGET_DEFAULT_SIZES: { [key: string]: [number, number] } = {
+  action_button: [100, 30],
+  arc: [100, 100],
+  bool_button: [100, 30],
+  byte_monitor: [160, 20],
+  checkbox: [100, 20],
+  combo: [100, 30],
+  display: [800, 800],
+  ellipse: [100, 50],
+  embedded: [400, 300],
+  group: [300, 200],
+  label: [100, 20],
+  led: [20, 20],
+  textupdate: [100, 20],
+  textentry: [100, 20],
+  picture: [150, 100],
+  polygon: [100, 20],
+  polyline: [100, 20],
+  progressbar: [100, 20],
+  rectangle: [100, 20],
+  scaledslider: [400, 55]
 };
 
 function bobParseType(props: any): string {
@@ -55,11 +98,13 @@ export function bobParseNumber(jsonProp: ElementCompact): number | undefined {
 }
 
 function bobParsePosition(props: any): Position {
+  // Find type of widget and map to default width and height for that widget
+  const widget = props._attributes.type;
   return new AbsolutePosition(
     `${bobParseNumber(props.x) ?? 0}px`,
     `${bobParseNumber(props.y) ?? 0}px`,
-    `${bobParseNumber(props.width) ?? 300}px`,
-    `${bobParseNumber(props.height) ?? 200}px`
+    `${bobParseNumber(props.width) ?? WIDGET_DEFAULT_SIZES[widget][0]}px`,
+    `${bobParseNumber(props.height) ?? WIDGET_DEFAULT_SIZES[widget][1]}px`
   );
 }
 
@@ -97,6 +142,59 @@ function bobParseItems(jsonProp: ElementCompact): string[] {
     items.push(item._text);
   });
   return items;
+
+/**
+ * Parse file for Embedded Display widgets
+ * @param props
+ * @returns
+ */
+function bobParseFile(props: any): OpiFile {
+  const filename = opiParseString(props.file);
+  let macros = {};
+  if (props.macros) {
+    macros = opiParseMacros(props.macros);
+  }
+  return {
+    path: filename,
+    macros,
+    defaultProtocol: "ca"
+  };
+}
+
+/**
+ * Parse points object into an array of number arrays
+ * with x and y coordinates. Compared to opi, bob uses
+ * coordinates relative to widget x and y
+ * @param props
+ */
+function bobParsePoints(props: any): Points {
+  const points: Array<Point> = [];
+  props.point.forEach((point: any) => {
+    const pointData = point._attributes;
+    points.push(new Point(Number(pointData["x"]), Number(pointData["y"])));
+  });
+  return new Points(points);
+}
+
+/**
+ * Parse numbers for resizing into strings that say what
+ * time of resizing should be performed
+ * @param jsonProp
+ */
+function bobParseResizing(jsonProp: ElementCompact): string {
+  const resizeOpt = bobParseNumber(jsonProp);
+  switch (resizeOpt) {
+    case 1:
+      return "size-content";
+    case 2:
+      return "crop-widget";
+    case 3:
+      return "stretch-content";
+    case 4:
+      return "crop-content";
+    default:
+      return "scroll-content";
+  }
 }
 
 function bobGetTargetWidget(props: any): React.FC {
@@ -114,7 +212,9 @@ const BOB_COMPLEX_PARSERS: ComplexParserDict = {
   ...OPI_COMPLEX_PARSERS,
   type: bobParseType,
   position: bobParsePosition,
-  border: bobParseBorder
+  border: bobParseBorder,
+  alarmSensitive: opiParseAlarmSensitive,
+  file: bobParseFile
 };
 
 export function parseBob(
@@ -145,7 +245,11 @@ export function parseBob(
       (actions: ElementCompact): WidgetActions =>
         opiParseActions(actions, defaultProtocol)
     ],
-    items: ["items", bobParseItems]
+    items: ["items", bobParseItems],
+    imageFile: ["file", opiParseString],
+    points: ["points", bobParsePoints],
+    resize: ["resize", bobParseResizing],
+    squareLed: ["square", opiParseBoolean]
   };
 
   const complexParsers = {

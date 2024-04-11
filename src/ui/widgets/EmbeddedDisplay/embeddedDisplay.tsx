@@ -17,20 +17,32 @@ import {
   InferWidgetProps,
   FilePropType,
   BoolPropOpt,
-  StringPropOpt
+  StringPropOpt,
+  StringOrNumPropOpt
 } from "../propTypes";
 import { GroupBoxComponent } from "../GroupBox/groupBox";
 import { useOpiFile } from "./useOpiFile";
 import { useId } from "react-id-generator";
 import { getOptionalValue, trimFromString } from "../utils";
 
+const RESIZE_STRINGS = [
+  "scroll-widget",
+  "size-content",
+  "crop-widget",
+  "stretch-content",
+  "crop-content"
+];
+
 const EmbeddedDisplayProps = {
   ...WidgetPropType,
   file: FilePropType,
+  height: StringOrNumPropOpt,
+  width: StringOrNumPropOpt,
   name: StringPropOpt,
   scroll: BoolPropOpt,
   scalingOrigin: StringPropOpt,
-  overrideAutoZoomToFitValue: BoolPropOpt
+  overrideAutoZoomToFitValue: BoolPropOpt,
+  resize: StringOrNumPropOpt
 };
 
 export const EmbeddedDisplay = (
@@ -38,6 +50,9 @@ export const EmbeddedDisplay = (
 ): JSX.Element => {
   const description = useOpiFile(props.file);
   const id = useId();
+  let resize = props.resize || "scroll-content";
+  // If number, convert back to string
+  if (typeof resize === "number") resize = RESIZE_STRINGS[resize];
 
   log.debug(description);
 
@@ -46,7 +61,7 @@ export const EmbeddedDisplay = (
   // whether this override property has been set. If so then the value of this
   // property will be used instead of the opi autoZoomToFit value. If it has
   // not been set then the value from the opi autoZoomToFit parameter is used
-  const applyAutoZoomToFit = getOptionalValue(
+  let applyAutoZoomToFit = getOptionalValue(
     props.overrideAutoZoomToFitValue,
     description.autoZoomToFit
   );
@@ -62,17 +77,69 @@ export const EmbeddedDisplay = (
     `${String(window.innerWidth)}px`
   );
 
-  let scaleFactor = "1";
+  let overflow = props.scroll ? "auto" : "hidden";
+  // Resize prop determines if embedded display is cropped, resized etc
+  switch (resize) {
+    case "scroll-content":
+      // Give the display scrollbars if needed
+      overflow = "auto";
+      break;
+    case "size-content":
+      // Resize the content
+      applyAutoZoomToFit = true;
+      overflow = "visible";
+      break;
+    case "size-widget":
+      // Resize the widget to match content size
+      overflow = "visible";
+      break;
+    case "stretch-content":
+      // Stretch content to fit
+      overflow = "visible";
+      applyAutoZoomToFit = true;
+      break;
+    case "crop-content":
+      // Crop the new content smaller
+      overflow = "hidden";
+      break;
+  }
+
+  let scaleFactorX = "1";
+  let scaleFactorY = "1";
   if (applyAutoZoomToFit) {
     // Height and width from parsed opi file will always take the form
     // "<num>px" so trim
     const heightInt = trimFromString(heightString);
     const widthInt = trimFromString(widthString);
     // Use the window size and display size to scale
-    const scaleHeightVal = window.innerHeight / heightInt;
-    const scaleWidthVal = window.innerWidth / widthInt;
+    let scaleHeightVal = window.innerHeight / heightInt;
+    let scaleWidthVal = window.innerWidth / widthInt;
+    // If we are scaling down opi to fit into embedded window size use
+    // display size and file size
+    if (resize === "stretch-content" || resize === "size-content") {
+      // Height and width from parsed opi file will always take the form
+      // "<num>px" but bob files can be numbers
+      if (typeof props.height === "string") {
+        scaleHeightVal = trimFromString(props.height) / heightInt;
+      } else if (typeof props.height === "number") {
+        scaleHeightVal = props.height / heightInt;
+      }
+
+      if (typeof props.width === "string") {
+        scaleWidthVal = trimFromString(props.width) / widthInt;
+      } else if (typeof props.width === "number") {
+        scaleWidthVal = props.width / widthInt;
+      }
+    }
+
     const minScaleFactor = Math.min(scaleWidthVal, scaleHeightVal);
-    scaleFactor = String(minScaleFactor);
+    // For everything except stretch-content, scale equally in both directions
+    if (resize !== "stretch-content") {
+      scaleHeightVal = minScaleFactor;
+      scaleWidthVal = minScaleFactor;
+    }
+    scaleFactorX = String(scaleWidthVal);
+    scaleFactorY = String(scaleHeightVal);
   }
 
   const displayChildren = getOptionalValue(description.children, []);
@@ -106,9 +173,9 @@ export const EmbeddedDisplay = (
         description.backgroundColor ?? new Color("rgb(200,200,200"),
       border:
         props.border ?? new Border(BorderStyle.Line, new Color("white"), 0),
-      overflow: props.scroll ? "auto" : "hidden",
+      overflow: overflow,
       children: [description],
-      scaling: scaleFactor,
+      scaling: [scaleFactorX, scaleFactorY],
       autoZoomToFit: applyAutoZoomToFit,
       scalingOrigin: props.scalingOrigin
     });
