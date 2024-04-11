@@ -14,8 +14,12 @@ import { Color } from "../../../types/color";
 import classes from "./boolButton.module.css";
 import { writePv } from "../../hooks/useSubscription";
 import { DType } from "../../../types/dtypes";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
-const LED_POSITION = 4.8 / 6;
+// For HTML button, these are the sizes of the buffer on
+// width and height. Must take into account when allocating
+// maximum size for text
+const BUTTON_BUFFER = { width: 12, height: 6 };
 
 const BoolButtonProps = {
   pvName: StringPropOpt,
@@ -35,7 +39,8 @@ const BoolButtonProps = {
   effect3d: BoolPropOpt,
   showBooleanLabel: BoolPropOpt,
   showLed: BoolPropOpt,
-  confirmMessage: StringPropOpt
+  confirmMessage: StringPropOpt,
+  labelsFromPv: BoolPropOpt
 };
 
 export type BoolButtonComponentProps = InferWidgetProps<
@@ -53,22 +58,32 @@ export const BoolButtonComponent = (
   props: BoolButtonComponentProps
 ): JSX.Element => {
   const {
+    width = WIDGET_DEFAULT_SIZES["bool_button"][0],
+    height = WIDGET_DEFAULT_SIZES["bool_button"][1],
     pvName,
     value,
-    width = 100,
-    height = 50,
     onState = 1,
     offState = 0,
     onColor = Color.fromRgba(0, 255, 0),
     offColor = Color.fromRgba(0, 100, 0),
-    onLabel = "ON",
-    offLabel = "OFF",
     squareButton = false,
     backgroundColor = Color.fromRgba(200, 200, 200),
     foregroundColor = Color.fromRgba(0, 0, 0),
     showBooleanLabel = true,
-    showLed = false
+    showLed = true,
+    labelsFromPv = false
   } = props;
+
+  // These could be overwritten by  PV labels
+  let { onLabel = "On", offLabel = "Off" } = props;
+
+  // Use labels from PV
+  if (labelsFromPv) {
+    if (value?.display.choices) {
+      offLabel = value.display.choices[0];
+      onLabel = value.display.choices[1];
+    }
+  }
 
   // Use useState for properties that change on click - text and color
   const [label, setLabel] = useState(showBooleanLabel ? offLabel : "");
@@ -79,17 +94,25 @@ export const BoolButtonComponent = (
   const style: CSSProperties = {
     width: width,
     height: height,
-    backgroundColor: backgroundColor.toString(),
+    // If no LED, use on/off colour for button
+    backgroundColor: showLed ? backgroundColor.toString() : ledColor,
     color: foregroundColor.toString()
   };
-  if (!squareButton) style["borderRadius"] = "50%";
+
   // Establish LED style
-  const [ledStyle, ledDiameter] = createLed(width, height, ledColor);
+  const [ledStyle, ledDiameter] = showLed
+    ? createLed(width, height, ledColor)
+    : [{}, 0];
+  if (squareButton) ledStyle["borderRadius"] = 0;
+
+  const textStyle: CSSProperties = {
+    // Ensure that text doesn't overflow from button
+    maxWidth: width - ledDiameter - BUTTON_BUFFER.width,
+    maxHeight: height - BUTTON_BUFFER.height
+  };
+
   // Hide LED if it isn't visible
-  if (showLed) {
-    if (width > height) style["paddingRight"] = ledDiameter;
-    ledStyle["visibility"] = "visible";
-  }
+  if (showLed) ledStyle["visibility"] = "visible";
 
   // This is necessary in order to set the initial label value
   // after connection to PV established, as setState cannot be
@@ -138,8 +161,18 @@ export const BoolButtonComponent = (
         style={style}
         onClick={handleClick}
       >
-        {label}
-        <span className={classes.Led} style={ledStyle} />
+        <span
+          className={classes.LedAndText}
+          style={{
+            width: width - BUTTON_BUFFER.width,
+            height: height - BUTTON_BUFFER.height
+          }}
+        >
+          <span className={classes.Led} style={ledStyle} />
+          <span className={classes.Text} style={textStyle}>
+            {label}
+          </span>
+        </span>
       </button>
     </>
   );
@@ -157,25 +190,15 @@ export function createLed(
   height: number,
   color: string
 ): [CSSProperties, number] {
-  // This is done the same as in phoebus/csstudio
-  let ledDiameter = (0.25 * (width + height)) / 2;
-  if (ledDiameter > Math.min(width, height))
-    ledDiameter = Math.min(width, height) - 8;
-  let ledX = 0;
-  let ledY = 0;
-  if (width >= height) {
-    ledX = width * LED_POSITION - ledDiameter / 2;
-    ledY = height / 2 - ledDiameter / 2;
-  } else {
-    ledX = width / 2 - ledDiameter / 2;
-    ledY = height * (1 - LED_POSITION) - ledDiameter / 2;
-  }
+  // This is the same sizing as in Phoebus
+  const size = Math.min(width, height);
+  const ledRadius = size / 3.7;
+  const ledDiameter = Math.round(ledRadius * 2);
+
   const ledStyle: CSSProperties = {
-    width: (0.25 * (width + height)) / 2,
-    height: (0.25 * (width + height)) / 2,
+    width: ledDiameter,
+    height: ledDiameter,
     backgroundColor: color,
-    top: ledY,
-    left: ledX,
     boxShadow: `inset ${ledDiameter / 4}px ${ledDiameter / 4}px ${
       ledDiameter * 0.4
     }px rgba(255,255,255,.5)`,

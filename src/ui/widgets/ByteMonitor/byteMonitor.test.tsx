@@ -24,17 +24,14 @@ describe("<ByteMonitorComponent />", (): void => {
 
     const byteMonitor = ByteMonitorRenderer(byteMonitorProps);
     const bits = byteMonitor.children as Array<ReactTestRendererJSON>;
-    expect(bits.length).toEqual(16);
+    expect(bits.length).toEqual(8);
 
     expect(bits[0].props.style.marginRight).toEqual("-2px");
     expect(bits[1].props.style.borderWidth).toEqual("2px");
-    expect(bits[5].props.style.backgroundColor).toEqual("rgba(0,100,0,255)");
-    expect(bits[10].props.style.backgroundImage).toEqual(
-      "radial-gradient(circle at top left, white, rgba(0,100,0,255)), radial-gradient(circle at top left, black,white)"
-    );
-    expect(bits[15].props.style.borderRadius).toEqual("50%");
+    expect(bits[5].props.style.backgroundColor).toEqual("rgba(0,255,0,255)");
+    expect(bits[7].props.style.borderRadius).toEqual("50%");
   });
-  test("overwrite bytemonitor defautl values", (): void => {
+  test("overwrite bytemonitor default values", (): void => {
     const byteMonitorProps = {
       value: new DType({ doubleValue: 2 }),
       height: 50,

@@ -17,6 +17,9 @@ export type InferWidgetProps<T> = ExcludeNulls<InferProps<T>>;
 export const StringProp = PropTypes.string.isRequired;
 export const StringPropOpt = PropTypes.string;
 
+export const StringArrayProp = PropTypes.arrayOf(PropTypes.string.isRequired);
+export const StringArrayPropOpt = PropTypes.arrayOf(PropTypes.string);
+
 export const IntProp = PropTypes.number.isRequired;
 export const IntPropOpt = PropTypes.number;
 

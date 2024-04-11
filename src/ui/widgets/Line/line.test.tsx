@@ -54,7 +54,7 @@ describe("<LineComponent />", (): void => {
     const lines = svg.children as Array<ReactTestRendererJSON>;
 
     expect(lines[0].props.stroke).toEqual("rgba(0,255,255,255)");
-    expect(lines[0].props.strokeWidth).toEqual(1);
+    expect(lines[0].props.strokeWidth).toEqual(3);
     expect(lines[0].props.transform).toEqual("rotation(0,0,0)");
     expect(lines[0].props.points).toEqual("1,10 15,20 4,15 ");
   });
