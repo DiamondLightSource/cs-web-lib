@@ -50,9 +50,7 @@ const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   polyline: "line",
   progressbar: "progressbar",
   rectangle: "shape",
-  action_button: "actionbutton",
   choice: "choicebutton",
-  embedded: "embeddedDisplay",
   scaledslider: "slidecontrol"
 };
 
@@ -142,6 +140,7 @@ function bobParseItems(jsonProp: ElementCompact): string[] {
     items.push(item._text);
   });
   return items;
+}
 
 /**
  * Parse file for Embedded Display widgets
