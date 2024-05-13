@@ -64,6 +64,7 @@ const OPI_WIDGET_MAPPING: { [key: string]: any } = {
   "org.csstudio.opibuilder.widgets.MenuButton": "menubutton",
   "org.csstudio.opibuilder.widgets.combo": "menubutton",
   "org.csstudio.opibuilder.widgets.checkbox": "checkbox",
+  "org.csstudio.opibuilder.widgets.choiceButton": "choicebutton",
   "org.csstudio.opibuilder.widgets.linkingContainer": "embeddedDisplay",
   "org.csstudio.opibuilder.widgets.polyline": "line",
   "org.csstudio.opibuilder.widgets.polygon": "polygon",
@@ -567,6 +568,19 @@ function opiParsePoints(props: any): Points {
 }
 
 /**
+ * Parse an array of items
+ * @param jsonProp
+ * @returns items (array of strings)
+ */
+function opiParseItems(jsonProp: ElementCompact): string[] {
+  const items: string[] = [];
+  jsonProp["s"].forEach((item: any) => {
+    items.push(item._text);
+  });
+  return items;
+}
+
+/**
  * Parse numbers for resizing into strings that say what
  * time of resizing should be performed
  * @param jsonProp
@@ -648,6 +662,7 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   bit: ["bit", opiParseNumber],
   actionsFromPv: ["actions_from_pv", opiParseBoolean],
   itemsFromPv: ["items_from_pv", opiParseBoolean],
+  items: ["items", opiParseItems],
   deviceName: ["device_name", opiParseString],
   autoZoomToFit: ["auto_zoom_to_fit_all", opiParseBoolean],
   plotBackgroundColor: ["plot_area_background_color", opiParseColor], //these are all plot props
@@ -683,6 +698,8 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   arrows: ["arrows", opiParseNumber],
   arrowLength: ["arrow_length", opiParseNumber],
   fillArrow: ["fill_arrow", opiParseBoolean],
+  selectedColor: ["selected_color", opiParseColor],
+  enabled: ["enabled", opiParseBoolean],
   resize: ["resize_behaviour", opiParseResizing],
   labelsFromPv: ["labels_from_pv", opiParseBoolean]
 };

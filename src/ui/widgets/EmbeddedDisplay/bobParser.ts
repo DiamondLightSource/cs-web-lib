@@ -50,6 +50,7 @@ const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   polyline: "line",
   progressbar: "progressbar",
   rectangle: "shape",
+  choice: "choicebutton",
   scaledslider: "slidecontrol"
 };
 
@@ -131,6 +132,14 @@ function bobParseBorder(props: any): Border {
   } else {
     return Border.NONE;
   }
+}
+
+function bobParseItems(jsonProp: ElementCompact): string[] {
+  const items: string[] = [];
+  jsonProp["item"].forEach((item: any) => {
+    items.push(item._text);
+  });
+  return items;
 }
 
 /**
@@ -235,6 +244,7 @@ export function parseBob(
       (actions: ElementCompact): WidgetActions =>
         opiParseActions(actions, defaultProtocol)
     ],
+    items: ["items", bobParseItems],
     imageFile: ["file", opiParseString],
     points: ["points", bobParsePoints],
     resize: ["resize", bobParseResizing],
