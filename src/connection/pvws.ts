@@ -95,6 +95,15 @@ function pvwsToDType(data: any): DType {
   } else if (data.b64dbl !== undefined) {
     const bd = base64js.toByteArray(data.b64dbl);
     array = new ARRAY_TYPES["FLOAT64"](bd.buffer);
+  } else if (data.b64flt !== undefined) {
+    const bd = base64js.toByteArray(data.b64flt);
+    array = new ARRAY_TYPES["FLOAT32"](bd.buffer);
+  } else if (data.b64srt !== undefined) {
+    const bd = base64js.toByteArray(data.b64srt);
+    array = new ARRAY_TYPES["INT16"](bd.buffer);
+  } else if (data.b64byt !== undefined) {
+    const bd = base64js.toByteArray(data.b64byt);
+    array = new ARRAY_TYPES["INT8"](bd.buffer);
   }
 
   let dtime = undefined;
