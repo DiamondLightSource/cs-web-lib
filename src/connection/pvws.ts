@@ -114,7 +114,9 @@ function pvwsToDType(data: any): DType {
   }
 
   let stringVal = undefined;
-  if (data.value !== undefined) {
+  if (data.text !== undefined) {
+    stringVal = data.text;
+  } else if (data.value !== undefined) {
     stringVal = data.value.toString();
   }
   return new DType(
