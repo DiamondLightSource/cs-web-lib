@@ -91,4 +91,76 @@ describe("opi widget parser", (): void => {
     // Is this correct?
     expect(display.x).toEqual(undefined);
   });
+
+  const readbackDefaults = `
+  <display version="2.0.0">
+    <x>0</x>
+    <y>0</y>
+    <width>300</width>
+    <height>300</height>
+    <widget type="textupdate" version="2.0.0">
+      <name>Text Update</name>
+      <pv_name>abc</pv_name>
+      <x>12</x>
+      <y>62</y>
+      <width>140</width>
+      <height>50</height>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+    </widget>
+  </display>`;
+  it("parses defaults", (): void => {
+    const widget = parseBob(readbackDefaults, "xxx", PREFIX)
+      .children?.[0] as WidgetDescription;
+    expect(widget.precisionFromPv).toEqual(true);
+    expect(widget.showUnits).toEqual(true);
+  });
+
+  const readbackPrecisionUnits = `
+  <display version="2.0.0">
+    <x>0</x>
+    <y>0</y>
+    <width>300</width>
+    <height>300</height>
+    <widget type="textupdate" version="2.0.0">
+      <name>Text Update</name>
+      <pv_name>abc</pv_name>
+      <x>12</x>
+      <y>62</y>
+      <width>140</width>
+      <height>50</height>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+      <precision>2</precision>
+      <show_units>false</show_units>
+    </widget>
+  </display>`;
+  it("parses precision and units", (): void => {
+    const widget = parseBob(readbackPrecisionUnits, "xxx", PREFIX)
+      .children?.[0] as WidgetDescription;
+    expect(widget.precisionFromPv).toEqual(undefined);
+    expect(widget.precision).toEqual(2);
+    expect(widget.showUnits).toEqual(false);
+  });
+
+  const readbackStringFormat = `
+  <display version="2.0.0">
+    <x>0</x>
+    <y>0</y>
+    <width>300</width>
+    <height>300</height>
+    <widget type="textupdate" version="2.0.0">
+      <name>Text Update</name>
+      <pv_name>abc</pv_name>
+      <x>12</x>
+      <y>62</y>
+      <width>140</width>
+      <height>50</height>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+      <format>6</format>
+    </widget>
+  </display>`;
+  it("parses string format", (): void => {
+    const widget = parseBob(readbackStringFormat, "xxx", PREFIX)
+      .children?.[0] as WidgetDescription;
+    expect(widget.formatType).toEqual("string");
+  });
 });

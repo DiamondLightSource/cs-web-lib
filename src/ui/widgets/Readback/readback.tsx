@@ -89,6 +89,15 @@ export const ReadbackComponent = (
       } else {
         displayedValue = DType.coerceString(value);
       }
+    } else if (value.getArrayValue() !== undefined && prec !== undefined) {
+      displayedValue = "";
+      const array = Array.prototype.slice.call(value.getArrayValue());
+      for (let i = 0; i < array.length; i++) {
+        displayedValue = displayedValue.concat(array[i].toFixed(prec));
+        if (i < array.length - 1) {
+          displayedValue = displayedValue.concat(", ");
+        }
+      }
     } else {
       displayedValue = DType.coerceString(value);
     }

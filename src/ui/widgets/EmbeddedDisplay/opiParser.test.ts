@@ -271,7 +271,7 @@ describe("opi widget parser", (): void => {
     <width>20</width>
     <widget typeId="org.csstudio.opibuilder.widgets.TextInput" version="2.0.0">
       <text />
-      <show_units>not-a-bool</show_units>
+      <enabled>not-a-bool</enabled>
     </widget>
   </display>`;
   it("doesn't parse an invalid bool", (): void => {
@@ -279,7 +279,7 @@ describe("opi widget parser", (): void => {
     log.setLevel("error");
     const widget = parseOpi(invalidBool, "ca", PREFIX)
       .children?.[0] as WidgetDescription;
-    expect(widget.showUnits).toBeUndefined();
+    expect(widget.enabled).toBeUndefined();
     log.setLevel("info");
   });
   const xygraphString = `

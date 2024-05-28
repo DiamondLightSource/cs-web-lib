@@ -151,5 +151,17 @@ export function parseWidget(
       filepath
     );
   });
+
+  // Default to true if precision is not defined.
+  // Applicable to BOB files.
+  if (widgetDescription.precision === undefined) {
+    widgetDescription.precisionFromPv = true;
+  }
+  // Default to true if showUnits is not defined.
+  // Applicable to BOB files.
+  if (widgetDescription.showUnits === undefined) {
+    widgetDescription.showUnits = true;
+  }
+
   return widgetDescription;
 }
