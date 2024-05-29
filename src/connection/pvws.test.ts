@@ -78,4 +78,20 @@ describe("PvwsPlugin", (): void => {
   it("unsubscribes_with_no_errors", (): void => {
     expect(() => cp.unsubscribe("hello")).not.toThrow(TypeError);
   });
+
+  it("handles update readonly value", (): void => {
+    cp.subscribe("hello", { string: true });
+    ws.send(JSON.stringify({ type: "update", pv: "hello", value: 42 }));
+    expect(mockConnUpdate).toHaveBeenLastCalledWith("hello", {
+      isConnected: true,
+      isReadonly: true
+    });
+
+    ws.send(JSON.stringify({ type: "update", pv: "hello", readonly: false }));
+    expect(mockConnUpdate).toBeCalledTimes(2);
+    expect(mockConnUpdate).toHaveBeenLastCalledWith("hello", {
+      isConnected: true,
+      isReadonly: false
+    });
+  });
 });

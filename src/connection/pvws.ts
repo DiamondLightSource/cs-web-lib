@@ -141,6 +141,7 @@ export class PvwsPlugin implements Connection {
   private connected: boolean;
   private disconnected: string[] = [];
   private subscriptions: { [pvName: string]: boolean };
+  private initMsgRcvd: { [pvName: string]: boolean };
   private url = "";
   private socket!: WebSocket;
   private reconnect_ms = 5000;
@@ -155,6 +156,7 @@ export class PvwsPlugin implements Connection {
     this.onValueUpdate = nullValueCallback;
     this.connected = false;
     this.subscriptions = {};
+    this.initMsgRcvd = {};
   }
 
   /** Open the web socket, i.e. start PV communication */
@@ -184,10 +186,22 @@ export class PvwsPlugin implements Connection {
   private handleMessage(message: string) {
     const jm = JSON.parse(message);
     if (jm.type === "update") {
-      if (jm.readonly !== undefined) {
+      let updateConnection = false;
+      // PVWS only sends the readonly attribute if false
+      // so set true by default and update later.
+      let readonly = true;
+      if (!this.initMsgRcvd[jm.pv]) {
+        updateConnection = true;
+        this.initMsgRcvd[jm.pv] = true;
+      } else if (jm.readonly !== undefined) {
+        updateConnection = true;
+        // Update readonly from PVWS message
+        readonly = jm.readonly;
+      }
+      if (updateConnection) {
         this.onConnectionUpdate(jm.pv, {
           isConnected: true,
-          isReadonly: jm.readonly
+          isReadonly: readonly
         });
       }
 
@@ -254,6 +268,7 @@ export class PvwsPlugin implements Connection {
     if (this.subscriptions[pvName] === undefined) {
       this._subscribe(pvName);
       this.subscriptions[pvName] = true;
+      this.initMsgRcvd[pvName] = false;
     }
     return pvName;
   }
