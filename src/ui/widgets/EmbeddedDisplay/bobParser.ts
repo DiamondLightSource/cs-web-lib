@@ -106,6 +106,16 @@ function bobParsePosition(props: any): Position {
   );
 }
 
+function bobParseFormatType(jsonProp: ElementCompact): string {
+  const formats: { [key: number]: string } = {
+    0: "default",
+    1: "decimal",
+    2: "exponential",
+    6: "string"
+  };
+  return formats[bobParseNumber(jsonProp) ?? 0];
+}
+
 export function bobParseFont(jsonProp: ElementCompact): Font {
   const opiStyles: { [key: number]: FontStyle } = {
     0: FontStyle.Regular,
@@ -248,7 +258,8 @@ export function parseBob(
     imageFile: ["file", opiParseString],
     points: ["points", bobParsePoints],
     resize: ["resize", bobParseResizing],
-    squareLed: ["square", opiParseBoolean]
+    squareLed: ["square", opiParseBoolean],
+    formatType: ["format", bobParseFormatType]
   };
 
   const complexParsers = {
