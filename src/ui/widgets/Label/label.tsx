@@ -45,8 +45,8 @@ export const LabelComponent = (
   };
   const style: CSSProperties = commonCss(editedProps);
   const {
-    textAlign = "center",
-    textAlignV = "center",
+    textAlign = "left",
+    textAlignV = "top",
     text = "",
     rotationAngle,
     wrapWords
