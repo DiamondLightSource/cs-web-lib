@@ -259,7 +259,8 @@ export function parseBob(
     points: ["points", bobParsePoints],
     resize: ["resize", bobParseResizing],
     squareLed: ["square", opiParseBoolean],
-    formatType: ["format", bobParseFormatType]
+    formatType: ["format", bobParseFormatType],
+    stretchToFit: ["stretch_image", opiParseBoolean]
   };
 
   const complexParsers = {
