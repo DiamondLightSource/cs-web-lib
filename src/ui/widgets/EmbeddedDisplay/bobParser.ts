@@ -245,10 +245,10 @@ export function parseBob(
       (pvName: ElementCompact): PV => opiParsePvName(pvName, defaultProtocol)
     ],
     font: ["font", bobParseFont],
-    rules: [
-      "rules",
-      (rules: Rule[]): Rule[] => opiParseRules(rules, defaultProtocol)
-    ],
+    // rules: [
+    //   "rules",
+    //   (rules: Rule[]): Rule[] => opiParseRules(rules, defaultProtocol)
+    // ],
     actions: [
       "actions",
       (actions: ElementCompact): WidgetActions =>
@@ -264,7 +264,7 @@ export function parseBob(
 
   const complexParsers = {
     ...BOB_COMPLEX_PARSERS,
-    rules: (rules: Rule[]): Rule[] => opiParseRules(rules, defaultProtocol)
+    rules: (rules: Rule[]): Rule[] => opiParseRules(rules, defaultProtocol, false)
   };
 
   const displayWidget = parseWidget(
