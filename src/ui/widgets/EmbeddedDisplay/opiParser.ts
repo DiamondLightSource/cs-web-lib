@@ -857,7 +857,8 @@ export function parseOpi(
 
   const complexParsers = {
     ...OPI_COMPLEX_PARSERS,
-    rules: (rules: Rule[]): Rule[] => opiParseRules(rules, defaultProtocol, true)
+    rules: (rules: Rule[]): Rule[] =>
+      opiParseRules(rules, defaultProtocol, true)
   };
 
   log.debug(compactJSON.display);

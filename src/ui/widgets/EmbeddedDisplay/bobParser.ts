@@ -118,10 +118,10 @@ function bobParseFormatType(jsonProp: ElementCompact): string {
 
 export function bobParseFont(jsonProp: ElementCompact): Font {
   const opiStyles: { [key: string]: FontStyle } = {
-    "REGULAR": FontStyle.Regular,
-    "BOLD": FontStyle.Bold,
-    "ITALIC": FontStyle.Italic,
-    "BOLD_ITALIC": FontStyle.BoldItalic
+    REGULAR: FontStyle.Regular,
+    BOLD: FontStyle.Bold,
+    ITALIC: FontStyle.Italic,
+    BOLD_ITALIC: FontStyle.BoldItalic
   };
   const fontAttributes = jsonProp["font"]._attributes;
   const { family, size, style } = fontAttributes;
@@ -265,7 +265,8 @@ export function parseBob(
 
   const complexParsers = {
     ...BOB_COMPLEX_PARSERS,
-    rules: (rules: Rule[]): Rule[] => opiParseRules(rules, defaultProtocol, false)
+    rules: (rules: Rule[]): Rule[] =>
+      opiParseRules(rules, defaultProtocol, false)
   };
 
   const displayWidget = parseWidget(
