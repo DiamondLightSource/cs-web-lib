@@ -18,7 +18,7 @@ exports[`<Symbol /> matches snapshot 1`] = `
     >
       <div
         class="Label Label"
-        style="background-color: transparent; cursor: default; justify-content: center; align-items: center;"
+        style="background-color: transparent; cursor: default; justify-content: flex-start; align-items: flex-start;"
       >
         <span>
            Fake value 
