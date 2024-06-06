@@ -245,10 +245,6 @@ export function parseBob(
       (pvName: ElementCompact): PV => opiParsePvName(pvName, defaultProtocol)
     ],
     font: ["font", bobParseFont],
-    // rules: [
-    //   "rules",
-    //   (rules: Rule[]): Rule[] => opiParseRules(rules, defaultProtocol)
-    // ],
     actions: [
       "actions",
       (actions: ElementCompact): WidgetActions =>
