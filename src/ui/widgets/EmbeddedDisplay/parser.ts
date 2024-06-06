@@ -162,6 +162,11 @@ export function parseWidget(
   if (widgetDescription.showUnits === undefined) {
     widgetDescription.showUnits = true;
   }
+  // Default to true if wrapWords is not defined.
+  // Applicable to BOB files.
+  if (widgetDescription.wrapWords === undefined) {
+    widgetDescription.wrapWords = true;
+  }
 
   return widgetDescription;
 }

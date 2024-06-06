@@ -37,6 +37,7 @@ describe("opi widget parser", (): void => {
     <x>10</x>
     <y>20</y>
     <not_a_property>hello</not_a_property>
+    <wrap_words>false</wrap_words>
   </widget>
   </display>`;
 
@@ -56,6 +57,7 @@ describe("opi widget parser", (): void => {
     expect(widget.foregroundColor).toEqual(Color.RED);
     // Unrecognised property not passed on.
     expect(widget.not_a_property).toEqual(undefined);
+    expect(widget.wrapWords).toEqual(false);
   });
 
   const readbackString = `
@@ -113,6 +115,7 @@ describe("opi widget parser", (): void => {
       .children?.[0] as WidgetDescription;
     expect(widget.precisionFromPv).toEqual(true);
     expect(widget.showUnits).toEqual(true);
+    expect(widget.wrapWords).toEqual(true);
   });
 
   const readbackPrecisionUnits = `
