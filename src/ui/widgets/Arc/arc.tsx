@@ -6,13 +6,15 @@ import {
   BoolPropOpt,
   InferWidgetProps,
   ColorPropOpt,
-  IntPropOpt
+  IntPropOpt,
+  MacrosPropOpt
 } from "../propTypes";
 import classes from "./arc.module.css";
 import { Color } from "../../../types";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const ArcProps = {
+  macros: MacrosPropOpt,
   width: IntPropOpt,
   height: IntPropOpt,
   backgroundColor: ColorPropOpt,

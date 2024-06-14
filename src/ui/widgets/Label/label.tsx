@@ -12,10 +12,12 @@ import {
   FontPropOpt,
   ColorPropOpt,
   BorderPropOpt,
-  FloatPropOpt
+  FloatPropOpt,
+  MacrosPropOpt
 } from "../propTypes";
 
 const LabelProps = {
+  macros: MacrosPropOpt,
   text: StringPropOpt,
   visible: BoolPropOpt,
   transparent: BoolPropOpt,
