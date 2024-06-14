@@ -8,13 +8,15 @@ import {
   ColorPropOpt,
   IntPropOpt,
   BoolPropOpt,
-  PointsPropOpt
+  PointsPropOpt,
+  MacrosPropOpt
 } from "../propTypes";
 import { Point } from "../../../types/points";
 import { Color } from "../../../types";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const PolygonProps = {
+  macros: MacrosPropOpt,
   height: IntPropOpt,
   width: IntPropOpt,
   border: BorderPropOpt,

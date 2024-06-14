@@ -274,7 +274,7 @@ export const opiParseRules = (
       const pvs = pvArray.map((pv: ElementCompact) => {
         return {
           pvName: opiParsePvName(pv, defaultProtocol),
-          trigger: pv._attributes?.trig === "true"
+          trigger: isOpiFile ? pv._attributes?.trig === "true" : true
         };
       });
       const expArray = toArray(ruleElement.exp);

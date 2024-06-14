@@ -8,12 +8,14 @@ import {
   BoolPropOpt,
   StringPropOpt,
   FloatPropOpt,
-  FuncPropOpt
+  FuncPropOpt,
+  MacrosPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
 
 const ImageProps = {
   imageFile: StringProp,
+  macros: MacrosPropOpt,
   alt: StringPropOpt,
   stretchToFit: BoolPropOpt,
   fitToWidth: BoolPropOpt,

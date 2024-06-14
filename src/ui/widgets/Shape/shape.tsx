@@ -9,13 +9,15 @@ import {
   ColorPropOpt,
   PvPropOpt,
   IntPropOpt,
-  StringOrNumPropOpt
+  StringOrNumPropOpt,
+  MacrosPropOpt
 } from "../propTypes";
 import { Border, Color } from "../../../types";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const ShapeProps = {
   pvName: PvPropOpt,
+  macros: MacrosPropOpt,
   width: StringOrNumPropOpt,
   height: StringOrNumPropOpt,
   shapeTransform: StringPropOpt,
