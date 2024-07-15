@@ -3,7 +3,7 @@ An npm library for Control Systems web applications
 
 ## Installation
 Install via npm:
-    `npm install @DiamondLightSource/cs-web-lib`
+    `npm install @diamondlightsource/cs-web-lib`
     
 ## Development
 To develop on the library code first clone this repo, install the npm package dependencies and then make changes:
@@ -34,7 +34,7 @@ A GitHub workflow has been setup to automatically publish a new package version 
 This will trigger a job on GitHub to publish a new version of the cs-web-lib to NPM. Check that this job passes.
 
 ### Publishing to NPM locally
-To publish a new version of the @DiamondLightSource/cs-web-lib package you must first have an npm account and be a member of the DiamondLightSource organisation. Then:
+To publish a new version of the @diamondlightsource/cs-web-lib package you must first have an npm account and be a member of the DiamondLightSource organisation. Then:
 1. Update the package version in package.json (follow the major.minor.patch versioning terminology).
 2. Run the rollup command to package the library: `npm run rollup`.
 3. Login to your npm account: `npm adduser`
