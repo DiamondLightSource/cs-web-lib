@@ -4,8 +4,8 @@ import { SymbolComponent } from "./symbol";
 import { DType } from "../../../types/dtypes";
 
 const fakeValue = new DType({ stringValue: "Fake value" });
-const stringValue = new DType({ stringValue: "1.54" })
-const arrayValue = new DType({ arrayValue: Float64Array.from([2, 0]) })
+const stringValue = new DType({ stringValue: "1.54" });
+const arrayValue = new DType({ arrayValue: Float64Array.from([2, 0]) });
 
 describe("<Symbol /> from .opi file", (): void => {
   test("label is not shown if showLabel is false", (): void => {
@@ -43,7 +43,6 @@ describe("<Symbol /> from .opi file", (): void => {
     expect(asFragment()).toMatchSnapshot();
   });
 });
-
 
 describe("<Symbol /> from .bob file", (): void => {
   test("index is not shown if showIndex is false", (): void => {
@@ -104,5 +103,4 @@ describe("<Symbol /> from .bob file", (): void => {
 
     expect(asFragment()).toMatchSnapshot();
   });
-
 });
