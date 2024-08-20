@@ -240,16 +240,14 @@ function convertValueToIndex(
   // If no value, use initialIndex
   if (value === undefined) return initialIndex;
   // First we check if we have a string
-  const isArray = value.getArrayValue()?.length !== undefined ? true : false
+  const isArray = value.getArrayValue()?.length !== undefined ? true : false;
   if (isArray) {
     // If is array, get index
     const arrayValue = DType.coerceArray(value);
     const idx = Number(arrayValue[arrayIndex]);
     return Math.floor(idx);
   } else {
-    console.log(value);
     const intValue = DType.coerceDouble(value);
-    console.log(intValue);
     if (!isNaN(intValue)) return Math.floor(intValue);
   }
   return initialIndex;
