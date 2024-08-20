@@ -9,10 +9,10 @@ import {
   ColorPropOpt,
   FloatPropOpt,
   BorderPropOpt,
-  StringProp,
   ChoicePropOpt,
   FontPropOpt,
-  ActionsPropType
+  ActionsPropType,
+  StringArrayPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
 import { ImageComponent } from "../Image/image";
@@ -24,7 +24,8 @@ import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 import { DType } from "../../../types/dtypes";
 
 const SymbolProps = {
-  imageFile: StringProp,
+  imageFile: StringPropOpt,
+  symbols: StringArrayPropOpt,
   alt: StringPropOpt,
   backgroundColor: ColorPropOpt,
   showBooleanLabel: BoolPropOpt,
@@ -46,7 +47,13 @@ const SymbolProps = {
   visible: BoolPropOpt,
   stretchToFit: BoolPropOpt,
   actions: ActionsPropType,
-  font: FontPropOpt
+  font: FontPropOpt,
+  initialIndex: FloatPropOpt,
+  showIndex: BoolPropOpt,
+  arrayIndex: FloatPropOpt,
+  enabled: BoolPropOpt,
+  fallbackSymbol: StringPropOpt,
+  transparent: BoolPropOpt
 };
 
 export type SymbolComponentProps = InferWidgetProps<typeof SymbolProps> &
@@ -58,14 +65,39 @@ export type SymbolComponentProps = InferWidgetProps<typeof SymbolProps> &
  * @param props
  */
 export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
+  const {
+    showIndex = false,
+    arrayIndex = 0,
+    initialIndex = 0,
+    fallbackSymbol = "https://cs-web-symbol.diamond.ac.uk/catalogue/default.svg",
+    transparent = true,
+    backgroundColor = "white",
+    showBooleanLabel = false,
+    enabled = true
+  } = props;
   const style = commonCss(props as any);
+  // If symbols and not imagefile, we're in a bob file
+  const isBob = props.symbols ? true : false;
+  const symbols = props.symbols ? props.symbols : [];
 
-  let imageFile = props.imageFile;
+  // Convert our value to an index, or use the initialIndex
+  const index = convertValueToIndex(props.value, initialIndex, arrayIndex);
+
   const regex = / [0-9]\./;
+  let imageFile = isBob ? symbols[index] : props.imageFile;
+  // If no provided image file
+  if (!imageFile) imageFile = fallbackSymbol;
   const intValue = DType.coerceDouble(props.value);
-  if (!isNaN(intValue)) {
-    imageFile = props.imageFile.replace(regex, ` ${intValue.toFixed(0)}.`);
+  if (!isNaN(intValue) && !isBob) {
+    imageFile = imageFile.replace(regex, ` ${intValue.toFixed(0)}.`);
   }
+
+  // Symbol in Phoebus has no label but can display index
+  const labelText = isBob
+    ? showIndex
+      ? index.toString()
+      : ""
+    : props.value?.getStringValue();
 
   let alignItems = "center";
   let justifyContent = "center";
@@ -104,7 +136,7 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
   const exitContext = useContext(ExitFileContext);
   const parentMacros = useContext(MacroContext).macros;
   function onClick(event: React.MouseEvent<HTMLDivElement>): void {
-    if (props.actions !== undefined) {
+    if (props.actions !== undefined && enabled) {
       executeActions(
         props.actions as WidgetActions,
         files,
@@ -114,19 +146,32 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
     }
   }
 
+  // Define label appearance
+  let labelDiv;
+  if (isBob) labelDiv = generateIndexLabel(index, showIndex);
+
   // Note: I would've preferred to define the onClick on div that wraps
   // both sub-components, but replacing the fragment with a div, with the way
   // the image component is written causes many images to be of the incorrect size
   return (
     <>
-      <ImageComponent {...props} imageFile={imageFile} onClick={onClick} />
-      {props.showBooleanLabel && (
+      <ImageComponent
+        {...props}
+        imageFile={imageFile}
+        onClick={onClick}
+        stretchToFit={true}
+      />
+      {isBob ? (
+        labelDiv
+      ) : showBooleanLabel ? (
         <>
           <div
             onClick={onClick}
             style={{
               ...style,
-              backgroundColor: "transparent",
+              backgroundColor: transparent
+                ? "transparent"
+                : backgroundColor.toString(),
               position: "absolute",
               height: "100%",
               width: "100%",
@@ -141,15 +186,74 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
               <LabelComponent
                 {...props}
                 backgroundColor={Color.TRANSPARENT}
-                text={props.value?.getStringValue()}
+                text={labelText}
               ></LabelComponent>
             </div>
           </div>
         </>
+      ) : (
+        <></>
       )}
     </>
   );
 };
+
+/**
+ * Return a div element describing how the label should look
+ */
+function generateIndexLabel(index: number, showIndex: boolean): JSX.Element {
+  if (!showIndex) return <></>;
+  // Create span
+  return (
+    <div style={{ justifyContent: "center", alignContent: "center" }}>
+      <span
+        style={{
+          height: "30px",
+          width: "30px",
+          borderRadius: "50%",
+          backgroundColor: "black",
+          border: "1px solid white",
+          opacity: "50%",
+          color: "white",
+          position: "absolute",
+          top: "calc(50% - 15px)",
+          left: "calc(50% - 15px)",
+          textAlign: "center",
+          fontSize: "math"
+        }}
+      >
+        <b>{index}</b>
+      </span>
+    </div>
+  );
+}
+
+/**
+ * Convert the input value into an index for symbols
+ * @param value
+ */
+function convertValueToIndex(
+  value: DType | undefined,
+  initialIndex: number,
+  arrayIndex: number
+): number {
+  // If no value, use initialIndex
+  if (value === undefined) return initialIndex;
+  // First we check if we have a string
+  const isArray = value.getArrayValue()?.length !== undefined ? true : false
+  if (isArray) {
+    // If is array, get index
+    const arrayValue = DType.coerceArray(value);
+    const idx = Number(arrayValue[arrayIndex]);
+    return Math.floor(idx);
+  } else {
+    console.log(value);
+    const intValue = DType.coerceDouble(value);
+    console.log(intValue);
+    if (!isNaN(intValue)) return Math.floor(intValue);
+  }
+  return initialIndex;
+}
 
 const SymbolWidgetProps = {
   ...SymbolProps,
