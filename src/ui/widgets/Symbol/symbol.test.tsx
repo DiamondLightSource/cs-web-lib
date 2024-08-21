@@ -74,28 +74,54 @@ describe("<Symbol /> from .bob file", (): void => {
       symbols: ["img 1.gif", "img 2.png", "img 3.svg"],
       value: undefined
     };
-    const { asFragment } = render(
-      <SymbolComponent {...(symbolProps as any)} />
-    );
 
-    expect(asFragment()).toMatchSnapshot();
-  });
-  test("use fallbackSymbol if index out of range or no symbol provided", (): void => {
-    const symbolProps = {
-      symbols: ["img 1.gif"],
-      value: new DType({ doubleValue: 1 })
-    };
-    const { asFragment } = render(
-      <SymbolComponent {...(symbolProps as any)} />
-    );
+    render(<SymbolComponent {...(symbolProps as any)} />);
 
-    expect(asFragment()).toMatchSnapshot();
+    expect(screen.getByText("2")).toBeInTheDocument();
   });
+
   test("use arrayIndex to find index if value is an array", (): void => {
     const symbolProps = {
       arrayIndex: 0,
+      showIndex: true,
       symbols: ["img 1.gif", "img 2.png", "img 3.svg"],
       value: arrayValue
+    };
+    render(<SymbolComponent {...(symbolProps as any)} />);
+
+    expect(screen.getByText("2")).toBeInTheDocument();
+  });
+
+  test("matches snapshot (without index)", (): void => {
+    const symbolProps = {
+      symbols: ["img 1.gif"],
+      value: new DType({ stringValue: "0" })
+    };
+
+    const { asFragment } = render(
+      <SymbolComponent {...(symbolProps as any)} />
+    );
+
+    expect(asFragment()).toMatchSnapshot();
+  });
+
+  test("matches snapshot (with index)", (): void => {
+    const symbolProps = {
+      symbols: ["img 1.gif", "img 2.png", "img 3.svg"],
+      value: new DType({ stringValue: "2" })
+    };
+
+    const { asFragment } = render(
+      <SymbolComponent {...(symbolProps as any)} />
+    );
+
+    expect(asFragment()).toMatchSnapshot();
+  });
+
+  test("matches snapshot (using fallback symbol)", (): void => {
+    const symbolProps = {
+      symbols: ["img 1.gif"],
+      value: new DType({ doubleValue: 1 })
     };
     const { asFragment } = render(
       <SymbolComponent {...(symbolProps as any)} />
