@@ -1,19 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`<Symbol /> from .bob file use arrayIndex to find index if value is an array 1`] = `
-<DocumentFragment>
-  <div
-    style="overflow: hidden; text-align: left; width: 100%; height: 100%;"
-  >
-    <img
-      src="img 3.svg"
-      style="width: 100%; height: 100%; display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: fill;"
-    />
-  </div>
-</DocumentFragment>
-`;
-
-exports[`<Symbol /> from .bob file use fallbackSymbol if index out of range or no symbol provided 1`] = `
+exports[`<Symbol /> from .bob file matches snapshot (using fallback symbol) 1`] = `
 <DocumentFragment>
   <div
     style="overflow: hidden; text-align: left; width: 100%; height: 100%;"
@@ -26,7 +13,7 @@ exports[`<Symbol /> from .bob file use fallbackSymbol if index out of range or n
 </DocumentFragment>
 `;
 
-exports[`<Symbol /> from .bob file use initialIndex if no props value provided 1`] = `
+exports[`<Symbol /> from .bob file matches snapshot (with index) 1`] = `
 <DocumentFragment>
   <div
     style="overflow: hidden; text-align: left; width: 100%; height: 100%;"
@@ -36,16 +23,18 @@ exports[`<Symbol /> from .bob file use initialIndex if no props value provided 1
       style="width: 100%; height: 100%; display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: fill;"
     />
   </div>
+</DocumentFragment>
+`;
+
+exports[`<Symbol /> from .bob file matches snapshot (without index) 1`] = `
+<DocumentFragment>
   <div
-    style="justify-content: center; align-content: center;"
+    style="overflow: hidden; text-align: left; width: 100%; height: 100%;"
   >
-    <span
-      class="IndexLabel"
-    >
-      <b>
-        2
-      </b>
-    </span>
+    <img
+      src="img 1.gif"
+      style="width: 100%; height: 100%; display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: fill;"
+    />
   </div>
 </DocumentFragment>
 `;
