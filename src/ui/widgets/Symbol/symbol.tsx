@@ -22,6 +22,7 @@ import { executeActions, WidgetActions } from "../widgetActions";
 import { MacroContext } from "../../../types/macros";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 import { DType } from "../../../types/dtypes";
+import classes from "./symbol.module.css";
 
 const SymbolProps = {
   imageFile: StringPropOpt,
@@ -166,20 +167,15 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
       ) : showBooleanLabel ? (
         <>
           <div
+            className={classes.SymbolLabel}
             onClick={onClick}
             style={{
               ...style,
               backgroundColor: transparent
                 ? "transparent"
                 : backgroundColor.toString(),
-              position: "absolute",
-              height: "100%",
-              width: "100%",
-              top: 0,
-              left: 0,
-              display: "flex",
-              alignItems,
-              justifyContent
+              alignItems: alignItems,
+              justifyContent: justifyContent
             }}
           >
             <div style={{ padding: "5%" }}>
@@ -206,22 +202,7 @@ function generateIndexLabel(index: number, showIndex: boolean): JSX.Element {
   // Create span
   return (
     <div style={{ justifyContent: "center", alignContent: "center" }}>
-      <span
-        style={{
-          height: "30px",
-          width: "30px",
-          borderRadius: "50%",
-          backgroundColor: "black",
-          border: "1px solid white",
-          opacity: "50%",
-          color: "white",
-          position: "absolute",
-          top: "calc(50% - 15px)",
-          left: "calc(50% - 15px)",
-          textAlign: "center",
-          fontSize: "math"
-        }}
-      >
+      <span className={classes.IndexLabel}>
         <b>{index}</b>
       </span>
     </div>

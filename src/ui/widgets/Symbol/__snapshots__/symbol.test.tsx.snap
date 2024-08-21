@@ -40,7 +40,7 @@ exports[`<Symbol /> from .bob file use initialIndex if no props value provided 1
     style="justify-content: center; align-content: center;"
   >
     <span
-      style="height: 30px; width: 30px; border-radius: 50%; background-color: black; border: 1px solid white; color: white; position: absolute; top: calc(50% - 15px); left: calc(50% - 15px); text-align: center;"
+      class="IndexLabel"
     >
       <b>
         2
@@ -61,7 +61,8 @@ exports[`<Symbol /> from .opi file matches snapshot 1`] = `
     />
   </div>
   <div
-    style="background-color: transparent; position: absolute; height: 100%; width: 100%; top: 0px; left: 0px; display: flex; align-items: center; justify-content: center;"
+    class="SymbolLabel"
+    style="background-color: transparent; align-items: center; justify-content: center;"
   >
     <div
       style="padding: 5%;"
