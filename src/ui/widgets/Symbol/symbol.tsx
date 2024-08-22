@@ -93,13 +93,6 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
     imageFile = imageFile.replace(regex, ` ${intValue.toFixed(0)}.`);
   }
 
-  // Symbol in Phoebus has no label but can display index
-  const labelText = isBob
-    ? showIndex
-      ? index.toString()
-      : ""
-    : props.value?.getStringValue();
-
   let alignItems = "center";
   let justifyContent = "center";
   switch (props.labelPosition) {
@@ -182,7 +175,7 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
               <LabelComponent
                 {...props}
                 backgroundColor={Color.TRANSPARENT}
-                text={labelText}
+                text={props.value?.getStringValue()}
               ></LabelComponent>
             </div>
           </div>
