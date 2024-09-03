@@ -1,11 +1,11 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`<MenuButton /> it matches the snapshot 1`] = `
+exports[`<MenuButton /> > it matches the snapshot 1`] = `
 <select
   onChange={[Function]}
   onMouseDown={[Function]}
   style={
-    Object {
+    {
       "backgroundColor": undefined,
       "color": undefined,
       "cursor": "default",

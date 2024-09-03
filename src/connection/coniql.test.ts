@@ -7,6 +7,7 @@ import {
   DEVICE_QUERY
 } from "./coniql";
 import { DType } from "../types/dtypes";
+import { vi } from 'vitest';
 
 /* This mocks the observable returned by apolloclient.subscribe().
    Its subscribe method calls the next() method on its parameter
@@ -56,14 +57,14 @@ describe("ConiqlPlugin", (): void => {
   let mockDevUpdate: jest.Mock;
   beforeEach((): void => {
     cp = new ConiqlPlugin("a.b.c:100", false);
-    mockConnUpdate = jest.fn();
-    mockValUpdate = jest.fn();
-    mockDevUpdate = jest.fn();
+    mockConnUpdate = vi.fn();
+    mockValUpdate = vi.fn();
+    mockDevUpdate = vi.fn();
     cp.connect(mockConnUpdate, mockValUpdate, mockDevUpdate);
   });
 
   it("handles update to value", (): void => {
-    ApolloClient.prototype.subscribe = jest.fn(
+    ApolloClient.prototype.subscribe = vi.fn(
       (_): MockObservable => new MockObservable({ float: 42 })
     ) as jest.Mock;
     cp.subscribe("hello", { string: true });
@@ -75,7 +76,7 @@ describe("ConiqlPlugin", (): void => {
   });
 
   it("handles update to array value", (): void => {
-    ApolloClient.prototype.subscribe = jest.fn(
+    ApolloClient.prototype.subscribe = vi.fn(
       (_): MockObservable =>
         new MockObservable(
           // Corresponds to Int32Array with values [0, 1, 2]
@@ -102,7 +103,7 @@ describe("ConiqlPlugin", (): void => {
   });
 
   it("handles update to time", (): void => {
-    ApolloClient.prototype.subscribe = jest.fn(
+    ApolloClient.prototype.subscribe = vi.fn(
       (_): MockObservable =>
         new MockObservable({
           time: {
@@ -120,11 +121,11 @@ describe("ConiqlPlugin", (): void => {
   });
 
   it("queries with device query", (): void => {
-    const catchFunc = jest.fn();
-    const thenFunc = jest.fn(() => {
+    const catchFunc = vi.fn();
+    const thenFunc = vi.fn(() => {
       return { catch: catchFunc };
     });
-    const query: any = jest.fn(() => {
+    const query: any = vi.fn(() => {
       return { then: thenFunc };
     });
 

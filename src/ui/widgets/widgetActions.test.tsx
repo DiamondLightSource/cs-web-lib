@@ -10,10 +10,11 @@ import {
   WRITE_PV_ACTION,
   WRITE_PV_ACTION_NO_DESC
 } from "../../testResources";
+import { vi } from 'vitest';
 
-const mockWritePv = jest
+const mockWritePv = vi
   .spyOn(useSubscription, "writePv")
-  .mockImplementation(jest.fn());
+  .mockImplementation(vi.fn());
 
 describe("getActionDescription", (): void => {
   it("returns description if present", (): void => {

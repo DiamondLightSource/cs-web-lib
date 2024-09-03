@@ -1,10 +1,10 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`<Slideshow /> it matches the snapshot 1`] = `
+exports[`<Slideshow /> > it matches the snapshot 1`] = `
 <div
-  className="Slideshow"
+  className="_Slideshow_04eadb"
   style={
-    Object {
+    {
       "backgroundColor": undefined,
       "maxHeight": "",
       "maxWidth": "",
@@ -16,7 +16,7 @@ exports[`<Slideshow /> it matches the snapshot 1`] = `
     id="prev-button"
     onClick={[Function]}
     style={
-      Object {
+      {
         "flexGrow": 0,
         "height": "80%",
         "margin": "0.5rem",
@@ -33,7 +33,7 @@ exports[`<Slideshow /> it matches the snapshot 1`] = `
   </button>
   <div
     style={
-      Object {
+      {
         "display": "flex",
         "flexGrow": 1,
         "height": "100%",
@@ -54,7 +54,7 @@ exports[`<Slideshow /> it matches the snapshot 1`] = `
     id="next-button"
     onClick={[Function]}
     style={
-      Object {
+      {
         "flexGrow": 0,
         "height": "80%",
         "margin": "0.5rem",

@@ -1,10 +1,10 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`<MenuMux /> it matches the snapshot 1`] = `
+exports[`<MenuMux /> > it matches the snapshot 1`] = `
 <select
-  onChange={[MockFunction]}
+  onChange={[MockFunction spy]}
   style={
-    Object {
+    {
       "width": "100%",
     }
   }
