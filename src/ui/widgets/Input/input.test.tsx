@@ -24,6 +24,6 @@ describe("<Input />", (): void => {
     const renderedInput = getByDisplayValue("hello");
     expect(renderedInput).toBeInTheDocument();
     expect(renderedInput).toHaveStyle("color: var(--warning)");
-    expect(renderedInput).toHaveClass("readonly");
+    expect(renderedInput.className).toContain("readonly");
   });
 });
