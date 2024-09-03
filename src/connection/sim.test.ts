@@ -28,66 +28,73 @@ const assertValue = (
   value: any,
   done: jest.DoneCallback
 ): void => {
-  getValue(impliedPv, (updatedValue: DType) => new Promise<void>(done => {
-    if (!isNaN(DType.coerceDouble(updatedValue))) {
-      expect(updatedValue.getDoubleValue()).toStrictEqual(value);
-    } else if (updatedValue.getArrayValue() !== undefined) {
-      expect(updatedValue.getArrayValue()).toStrictEqual(value);
-    } else {
-      expect(updatedValue.getStringValue()).toStrictEqual(value);
-    }
-    done();
-  }));
+  getValue(
+    impliedPv,
+    (updatedValue: DType) =>
+      new Promise<void>(done => {
+        if (!isNaN(DType.coerceDouble(updatedValue))) {
+          expect(updatedValue.getDoubleValue()).toStrictEqual(value);
+        } else if (updatedValue.getArrayValue() !== undefined) {
+          expect(updatedValue.getArrayValue()).toStrictEqual(value);
+        } else {
+          expect(updatedValue.getStringValue()).toStrictEqual(value);
+        }
+        done();
+      })
+  );
   simulator.subscribe(pvName);
 };
 
-it("local double updates", () => new Promise<void>(done => {
-  let zeroDone = false;
-  getValue("loc://location", (value: DType): void => {
-    if (!zeroDone) {
-      expect(value.getDoubleValue()).toEqual(0.0);
-      zeroDone = true;
-    } else {
-      expect(value.getDoubleValue()).toEqual(17.0);
-    }
-    done();
-  });
-  simulator.subscribe("loc://location");
-  simulator.putPv("loc://location", ddouble(17));
-}));
-it("local enum updates", () => new Promise<void>(done => {
-  let zeroDone = false;
-  getValue("loc://enum", (value: DType): void => {
-    if (!zeroDone) {
-      expect(value.getDoubleValue()).toEqual(1.0);
-      expect(value.getStringValue()).toEqual("deux");
-      zeroDone = true;
-    } else {
-      expect(value.getDoubleValue()).toEqual(0.0);
-      expect(value.getStringValue()).toEqual("un");
-    }
-    done();
-  });
-  simulator.subscribe('loc://enum<VEnum>(2, "un", "deux", "trois")');
-  simulator.putPv("loc://enum", ddouble(0));
-}));
+it("local double updates", () =>
+  new Promise<void>(done => {
+    let zeroDone = false;
+    getValue("loc://location", (value: DType): void => {
+      if (!zeroDone) {
+        expect(value.getDoubleValue()).toEqual(0.0);
+        zeroDone = true;
+      } else {
+        expect(value.getDoubleValue()).toEqual(17.0);
+      }
+      done();
+    });
+    simulator.subscribe("loc://location");
+    simulator.putPv("loc://location", ddouble(17));
+  }));
+it("local enum updates", () =>
+  new Promise<void>(done => {
+    let zeroDone = false;
+    getValue("loc://enum", (value: DType): void => {
+      if (!zeroDone) {
+        expect(value.getDoubleValue()).toEqual(1.0);
+        expect(value.getStringValue()).toEqual("deux");
+        zeroDone = true;
+      } else {
+        expect(value.getDoubleValue()).toEqual(0.0);
+        expect(value.getStringValue()).toEqual("un");
+      }
+      done();
+    });
+    simulator.subscribe('loc://enum<VEnum>(2, "un", "deux", "trois")');
+    simulator.putPv("loc://enum", ddouble(0));
+  }));
 
-it("local enum updates from string", () => new Promise<void>(done => {
-  let zeroDone = false;
-  getValue("loc://enum", (value: DType): void => {
-    if (!zeroDone) {
-      expect(value.getDoubleValue()).toEqual(1.0);
-      expect(value.getStringValue()).toEqual("deux");
-      zeroDone = true;
-    } else {
-      expect(value.getDoubleValue()).toEqual(0.0);
-      expect(value.getStringValue()).toEqual("un");
-    }
-    done();
-  });
-  simulator.subscribe('loc://enum<VEnum>(2, "un", "deux", "trois")');
-  simulator.putPv("loc://enum", dstring("un"));
-}));
+it("local enum updates from string", () =>
+  new Promise<void>(done => {
+    let zeroDone = false;
+    getValue("loc://enum", (value: DType): void => {
+      if (!zeroDone) {
+        expect(value.getDoubleValue()).toEqual(1.0);
+        expect(value.getStringValue()).toEqual("deux");
+        zeroDone = true;
+      } else {
+        expect(value.getDoubleValue()).toEqual(0.0);
+        expect(value.getStringValue()).toEqual("un");
+      }
+      done();
+    });
+    simulator.subscribe('loc://enum<VEnum>(2, "un", "deux", "trois")');
+    simulator.putPv("loc://enum", dstring("un"));
+  }));
 
 it("test enum values blocked", (): void => {
   expect((): void => {
@@ -95,14 +102,15 @@ it("test enum values blocked", (): void => {
   }).toThrow();
 });
 
-it("local values zero initially", () => new Promise<void>(done => {
-  // "Unless a type selector and initial value are provided, a local value will be of type ‘double’ with initial value of 0." [https://buildmedia.readthedocs.org/media/pdf/phoebus-doc/latest/phoebus-doc.pdf]
-  getValue("loc://location", (value: DType): void => {
-    expect(value.getDoubleValue()).toEqual(0.0);
-    done();
-  });
-  simulator.subscribe("loc://location");
-}));
+it("local values zero initially", () =>
+  new Promise<void>(done => {
+    // "Unless a type selector and initial value are provided, a local value will be of type ‘double’ with initial value of 0." [https://buildmedia.readthedocs.org/media/pdf/phoebus-doc/latest/phoebus-doc.pdf]
+    getValue("loc://location", (value: DType): void => {
+      expect(value.getDoubleValue()).toEqual(0.0);
+      done();
+    });
+    simulator.subscribe("loc://location");
+  }));
 
 it("doesn't delete pv on unsubscribe", (): void => {
   expect(simulator["simPvs"].get("loc://location")).toBe(undefined);
@@ -119,42 +127,45 @@ it("test random values ", (): void => {
   simulator.subscribe("sim://random");
 });
 
-it("test initial flipflop value", () => new Promise<void>(done => {
-  getValue("sim://flipflop(10)", (value: DType): void => {
-    expect(value.getDoubleValue()).toBe(0);
-    done();
-  });
-  simulator.subscribe("sim://flipflop(10)");
-}));
+it("test initial flipflop value", () =>
+  new Promise<void>(done => {
+    getValue("sim://flipflop(10)", (value: DType): void => {
+      expect(value.getDoubleValue()).toBe(0);
+      done();
+    });
+    simulator.subscribe("sim://flipflop(10)");
+  }));
 
-it("test flipflop default update rate", () => new Promise<void>(done => {
-  const values = [];
-  simulator = new SimulatorPlugin();
-  // Flipflop PV with no arguements updates every 1s by default;
-  // expect two updates after 2s.
-  setTimeout((): void => {
-    expect(values.length).toEqual(2);
-    done();
-  }, 2000);
-  getValue("sim://flipflop()", (value: DType): void => {
-    values.push(value);
-  });
-  simulator.subscribe("sim://flipflop()");
-}));
+it("test flipflop default update rate", () =>
+  new Promise<void>(done => {
+    const values = [];
+    simulator = new SimulatorPlugin();
+    // Flipflop PV with no arguements updates every 1s by default;
+    // expect two updates after 2s.
+    setTimeout((): void => {
+      expect(values.length).toEqual(2);
+      done();
+    }, 2000);
+    getValue("sim://flipflop()", (value: DType): void => {
+      values.push(value);
+    });
+    simulator.subscribe("sim://flipflop()");
+  }));
 
-it("test flipflop specified update rate", () => new Promise<void>(done => {
-  const values = [];
-  simulator = new SimulatorPlugin();
-  // Flipflop PV set to update every 100ms; expect 3 updates after 300ms.
-  setTimeout((): void => {
-    expect(values.length).toEqual(3);
-    done();
-  }, 300);
-  getValue("sim://flipflop(0.1)", (value: DType): void => {
-    values.push(value);
-  });
-  simulator.subscribe("sim://flipflop(0.1)");
-}));
+it("test flipflop specified update rate", () =>
+  new Promise<void>(done => {
+    const values = [];
+    simulator = new SimulatorPlugin();
+    // Flipflop PV set to update every 100ms; expect 3 updates after 300ms.
+    setTimeout((): void => {
+      expect(values.length).toEqual(3);
+      done();
+    }, 300);
+    getValue("sim://flipflop(0.1)", (value: DType): void => {
+      values.push(value);
+    });
+    simulator.subscribe("sim://flipflop(0.1)");
+  }));
 
 it("test illegal names", (): void => {
   expect(simulator.getValue("sim://sineillegalname")).toBe(undefined);
@@ -172,116 +183,122 @@ it("test enum", (): void => {
   simulator.subscribe("sim://enum");
 });
 
-it("test receive updates", () => new Promise<void>(done => {
-  const values = [];
-  simulator = new SimulatorPlugin();
-  // Ramp PV updates every 100ms; expect three updates
-  // by 250ms.
-  setTimeout((): void => {
-    expect(values.length).toEqual(3);
-    done();
-  }, 250);
-  getValue("sim://ramp", (value: DType): void => {
-    values.push(value);
-  });
-  simulator.subscribe("sim://ramp");
-}));
+it("test receive updates", () =>
+  new Promise<void>(done => {
+    const values = [];
+    simulator = new SimulatorPlugin();
+    // Ramp PV updates every 100ms; expect three updates
+    // by 250ms.
+    setTimeout((): void => {
+      expect(values.length).toEqual(3);
+      done();
+    }, 250);
+    getValue("sim://ramp", (value: DType): void => {
+      values.push(value);
+    });
+    simulator.subscribe("sim://ramp");
+  }));
 
 describe("LimitData", (): void => {
-  it("initial limit values", () => new Promise<void>(done => {
-    getValue("sim://limit", (value: DType): void => {
-      expect(value.getDoubleValue()).toBe(50);
-      done();
-    });
-    simulator.subscribe("sim://limit");
-  }));
+  it("initial limit values", () =>
+    new Promise<void>(done => {
+      getValue("sim://limit", (value: DType): void => {
+        expect(value.getDoubleValue()).toBe(50);
+        done();
+      });
+      simulator.subscribe("sim://limit");
+    }));
 
-  it("set double to limit PV", () => new Promise<void>(done => {
-    function* repeatedCallback(): any {
-      const value1 = yield;
-      expect(value1.getDoubleValue()).toEqual(50);
-      const value2 = yield;
-      expect(value2.getDoubleValue()).toEqual(17);
-      done();
-    }
-    const iter = repeatedCallback();
-    iter.next();
-    getValue("sim://limit", (value: DType | undefined): void => {
-      iter.next(value);
-    });
-    simulator.subscribe("sim://limit");
-    simulator.putPv("sim://limit", ddouble(17));
-  }));
+  it("set double to limit PV", () =>
+    new Promise<void>(done => {
+      function* repeatedCallback(): any {
+        const value1 = yield;
+        expect(value1.getDoubleValue()).toEqual(50);
+        const value2 = yield;
+        expect(value2.getDoubleValue()).toEqual(17);
+        done();
+      }
+      const iter = repeatedCallback();
+      iter.next();
+      getValue("sim://limit", (value: DType | undefined): void => {
+        iter.next(value);
+      });
+      simulator.subscribe("sim://limit");
+      simulator.putPv("sim://limit", ddouble(17));
+    }));
 
-  it("set string to limit PV", () => new Promise<void>(done => {
-    function* repeatedCallback(): any {
-      const value1 = yield;
-      expect(value1.getDoubleValue()).toEqual(50);
-      const value2 = yield;
-      expect(value2.getDoubleValue()).toEqual(89);
-      done();
-    }
-    const iter = repeatedCallback();
-    iter.next();
-    getValue("sim://limit", (value: DType | undefined): void => {
-      iter.next(value);
-    });
-    simulator.subscribe("sim://limit");
-    simulator.putPv("sim://limit", dstring("89"));
-  }));
+  it("set string to limit PV", () =>
+    new Promise<void>(done => {
+      function* repeatedCallback(): any {
+        const value1 = yield;
+        expect(value1.getDoubleValue()).toEqual(50);
+        const value2 = yield;
+        expect(value2.getDoubleValue()).toEqual(89);
+        done();
+      }
+      const iter = repeatedCallback();
+      iter.next();
+      getValue("sim://limit", (value: DType | undefined): void => {
+        iter.next(value);
+      });
+      simulator.subscribe("sim://limit");
+      simulator.putPv("sim://limit", dstring("89"));
+    }));
 
-  it("distinguishes limit values", () => new Promise<void>(done => {
-    function* repeatedCallback(): any {
-      const update1 = yield;
-      expect(update1.name).toEqual("sim://limit#one");
-      expect(update1.value.getDoubleValue()).toEqual(50);
+  it("distinguishes limit values", () =>
+    new Promise<void>(done => {
+      function* repeatedCallback(): any {
+        const update1 = yield;
+        expect(update1.name).toEqual("sim://limit#one");
+        expect(update1.value.getDoubleValue()).toEqual(50);
 
-      const update2 = yield;
-      expect(update2.name).toEqual("sim://limit#two");
-      expect(update2.value.getDoubleValue()).toEqual(50);
+        const update2 = yield;
+        expect(update2.name).toEqual("sim://limit#two");
+        expect(update2.value.getDoubleValue()).toEqual(50);
 
-      const update3 = yield;
-      expect(update3.name).toEqual("sim://limit#one");
-      expect(update3.value.getDoubleValue()).toEqual(1);
-      const update4 = yield;
-      expect(update4.name).toEqual("sim://limit#two");
-      expect(update4.value.getDoubleValue()).toEqual(2);
-      done();
-    }
-    const iter = repeatedCallback();
-    iter.next();
+        const update3 = yield;
+        expect(update3.name).toEqual("sim://limit#one");
+        expect(update3.value.getDoubleValue()).toEqual(1);
+        const update4 = yield;
+        expect(update4.name).toEqual("sim://limit#two");
+        expect(update4.value.getDoubleValue()).toEqual(2);
+        done();
+      }
+      const iter = repeatedCallback();
+      iter.next();
 
-    simulator.connect(nullConnCallback, function (name, value): void {
-      iter.next({ name: name, value: value });
-    });
+      simulator.connect(nullConnCallback, function (name, value): void {
+        iter.next({ name: name, value: value });
+      });
 
-    simulator.subscribe("sim://limit#one");
-    simulator.subscribe("sim://limit#two");
-    simulator.putPv("sim://limit#one", ddouble(1));
-    simulator.putPv("sim://limit#two", ddouble(2));
-  }));
+      simulator.subscribe("sim://limit#one");
+      simulator.subscribe("sim://limit#two");
+      simulator.putPv("sim://limit#one", ddouble(1));
+      simulator.putPv("sim://limit#two", ddouble(2));
+    }));
 });
 
-it("test disconnector", () => new Promise<void>(done => {
-  let wasConnected = false;
-  let wasDisconnected = false;
-  simulator = new SimulatorPlugin(50);
-  function callback(pvName: string, state: any): void {
-    expect(pvName).toBe("sim://disconnector");
-    if (state.isConnected) {
-      wasConnected = true;
-    } else {
-      wasDisconnected = true;
+it("test disconnector", () =>
+  new Promise<void>(done => {
+    let wasConnected = false;
+    let wasDisconnected = false;
+    simulator = new SimulatorPlugin(50);
+    function callback(pvName: string, state: any): void {
+      expect(pvName).toBe("sim://disconnector");
+      if (state.isConnected) {
+        wasConnected = true;
+      } else {
+        wasDisconnected = true;
+      }
+
+      if (wasConnected && wasDisconnected) {
+        done();
+      }
     }
 
-    if (wasConnected && wasDisconnected) {
-      done();
-    }
-  }
-
-  simulator.connect(callback, nullValueCallback);
-  simulator.subscribe("sim://disconnector");
-}));
+    simulator.connect(callback, nullValueCallback);
+    simulator.subscribe("sim://disconnector");
+  }));
 
 describe("supports local initialisation", (): void => {
   // See phoebus doc 7.3.4
@@ -310,33 +327,34 @@ describe("supports local initialisation", (): void => {
     ));
 });
 
-it("distinguish sine values", () => new Promise<void>(done => {
-  let oneUpdated = false;
-  let twoUpdated = false;
-  function callback(update: any): void {
-    if (update.name === "sim://sine#one") {
-      oneUpdated = true;
+it("distinguish sine values", () =>
+  new Promise<void>(done => {
+    let oneUpdated = false;
+    let twoUpdated = false;
+    function callback(update: any): void {
+      if (update.name === "sim://sine#one") {
+        oneUpdated = true;
+      }
+
+      if (update.name === "sim://sine#two") {
+        twoUpdated = true;
+      }
+
+      expect(update.value.getDoubleValue()).toBeLessThan(1.1);
+      expect(update.value.getDoubleValue()).toBeGreaterThan(-1.1);
+
+      if (oneUpdated && twoUpdated) {
+        done();
+      }
     }
 
-    if (update.name === "sim://sine#two") {
-      twoUpdated = true;
-    }
+    simulator.connect(nullConnCallback, function (name, value): void {
+      callback({ name: name, value: value });
+    });
 
-    expect(update.value.getDoubleValue()).toBeLessThan(1.1);
-    expect(update.value.getDoubleValue()).toBeGreaterThan(-1.1);
-
-    if (oneUpdated && twoUpdated) {
-      done();
-    }
-  }
-
-  simulator.connect(nullConnCallback, function (name, value): void {
-    callback({ name: name, value: value });
-  });
-
-  simulator.subscribe("sim://sine#one");
-  simulator.subscribe("sim://sine#two");
-}));
+    simulator.subscribe("sim://sine#one");
+    simulator.subscribe("sim://sine#two");
+  }));
 
 it("return undefined for bad pvs", (): void => {
   getValue("bad pv", (value: DType | undefined): void => {
@@ -426,65 +444,67 @@ class StagedCallbacks {
   }
 }
 
-it("unsubscribe stops updates for simulated values", () => new Promise<void>(done => {
-  const callbacks = new StagedCallbacks();
-  simulator = new SimulatorPlugin(50);
-  const client = new ConnectionClient(simulator, "sim://sine");
+it("unsubscribe stops updates for simulated values", () =>
+  new Promise<void>(done => {
+    const callbacks = new StagedCallbacks();
+    simulator = new SimulatorPlugin(50);
+    const client = new ConnectionClient(simulator, "sim://sine");
 
-  const callback = (data: { value: DType; name: string }): void => {
-    if (client.subscribed) {
-      callbacks.stage("one", (): void => { });
-      callbacks.stage("two", (): void => {
-        client.unsubscribe();
-        setTimeout(done, 2000);
-      });
-    } else {
-      fail("Received updates after unsubscribe.");
-    }
-  };
+    const callback = (data: { value: DType; name: string }): void => {
+      if (client.subscribed) {
+        callbacks.stage("one", (): void => {});
+        callbacks.stage("two", (): void => {
+          client.unsubscribe();
+          setTimeout(done, 2000);
+        });
+      } else {
+        fail("Received updates after unsubscribe.");
+      }
+    };
 
-  simulator.connect(
-    nullConnCallback,
-    callbacks.callback(client.callback(callback))
-  );
-  client.subscribe();
-}));
+    simulator.connect(
+      nullConnCallback,
+      callbacks.callback(client.callback(callback))
+    );
+    client.subscribe();
+  }));
 
-it("unsubscribe stops updates, but maintains value", () => new Promise<void>(done => {
-  const callbacks = new StagedCallbacks();
-  const client = new ConnectionClient(simulator, "loc://name");
+it("unsubscribe stops updates, but maintains value", () =>
+  new Promise<void>(done => {
+    const callbacks = new StagedCallbacks();
+    const client = new ConnectionClient(simulator, "loc://name");
 
-  const callback = (data: { value: DType; name: string }): void => {
-    if (client.subscribed) {
-      expect(data.value.getDoubleValue()).toBe(
-        client.expectedValue.getDoubleValue()
-      );
-      callbacks.stage("zero", (): void => {
-        client.putPv(2.0);
-      });
+    const callback = (data: { value: DType; name: string }): void => {
+      if (client.subscribed) {
+        expect(data.value.getDoubleValue()).toBe(
+          client.expectedValue.getDoubleValue()
+        );
+        callbacks.stage("zero", (): void => {
+          client.putPv(2.0);
+        });
 
-      callbacks.stage("one", (): void => {
-        client.unsubscribe();
-        client.putPv(3.0);
-        setTimeout(function (): void {
-          client.subscribe();
-          client.putPv(4.0);
-        }, 100);
-      });
-      callbacks.stage("two", (): void => {
-        done();
-      });
-    } else {
-      fail("Received updates after unsubscribe.");
-    }
-  };
+        callbacks.stage("one", (): void => {
+          client.unsubscribe();
+          client.putPv(3.0);
+          setTimeout(function (): void {
+            client.subscribe();
+            client.putPv(4.0);
+          }, 100);
+        });
+        callbacks.stage("two", (): void => {
+          done();
+        });
+      } else {
+        fail("Received updates after unsubscribe.");
+      }
+    };
 
-  simulator.connect(
-    nullConnCallback,
-    callbacks.callback(client.callback(callback))
-  );
-  client.subscribe();
-}));
+    simulator.connect(
+      nullConnCallback,
+      callbacks.callback(client.callback(callback))
+    );
+    client.subscribe();
+  }));
 
 it("test sine values ", (): void => {
   expect((): void => simulator.putPv("sim://sine", ddouble(17))).toThrow(

@@ -7,7 +7,7 @@ import { PV } from "../../types/pv";
 import { contextRender } from "../../testResources";
 import { fireEvent } from "@testing-library/react";
 import copyToClipboard from "clipboard-copy";
-import { vi } from 'vitest';
+import { vi } from "vitest";
 
 const PV_NAME = "ca://pv";
 

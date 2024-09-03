@@ -4,7 +4,6 @@ import { render } from "@testing-library/react";
 import { DAlarm } from "../../../types/dtypes";
 import { dstring } from "../../../testResources";
 
-
 let input: JSX.Element;
 
 beforeEach((): void => {

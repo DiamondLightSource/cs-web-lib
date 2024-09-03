@@ -7,7 +7,7 @@ import {
   DEVICE_QUERY
 } from "./coniql";
 import { DType } from "../types/dtypes";
-import { vi } from 'vitest';
+import { vi } from "vitest";
 
 /* This mocks the observable returned by apolloclient.subscribe().
    Its subscribe method calls the next() method on its parameter

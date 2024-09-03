@@ -298,12 +298,12 @@ class LimitData extends SimPv {
         v < 10
           ? AlarmQuality.ALARM
           : v > 90
-          ? AlarmQuality.ALARM
-          : v < 20
-          ? AlarmQuality.WARNING
-          : v > 80
-          ? AlarmQuality.WARNING
-          : AlarmQuality.VALID;
+            ? AlarmQuality.ALARM
+            : v < 20
+              ? AlarmQuality.WARNING
+              : v > 80
+                ? AlarmQuality.WARNING
+                : AlarmQuality.VALID;
       this.value = new DType(
         { doubleValue: v },
         new DAlarm(alarmSeverity, ""),

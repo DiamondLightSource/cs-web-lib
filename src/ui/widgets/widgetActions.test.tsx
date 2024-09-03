@@ -10,7 +10,7 @@ import {
   WRITE_PV_ACTION,
   WRITE_PV_ACTION_NO_DESC
 } from "../../testResources";
-import { vi } from 'vitest';
+import { vi } from "vitest";
 
 const mockWritePv = vi
   .spyOn(useSubscription, "writePv")

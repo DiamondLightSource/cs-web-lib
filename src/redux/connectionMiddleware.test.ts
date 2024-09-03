@@ -9,7 +9,7 @@ import {
 import { connectionMiddleware } from "./connectionMiddleware";
 import { ddouble } from "../testResources";
 import { DType } from "../types/dtypes";
-import { vi } from 'vitest';
+import { vi } from "vitest";
 
 const mockStore = { dispatch: vi.fn(), getState: vi.fn() };
 

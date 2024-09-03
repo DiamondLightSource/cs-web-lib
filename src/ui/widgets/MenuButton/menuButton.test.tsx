@@ -4,7 +4,7 @@ import { create } from "react-test-renderer";
 import { dtimeNow, DAlarm, DType, DDisplay } from "../../../types/dtypes";
 import { ACTIONS_EX_FIRST, WRITE_PV_ACTION } from "../../../testResources";
 import { fireEvent, render } from "@testing-library/react";
-import { vi } from 'vitest';
+import { vi } from "vitest";
 
 const mock = vi.fn();
 beforeEach((): void => {

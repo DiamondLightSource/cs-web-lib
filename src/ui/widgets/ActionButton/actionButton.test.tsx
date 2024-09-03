@@ -2,7 +2,7 @@ import React from "react";
 import { ActionButtonComponent } from "./actionButton";
 import { create } from "react-test-renderer";
 import { fireEvent, render, waitFor } from "@testing-library/react";
-import { vi } from 'vitest';
+import { vi } from "vitest";
 
 const mock = vi.fn();
 const actionButton = <ActionButtonComponent text={"hello"} onClick={mock} />;

@@ -7,7 +7,7 @@ import {
   ConnectionChanged
 } from "./actions";
 import { ddouble } from "../testResources";
-import { vi } from 'vitest';
+import { vi } from "vitest";
 
 // Mock setInterval.
 vi.useFakeTimers();
