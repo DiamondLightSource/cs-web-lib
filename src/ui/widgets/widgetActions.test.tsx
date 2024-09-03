@@ -28,6 +28,9 @@ describe("getActionDescription", (): void => {
 });
 
 describe("executeActions", (): void => {
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
   it.each<[number, WidgetActions]>([
     [2, ACTIONS_EX_AS_ONE],
     [1, ACTIONS_EX_FIRST]
