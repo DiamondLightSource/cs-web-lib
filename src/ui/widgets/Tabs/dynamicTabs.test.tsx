@@ -9,7 +9,11 @@ import { Mock, vi } from "vitest";
 ensureWidgetsRegistered();
 
 vi.spyOn(global, "fetch").mockImplementation(
-  vi.fn(() => Promise.resolve({ text: () => Promise.resolve("hello") })) as Mock
+  vi.fn(() =>
+    Promise.resolve({
+      text: () => Promise.resolve("")
+    })
+  ) as Mock
 );
 
 const TAB_ONE: FileDescription = {
