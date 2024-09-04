@@ -6,6 +6,7 @@ import { PageState } from "../../../misc/fileContext";
 import { contextRender } from "../../../testResources";
 
 import { ensureWidgetsRegistered } from "..";
+import { vi } from "vitest";
 ensureWidgetsRegistered();
 
 declare global {
@@ -23,7 +24,7 @@ const globalWithFetch = global as GlobalFetch;
 
 beforeEach((): void => {
   // Ensure the fetch() function mock is always cleared.
-  jest.spyOn(globalWithFetch, "fetch").mockClear();
+  vi.spyOn(globalWithFetch, "fetch").mockClear();
 });
 
 describe("<DynamicPage>", (): void => {
@@ -44,7 +45,7 @@ describe("<DynamicPage>", (): void => {
       text: (): Promise<unknown> => mockJsonPromise
     });
     const mockFetch = (): Promise<unknown> => mockFetchPromise;
-    jest.spyOn(globalWithFetch, "fetch").mockImplementation(mockFetch);
+    vi.spyOn(globalWithFetch, "fetch").mockImplementation(mockFetch);
 
     const initialPageState: PageState = {
       testlocation: {

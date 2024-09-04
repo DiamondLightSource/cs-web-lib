@@ -10,22 +10,11 @@ import { vi, Mock } from "vitest";
 // Important to mock at the source (react-router) rather than somewhere
 // it is re-exported (react-router-dom).
 // https://stackoverflow.com/questions/53162001/typeerror-during-jests-spyon-cannot-set-property-getrequest-of-object-which
-// vi.mock("ReactRouter", () => {
-//   return {
-//     __esModule: true,    //    <----- this __esModule: true is important
-//     ...vi.requireActual('path/to/file')
-//   };
-// });
-
+vi.mock("react-router", () => ({
+  ...vi.importActual("react-router"),
+  useHistory: vi.fn()
+}));
 vi.spyOn(ReactRouter, "useHistory").mockImplementation(vi.fn());
-// vi.mock('pg', () => {
-//   const Client = vi.fn()
-//   Client.prototype.connect = vi.fn()
-//   Client.prototype.query = vi.fn()
-//   Client.prototype.end = vi.fn()
-
-//   return { Client }
-// })
 
 // Clear the window.open mock (set up in setupTests.ts).
 afterEach((): void => {

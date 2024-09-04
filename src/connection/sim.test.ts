@@ -6,6 +6,7 @@ import {
 } from "./plugin";
 import { ddouble, dstring } from "../testResources";
 import { DType } from "../types/dtypes";
+import { DoneCallback } from "vitest";
 
 let simulator: SimulatorPlugin;
 beforeEach((): void => {
@@ -26,7 +27,7 @@ const assertValue = (
   pvName: string,
   impliedPv: string,
   value: any,
-  done: jest.DoneCallback
+  done: DoneCallback
 ): void => {
   getValue(
     impliedPv,

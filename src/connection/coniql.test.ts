@@ -7,7 +7,7 @@ import {
   DEVICE_QUERY
 } from "./coniql";
 import { DType } from "../types/dtypes";
-import { vi } from "vitest";
+import { Mock, vi } from "vitest";
 
 /* This mocks the observable returned by apolloclient.subscribe().
    Its subscribe method calls the next() method on its parameter
@@ -52,9 +52,9 @@ class MockObservable {
 
 describe("ConiqlPlugin", (): void => {
   let cp: ConiqlPlugin;
-  let mockConnUpdate: jest.Mock;
-  let mockValUpdate: jest.Mock;
-  let mockDevUpdate: jest.Mock;
+  let mockConnUpdate: Mock;
+  let mockValUpdate: Mock;
+  let mockDevUpdate: Mock;
   beforeEach((): void => {
     cp = new ConiqlPlugin("a.b.c:100", false);
     mockConnUpdate = vi.fn();
@@ -66,7 +66,7 @@ describe("ConiqlPlugin", (): void => {
   it("handles update to value", (): void => {
     ApolloClient.prototype.subscribe = vi.fn(
       (_): MockObservable => new MockObservable({ float: 42 })
-    ) as jest.Mock;
+    ) as Mock;
     cp.subscribe("hello", { string: true });
     expect(ApolloClient.prototype.subscribe).toHaveBeenCalled();
     expect(mockValUpdate).toHaveBeenCalledWith(
@@ -87,7 +87,7 @@ describe("ConiqlPlugin", (): void => {
             }
           }
         )
-    ) as jest.Mock;
+    ) as Mock;
     cp.subscribe("hello", { string: true });
     expect(ApolloClient.prototype.subscribe).toHaveBeenCalled();
     expect(mockValUpdate).toHaveBeenCalledWith(
@@ -110,7 +110,7 @@ describe("ConiqlPlugin", (): void => {
             datetime: new Date(2017, 1, 1)
           }
         })
-    ) as jest.Mock;
+    ) as Mock;
     cp.subscribe("hello", { string: true });
     expect(ApolloClient.prototype.subscribe).toHaveBeenCalled();
     const calls = mockValUpdate.mock.calls;
