@@ -5,7 +5,16 @@ import { DynamicTabsComponent } from "./dynamicTabs";
 // Import to ensure that all widgets are registered.
 import { ensureWidgetsRegistered } from "..";
 import { fireEvent, waitFor } from "@testing-library/react";
+import { Mock, vi } from "vitest";
 ensureWidgetsRegistered();
+
+vi.spyOn(global, "fetch").mockImplementation(
+  vi.fn(() =>
+    Promise.resolve({
+      text: () => Promise.resolve("")
+    })
+  ) as Mock
+);
 
 const TAB_ONE: FileDescription = {
   path: "one.json",

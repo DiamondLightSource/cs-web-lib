@@ -7,10 +7,11 @@ import {
   ConnectionChanged
 } from "./actions";
 import { ddouble } from "../testResources";
+import { vi } from "vitest";
 
 // Mock setInterval.
-jest.useFakeTimers();
-const mockStore = { dispatch: jest.fn(), getState: jest.fn() };
+vi.useFakeTimers();
+const mockStore = { dispatch: vi.fn(), getState: vi.fn() };
 
 describe("UpdateThrottle", (): void => {
   beforeEach((): void => {
@@ -55,7 +56,7 @@ describe("throttleMidddlware", (): void => {
     const middleware = throttleMiddleware(updater);
     // nextHandler takes next() and returns the actual middleware function
     const nextHandler = middleware(mockStore);
-    const mockNext = jest.fn();
+    const mockNext = vi.fn();
     // actionHandler takes an action
     const actionHandler = nextHandler(mockNext);
     const valueAction: ValueChanged = {
@@ -76,7 +77,7 @@ describe("throttleMidddlware", (): void => {
     const middleware = throttleMiddleware(updater);
     // nextHandler takes next() and returns the actual middleware function
     const nextHandler = middleware(mockStore);
-    const mockNext = jest.fn();
+    const mockNext = vi.fn();
     // actionHandler takes an action
     const actionHandler = nextHandler(mockNext);
     const connectionAction: ConnectionChanged = {

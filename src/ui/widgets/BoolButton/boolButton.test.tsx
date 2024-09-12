@@ -56,15 +56,16 @@ describe("<BoolButton />", (): void => {
     expect(button.style.height).toEqual("20px");
     expect(button.style.width).toEqual("45px");
     expect(button.style.backgroundColor).toEqual("rgb(20, 20, 200)");
-    expect(led.className).toEqual("Led");
+    // Vite adds random hashhex to all CSS module classnames, so check if contains not equals
+    expect(led.className).toContain("Led");
     expect(led.style.backgroundColor).toEqual("rgb(0, 235, 10)");
     expect(led.style.height).toEqual("11px");
     expect(led.style.boxShadow).toEqual(
       "inset 2.75px 2.75px 4.4px rgba(255,255,255,.5)"
     );
     expect(button.style.borderRadius).toEqual("");
-
-    expect(text.className).toEqual("Text");
+    // Vite adds random hashhex to all CSS module classnames, so check if contains not equals
+    expect(text.className).toContain("Text");
   });
 
   test("no text if showboolean is false", (): void => {

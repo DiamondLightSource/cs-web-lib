@@ -8,10 +8,10 @@ import { SimulatorPlugin } from "../connection/sim";
 import { ConiqlPlugin } from "../connection/coniql";
 import { ConnectionForwarder } from "../connection/forwarder";
 
-const CONIQL_SOCKET = process.env.REACT_APP_CONIQL_SOCKET;
-const CONIQL_SSL = process.env.REACT_APP_CONIQL_SSL === "true";
+const CONIQL_SOCKET = import.meta.env.VITE_CONIQL_SOCKET;
+const CONIQL_SSL = import.meta.env.VITE_CONIQL_SSL === "true";
 const THROTTLE_PERIOD = parseFloat(
-  process.env.REACT_APP_THROTTLE_PERIOD ?? "100"
+  import.meta.env.VITE_THROTTLE_PERIOD ?? "100"
 );
 
 const simulator = new SimulatorPlugin();

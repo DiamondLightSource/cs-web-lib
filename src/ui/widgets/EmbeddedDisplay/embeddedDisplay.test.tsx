@@ -6,6 +6,7 @@ import { RelativePosition } from "../../../types/position";
 import { contextRender } from "../../../testResources";
 import { waitFor } from "@testing-library/react";
 import { ensureWidgetsRegistered } from "..";
+import { vi } from "vitest";
 ensureWidgetsRegistered();
 
 interface GlobalFetch extends NodeJS.Global {
@@ -15,7 +16,7 @@ const globalWithFetch = global as GlobalFetch;
 
 beforeEach((): void => {
   // Ensure the fetch() function mock is always cleared.
-  jest.spyOn(globalWithFetch, "fetch").mockClear();
+  vi.spyOn(globalWithFetch, "fetch").mockClear();
 });
 
 describe("<EmbeddedDisplay>", (): void => {
@@ -34,9 +35,9 @@ describe("<EmbeddedDisplay>", (): void => {
       const mockFetchPromise = Promise.resolve({
         text: (): Promise<unknown> => mockTextPromise
       });
-      jest
-        .spyOn(globalWithFetch, "fetch")
-        .mockImplementation((): Promise<unknown> => mockFetchPromise);
+      vi.spyOn(globalWithFetch, "fetch").mockImplementation(
+        (): Promise<unknown> => mockFetchPromise
+      );
 
       // Suppress logging for expected error.
       log.setLevel("error");
@@ -74,9 +75,9 @@ describe("<EmbeddedDisplay>", (): void => {
       text: (): Promise<unknown> => mockTextPromise
     });
 
-    jest
-      .spyOn(globalWithFetch, "fetch")
-      .mockImplementation((): Promise<unknown> => mockFetchPromise);
+    vi.spyOn(globalWithFetch, "fetch").mockImplementation(
+      (): Promise<unknown> => mockFetchPromise
+    );
 
     // Suppress logging for expected error.
     log.setLevel("error");
@@ -122,9 +123,9 @@ describe("<EmbeddedDisplay>", (): void => {
       text: (): Promise<unknown> => mockTextPromise
     });
 
-    jest
-      .spyOn(globalWithFetch, "fetch")
-      .mockImplementation((): Promise<unknown> => mockFetchPromise);
+    vi.spyOn(globalWithFetch, "fetch").mockImplementation(
+      (): Promise<unknown> => mockFetchPromise
+    );
 
     const { queryByText } = contextRender(
       <EmbeddedDisplay
@@ -155,9 +156,9 @@ describe("<EmbeddedDisplay>", (): void => {
       text: (): Promise<unknown> => mockJsonPromise
     });
 
-    jest
-      .spyOn(globalWithFetch, "fetch")
-      .mockImplementation((): Promise<unknown> => mockFetchPromise);
+    vi.spyOn(globalWithFetch, "fetch").mockImplementation(
+      (): Promise<unknown> => mockFetchPromise
+    );
 
     const { queryByText } = contextRender(
       <EmbeddedDisplay

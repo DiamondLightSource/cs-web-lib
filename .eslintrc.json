@@ -18,12 +18,22 @@
     "SharedArrayBuffer": "readonly"
   },
   "parser": "@typescript-eslint/parser",
-  "plugins": ["react", "react-hooks", "@typescript-eslint", "prettier", "unicorn"],
+  "plugins": [
+    "react",
+    "react-hooks",
+    "@typescript-eslint",
+    "prettier",
+    "unicorn"
+  ],
   "rules": {
     "@typescript-eslint/no-explicit-any": 0,
     "@typescript-eslint/no-empty-function": [
       "error",
-      { "allow": ["arrowFunctions"] }
+      {
+        "allow": [
+          "arrowFunctions"
+        ]
+      }
     ],
     "import/no-cycle": "error",
     "prettier/prettier": [
@@ -49,5 +59,7 @@
       "version": "detect"
     }
   },
-  "ignorePatterns": ["src/*.d.ts"]
+  "ignorePatterns": [
+    "src/*.d.ts"
+  ]
 }
