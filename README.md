@@ -4,7 +4,18 @@ An npm library for Control Systems web applications
 ## Installation
 Install via npm:
     `npm install @diamondlightsource/cs-web-lib`
-    
+
+cs-web-lib requires several environment variables to be set in order to connect to Coniql and fetch PV value updates.
+
+  - `VITE_CONIQL_SOCKET` - point to the server hosting the coniql application.
+  - `VITE_CONIQL_SSL` - set this to false if running a local coniql instance e.g. localhost:8080 without SSL, otherwise true
+
+These should be provided in a .env file at the root of your project.
+
+Inside your application, create a screen by passing a .opi, .bob or .json file to the EmbeddedDisplay widget. 
+
+
+
 ## Development
 To develop on the library code first clone this repo, install the npm package dependencies and then make changes:
 
