@@ -14,7 +14,64 @@ These should be provided in a .env file at the root of your project.
 
 Inside your application, create a screen by passing a .opi, .bob or .json file to the EmbeddedDisplay widget. 
 
+## Features 
 
+cs-web-lib does not contain the full suite of features and widgets provided by Phoebus. The tables below describes which features are currently included, are planned to be added, and which will not be added.
+
+#### Widgets
+
+| Category          | Widget            | Included | Reason              |
+| :---------------- | :---------------: | :------: | :-----------------: |
+| Graphics          | Arc               | &#9989;  |                     |
+|                   | Ellipse           | &#9989;  |                     |
+|                   | Label             | &#9989;  |                     |
+|                   | Picture           | &#9989;  |                     |
+|                   | Polygon           | &#9989;  |                     |
+|                   | Polyline          | &#9989;  |                     |
+|                   | Rectangle         | &#9989;  |                     |
+| Monitors          | Byte Monitor      | &#9989;  |                     |
+|                   | LED               | &#9989;  |                     |
+|                   | Multi State LED   | &#10060; | Add later           |
+|                   | Meter             | &#10060; | Add later (date unknown, currently unplanned) |
+|                   | Progress Bar      | &#9989;  |                     |
+|                   | Symbol            | &#9989;  |                     |
+|                   | Table             | &#9989;  |                     |
+|                   | Tank              | &#10060; | Add later (date unknown, currently unplanned) |
+|                   | Text Symbol       | &#10060; | Add later           |
+|                   | Text Update       | &#9989;  |                     | 
+|                   | Thermometer       | &#10060; | Add later (date unknown, currently unplanned) |
+| Controls          | Action Button     | &#9989;  |                     |
+|                   | Boolean Button    | &#9989;  |                     |
+|                   | Check Box         | &#9989;  |                     |
+|                   | Choice Button     | &#9989;  |                     |
+|                   | Combo Box         | &#9989;  |                     |
+|                   | File Selector     | &#10060; | Add later           |
+|                   | Radio Button      | &#9989;  |                     |
+|                   | Scaled Slider     | &#9989;  |                     |
+|                   | Scrollbar         | &#10060; | Add later           |
+|                   | Slide Button      | &#10060; | Add later (date unknown, currently unplanned) |
+|                   | Spinner           | &#10060; | Add later (date unknown, currently unplanned) |
+|                   | Text Entry        | &#9989;  |                     |
+|                   | Thumbwheel        | &#10060; | Add later (date unknown, currently unplanned) |
+| Plots             | Data Browser      | &#10060; |                     |
+|                   | Image             | &#10060; | Unknown             |
+|                   | Stripchart        | &#10060; | Unknown             |
+|                   | XY Plot           | &#9989;  |                     |
+| Structure         | Array             | &#10060; | Add later           |
+|                   | Embedded Display  | &#9989;  |                     |
+|                   | Group             | &#9989;  |                     |
+|                   | Navigation Tabs   | &#9989;  |                     |
+|                   | Tabs              | &#9989;  |                     |
+|                   | Template/Instance | &#10060; | Unknown             |
+
+#### Features
+
+| Widget      | Included | Reason                  |
+| :---------: | :------: | :---------------------: |
+| Actions     | &#9989;  | Some actions may not be supported. Please open an issue for any issues noticed. |
+| Formulas    | &#10060; | Will be added in future |
+| Rules       | &#9989;  |                         |
+| Scripts     | &#10060; | The use of scripting is recommended against in general by CSS Developers. Formulae should be able to handle most use cases.  |
 
 ## Development
 To develop on the library code first clone this repo, install the npm package dependencies and then make changes:
