@@ -32,14 +32,14 @@ cs-web-lib does not contain the full suite of features and widgets provided by P
 | Monitors          | Byte Monitor      | &#9989;  |                     |
 |                   | LED               | &#9989;  |                     |
 |                   | Multi State LED   | &#10060; | Add later           |
-|                   | Meter             | &#10060; | Add later (date unknown, currently unplanned) |
+|                   | Meter             | &#10060; | Add later (date unknown, low priority) |
 |                   | Progress Bar      | &#9989;  |                     |
 |                   | Symbol            | &#9989;  |                     |
 |                   | Table             | &#9989;  |                     |
-|                   | Tank              | &#10060; | Add later (date unknown, currently unplanned) |
+|                   | Tank              | &#10060; | Add later (date unknown, low priority) |
 |                   | Text Symbol       | &#10060; | Add later           |
 |                   | Text Update       | &#9989;  |                     | 
-|                   | Thermometer       | &#10060; | Add later (date unknown, currently unplanned) |
+|                   | Thermometer       | &#10060; | Add later (date unknown, low priority) |
 | Controls          | Action Button     | &#9989;  |                     |
 |                   | Boolean Button    | &#9989;  |                     |
 |                   | Check Box         | &#9989;  |                     |
@@ -49,11 +49,11 @@ cs-web-lib does not contain the full suite of features and widgets provided by P
 |                   | Radio Button      | &#9989;  |                     |
 |                   | Scaled Slider     | &#9989;  |                     |
 |                   | Scrollbar         | &#10060; | Add later           |
-|                   | Slide Button      | &#10060; | Add later (date unknown, currently unplanned) |
-|                   | Spinner           | &#10060; | Add later (date unknown, currently unplanned) |
+|                   | Slide Button      | &#10060; | Add later (date unknown, low priority) |
+|                   | Spinner           | &#10060; | Add later (date unknown, low priority) |
 |                   | Text Entry        | &#9989;  |                     |
-|                   | Thumbwheel        | &#10060; | Add later (date unknown, currently unplanned) |
-| Plots             | Data Browser      | &#10060; |                     |
+|                   | Thumbwheel        | &#10060; | Add later (date unknown, low priority) |
+| Plots             | Data Browser      | &#10060; | Add later (date unknown, low priority) |
 |                   | Image             | &#10060; | Unknown             |
 |                   | Stripchart        | &#10060; | Unknown             |
 |                   | XY Plot           | &#9989;  |                     |
@@ -70,7 +70,7 @@ cs-web-lib does not contain the full suite of features and widgets provided by P
 | :---------: | :------: | :---------------------: |
 | Actions     | &#9989;  | Some actions may not be supported. Please open an issue for any issues noticed. |
 | Formulas    | &#10060; | Will be added in future |
-| Rules       | &#9989;  |                         |
+| Rules       | &#9989;  | Some rules may not be supported. Please open an issue for any issues noticed. |
 | Scripts     | &#10060; | The use of scripting is recommended against in general by CSS Developers. Formulae should be able to handle most use cases.  |
 
 ## Development
