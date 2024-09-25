@@ -2,6 +2,9 @@
 An npm library for Control Systems web applications
 
 ## Installation
+
+:warning: cs-web-lib is **NOT** compatible with projects using create-react-app. Vite should be used instead.
+
 Install via npm:
     `npm install @diamondlightsource/cs-web-lib`
 
