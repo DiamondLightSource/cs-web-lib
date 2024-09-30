@@ -56,8 +56,8 @@ export const ReadbackComponent = (
     alarmSensitive = true,
     transparent = false,
     text = "######",
-    textAlign = "center",
-    textAlignV = "center",
+    textAlign = "left",
+    textAlignV = "top",
     showUnits = false,
     precisionFromPv = false,
     rotationAngle,
@@ -68,7 +68,7 @@ export const ReadbackComponent = (
   // Decide what to display.
   const alarm = value?.getAlarm() || DAlarm.NONE;
   const display = value?.getDisplay();
-  const prec = precisionFromPv ? display?.precision ?? precision : precision;
+  const prec = precisionFromPv ? (display?.precision ?? precision) : precision;
   let displayedValue;
   if (!value) {
     displayedValue = text;

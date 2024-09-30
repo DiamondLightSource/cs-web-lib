@@ -7,7 +7,8 @@ import {
   InferWidgetProps,
   BorderPropOpt,
   ColorPropOpt,
-  IntPropOpt
+  IntPropOpt,
+  MacrosPropOpt
 } from "../propTypes";
 import { Color } from "../../../types/color";
 import classes from "./ellipse.module.css";
@@ -23,6 +24,7 @@ export type FillOptions = {
 };
 
 export const EllipseProps = {
+  macros: MacrosPropOpt,
   gradient: BoolPropOpt,
   bgGradientColor: ColorPropOpt,
   fgGradientColor: ColorPropOpt,

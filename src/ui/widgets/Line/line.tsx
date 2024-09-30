@@ -8,7 +8,8 @@ import {
   ColorPropOpt,
   BoolPropOpt,
   FloatProp,
-  PointsProp
+  PointsProp,
+  MacrosPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
 import { Color } from "../../../types/color";
@@ -19,6 +20,7 @@ const LineProps = {
   width: FloatProp,
   height: FloatProp,
   points: PointsProp,
+  macros: MacrosPropOpt,
   lineWidth: FloatPropOpt,
   backgroundColor: ColorPropOpt,
   visible: BoolPropOpt,

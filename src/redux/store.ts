@@ -8,10 +8,14 @@ import { SimulatorPlugin } from "../connection/sim";
 import { PvwsPlugin } from "../connection/pvws";
 import { ConnectionForwarder } from "../connection/forwarder";
 
-const PVWS_SOCKET = process.env.REACT_APP_PVWS_SOCKET;
-const PVWS_SSL = process.env.REACT_APP_PVWS_SSL === "true";
+const PVWS_SOCKET =
+  process.env.VITE_CONIQL_SOCKET ?? import.meta.env.VITE_PVWS_SOCKET;
+const PVWS_SSL =
+  (process.env.VITE_CONIQL_SSL ?? import.meta.env._PVWS_SSL) === "true";
 const THROTTLE_PERIOD = parseFloat(
-  process.env.REACT_APP_THROTTLE_PERIOD ?? "100"
+  process.env.VITE_THROTTLE_PERIOD ??
+    import.meta.env.VITE_THROTTLE_PERIOD ??
+    "100"
 );
 
 const simulator = new SimulatorPlugin();

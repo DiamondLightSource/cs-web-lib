@@ -8,7 +8,9 @@ import log from "loglevel";
  * and for more reliable measurements
  */
 
-const PROFILE_ENABLED = process.env.REACT_APP_PROFILER_ENABLED === "true";
+const PROFILE_ENABLED =
+  (process.env.VITE_PROFILER_ENABLED ??
+    import.meta.env.VITE_PROFILER_ENABLED) === "true";
 const ITEMS_TO_STORE = 100;
 
 class Timings {

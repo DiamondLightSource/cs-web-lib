@@ -1,11 +1,11 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`<DropDownComponent /> it matches the snapshot 1`] = `
+exports[`<DropDownComponent /> > it matches the snapshot 1`] = `
 <details
-  className="Detail"
+  className="_Detail_b0feee"
   open={false}
   style={
-    Object {
+    {
       "backgroundColor": "",
       "color": "",
       "minHeight": "",
@@ -13,15 +13,15 @@ exports[`<DropDownComponent /> it matches the snapshot 1`] = `
   }
 >
   <summary
-    className="Summary"
-    style={Object {}}
+    className="_Summary_b0feee"
+    style={{}}
   >
     Test
   </summary>
   <div
-    className="Children"
+    className="_Children_b0feee"
     style={
-      Object {
+      {
         "height": "100%",
         "position": "relative",
         "width": "100%",

@@ -117,11 +117,11 @@ function bobParseFormatType(jsonProp: ElementCompact): string {
 }
 
 export function bobParseFont(jsonProp: ElementCompact): Font {
-  const opiStyles: { [key: number]: FontStyle } = {
-    0: FontStyle.Regular,
-    1: FontStyle.Bold,
-    2: FontStyle.Italic,
-    3: FontStyle.BoldItalic
+  const opiStyles: { [key: string]: FontStyle } = {
+    REGULAR: FontStyle.Regular,
+    BOLD: FontStyle.Bold,
+    ITALIC: FontStyle.Italic,
+    BOLD_ITALIC: FontStyle.BoldItalic
   };
   const fontAttributes = jsonProp["font"]._attributes;
   const { family, size, style } = fontAttributes;
@@ -245,10 +245,6 @@ export function parseBob(
       (pvName: ElementCompact): PV => opiParsePvName(pvName, defaultProtocol)
     ],
     font: ["font", bobParseFont],
-    rules: [
-      "rules",
-      (rules: Rule[]): Rule[] => opiParseRules(rules, defaultProtocol)
-    ],
     actions: [
       "actions",
       (actions: ElementCompact): WidgetActions =>
@@ -259,12 +255,15 @@ export function parseBob(
     points: ["points", bobParsePoints],
     resize: ["resize", bobParseResizing],
     squareLed: ["square", opiParseBoolean],
-    formatType: ["format", bobParseFormatType]
+    formatType: ["format", bobParseFormatType],
+    stretchToFit: ["stretch_image", opiParseBoolean],
+    macros: ["macros", opiParseMacros]
   };
 
   const complexParsers = {
     ...BOB_COMPLEX_PARSERS,
-    rules: (rules: Rule[]): Rule[] => opiParseRules(rules, defaultProtocol)
+    rules: (rules: Rule[]): Rule[] =>
+      opiParseRules(rules, defaultProtocol, false)
   };
 
   const displayWidget = parseWidget(

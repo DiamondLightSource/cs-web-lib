@@ -62,12 +62,15 @@ export function useMacros<P extends MacroProps>(props: P): AnyProps {
   const globalMacros = useSelector(
     (state: CsState): MacroMap => state.globalMacros
   );
+  // In Phoebus, some components e.g. Shape have a macros field
+  const propMacros = props.macros;
   const allMacros = {
     ...globalMacros, // lower priority
     ...displayMacros, // higher priority
     // Temporary special case for pv_name in macros.
     pvName: props.pvName?.name || "",
-    pv_name: props.pvName?.name || ""
+    pv_name: props.pvName?.name || "",
+    ...propMacros
   };
   return recursiveResolve(props, allMacros);
 }

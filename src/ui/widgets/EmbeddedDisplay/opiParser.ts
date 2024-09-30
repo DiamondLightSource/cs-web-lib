@@ -258,7 +258,8 @@ export function opiParseActions(
  */
 export const opiParseRules = (
   jsonProp: ElementCompact,
-  defaultProtocol: string
+  defaultProtocol: string,
+  isOpiFile: boolean
 ): Rule[] => {
   if (!jsonProp.rules) {
     return [];
@@ -269,11 +270,11 @@ export const opiParseRules = (
       const xmlProp = ruleElement._attributes?.prop_id as string;
 
       const outExp = ruleElement._attributes?.out_exp === "true";
-      const pvArray = toArray(ruleElement.pv);
+      const pvArray = toArray(isOpiFile ? ruleElement.pv : ruleElement.pv_name);
       const pvs = pvArray.map((pv: ElementCompact) => {
         return {
           pvName: opiParsePvName(pv, defaultProtocol),
-          trigger: pv._attributes?.trig === "true"
+          trigger: isOpiFile ? pv._attributes?.trig === "true" : true
         };
       });
       const expArray = toArray(ruleElement.exp);
@@ -856,7 +857,8 @@ export function parseOpi(
 
   const complexParsers = {
     ...OPI_COMPLEX_PARSERS,
-    rules: (rules: Rule[]): Rule[] => opiParseRules(rules, defaultProtocol)
+    rules: (rules: Rule[]): Rule[] =>
+      opiParseRules(rules, defaultProtocol, true)
   };
 
   log.debug(compactJSON.display);

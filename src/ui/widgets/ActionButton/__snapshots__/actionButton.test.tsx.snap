@@ -1,11 +1,11 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`<ActionButton /> it matches the snapshot 1`] = `
+exports[`<ActionButton /> > it matches the snapshot 1`] = `
 <button
-  className="actionbutton"
-  onClick={[MockFunction]}
+  className="_actionbutton_b413d3"
+  onClick={[MockFunction spy]}
   style={
-    Object {
+    {
       "backgroundColor": undefined,
       "color": undefined,
       "cursor": undefined,
@@ -16,7 +16,7 @@ exports[`<ActionButton /> it matches the snapshot 1`] = `
 >
   <span
     style={
-      Object {
+      {
         "whiteSpace": "normal",
       }
     }

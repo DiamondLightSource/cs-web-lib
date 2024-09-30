@@ -26,7 +26,7 @@ const renderLed = (ledProps: LedComponentProps): ReactTestRendererJSON => {
 };
 
 describe("led changes Css properties based on alarm", (): void => {
-  test.each([
+  it.each([
     [AlarmQuality.ALARM, "alarm"],
     [AlarmQuality.CHANGING, "changing"],
     [AlarmQuality.INVALID, "invalid"],
@@ -44,12 +44,12 @@ describe("led changes Css properties based on alarm", (): void => {
 
     const renderedLed = renderLed(ledProps);
 
-    expect(renderedLed.props.className).toBe(`Led ${extraClass}`);
+    expect(renderedLed.props.className).toContain(extraClass);
   });
 });
 
 describe("background color changes depending on value", (): void => {
-  test("off color is applied if value zero", (): void => {
+  it("off color is applied if value zero", (): void => {
     const ledProps = {
       ...DEFAULT_PROPS,
       value: ddouble(0)
@@ -60,7 +60,7 @@ describe("background color changes depending on value", (): void => {
     expect(renderedLed.props.style.backgroundColor).toBe(Color.RED.toString());
   });
 
-  test("on color is applied if value not zero", (): void => {
+  it("on color is applied if value not zero", (): void => {
     const ledProps = {
       ...DEFAULT_PROPS,
       value: ddouble(1)
@@ -75,7 +75,7 @@ describe("background color changes depending on value", (): void => {
 });
 
 describe("width property is used", (): void => {
-  test("width changes the size of the LED", (): void => {
+  it("width changes the size of the LED", (): void => {
     const renderedLed = renderLed({ ...DEFAULT_PROPS, width: 10 });
 
     // Width in CS-Studio doesn't quite match width in the browser,

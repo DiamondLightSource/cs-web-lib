@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`<Symbol /> matches snapshot 1`] = `
+exports[`<Symbol /> > matches snapshot 1`] = `
 <DocumentFragment>
   <div
     style="overflow: hidden; text-align: left;"
@@ -17,8 +17,8 @@ exports[`<Symbol /> matches snapshot 1`] = `
       style="padding: 5%;"
     >
       <div
-        class="Label Label"
-        style="background-color: transparent; cursor: default; justify-content: center; align-items: center;"
+        class="Label _Label_c35983"
+        style="background-color: transparent; cursor: default; justify-content: flex-start; align-items: flex-start;"
       >
         <span>
            Fake value 

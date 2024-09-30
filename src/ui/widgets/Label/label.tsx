@@ -12,10 +12,12 @@ import {
   FontPropOpt,
   ColorPropOpt,
   BorderPropOpt,
-  FloatPropOpt
+  FloatPropOpt,
+  MacrosPropOpt
 } from "../propTypes";
 
 const LabelProps = {
+  macros: MacrosPropOpt,
   text: StringPropOpt,
   visible: BoolPropOpt,
   transparent: BoolPropOpt,
@@ -45,8 +47,8 @@ export const LabelComponent = (
   };
   const style: CSSProperties = commonCss(editedProps);
   const {
-    textAlign = "center",
-    textAlignV = "center",
+    textAlign = "left",
+    textAlignV = "top",
     text = "",
     rotationAngle,
     wrapWords

@@ -9,16 +9,17 @@ import {
 import { connectionMiddleware } from "./connectionMiddleware";
 import { ddouble } from "../testResources";
 import { DType } from "../types/dtypes";
+import { vi } from "vitest";
 
-const mockStore = { dispatch: jest.fn(), getState: jest.fn() };
+const mockStore = { dispatch: vi.fn(), getState: vi.fn() };
 
 const mockConnection = {
-  subscribe: jest.fn(),
-  putPv: jest.fn(),
-  connect: jest.fn(),
-  isConnected: jest.fn(),
-  unsubscribe: jest.fn(),
-  getDevice: jest.fn()
+  subscribe: vi.fn(),
+  putPv: vi.fn(),
+  connect: vi.fn(),
+  isConnected: vi.fn(),
+  unsubscribe: vi.fn(),
+  getDevice: vi.fn()
 };
 
 describe("connectionMiddleware", (): void => {
@@ -33,7 +34,7 @@ describe("connectionMiddleware", (): void => {
     const middleware = connectionMiddleware(mockConnection);
     // nextHandler takes next() and returns the actual middleware function
     const nextHandler = middleware(mockStore);
-    const mockNext = jest.fn();
+    const mockNext = vi.fn();
     // actionHandler takes an action
     const actionHandler = nextHandler(mockNext);
     const subscribeAction: Subscribe = {
@@ -57,7 +58,7 @@ describe("connectionMiddleware", (): void => {
     const middleware = connectionMiddleware(mockConnection);
     // nextHandler takes next() and returns the actual middleware function
     const nextHandler = middleware(mockStore);
-    const mockNext = jest.fn();
+    const mockNext = vi.fn();
     // actionHandler takes an action
     const actionHandler = nextHandler(mockNext);
     const writeAction: WritePv = {
@@ -75,7 +76,7 @@ describe("connectionMiddleware", (): void => {
     mockStore.getState.mockReturnValue({ deviceCache: {} });
     const middleware = connectionMiddleware(mockConnection);
     const nextHandler = middleware(mockStore);
-    const mockNext = jest.fn();
+    const mockNext = vi.fn();
     const actionHandler = nextHandler(mockNext);
     const queryAction: QueryDevice = {
       type: QUERY_DEVICE,
@@ -93,7 +94,7 @@ describe("connectionMiddleware", (): void => {
     });
     const middleware = connectionMiddleware(mockConnection);
     const nextHandler = middleware(mockStore);
-    const mockNext = jest.fn();
+    const mockNext = vi.fn();
     const actionHandler = nextHandler(mockNext);
     const queryAction: QueryDevice = {
       type: QUERY_DEVICE,

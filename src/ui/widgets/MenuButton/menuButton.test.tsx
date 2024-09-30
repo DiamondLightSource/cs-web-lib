@@ -4,8 +4,9 @@ import { create } from "react-test-renderer";
 import { dtimeNow, DAlarm, DType, DDisplay } from "../../../types/dtypes";
 import { ACTIONS_EX_FIRST, WRITE_PV_ACTION } from "../../../testResources";
 import { fireEvent, render } from "@testing-library/react";
+import { vi } from "vitest";
 
-const mock = jest.fn();
+const mock = vi.fn();
 beforeEach((): void => {
   mock.mockReset();
 });
@@ -82,7 +83,7 @@ describe("<MenuButton />", (): void => {
   });
   test("preventDefault called on mousedown when widget is disabled", async (): Promise<void> => {
     const { getByRole } = render(getMenubuttonComponent(0, true));
-    const mockPreventDefault = jest.fn();
+    const mockPreventDefault = vi.fn();
     const event = new MouseEvent("mousedown", { bubbles: true });
     event.preventDefault = mockPreventDefault;
     fireEvent(getByRole("combobox"), event);

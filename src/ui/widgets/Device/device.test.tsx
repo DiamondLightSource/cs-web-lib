@@ -5,13 +5,14 @@ import * as deviceHook from "../../hooks/useDevice";
 import * as jsonParsing from "../createComponent";
 import { DType } from "../../../types/dtypes";
 import { ensureWidgetsRegistered } from "..";
+import { vi } from "vitest";
 ensureWidgetsRegistered();
 
-const useDeviceMock = jest
+const useDeviceMock = vi
   .spyOn(deviceHook, "useDevice")
   .mockImplementation((device: string): DType | undefined => undefined);
 
-const descriptionToComponentMock = jest
+const descriptionToComponentMock = vi
   .spyOn(jsonParsing, "widgetDescriptionToComponent")
   .mockImplementation(() => <p>{"Mocked"}</p>);
 

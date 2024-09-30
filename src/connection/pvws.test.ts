@@ -1,5 +1,5 @@
 import { PvwsPlugin } from "./pvws";
-import WS from "jest-websocket-mock";
+import WS from "vitest-websocket-mock";
 import { DType } from "../types/dtypes";
 
 describe("PvwsPlugin", (): void => {

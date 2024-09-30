@@ -1,9 +1,9 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`<GroupingContainerComponent /> it matches the snapshot 1`] = `
+exports[`<GroupingContainerComponent /> > it matches the snapshot 1`] = `
 <div
   style={
-    Object {
+    {
       "backgroundColor": "transparent",
       "height": "100%",
       "outline": "1px dotted black",
@@ -14,7 +14,7 @@ exports[`<GroupingContainerComponent /> it matches the snapshot 1`] = `
 >
   <div
     style={
-      Object {
+      {
         "backgroundColor": "rgba(255,255,255,255)",
         "fontSize": "13px",
         "left": "20px",
@@ -28,7 +28,7 @@ exports[`<GroupingContainerComponent /> it matches the snapshot 1`] = `
   </div>
   <div
     style={
-      Object {
+      {
         "padding": "16px",
         "position": "relative",
       }
