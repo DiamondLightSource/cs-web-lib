@@ -59,7 +59,7 @@ if [ $SAMPLE == true ]; then
         $1+0>0 {++COUNT
                 TOTAL=TOTAL+$9
                 if (COUNT % 10 == 0) {
-                    if ($6 < 10) {
+                    if ($6 ~ /g/) {
 		        printf "%s %s: Average CPU Usage: %d%%, Memory usage: %.2f GiB\n", \
 		        strftime("%Y-%m-%d"), time, TOTAL/COUNT, $6
                     } else {
@@ -73,7 +73,7 @@ if [ $SAMPLE == true ]; then
 else 
     top -b -d 2 -p $PID | awk -v pid="$PID" '
         /^top -/{time = $3}
-        $1+0>0 {if ($6 < 1000) {
+        $1+0>0 {if ($6 ~ /g/) {
 		        printf "%s %s: CPU Usage: %d%%, Memory usage: %.2f GiB\n", \
 		        strftime("%Y-%m-%d"), time, $9, $6
                     } else {
