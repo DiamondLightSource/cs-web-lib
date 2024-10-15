@@ -4,7 +4,7 @@
 N_PV_10Hz=10
 N_PV_5Hz=50
 N_PV_1Hz=250
-
+SHOW_PLOT=true
 
 Help()
 {
@@ -89,6 +89,7 @@ record(calcout, "$record_name")
 EOF
     done >>performanceTestDbCustom.db
 
+if $if $SHOW_PLOT; then
     echo '
 record(waveform, "TEST:ARR'$repeat'")
 {
@@ -96,4 +97,5 @@ record(waveform, "TEST:ARR'$repeat'")
     field(NELM,"3000")
     field(FTVL, "SHORT")
 }' >>performanceTestDbCustom.db
+fi
 done

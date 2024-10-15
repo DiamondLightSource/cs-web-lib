@@ -1,10 +1,9 @@
 #!/bin/bash
 
-
 N_PV_10Hz=10
 N_PV_5Hz=50
 N_PV_1Hz=250
-
+SHOW_PLOT=true
 
 Help()
 {
@@ -199,7 +198,7 @@ EOF
     done >>$FILENAME
 
     YPOS=450
-
+if $SHOW_PLOT; then
     echo '
 
     <widget type="xyplot" version="3.0.0">
@@ -276,6 +275,9 @@ EOF
     </traces>
   </widget>
 </display>' >>$FILENAME
+else
+  echo '</display>' >>$FILENAME
+fi
 done
 
 
