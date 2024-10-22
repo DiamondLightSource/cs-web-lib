@@ -78,14 +78,14 @@ export function useOpiFile(file: File): WidgetDescription {
   const [contents, setContents] = useState<WidgetDescription>(EMPTY_WIDGET);
 
   useEffect(() => {
-    let isMounted = false;
+    let isMounted = true;
     const fetchData = async (): Promise<void> => {
       if (fetchPromises.hasOwnProperty(file.path)) {
         // This resource has been requested; once the cached
         // promise has been resolved the fileCache should be
         // populated.
         await fetchPromises[file.path];
-        if (!isMounted) {
+        if (isMounted) {
           setContents(fileCache[file.path]);
         }
       } else {
@@ -95,7 +95,7 @@ export function useOpiFile(file: File): WidgetDescription {
         const contents = await fetchPromise;
         // Populate the file cache.
         fileCache[file.path] = contents;
-        if (!isMounted) {
+        if (isMounted) {
           setContents(contents);
         }
       }
@@ -104,7 +104,7 @@ export function useOpiFile(file: File): WidgetDescription {
 
     // Tidy up in case component is unmounted
     return () => {
-      isMounted = true;
+      isMounted = false;
     };
   }, [file.path, file.defaultProtocol, fileExt]);
 
