@@ -10,7 +10,7 @@ import { CsState } from "../../redux/csState";
 function getRuleTester(props: any): JSX.Element {
   const RuleTester = (props: { id: string; rules: Rule[] }): JSX.Element => {
     const ruleProps = useRules(props as AnyProps);
-    return <div>{ruleProps.text}</div>;
+    return <div>{ruleProps.text.toString()}</div>;
   };
   return <RuleTester {...props} />;
 }
