@@ -1,17 +1,18 @@
 import { PvwsPlugin } from "./pvws";
 import WS from "vitest-websocket-mock";
 import { DType } from "../types/dtypes";
+import { vi, describe, beforeEach, afterEach, it, Mock } from "vitest";
 
 describe("PvwsPlugin", (): void => {
   let cp: PvwsPlugin;
-  let mockConnUpdate: jest.Mock;
-  let mockValUpdate: jest.Mock;
+  let mockConnUpdate: Mock;
+  let mockValUpdate: Mock;
   let ws: WS;
   beforeEach(async () => {
     ws = new WS("ws://a.b.c:100/pvws/pv");
     cp = new PvwsPlugin("a.b.c:100", false);
-    mockConnUpdate = jest.fn();
-    mockValUpdate = jest.fn();
+    mockConnUpdate = vi.fn();
+    mockValUpdate = vi.fn();
     cp.connect(mockConnUpdate, mockValUpdate);
     await ws.connected;
   });
