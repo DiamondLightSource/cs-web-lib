@@ -29,8 +29,7 @@ const config = [
         tsconfig: "./tsconfig.json",
         compilerOptions: { outDir: "dist" }
       }),
-      postcss(),
-      dts()
+      postcss()
     ]
   },
   {
