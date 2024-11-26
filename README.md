@@ -80,7 +80,7 @@ cs-web-lib does not contain the full suite of features and widgets provided by P
 | Actions     | &#9989;  | Some actions may not be supported. Please open an issue for any issues noticed. |
 | Formulas    | &#10060; | `sim://` PVs are supported, but not `eq://`. This will be added in future. |
 | Rules       | &#9989;  | Partial support. x, y and Font rules are currently not supported. This will be added in future. Please open an issue for any issues noticed.|
-| Scripts     | &#10060; | The use of scripting is recommended against in general by CSS Developers. Formulae should be able to handle most use cases.  |
+| Scripts     | &#10060; | The use of scripting is recommended against in general by CS Studio Developers. Formulae should be able to handle most use cases.  |
 
 ## Development
 To develop on the library code first clone this repo, install the npm package dependencies and then make changes:
