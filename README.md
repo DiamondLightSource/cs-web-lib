@@ -92,6 +92,12 @@ Before pushing any changes check that the update code conforms to the formatter 
     npm run all-checks
     npm run tests
     
+If making changes to the build process, check that the package is built correctly with:
+    npm run rollup
+    npm pack
+
+You can then install the generated tar.gz file into another project and check that all functionality expected is there.
+
 ### Publishing to NPM (PREFERRED METHOD)
 A GitHub workflow has been setup to automatically publish a new package version to the NPM registry on the push of a new tag. This should be used as the preferred method of release a new package.
 1. Update/increase the package version in package.json (see https://docs.npmjs.com/cli/v8/commands/npm-version for further details on this npm command):
