@@ -21,6 +21,8 @@ Inside your application, create a screen by passing a .opi, .bob or .json file t
 
 PVWS was introduced in version 0.4.0. Versions prior to this used [Coniql](https://github.com/DiamondLightSource/coniql), and the .env variables used were `VITE_CONIQL_SOCKET` and `VITE_CONIQL_SSL`.
 
+React 17 was supported until version  < 0.5.0.
+
 ## Features 
 
 cs-web-lib does not contain the full suite of features and widgets provided by Phoebus. The tables below describes which features are currently included, are planned to be added, and which will not be added.
