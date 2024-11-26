@@ -95,6 +95,7 @@ Before pushing any changes check that the update code conforms to the formatter 
     npm run tests
     
 If making changes to the build process, check that the package is built correctly with:
+
     npm run rollup
     npm pack
 
