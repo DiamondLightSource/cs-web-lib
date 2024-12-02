@@ -4,3 +4,4 @@ export { Color } from "./color";
 export { PV } from "./pv";
 export { Font, FontStyle } from "./font";
 export { Border, BorderStyle } from "./border";
+export { DType } from "./dtypes";
