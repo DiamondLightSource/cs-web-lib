@@ -51,7 +51,8 @@ const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   progressbar: "progressbar",
   rectangle: "shape",
   choice: "choicebutton",
-  scaledslider: "slidecontrol"
+  scaledslider: "slidecontrol",
+  symbol: "symbol"
 };
 
 // Default width and height of widgets in Phoebus
@@ -75,7 +76,8 @@ export const WIDGET_DEFAULT_SIZES: { [key: string]: [number, number] } = {
   polyline: [100, 20],
   progressbar: [100, 20],
   rectangle: [100, 20],
-  scaledslider: [400, 55]
+  scaledslider: [400, 55],
+  symbol: [100, 100]
 };
 
 function bobParseType(props: any): string {
@@ -206,6 +208,14 @@ function bobParseResizing(jsonProp: ElementCompact): string {
   }
 }
 
+function bobParseSymbols(jsonProp: ElementCompact): string[] {
+  const symbols: string[] = [];
+  jsonProp["symbol"].forEach((item: any) => {
+    symbols.push(item._text);
+  });
+  return symbols;
+}
+
 function bobGetTargetWidget(props: any): React.FC {
   const typeid = bobParseType(props);
   let targetWidget;
@@ -257,7 +267,11 @@ export function parseBob(
     squareLed: ["square", opiParseBoolean],
     formatType: ["format", bobParseFormatType],
     stretchToFit: ["stretch_image", opiParseBoolean],
-    macros: ["macros", opiParseMacros]
+    macros: ["macros", opiParseMacros],
+    symbols: ["symbols", bobParseSymbols],
+    initialIndex: ["initial_index", bobParseNumber],
+    showIndex: ["show_index", opiParseBoolean],
+    fallbackSymbol: ["fallback_symbol", opiParseString]
   };
 
   const complexParsers = {

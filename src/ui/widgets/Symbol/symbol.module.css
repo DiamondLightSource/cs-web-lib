@@ -1,0 +1,23 @@
+.IndexLabel {
+    height: 30px;
+    width: 30px;
+    border-radius: 50%;
+    background-color: black;
+    border: 1px solid white;
+    opacity: 50%;
+    color: white;
+    position: absolute;
+    top: calc(50% - 15px);
+    left: calc(50% - 15px);
+    text-align: center;
+    font-size: math;
+}
+
+.SymbolLabel {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    display: flex;
+}
