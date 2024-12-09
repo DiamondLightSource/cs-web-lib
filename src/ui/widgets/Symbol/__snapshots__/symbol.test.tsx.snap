@@ -3,7 +3,7 @@
 exports[`<Symbol /> from .bob file > matches snapshot (using fallback symbol) 1`] = `
 <DocumentFragment>
   <div
-    style="overflow: hidden; text-align: left; width: 100%; height: 100%;"
+    style="overflow: visible; text-align: left; width: 100%; height: 100%;"
   >
     <img
       src="https://cs-web-symbol.diamond.ac.uk/catalogue/default.svg"
@@ -16,11 +16,24 @@ exports[`<Symbol /> from .bob file > matches snapshot (using fallback symbol) 1`
 exports[`<Symbol /> from .bob file > matches snapshot (with index) 1`] = `
 <DocumentFragment>
   <div
-    style="overflow: hidden; text-align: left; width: 100%; height: 100%;"
+    style="overflow: visible; text-align: left; width: 100%; height: 100%;"
   >
     <img
       src="img 3.svg"
       style="width: 100%; height: 100%; display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: fill;"
+    />
+  </div>
+</DocumentFragment>
+`;
+
+exports[`<Symbol /> from .bob file > matches snapshot (with rotation) 1`] = `
+<DocumentFragment>
+  <div
+    style="overflow: visible; text-align: left; width: 100%; height: 100%;"
+  >
+    <img
+      src="img 1.gif"
+      style="width: 100%; height: 100%; display: block; transform: rotate(45deg) scaleX(1) scaleY(1); object-fit: fill;"
     />
   </div>
 </DocumentFragment>
@@ -29,7 +42,7 @@ exports[`<Symbol /> from .bob file > matches snapshot (with index) 1`] = `
 exports[`<Symbol /> from .bob file > matches snapshot (without index) 1`] = `
 <DocumentFragment>
   <div
-    style="overflow: hidden; text-align: left; width: 100%; height: 100%;"
+    style="overflow: visible; text-align: left; width: 100%; height: 100%;"
   >
     <img
       src="img 1.gif"
@@ -39,40 +52,14 @@ exports[`<Symbol /> from .bob file > matches snapshot (without index) 1`] = `
 </DocumentFragment>
 `;
 
-exports[`<Symbol /> from .bob file matches snapshot (using fallback symbol) 1`] = `
+exports[`<Symbol /> from .opi file > matches snapshot (with rotation) 1`] = `
 <DocumentFragment>
   <div
-    style="overflow: hidden; text-align: left; width: 100%; height: 100%;"
-  >
-    <img
-      src="https://cs-web-symbol.diamond.ac.uk/catalogue/default.svg"
-      style="width: 100%; height: 100%; display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: fill;"
-    />
-  </div>
-</DocumentFragment>
-`;
-
-exports[`<Symbol /> from .bob file matches snapshot (with index) 1`] = `
-<DocumentFragment>
-  <div
-    style="overflow: hidden; text-align: left; width: 100%; height: 100%;"
-  >
-    <img
-      src="img 3.svg"
-      style="width: 100%; height: 100%; display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: fill;"
-    />
-  </div>
-</DocumentFragment>
-`;
-
-exports[`<Symbol /> from .bob file matches snapshot (without index) 1`] = `
-<DocumentFragment>
-  <div
-    style="overflow: hidden; text-align: left; width: 100%; height: 100%;"
+    style="overflow: visible; text-align: left; width: 100%; height: 100%;"
   >
     <img
       src="img 1.gif"
-      style="width: 100%; height: 100%; display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: fill;"
+      style="width: 100%; height: 100%; display: block; transform: rotate(45deg) scaleX(1) scaleY(1); object-fit: fill;"
     />
   </div>
 </DocumentFragment>
@@ -81,7 +68,7 @@ exports[`<Symbol /> from .bob file matches snapshot (without index) 1`] = `
 exports[`<Symbol /> from .opi file > matches snapshot 1`] = `
 <DocumentFragment>
   <div
-    style="overflow: hidden; text-align: left; width: 100%; height: 100%;"
+    style="overflow: visible; text-align: left; width: 100%; height: 100%;"
   >
     <img
       src="img 1.gif"
@@ -90,36 +77,6 @@ exports[`<Symbol /> from .opi file > matches snapshot 1`] = `
   </div>
   <div
     class="_SymbolLabel_7b7af1"
-    style="background-color: transparent; align-items: center; justify-content: center;"
-  >
-    <div
-      style="padding: 5%;"
-    >
-      <div
-        class="Label _Label_c35983"
-        style="background-color: transparent; cursor: default; justify-content: flex-start; align-items: flex-start;"
-      >
-        <span>
-           Fake value 
-        </span>
-      </div>
-    </div>
-  </div>
-</DocumentFragment>
-`;
-
-exports[`<Symbol /> from .opi file matches snapshot 1`] = `
-<DocumentFragment>
-  <div
-    style="overflow: hidden; text-align: left; width: 100%; height: 100%;"
-  >
-    <img
-      src="img 1.gif"
-      style="width: 100%; height: 100%; display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: fill;"
-    />
-  </div>
-  <div
-    class="SymbolLabel"
     style="background-color: transparent; align-items: center; justify-content: center;"
   >
     <div

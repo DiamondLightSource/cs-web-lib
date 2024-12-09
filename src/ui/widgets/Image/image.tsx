@@ -23,7 +23,8 @@ const ImageProps = {
   rotation: FloatPropOpt,
   flipHorizontal: BoolPropOpt,
   flipVertical: BoolPropOpt,
-  onClick: FuncPropOpt
+  onClick: FuncPropOpt,
+  overflow: BoolPropOpt
 };
 
 export const ImageComponent = (
@@ -39,7 +40,7 @@ export const ImageComponent = (
 
   let imageHeight: string | undefined = undefined;
   let imageWidth: string | undefined = undefined;
-  const overflow = "hidden";
+  const overflow = props.overflow ? "visible" : "hidden";
   if (props.stretchToFit) {
     imageWidth = "100%";
     imageHeight = "100%";

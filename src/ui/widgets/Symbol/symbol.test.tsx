@@ -42,6 +42,21 @@ describe("<Symbol /> from .opi file", (): void => {
 
     expect(asFragment()).toMatchSnapshot();
   });
+
+  test("matches snapshot (with rotation)", (): void => {
+    const symbolProps = {
+      showBooleanLabel: false,
+      imageFile: "img 1.gif",
+      value: fakeValue,
+      rotation: 45
+    };
+
+    const { asFragment } = render(
+      <SymbolComponent {...(symbolProps as any)} />
+    );
+
+    expect(asFragment()).toMatchSnapshot();
+  });
 });
 
 describe("<Symbol /> from .bob file", (): void => {
@@ -123,6 +138,20 @@ describe("<Symbol /> from .bob file", (): void => {
       symbols: ["img 1.gif"],
       value: new DType({ doubleValue: 1 })
     };
+    const { asFragment } = render(
+      <SymbolComponent {...(symbolProps as any)} />
+    );
+
+    expect(asFragment()).toMatchSnapshot();
+  });
+
+  test("matches snapshot (with rotation)", (): void => {
+    const symbolProps = {
+      symbols: ["img 1.gif"],
+      value: new DType({ stringValue: "0" }),
+      rotation: 45
+    };
+
     const { asFragment } = render(
       <SymbolComponent {...(symbolProps as any)} />
     );
