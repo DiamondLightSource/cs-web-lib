@@ -210,8 +210,8 @@ function bobParseResizing(jsonProp: ElementCompact): string {
 
 function bobParseSymbols(jsonProp: ElementCompact): string[] {
   const symbols: string[] = [];
-  jsonProp["symbol"].forEach((item: any) => {
-    symbols.push(item._text);
+  Object.values(jsonProp["symbol"]).forEach((item: any) => {
+    symbols.push(item);
   });
   return symbols;
 }
