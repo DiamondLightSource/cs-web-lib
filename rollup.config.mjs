@@ -5,6 +5,7 @@ import dts from "rollup-plugin-dts";
 
 import postcss from "rollup-plugin-postcss";
 import peerDepsExternal from "rollup-plugin-peer-deps-external";
+import preserveDirectives from 'rollup-preserve-directives'
 
 const config = [
   {
@@ -29,7 +30,8 @@ const config = [
         tsconfig: "./tsconfig.json",
         compilerOptions: { outDir: "dist" }
       }),
-      postcss()
+      postcss(),
+      preserveDirectives()
     ]
   },
   {
