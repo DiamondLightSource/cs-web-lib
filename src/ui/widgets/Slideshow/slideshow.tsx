@@ -31,10 +31,15 @@ export const SwitchableWidget = (props: {
   index: number;
   children: [ReactElement];
   transition: { readonly [key: string]: string };
+  nodeRef: React.Ref<HTMLDivElement>;
 }): JSX.Element => {
+  // react-transition-group internally uses findDOMNode which
+  // is deprecated. Fix by passing nodeRef which points to the
+  // transitioning child.
   return (
     <SwitchTransition mode="out-in">
       <CSSTransition
+        nodeRef={props.nodeRef}
         classNames={props.transition}
         key={props.index}
         timeout={250}
@@ -69,6 +74,7 @@ export const SlideshowComponent = (
   const [transition, setTransition] = useState(slideRightTransition);
 
   log.debug(`Slideshow Index: ${childIndex}`);
+  const nodeRef = React.useRef<HTMLDivElement>(null);
 
   return (
     <div
@@ -104,6 +110,7 @@ export const SlideshowComponent = (
         ◀
       </button>
       <div
+        ref={nodeRef}
         style={{
           position: "relative",
           width: "80%",
@@ -114,7 +121,11 @@ export const SlideshowComponent = (
           overflow: props.overflow ?? ""
         }}
       >
-        <SwitchableWidget index={childIndex} transition={transition}>
+        <SwitchableWidget
+          index={childIndex}
+          transition={transition}
+          nodeRef={nodeRef}
+        >
           {props.children as [ReactElement]}
         </SwitchableWidget>
       </div>
