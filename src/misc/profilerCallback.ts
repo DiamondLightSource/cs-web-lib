@@ -64,12 +64,11 @@ const timings = new Timings();
  */
 export function onRenderCallback(
   id: string,
-  phase: "mount" | "update",
+  phase: "mount" | "update" | "nested-update",
   actualDuration: number,
   baseDuration: number,
   startTime: number,
-  commitTime: number,
-  interactions: unknown
+  commitTime: number
 ): void {
   if (PROFILE_ENABLED) {
     const reconciliationTime = commitTime - startTime;
