@@ -67,7 +67,8 @@ export function widgetDescriptionToComponent(
     log.warn(message);
     log.warn(widgetDescription);
     return widgetDescriptionToComponent(
-      errorWidget(message, widgetDescription["position"])
+      errorWidget(message, widgetDescription["position"]),
+      listIndex
     );
   }
 
