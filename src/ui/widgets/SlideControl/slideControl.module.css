@@ -4,6 +4,7 @@
   -webkit-transition: 0.2s;
   transition: opacity 0.2s;
   margin: 0px;
+  font-size: 0.875rem;
 }
 
 .Slider:hover {

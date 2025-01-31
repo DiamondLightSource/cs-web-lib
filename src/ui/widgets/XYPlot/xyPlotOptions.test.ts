@@ -388,7 +388,7 @@ describe("Create axis options object", (): void => {
         },
         titlefont: {
           family: "sans,sans-serif",
-          size: "1rem"
+          size: "0.625rem"
         },
         visible: true,
         zeroline: false
@@ -445,7 +445,7 @@ describe("Create axis options object", (): void => {
       },
       titlefont: {
         family: "sans,sans-serif",
-        size: "1rem"
+        size: "0.625rem"
       },
       visible: true,
       zeroline: false
@@ -501,7 +501,7 @@ describe("Create axis options object", (): void => {
       },
       titlefont: {
         family: "sans,sans-serif",
-        size: "1rem"
+        size: "0.625rem"
       },
       visible: true,
       zeroline: false

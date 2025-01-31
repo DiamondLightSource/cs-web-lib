@@ -43,7 +43,8 @@ export const DynamicTabsComponent = (
     border: "3px solid lightgrey",
     height: "100%",
     width: "100%",
-    overflow: "auto"
+    overflow: "auto",
+    fontSize: "0.625rem"
   };
   if (!tabState || tabState.fileDetails.length === 0) {
     return (
