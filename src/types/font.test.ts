@@ -6,7 +6,7 @@ describe("Font", (): void => {
     const fontStyle = font.css();
     expect(fontStyle).toEqual({
       fontFamily: "sans,sans-serif",
-      fontSize: "1rem",
+      fontSize: "0.625rem",
       fontWeight: "normal",
       fontStyle: "normal"
     });
@@ -16,7 +16,7 @@ describe("Font", (): void => {
     const fontStyle = font.css();
     expect(fontStyle).toEqual({
       fontFamily: "Liberation sans,sans-serif",
-      fontSize: "1.6rem",
+      fontSize: "1rem",
       fontWeight: "bold",
       fontStyle: "italic"
     });

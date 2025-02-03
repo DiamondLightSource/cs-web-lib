@@ -34,7 +34,10 @@ export class Font {
    * user and default properties for optional parameters not input by the user
    */
   public css(): CSSProperties {
-    const fontSize = this.size ? `${this.size / 10}rem` : undefined;
+    // Convert from px to REM by dividing pixels by default browser font size 16px
+    // If a user has manually adjusted their browser font size, this might not be scaled
+    // correctly, but given bob screens are pixel placed we shouldn't expect this to scale
+    const fontSize = this.size ? `${this.size / 16}rem` : undefined;
     const fontWeight =
       this.style === FontStyle.Bold || this.style === FontStyle.BoldItalic
         ? "bold"

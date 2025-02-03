@@ -21,7 +21,7 @@ describe("<BoolButton />", (): void => {
     expect(buttons[0].style.height).toEqual("43px");
     expect(buttons[1].style.width).toEqual("46px");
     expect(buttons[0].style.backgroundColor).toEqual("rgb(210, 210, 210)");
-    expect(buttons[1].style.fontSize).toEqual("1.4rem");
+    expect(buttons[1].style.fontSize).toEqual("0.875rem");
   });
 
   test("pass props to widget", (): void => {
