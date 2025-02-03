@@ -23,6 +23,7 @@ import {
 import { PV } from "../../../types/pv";
 import { OpiFile, Rule } from "../../../types/props";
 import {
+  OPEN_PAGE,
   OPEN_TAB,
   OPEN_WEBPAGE,
   WidgetActions,
@@ -282,8 +283,9 @@ export function bobParseActions(
           }
         });
       } else if (type === "open_display") {
+        const type = action.target._text === "replace" ? OPEN_PAGE : OPEN_TAB;
         processedActions.actions.push({
-          type: OPEN_TAB,
+          type: type,
           dynamicInfo: {
             name: action.file._text,
             location: actionToLocation(action),
