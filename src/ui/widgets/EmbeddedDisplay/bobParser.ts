@@ -8,7 +8,6 @@ import {
   opiParseRules,
   opiParsePvName,
   opiParseColor,
-  opiParseAlarmSensitive,
   opiParseString,
   opiParseMacros,
   opiParseBoolean
@@ -149,6 +148,15 @@ function bobParseBorder(props: any): Border {
   } else {
     return Border.NONE;
   }
+}
+
+export function bobParseAlarmSensitive(props: any): boolean {
+  // If property is missing the default is true
+  let alarmSensitive = true;
+  if (props.border_alarm_sensitive !== undefined) {
+    alarmSensitive = opiParseBoolean(props.border_alarm_sensitive);
+  }
+  return alarmSensitive;
 }
 
 function bobParseItems(jsonProp: ElementCompact): string[] {
@@ -329,7 +337,7 @@ const BOB_COMPLEX_PARSERS: ComplexParserDict = {
   type: bobParseType,
   position: bobParsePosition,
   border: bobParseBorder,
-  alarmSensitive: opiParseAlarmSensitive,
+  alarmSensitive: bobParseAlarmSensitive,
   file: bobParseFile
 };
 

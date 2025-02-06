@@ -107,7 +107,6 @@ describe("opi widget parser", (): void => {
       <y>62</y>
       <width>140</width>
       <height>50</height>
-      <border_alarm_sensitive>false</border_alarm_sensitive>
     </widget>
   </display>`;
   it("parses defaults", (): void => {
@@ -116,6 +115,7 @@ describe("opi widget parser", (): void => {
     expect(widget.precisionFromPv).toEqual(true);
     expect(widget.showUnits).toEqual(true);
     expect(widget.wrapWords).toEqual(true);
+    expect(widget.alarmSensitive).toEqual(true);
   });
 
   const readbackPrecisionUnits = `
