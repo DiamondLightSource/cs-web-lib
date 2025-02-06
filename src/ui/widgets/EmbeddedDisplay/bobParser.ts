@@ -250,9 +250,12 @@ export function bobParseActions(
       case "replace":
         return "main";
       case "tab":
-        return "details";
+        // If a named tab is given, open there
+        // Otherwise default to main
+        if (action.name) return action.name._text;
+        return "main";
       default:
-        return "details";
+        return "main";
     }
   };
 
