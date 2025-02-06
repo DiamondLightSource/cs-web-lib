@@ -1,5 +1,5 @@
 import { REGISTERED_WIDGETS } from "../register";
-import { ComplexParserDict, parseWidget, ParserDict } from "./parser";
+import { ComplexParserDict, parseWidget, ParserDict, toArray } from "./parser";
 import {
   XmlDescription,
   OPI_COMPLEX_PARSERS,
@@ -7,7 +7,6 @@ import {
   OPI_PATCHERS,
   opiParseRules,
   opiParsePvName,
-  opiParseActions,
   opiParseColor,
   opiParseAlarmSensitive,
   opiParseString,
@@ -23,7 +22,13 @@ import {
 } from "../../../types/position";
 import { PV } from "../../../types/pv";
 import { OpiFile, Rule } from "../../../types/props";
-import { WidgetActions } from "../widgetActions";
+import {
+  OPEN_PAGE,
+  OPEN_TAB,
+  OPEN_WEBPAGE,
+  WidgetActions,
+  WRITE_PV
+} from "../widgetActions";
 import { Font, FontStyle } from "../../../types/font";
 import { Border, BorderStyle } from "../../../types/border";
 import { Color } from "../../../types/color";
@@ -217,6 +222,96 @@ function bobParseSymbols(jsonProp: ElementCompact): string[] {
   });
   return symbols;
 }
+/**
+ * Creates a WidgetActions object from the actions tied to the json object
+ * @param jsonProp
+ * @param defaultProtocol
+ */
+export function bobParseActions(
+  jsonProp: ElementCompact,
+  defaultProtocol: string
+): WidgetActions {
+  const actionsToProcess = toArray(jsonProp.action);
+
+  // Extract information about whether to execute all actions at once
+  const executeAsOne = jsonProp._attributes?.execute_as_one === "true";
+
+  // Turn into an array of Actions
+  const processedActions: WidgetActions = {
+    executeAsOne: executeAsOne,
+    actions: []
+  };
+
+  const actionToLocation = (action: ElementCompact): string => {
+    // Bob options "replace" and "tab" correspond to opening
+    // in the main view, or in a new panel/tab
+    const target = action.target._text;
+    switch (target) {
+      case "replace":
+        return "main";
+      case "tab":
+        // If a named tab is given, open there
+        // Otherwise default to main
+        if (action.name) return action.name._text;
+        return "main";
+      default:
+        return "main";
+    }
+  };
+
+  actionsToProcess.forEach((action): void => {
+    log.debug(action);
+    const type = action._attributes?.type;
+    try {
+      if (type === "write_pv") {
+        processedActions.actions.push({
+          type: WRITE_PV,
+          writePvInfo: {
+            pvName: opiParsePvName(
+              action.pv_name,
+              defaultProtocol
+            ).qualifiedName(),
+            value: action.value._text,
+            description:
+              (action.description && action.description._text) || undefined
+          }
+        });
+      } else if (type === "open_webpage") {
+        processedActions.actions.push({
+          type: OPEN_WEBPAGE,
+          openWebpageInfo: {
+            url: action.url._text,
+            description:
+              (action.description && action.description._text) || undefined
+          }
+        });
+      } else if (type === "open_display") {
+        const type = action.target._text === "replace" ? OPEN_PAGE : OPEN_TAB;
+        processedActions.actions.push({
+          type: type,
+          dynamicInfo: {
+            name: action.file._text,
+            location: actionToLocation(action),
+            description:
+              (action.description && action.description._text) || undefined,
+            file: {
+              path: action.file._text,
+              // TODO: Should probably be accessing properties of the element here
+              macros: {},
+              defaultProtocol: "ca"
+            }
+          }
+        });
+      }
+    } catch (e: any) {
+      log.error(
+        `Could not find action of type ${type} in available actions to convert: ${e.message}`
+      );
+    }
+  });
+
+  return processedActions;
+}
 
 function bobGetTargetWidget(props: any): React.FC {
   const typeid = bobParseType(props);
@@ -260,7 +355,7 @@ export function parseBob(
     actions: [
       "actions",
       (actions: ElementCompact): WidgetActions =>
-        opiParseActions(actions, defaultProtocol)
+        bobParseActions(actions, defaultProtocol)
     ],
     items: ["items", bobParseItems],
     imageFile: ["file", opiParseString],
