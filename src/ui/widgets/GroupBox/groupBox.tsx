@@ -8,14 +8,23 @@ import {
   ChildrenPropOpt,
   InferWidgetProps,
   ColorPropOpt,
-  BoolPropOpt
+  BoolPropOpt,
+  FontPropOpt,
+  IntPropOpt
 } from "../propTypes";
+import { Font } from "../../../types/font";
+import { Color } from "../../../types/color";
+import Box from "@mui/material/Box";
 
 const GroupBoxProps = {
   name: StringProp,
   children: ChildrenPropOpt,
   backgroundColor: ColorPropOpt,
-  compat: BoolPropOpt
+  foregroundColor: ColorPropOpt,
+  font: FontPropOpt,
+  compat: BoolPropOpt,
+  boxStyle: IntPropOpt,
+  transparent: BoolPropOpt
 };
 
 // Widget that renders a group-box style border showing the name prop.
@@ -24,47 +33,66 @@ const GroupBoxProps = {
 export const GroupBoxComponent = (
   props: InferWidgetProps<typeof GroupBoxProps>
 ): JSX.Element => {
-  const { compat = false } = props;
+  const {
+    compat = false,
+    backgroundColor = Color.fromRgba(240, 240, 240),
+    foregroundColor = Color.fromRgba(0, 0, 0),
+    font = new Font(16),
+    boxStyle = 0,
+    transparent = false
+  } = props;
+
   // Manually render a group-box style border.
   const innerDivStyle: CSSProperties = {
     position: "relative",
-    padding: "16px"
+    overflow: "visible"
   };
+  const style: CSSProperties = {
+    width: "100%",
+    height: "100%",
+    padding: "0px",
+    paddingLeft: "8px",
+    border: "1px solid black",
+    whiteSpace: "nowrap",
+    overflow: "visible",
+    backgroundColor: transparent ? "transparent" : backgroundColor.toString(),
+    color: foregroundColor.toString(),
+    ...font.css()
+  };
+
+  if (boxStyle === 0) {
+    // Typical group box with label
+  } else if (boxStyle === 1) {
+    // Title bar
+
+  } else if (boxStyle === 2) {
+    // Border only
+
+  } else {
+    // None
+    style.border = "none"
+
+  }
   // Specific styling to match the group boxes in opibuilder.
   if (compat) {
-    innerDivStyle.padding = undefined;
-    innerDivStyle.top = "16px";
-    innerDivStyle.left = "16px";
-    innerDivStyle.height = "calc(100% - 32px)";
-    innerDivStyle.width = "calc(100% - 32px)";
-    innerDivStyle.overflow = "hidden";
+    innerDivStyle.paddingLeft = "5px";
+    innerDivStyle.height = "100%";
+    innerDivStyle.width = "100%";
+    innerDivStyle.overflow = "visible";
   }
-  // Dimensions match those in the opibuilder groupbox borders.
+
   return (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        outline: "1px dotted black",
-        outlineOffset: "-7px",
-        backgroundColor: "transparent"
-      }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          top: "0",
-          left: "20px",
-          fontSize: "13px",
-          padding: "0 2px 0 2px",
-          backgroundColor:
-            props.backgroundColor?.toString() ?? "rgb(200,200,200)"
-        }}
-      >
-        {props.name}
-      </div>
-      <div style={innerDivStyle}>{props.children}</div>
+    <div style={{
+      padding: "10px", paddingTop: "0px", width: "100%",
+      height: "100%",
+      position: "absolute",
+    }}>
+      <Box component="fieldset" sx={style}>
+        <legend>{props.name}</legend>
+        <div style={innerDivStyle}>{props.children}</div>
+      </Box>
     </div>
+
   );
 };
 
