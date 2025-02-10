@@ -378,7 +378,7 @@ export function parseBob(
     showIndex: ["show_index", opiParseBoolean],
     fallbackSymbol: ["fallback_symbol", opiParseString],
     rotation: ["rotation", bobParseNumber],
-    style: ["style", bobParseNumber]
+    styleOpt: ["style", bobParseNumber]
   };
 
   const complexParsers = {

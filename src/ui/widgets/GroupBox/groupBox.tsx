@@ -27,7 +27,7 @@ const GroupBoxProps = {
   backgroundColor: ColorPropOpt,
   foregroundColor: ColorPropOpt,
   font: FontPropOpt,
-  style: IntPropOpt,
+  styleOpt: IntPropOpt,
   transparent: BoolPropOpt
 };
 
@@ -41,7 +41,7 @@ export const GroupBoxComponent = (
     backgroundColor = Color.fromRgba(240, 240, 240),
     foregroundColor = Color.fromRgba(0, 0, 0),
     font = new Font(16),
-    style = 0,
+    styleOpt = 0,
     transparent = false
   } = props;
 
@@ -65,12 +65,12 @@ export const GroupBoxComponent = (
     ...font.css()
   };
 
-  if (style === 0) {
+  if (styleOpt === 0) {
     // Typical group box with label
     outerDivStyle.padding = "10px";
     outerDivStyle.paddingTop = "0px";
     boxStyle.paddingLeft = "8px";
-  } else if (style === 3) {
+  } else if (styleOpt === 3) {
     // No groupbox
     boxStyle.border = "none";
   }
@@ -78,7 +78,7 @@ export const GroupBoxComponent = (
   return (
     <div style={outerDivStyle}>
       <Box component="fieldset" sx={boxStyle}>
-        {style === 1 ? (
+        {styleOpt === 1 ? (
           <div
             style={{
               height: "20px",
@@ -93,7 +93,7 @@ export const GroupBoxComponent = (
         ) : (
           <></>
         )}
-        {style === 0 ? <legend>{props.name}</legend> : <></>}
+        {styleOpt === 0 ? <legend>{props.name}</legend> : <></>}
         <div style={INNER_DIV_STYLE}>{props.children}</div>
       </Box>
     </div>
