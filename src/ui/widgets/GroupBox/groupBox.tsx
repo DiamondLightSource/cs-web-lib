@@ -98,6 +98,7 @@ export const GroupBoxComponent = (
 
 const GroupBoxWidgetProps = {
   ...WidgetPropType,
+  ...GroupBoxProps,
   name: StringProp,
   children: ChildrenPropOpt
 };
