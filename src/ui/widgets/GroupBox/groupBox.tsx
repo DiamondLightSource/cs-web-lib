@@ -4,13 +4,13 @@ import { Widget } from "../widget";
 import { WidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import {
-  StringProp,
   ChildrenPropOpt,
   InferWidgetProps,
   ColorPropOpt,
   BoolPropOpt,
   FontPropOpt,
-  IntPropOpt
+  IntPropOpt,
+  StringPropOpt
 } from "../propTypes";
 import { Font } from "../../../types/font";
 import { Color } from "../../../types/color";
@@ -18,14 +18,16 @@ import Box from "@mui/material/Box";
 
 const INNER_DIV_STYLE: CSSProperties = {
   position: "relative",
-  overflow: "visible"
+  overflow: "visible",
+  color: "black"
 };
 
 const GroupBoxProps = {
-  name: StringProp,
+  name: StringPropOpt,
   children: ChildrenPropOpt,
   backgroundColor: ColorPropOpt,
   foregroundColor: ColorPropOpt,
+  lineColor: ColorPropOpt,
   font: FontPropOpt,
   styleOpt: IntPropOpt,
   transparent: BoolPropOpt
@@ -40,6 +42,7 @@ export const GroupBoxComponent = (
   const {
     backgroundColor = Color.fromRgba(240, 240, 240),
     foregroundColor = Color.fromRgba(0, 0, 0),
+    lineColor = Color.fromRgba(0, 0, 0),
     font = new Font(16),
     styleOpt = 0,
     transparent = false
@@ -57,7 +60,7 @@ export const GroupBoxComponent = (
     width: "100%",
     height: "100%",
     padding: "0px",
-    border: "1px solid black",
+    border: "1px solid " + lineColor.toString(),
     whiteSpace: "nowrap",
     overflow: "visible",
     backgroundColor: transparent ? "transparent" : backgroundColor.toString(),
@@ -75,6 +78,11 @@ export const GroupBoxComponent = (
     boxStyle.border = "none";
   }
 
+  let name = "";
+  if (props.name !== undefined) {
+    name = props.name;
+  }
+
   return (
     <div style={outerDivStyle}>
       <Box component="fieldset" sx={boxStyle}>
@@ -83,17 +91,18 @@ export const GroupBoxComponent = (
             style={{
               height: "20px",
               width: "100%",
-              backgroundColor: foregroundColor.toString(),
+              backgroundColor: lineColor.toString(),
               ...font.css(),
-              color: backgroundColor.toString()
+              textAlign: "left",
+              color: foregroundColor.toString()
             }}
           >
-            {props.name}
+            {name}
           </div>
         ) : (
           <></>
         )}
-        {styleOpt === 0 ? <legend>{props.name}</legend> : <></>}
+        {styleOpt === 0 ? <legend>{name}</legend> : <></>}
         <div style={INNER_DIV_STYLE}>{props.children}</div>
       </Box>
     </div>
@@ -103,7 +112,7 @@ export const GroupBoxComponent = (
 const GroupBoxWidgetProps = {
   ...WidgetPropType,
   ...GroupBoxProps,
-  name: StringProp,
+  name: StringPropOpt,
   children: ChildrenPropOpt
 };
 
