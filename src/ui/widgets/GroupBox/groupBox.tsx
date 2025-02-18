@@ -4,18 +4,33 @@ import { Widget } from "../widget";
 import { WidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import {
-  StringProp,
   ChildrenPropOpt,
   InferWidgetProps,
   ColorPropOpt,
-  BoolPropOpt
+  BoolPropOpt,
+  FontPropOpt,
+  IntPropOpt,
+  StringPropOpt
 } from "../propTypes";
+import { Font } from "../../../types/font";
+import { Color } from "../../../types/color";
+import Box from "@mui/material/Box";
+
+const INNER_DIV_STYLE: CSSProperties = {
+  position: "relative",
+  overflow: "visible",
+  color: "black"
+};
 
 const GroupBoxProps = {
-  name: StringProp,
+  name: StringPropOpt,
   children: ChildrenPropOpt,
   backgroundColor: ColorPropOpt,
-  compat: BoolPropOpt
+  foregroundColor: ColorPropOpt,
+  lineColor: ColorPropOpt,
+  font: FontPropOpt,
+  styleOpt: IntPropOpt,
+  transparent: BoolPropOpt
 };
 
 // Widget that renders a group-box style border showing the name prop.
@@ -24,53 +39,80 @@ const GroupBoxProps = {
 export const GroupBoxComponent = (
   props: InferWidgetProps<typeof GroupBoxProps>
 ): JSX.Element => {
-  const { compat = false } = props;
-  // Manually render a group-box style border.
-  const innerDivStyle: CSSProperties = {
-    position: "relative",
-    padding: "16px"
+  const {
+    backgroundColor = Color.fromRgba(240, 240, 240),
+    foregroundColor = Color.fromRgba(0, 0, 0),
+    lineColor = Color.fromRgba(0, 0, 0),
+    font = new Font(16),
+    styleOpt = 0,
+    transparent = false
+  } = props;
+
+  const outerDivStyle: CSSProperties = {
+    width: "100%",
+    height: "100%",
+    position: "absolute",
+    padding: "0px",
+    boxSizing: "border-box"
   };
-  // Specific styling to match the group boxes in opibuilder.
-  if (compat) {
-    innerDivStyle.padding = undefined;
-    innerDivStyle.top = "16px";
-    innerDivStyle.left = "16px";
-    innerDivStyle.height = "calc(100% - 32px)";
-    innerDivStyle.width = "calc(100% - 32px)";
-    innerDivStyle.overflow = "hidden";
+
+  const boxStyle: CSSProperties = {
+    width: "100%",
+    height: "100%",
+    padding: "0px",
+    border: "1px solid " + lineColor.toString(),
+    whiteSpace: "nowrap",
+    overflow: "visible",
+    backgroundColor: transparent ? "transparent" : backgroundColor.toString(),
+    color: foregroundColor.toString(),
+    ...font.css()
+  };
+
+  if (styleOpt === 0) {
+    // Typical group box with label
+    outerDivStyle.padding = "10px";
+    outerDivStyle.paddingTop = "0px";
+    boxStyle.paddingLeft = "8px";
+  } else if (styleOpt === 3) {
+    // No groupbox
+    boxStyle.border = "none";
   }
-  // Dimensions match those in the opibuilder groupbox borders.
+
+  let name = "";
+  if (props.name !== undefined) {
+    name = props.name;
+  }
+
   return (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        outline: "1px dotted black",
-        outlineOffset: "-7px",
-        backgroundColor: "transparent"
-      }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          top: "0",
-          left: "20px",
-          fontSize: "13px",
-          padding: "0 2px 0 2px",
-          backgroundColor:
-            props.backgroundColor?.toString() ?? "rgb(200,200,200)"
-        }}
-      >
-        {props.name}
-      </div>
-      <div style={innerDivStyle}>{props.children}</div>
+    <div style={outerDivStyle}>
+      <Box component="fieldset" sx={boxStyle}>
+        {styleOpt === 1 ? (
+          <div
+            style={{
+              height: "20px",
+              width: "100%",
+              backgroundColor: lineColor.toString(),
+              ...font.css(),
+              textAlign: "left",
+              color: foregroundColor.toString()
+            }}
+          >
+            {name}
+          </div>
+        ) : (
+          <></>
+        )}
+        {styleOpt === 0 ? <legend>{name}</legend> : <></>}
+        <div style={INNER_DIV_STYLE}>{props.children}</div>
+      </Box>
     </div>
   );
 };
 
 const GroupBoxWidgetProps = {
   ...WidgetPropType,
-  name: StringProp,
+  ...GroupBoxProps,
+  name: StringPropOpt,
   children: ChildrenPropOpt
 };
 

@@ -208,7 +208,7 @@ export const EmbeddedDisplay = (
   if (props.border?.style === BorderStyle.GroupBox) {
     return (
       <MacroContext.Provider value={embeddedDisplayMacroContext}>
-        <GroupBoxComponent name={resolvedName} compat={true}>
+        <GroupBoxComponent name={resolvedName} styleOpt={0}>
           {component}
         </GroupBoxComponent>
       </MacroContext.Provider>

@@ -44,7 +44,7 @@ const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   display: "display",
   ellipse: "ellipse",
   embedded: "embeddedDisplay",
-  group: "groupingcontainer",
+  group: "groupbox",
   label: "label",
   led: "led",
   textupdate: "readback",
@@ -377,7 +377,9 @@ export function parseBob(
     initialIndex: ["initial_index", bobParseNumber],
     showIndex: ["show_index", opiParseBoolean],
     fallbackSymbol: ["fallback_symbol", opiParseString],
-    rotation: ["rotation", bobParseNumber]
+    rotation: ["rotation", bobParseNumber],
+    styleOpt: ["style", bobParseNumber],
+    lineColor: ["line_color", opiParseColor]
   };
 
   const complexParsers = {
