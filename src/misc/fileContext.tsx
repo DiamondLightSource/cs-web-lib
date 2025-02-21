@@ -53,7 +53,8 @@ export interface TabState {
 export function addPage(
   pageState: PageState,
   location: string,
-  desc: FileDescription
+  desc: FileDescription,
+  pathname?: string
 ): PageState {
   const pagesCopy = { ...pageState };
   pagesCopy[location] = desc;
@@ -171,7 +172,11 @@ export function selectTab(
 export type FileContextType = {
   pageState: PageState;
   tabState: TabState;
-  addPage: (location: string, fileDesc: FileDescription) => void;
+  addPage: (
+    location: string,
+    fileDesc: FileDescription,
+    pathname?: string
+  ) => void;
   removePage: (location: string, fileDesc?: FileDescription) => void;
   addTab: (
     location: string,
@@ -238,9 +243,13 @@ export const FileProvider: React.FC<FileProviderProps> = (
   const fileContext = {
     pageState,
     tabState,
-    addPage: (location: string, fileDesc: FileDescription): void => {
+    addPage: (
+      location: string,
+      fileDesc: FileDescription,
+      pathname?: string
+    ): void => {
       const newPageState = addPage(pageState, location, fileDesc);
-      history.push(history.location.pathname, {
+      history.push(pathname ? pathname : history.location.pathname, {
         pageState: newPageState,
         tabState: history.location.state?.tabState ?? tabState
       });
