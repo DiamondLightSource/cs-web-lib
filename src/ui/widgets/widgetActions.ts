@@ -120,14 +120,15 @@ export const getActionDescription = (action: WidgetAction): string => {
 export const openPage = (
   action: DynamicAction,
   fileContext?: FileContextType,
-  parentMacros?: MacroMap
+  parentMacros?: MacroMap,
+  pathname?: string
 ): void => {
   const { location, file } = action.dynamicInfo;
   file.macros = {
     ...(parentMacros ?? {}),
     ...file.macros
   };
-  fileContext?.addPage(location, file);
+  fileContext?.addPage(location, file, pathname);
 };
 
 export const closePage = (
@@ -163,12 +164,13 @@ export const executeAction = (
   action: WidgetAction,
   files?: FileContextType,
   exitContext?: ExitContextType,
-  parentMacros?: MacroMap
+  parentMacros?: MacroMap,
+  pathname?: string
 ): void => {
   switch (action.type) {
     case OPEN_PAGE:
       if (files) {
-        openPage(action, files, parentMacros);
+        openPage(action, files, parentMacros, pathname);
       } else {
         log.error("Tried to open a page but no file context passed");
       }
