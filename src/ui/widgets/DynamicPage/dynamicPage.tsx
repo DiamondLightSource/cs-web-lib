@@ -51,6 +51,7 @@ export const DynamicPageComponent = (
           width: "100%",
           border: "1px solid black",
           minHeight: "100px",
+          fontSize: "0.625rem",
           ...style
         }}
       >
@@ -82,7 +83,8 @@ export const DynamicPageComponent = (
             <ActionButton
               position={new RelativePosition("25px", "25px")}
               backgroundColor={new Color("var(--light-background)")}
-              foregroundColor={new Color("#ffffff")}
+              foregroundColor={new Color("#000000")}
+              text={"\u2715"}
               actions={{
                 executeAsOne: false,
                 actions: [
@@ -97,7 +99,6 @@ export const DynamicPageComponent = (
                   }
                 ]
               }}
-              image="/img/x.png"
             />
           </div>
         </div>
