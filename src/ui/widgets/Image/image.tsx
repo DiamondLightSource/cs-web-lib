@@ -54,8 +54,8 @@ export const ImageComponent = (
     ...commonCss(props as any),
     overflow,
     textAlign: "left",
-    width: imageWidth,
-    height: imageHeight
+    width: "100%",
+    height: "100%"
   };
 
   // Should we be refreshing image instead of using cache
