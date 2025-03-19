@@ -81,7 +81,8 @@ export const ImageComponent = (
           transform: `rotate(${rotation}deg) scaleX(${
             flipHorizontal ? -1 : 1
           }) scaleY(${flipVertical ? -1 : 1})`,
-          objectFit: props.stretchToFit ? "fill" : "none"
+          objectFit: props.stretchToFit ? "fill" : "none",
+          objectPosition: "top left"
         }}
       />
     </div>
