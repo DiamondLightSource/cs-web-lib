@@ -38,17 +38,7 @@ export const ImageComponent = (
     }
   };
 
-  let imageHeight: string | undefined = undefined;
-  let imageWidth: string | undefined = undefined;
   const overflow = props.overflow ? "visible" : "hidden";
-  if (props.stretchToFit) {
-    imageWidth = "100%";
-    imageHeight = "100%";
-  } else if (props.fitToWidth) {
-    imageWidth = "100%";
-  } else if (props.fitToHeight) {
-    imageHeight = "100%";
-  }
 
   const style: CSSProperties = {
     ...commonCss(props as any),
@@ -75,8 +65,8 @@ export const ImageComponent = (
         src={imageFileName}
         alt={props.alt || undefined}
         style={{
-          width: imageWidth,
-          height: imageHeight,
+          width: "100%",
+          height: "100%",
           display: "block",
           transform: `rotate(${rotation}deg) scaleX(${
             flipHorizontal ? -1 : 1
