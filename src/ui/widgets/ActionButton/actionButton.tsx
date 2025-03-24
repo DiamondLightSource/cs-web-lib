@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { WidgetActions, executeActions } from "../widgetActions";
-import { commonCss, Widget } from "../widget";
+import { Widget } from "../widget";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import classes from "./actionButton.module.css";
 import { registerWidget } from "../register";
@@ -15,7 +15,7 @@ import {
 } from "../propTypes";
 import { Color } from "../../../types/color";
 import { Font } from "../../../types/font";
-import { Border, BorderStyle } from "../../../types/border";
+import { Border } from "../../../types/border";
 import { MacroContext } from "../../../types/macros";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 import { Button } from "@mui/material";
@@ -43,7 +43,8 @@ const ActionButtonPropType = {
   foregroundColor: ColorPropOpt,
   font: FontPropOpt,
   border: BorderPropOpt,
-  visible: BoolPropOpt
+  visible: BoolPropOpt,
+  disabled: BoolPropOpt
 };
 
 const ActionButtonWidgetProps = {
@@ -72,12 +73,14 @@ export const ActionButtonWidget = (
     <ThemeProvider theme={defaultColours}>
       <Button
         variant="contained"
+        disabled={props.disabled}
         sx={{
             height: "100%",
             width: "100%",
             fontFamily: props.font?.css() ?? "",
             color: props.foregroundColor?.toString() ?? defaultColours.palette.primary.contrastText,
             backgroundColor: props.backgroundColor?.toString() ?? defaultColours.palette.primary.main,
+            border: props.border?.css() ?? "" 
             }}
         onClick={onClick}
       >
@@ -91,7 +94,7 @@ export const ActionButtonWidget = (
           <figcaption>{props.text}</figcaption>
         </figure>
       ) : (
-        props.text ?? ""
+          props.text ?? ""
       )}
       </Button>
     </ThemeProvider>
