@@ -18,6 +18,9 @@ import { Font } from "../../../types/font";
 import { Border, BorderStyle } from "../../../types/border";
 import { MacroContext } from "../../../types/macros";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
+import { Button } from "@mui/material";
+import { ThemeProvider } from "@mui/material";
+import { defaultColours } from "../../../colourscheme";
 
 export interface ActionButtonProps {
   text: string;
@@ -31,44 +34,6 @@ export interface ActionButtonProps {
   actions?: WidgetActions;
   visible?: boolean;
 }
-
-export const ActionButtonComponent = (
-  props: ActionButtonProps
-): JSX.Element => {
-  const style = commonCss(props);
-  if (props.disabled) {
-    style["cursor"] = "not-allowed";
-  }
-  style["whiteSpace"] = "normal";
-  // Use default button style if no border defined.
-  if (props.border?.style === BorderStyle.None) {
-    style["borderStyle"] = undefined;
-    style["borderWidth"] = undefined;
-    style["borderColor"] = undefined;
-    style["padding"] = "0";
-  }
-  return (
-    <button
-      className={classes.actionbutton}
-      disabled={props.disabled}
-      onClick={props.onClick}
-      style={style}
-    >
-      {props.image !== undefined ? (
-        <figure className={classes.figure}>
-          <img
-            style={{ width: "100%", display: "block" }}
-            src={props.image}
-            alt={props.image}
-          ></img>
-          <figcaption>{props.text}</figcaption>
-        </figure>
-      ) : (
-        <span style={{ whiteSpace: "normal" }}>{props.text || ""}</span>
-      )}
-    </button>
-  );
-};
 
 const ActionButtonPropType = {
   text: StringPropOpt,
@@ -104,18 +69,32 @@ export const ActionButtonWidget = (
       );
   }
   return (
-    <ActionButtonComponent
-      text={props.text ?? ""}
-      disabled={props.readonly}
-      onClick={onClick}
-      image={props.image}
-      backgroundColor={props.backgroundColor}
-      foregroundColor={props.foregroundColor}
-      font={props.font}
-      border={props.border}
-      actions={props.actions as WidgetActions}
-      visible={props.visible}
-    />
+    <ThemeProvider theme={defaultColours}>
+      <Button
+        variant="contained"
+        sx={{
+            height: "100%",
+            width: "100%",
+            fontFamily: props.font?.css() ?? "",
+            color: props.foregroundColor?.toString() ?? defaultColours.palette.primary.contrastText,
+            backgroundColor: props.backgroundColor?.toString() ?? defaultColours.palette.primary.main,
+            }}
+        onClick={onClick}
+      >
+      {props.image !== undefined ? (
+        <figure className={classes.figure}>
+          <img
+            style={{ width: "100%", display: "block" }}
+            src={props.image}
+            alt={props.image}
+          ></img>
+          <figcaption>{props.text}</figcaption>
+        </figure>
+      ) : (
+        props.text ?? ""
+      )}
+      </Button>
+    </ThemeProvider>
   );
 };
 
