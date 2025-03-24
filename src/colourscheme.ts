@@ -7,11 +7,11 @@ export const defaultColours = createTheme({
       // light: currently calculated automatically by MUI
       // dark: currently calculated automatically by MUI
       contrastText: "#FFFFFF"
-    },
+    }
   },
   typography: {
     button: {
-      textTransform: "none",
-    },
-  },
+      textTransform: "none"
+    }
+  }
 });
