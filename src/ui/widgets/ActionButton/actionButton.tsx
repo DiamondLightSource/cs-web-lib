@@ -75,27 +75,27 @@ export const ActionButtonWidget = (
         variant="contained"
         disabled={props.disabled}
         sx={{
-            height: "100%",
-            width: "100%",
-            fontFamily: props.font?.css() ?? "",
-            color: props.foregroundColor?.toString() ?? defaultColours.palette.primary.contrastText,
-            backgroundColor: props.backgroundColor?.toString() ?? defaultColours.palette.primary.main,
-            border: props.border?.css() ?? "" 
-            }}
+          height: "100%",
+          width: "100%",
+          fontFamily: props.font?.css() ?? "",
+          color: props.foregroundColor?.toString() ?? defaultColours.palette.primary.contrastText,
+          backgroundColor: props.backgroundColor?.toString() ?? defaultColours.palette.primary.main,
+          border: props.border?.css() ?? "" 
+          }}
         onClick={onClick}
       >
-      {props.image !== undefined ? (
-        <figure className={classes.figure}>
-          <img
-            style={{ width: "100%", display: "block" }}
-            src={props.image}
-            alt={props.image}
-          ></img>
-          <figcaption>{props.text}</figcaption>
-        </figure>
-      ) : (
-          props.text ?? ""
-      )}
+        {props.image !== undefined ? (
+          <figure className={classes.figure}>
+            <img
+              style={{ width: "100%", display: "block" }}
+              src={props.image}
+              alt={props.image}
+            ></img>
+            <figcaption>{props.text}</figcaption>
+          </figure>
+        ) : (
+          (props.text ?? "")
+        )}
       </Button>
     </ThemeProvider>
   );
