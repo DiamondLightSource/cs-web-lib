@@ -78,10 +78,10 @@ export const ActionButtonWidget = (
           height: "100%",
           width: "100%",
           fontFamily: props.font?.css() ?? "",
-          color: 
+          color:
             props.foregroundColor?.toString() ??
             defaultColours.palette.primary.contrastText,
-          backgroundColor: 
+          backgroundColor:
             props.backgroundColor?.toString() ??
             defaultColours.palette.primary.main,
           border: props.border?.css() ?? ""
