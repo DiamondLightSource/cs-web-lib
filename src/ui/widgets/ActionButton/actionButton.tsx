@@ -11,7 +11,8 @@ import {
   ColorPropOpt,
   FontPropOpt,
   BorderPropOpt,
-  BoolPropOpt
+  BoolPropOpt,
+  FuncPropOpt
 } from "../propTypes";
 import { Color } from "../../../types/color";
 import { Font } from "../../../types/font";
@@ -35,6 +36,45 @@ export interface ActionButtonProps {
   visible?: boolean;
 }
 
+export const ActionButtonComponent = (
+  props: ActionButtonProps
+): JSX.Element => {
+  return (
+    <ThemeProvider theme={defaultColours}>
+      <Button
+        variant="contained"
+        disabled={props.disabled}
+        sx={{
+          height: "100%",
+          width: "100%",
+          fontFamily: props.font?.css() ?? "",
+          color:
+            props.foregroundColor?.toString() ??
+            defaultColours.palette.primary.contrastText,
+          backgroundColor:
+            props.backgroundColor?.toString() ??
+            defaultColours.palette.primary.main,
+          border: props.border?.css() ?? ""
+        }}
+        onClick={props.onClick}
+      >
+        {props.image !== undefined ? (
+          <figure className={classes.figure}>
+            <img
+              style={{ width: "100%", display: "block" }}
+              src={props.image}
+              alt={props.image}
+            ></img>
+            <figcaption>{props.text}</figcaption>
+          </figure>
+        ) : (
+          (props.text ?? "")
+        )}
+      </Button>
+    </ThemeProvider>
+  );
+};
+
 const ActionButtonPropType = {
   text: StringPropOpt,
   actions: ActionsPropType,
@@ -44,7 +84,8 @@ const ActionButtonPropType = {
   font: FontPropOpt,
   border: BorderPropOpt,
   visible: BoolPropOpt,
-  disabled: BoolPropOpt
+  disabled: BoolPropOpt,
+  onClick: FuncPropOpt
 };
 
 const ActionButtonWidgetProps = {
@@ -70,38 +111,18 @@ export const ActionButtonWidget = (
       );
   }
   return (
-    <ThemeProvider theme={defaultColours}>
-      <Button
-        variant="contained"
-        disabled={props.disabled}
-        sx={{
-          height: "100%",
-          width: "100%",
-          fontFamily: props.font?.css() ?? "",
-          color:
-            props.foregroundColor?.toString() ??
-            defaultColours.palette.primary.contrastText,
-          backgroundColor:
-            props.backgroundColor?.toString() ??
-            defaultColours.palette.primary.main,
-          border: props.border?.css() ?? ""
-        }}
-        onClick={onClick}
-      >
-        {props.image !== undefined ? (
-          <figure className={classes.figure}>
-            <img
-              style={{ width: "100%", display: "block" }}
-              src={props.image}
-              alt={props.image}
-            ></img>
-            <figcaption>{props.text}</figcaption>
-          </figure>
-        ) : (
-          (props.text ?? "")
-        )}
-      </Button>
-    </ThemeProvider>
+    <ActionButtonComponent
+      text={props.text ?? ""}
+      disabled={props.readonly}
+      onClick={onClick}
+      image={props.image}
+      backgroundColor={props.backgroundColor}
+      foregroundColor={props.foregroundColor}
+      font={props.font}
+      border={props.border}
+      actions={props.actions as WidgetActions}
+      visible={props.visible}
+    />
   );
 };
 
