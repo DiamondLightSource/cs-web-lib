@@ -18,7 +18,7 @@ import { Font } from "../../../types/font";
 import { Border } from "../../../types/border";
 import { MacroContext } from "../../../types/macros";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
-import { Button, ThemeProvider} from "@mui/material";
+import { Button, ThemeProvider } from "@mui/material";
 
 import { defaultColours } from "../../../colourscheme";
 
@@ -78,10 +78,12 @@ export const ActionButtonWidget = (
           height: "100%",
           width: "100%",
           fontFamily: props.font?.css() ?? "",
-          color: props.foregroundColor?.toString() ??
-                     defaultColours.palette.primary.contrastText,
-          backgroundColor: props.backgroundColor?.toString() ??
-                     defaultColours.palette.primary.main,
+          color: 
+            props.foregroundColor?.toString() ??
+            defaultColours.palette.primary.contrastText,
+          backgroundColor: 
+            props.backgroundColor?.toString() ??
+            defaultColours.palette.primary.main,
           border: props.border?.css() ?? ""
         }}
         onClick={onClick}
