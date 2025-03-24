@@ -19,5 +19,7 @@ exports[`<ActionButton /> > it matches the snapshot 1`] = `
   onTouchStart={[Function]}
   tabIndex={0}
   type="button"
+>
+  hello
 </button>
 `;
