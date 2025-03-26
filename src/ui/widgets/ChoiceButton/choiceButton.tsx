@@ -1,4 +1,4 @@
-import React, { CSSProperties, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Widget } from "../widget";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
@@ -13,10 +13,12 @@ import {
   StringPropOpt
 } from "../propTypes";
 import { DType } from "../../../types/dtypes";
-import classes from "./choiceButton.module.css";
-import { Color } from "../../../types/color";
+// import classes from "./choiceButton.module.css";
 import { writePv } from "../../hooks/useSubscription";
 import { Font } from "../../../types/font";
+import { ToggleButton, ToggleButtonGroup, ThemeProvider } from "@mui/material";
+import { defaultColours } from "../../../colourscheme";
+import { Color } from "../../../types";
 
 const ChoiceButtonProps = {
   pvName: StringPropOpt,
@@ -50,8 +52,6 @@ export const ChoiceButtonComponent = (
     pvName,
     items = ["Item 1", "Item 2"],
     horizontal = true,
-    backgroundColor = Color.fromRgba(210, 210, 210),
-    foregroundColor = Color.BLACK,
     selectedColor = Color.fromRgba(200, 200, 200),
     font = new Font(14)
   } = props;
@@ -74,61 +74,60 @@ export const ChoiceButtonComponent = (
   // Number of buttons to create
   const numButtons = options.length || 1;
   // Determine width and height of buttons if horizontal or vertically placed
-  const buttonHeight = horizontal ? height : height / numButtons - 4;
-  const buttonWidth = horizontal ? width / numButtons - 4 : width;
+  const buttonHeight = horizontal ? height : height / numButtons;
+  const buttonWidth = horizontal ? width / numButtons : width;
 
-  const style: CSSProperties = {
-    height: buttonHeight,
-    width: buttonWidth,
-    textAlignLast: "center",
-    cursor: enabled ? "default" : "not-allowed",
-    color: foregroundColor?.toString(),
-    ...font.css()
-  };
-
-  function handleClick(index: number) {
+  const handleChange = (
+    event: React.MouseEvent<HTMLElement>,
+    newSelect: number
+  ) => {
     // Write to PV
     if (pvName) {
-      writePv(pvName, new DType({ doubleValue: index }));
+      writePv(pvName, new DType({ doubleValue: newSelect }));
     }
-  }
-
-  // Iterate over items to create buttons
-  const elements: Array<JSX.Element> = [];
-  options.forEach((item: string | null | undefined, idx: number) => {
-    if (typeof item === "string") {
-      elements.push(
-        <button
-          className={classes.ChoiceButton}
-          disabled={enabled ? false : true}
-          onClick={() => handleClick(idx)}
-          style={{
-            ...style,
-            backgroundColor:
-              selected === idx
-                ? selectedColor.toString()
-                : backgroundColor.toString(),
-            boxShadow:
-              selected === idx
-                ? `inset 0px ${Math.round(height / 6)}px ${Math.round(
-                    height / 4
-                  )}px 0px rgba(0,0,0,0.3)`
-                : "none"
-          }}
-          key={item}
-        >
-          {item}
-        </button>
-      );
-    }
-  });
+    setSelected(newSelect);
+  };
 
   return (
-    <div
-      style={{ display: "flex", flexDirection: horizontal ? "row" : "column" }}
-    >
-      {elements}
-    </div>
+    <ThemeProvider theme={defaultColours}>
+      <ToggleButtonGroup
+        exclusive
+        fullWidth={true}
+        disabled={enabled ? false : true}
+        value={selected}
+        onChange={handleChange}
+        orientation={horizontal ? "horizontal" : "vertical"}
+        sx={{
+          height: height,
+          width: width
+        }}
+      >
+        {options
+          .filter(item => typeof item === "string")
+          .map((item, idx) => (
+            <ToggleButton
+              key={item}
+              value={idx}
+              sx={{
+                minWidth: buttonWidth,
+                minHeight: buttonHeight,
+                fontFamily: font.css(),
+                color:
+                  props.foregroundColor?.toString() ??
+                  defaultColours.palette.primary.contrastText,
+                backgroundColor:
+                  props.backgroundColor?.toString() ??
+                  defaultColours.palette.primary.main,
+                "&.Mui-selected, &.Mui-selected:hover, &:hover": {
+                  backgroundColor: selectedColor.toString()
+                }
+              }}
+            >
+              {item}
+            </ToggleButton>
+          ))}
+      </ToggleButtonGroup>
+    </ThemeProvider>
   );
 };
 
