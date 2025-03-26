@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { commonCss, Widget } from "../widget";
+import { Widget } from "../widget";
 import {
   InferWidgetProps,
   StringPropOpt,
@@ -9,6 +9,12 @@ import {
 } from "../propTypes";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
+import {
+  FormControlLabel,
+  Checkbox as CheckboxMui,
+  ThemeProvider
+} from "@mui/material";
+import { defaultColours } from "../../../colourscheme";
 
 export const CheckboxProps = {
   label: StringPropOpt,
@@ -31,33 +37,37 @@ export type CheckboxComponentProps = InferWidgetProps<typeof CheckboxProps> &
 export const CheckboxComponent = (
   props: CheckboxComponentProps
 ): JSX.Element => {
-  const style = {
-    ...commonCss(props as any),
-    display: "flex",
-    alignItems: "center",
-    cursor: "pointer"
-  };
-
   const [checked, setChecked] = useState(true);
 
-  const toggle = (): void => {
+  const handleChange = (): void => {
     setChecked(!checked);
   };
-  const inp = (
-    <input
-      style={{ cursor: "inherit" }}
-      id="cb"
-      type="checkbox"
-      checked={checked}
-      readOnly={true}
-    />
-  );
 
   return (
-    <form onClick={toggle} style={style}>
-      {inp}
-      <label style={{ cursor: "inherit" }}>{props.label}</label>
-    </form>
+    <ThemeProvider theme={defaultColours}>
+      <FormControlLabel
+        sx={{
+          color:
+            props.foregroundColor?.toString() ??
+            defaultColours.palette.primary.contrastText,
+          "&:npt($checked) .MuiIconButton-label:after": {
+            color:
+              props.foregroundColor?.toString() ??
+              defaultColours.palette.primary.main
+          }
+        }}
+        control={
+          <CheckboxMui
+            checked={checked}
+            onChange={handleChange}
+            sx={{
+              color: defaultColours.palette.primary.main
+            }}
+          />
+        }
+        label={props.label}
+      />
+    </ThemeProvider>
   );
 };
 
