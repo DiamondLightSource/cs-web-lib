@@ -15,6 +15,8 @@ import {
   FloatPropOpt,
   MacrosPropOpt
 } from "../propTypes";
+import { Typography, ThemeProvider } from "@mui/material";
+import { defaultColours } from "../../../colourscheme";
 
 const LabelProps = {
   macros: MacrosPropOpt,
@@ -53,7 +55,6 @@ export const LabelComponent = (
     rotationAngle,
     wrapWords
   } = props;
-  const className = props.className ?? `Label ${classes.Label}`;
   // Since display is "flex", use "flex-start" and "flex-end" to align
   // the content.
   let alignment = "center";
@@ -93,9 +94,20 @@ export const LabelComponent = (
 
   // Simple component to display text - defaults to black text and dark grey background
   return (
-    <div className={className} style={style}>
-      <span style={{ transform }}> {text} </span>
-    </div>
+    <ThemeProvider theme={defaultColours}>
+      <Typography
+        sx={{
+          color:
+            props.foregroundColor?.toString() ??
+            defaultColours.palette.primary.contrastText,
+          fontFamily: props.font?.css() ?? null,
+          transform: transform?.toString() ?? null,
+          border: "2px"
+        }}
+      >
+        {text}
+      </Typography>
+    </ThemeProvider>
   );
 };
 
