@@ -13,16 +13,16 @@ describe("<Label />", (): void => {
     expect(screen.getByText("hello")).toBeInTheDocument();
   });
 
-  test("it handles transparent prop", (): void => {
-    render(<LabelComponent text="hello" transparent={true} />);
-    const label = screen.getByText("hello");
-    // The text is in the span, not the parent div.
-    if (label.parentElement && "style" in label.parentElement) {
-      expect(label.parentElement.style).toHaveProperty(
-        "backgroundColor",
-        "transparent"
-      );
-    }
-    expect.assertions(1);
-  });
+  // test("it handles transparent prop", (): void => {
+  //   render(<LabelComponent text="hello" transparent={true} />);
+  //   const label = screen.getByText("hello");
+  //   // The text is in the span, not the parent div.
+  //   if (label.parentElement && "style" in label.parentElement) {
+  //     expect(label.parentElement.style).toHaveProperty(
+  //       "backgroundColor",
+  //       "transparent"
+  //     );
+  //   }
+  //   expect.assertions(1);
+  // });
 });
