@@ -82,14 +82,11 @@ exports[`<Symbol /> from .opi file > matches snapshot 1`] = `
     <div
       style="padding: 5%;"
     >
-      <div
-        class="Label _Label_c35983"
-        style="background-color: transparent; cursor: default; justify-content: flex-start; align-items: flex-start;"
+      <p
+        class="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-1psacti-MuiTypography-root"
       >
-        <span>
-           Fake value 
-        </span>
-      </div>
+        Fake value
+      </p>
     </div>
   </div>
 </DocumentFragment>
