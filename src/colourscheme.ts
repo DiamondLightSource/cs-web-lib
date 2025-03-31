@@ -6,7 +6,7 @@ export const defaultColours = createTheme({
       main: "#D2D2D2",
       // light: currently calculated automatically by MUI
       // dark: currently calculated automatically by MUI
-      contrastText: "#FFFFFF"
+      contrastText: "#000000"
     }
   },
   typography: {
