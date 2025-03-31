@@ -25,11 +25,11 @@ import { defaultColours } from "../../../colourscheme";
 
 export interface ActionButtonProps {
   text: string;
-  disabled?: boolean;
+  enabled?: boolean;
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
   image?: string;
-  backgroundColor?: Color;
-  foregroundColor?: Color;
+  backgroundColor?: Color | string;
+  foregroundColor?: Color | string;
   border?: Border;
   font?: Font;
   actions?: WidgetActions;
@@ -39,21 +39,25 @@ export interface ActionButtonProps {
 export const ActionButtonComponent = (
   props: ActionButtonProps
 ): JSX.Element => {
+  const {
+    enabled = true,
+    foregroundColor = defaultColours.palette.primary.contrastText,
+    backgroundColor = defaultColours.palette.primary.main
+  } = props;
   return (
     <ThemeProvider theme={defaultColours}>
       <Button
         variant="contained"
-        disabled={props.disabled}
+        disabled={!enabled}
         sx={{
           height: "100%",
           width: "100%",
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textAlign: "left",
           fontFamily: props.font?.css() ?? "",
-          color:
-            props.foregroundColor?.toString() ??
-            defaultColours.palette.primary.contrastText,
-          backgroundColor:
-            props.backgroundColor?.toString() ??
-            defaultColours.palette.primary.main,
+          color: foregroundColor.toString(),
+          backgroundColor: backgroundColor.toString(),
           border: props.border?.css() ?? "",
           ".Mui-disabled &": {
             pointerEvents: "unset",
@@ -88,7 +92,7 @@ const ActionButtonPropType = {
   font: FontPropOpt,
   border: BorderPropOpt,
   visible: BoolPropOpt,
-  disabled: BoolPropOpt,
+  enabled: BoolPropOpt,
   onClick: FuncPropOpt
 };
 
@@ -117,7 +121,7 @@ export const ActionButtonWidget = (
   return (
     <ActionButtonComponent
       text={props.text ?? ""}
-      disabled={props.readonly}
+      enabled={props.enabled}
       onClick={onClick}
       image={props.image}
       backgroundColor={props.backgroundColor}
