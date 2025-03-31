@@ -1,4 +1,6 @@
+import { TextField, ThemeProvider } from "@mui/material";
 import React, { CSSProperties, useState } from "react";
+import { defaultColours } from "../../../colourscheme";
 
 export const InputComponent = (props: {
   value: string;
@@ -17,9 +19,7 @@ export const InputComponent = (props: {
       event.currentTarget.blur();
     }
   }
-  function onChange(event: React.ChangeEvent<HTMLInputElement>): void {
-    setInputValue(event.currentTarget.value);
-  }
+
   function onClick(event: React.MouseEvent<HTMLInputElement>): void {
     /* When focus gained allow editing. */
     if (!props.readonly && !editing) {
@@ -27,25 +27,27 @@ export const InputComponent = (props: {
       setEditing(true);
     }
   }
-  function onBlur(event: React.ChangeEvent<HTMLInputElement>): void {
-    setEditing(false);
-  }
 
   if (!editing && inputValue !== props.value) {
     setInputValue(props.value);
   }
 
   return (
-    <input
-      type="text"
-      value={inputValue}
-      readOnly={props.readonly}
-      onKeyDown={onKeyDown}
-      onChange={onChange}
-      onBlur={onBlur}
-      onClick={onClick}
-      className={props.className}
-      style={props.style}
-    />
+    <ThemeProvider theme={defaultColours}>
+      <TextField
+        variant="outlined"
+        type="text"
+        value={inputValue}
+        slotProps={{ input: { readOnly: props.readonly } }}
+        onKeyDown={onKeyDown}
+        onChange={event => setInputValue(event.target.value)}
+        onBlur={() => setEditing(false)}
+        onClick={onClick}
+        className={props.className}
+        sx={{
+          input: { color: props.style?.color ?? null }
+        }}
+      />
+    </ThemeProvider>
   );
 };
