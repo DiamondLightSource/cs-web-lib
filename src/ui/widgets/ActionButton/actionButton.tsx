@@ -54,7 +54,11 @@ export const ActionButtonComponent = (
           backgroundColor:
             props.backgroundColor?.toString() ??
             defaultColours.palette.primary.main,
-          border: props.border?.css() ?? ""
+          border: props.border?.css() ?? "",
+          ".Mui-disabled &": {
+            pointerEvents: "unset",
+            cursor: "not-allowed"
+          }
         }}
         onClick={props.onClick}
       >
