@@ -19,7 +19,7 @@ import { Font } from "../../../types/font";
 import { Border } from "../../../types/border";
 import { MacroContext } from "../../../types/macros";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
-import { Button, ThemeProvider } from "@mui/material";
+import { Box, Button, ThemeProvider } from "@mui/material";
 
 import { defaultColours } from "../../../colourscheme";
 
@@ -49,19 +49,26 @@ export const ActionButtonComponent = (
       <Button
         variant="contained"
         disabled={!enabled}
+        fullWidth={true}
         sx={{
           height: "100%",
           width: "100%",
-          whiteSpace: "nowrap",
-          overflow: "hidden",
-          textAlign: "left",
+          minWidth: 0,
+          minHeight: 0,
+          padding: 0,
           fontFamily: props.font?.css() ?? "",
           color: foregroundColor.toString(),
           backgroundColor: backgroundColor.toString(),
           border: props.border?.css() ?? "",
-          ".Mui-disabled &": {
-            pointerEvents: "unset",
-            cursor: "not-allowed"
+          "&.MuiButton-root": {
+            whiteSpace: "nowrap",
+            wordBreak: "normal",
+            overflow: "hidden",
+            display: "block"
+          },
+          "&.Mui-disabled": {
+            cursor: "not-allowed",
+            pointerEvents: "all !important"
           }
         }}
         onClick={props.onClick}
