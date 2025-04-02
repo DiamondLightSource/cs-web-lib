@@ -14,7 +14,7 @@ import {
   FloatPropOpt,
   MacrosPropOpt
 } from "../propTypes";
-import { Typography, ThemeProvider } from "@mui/material";
+import { Typography } from "@mui/material";
 import { defaultColours } from "../../../colourscheme";
 
 const LabelProps = {
@@ -29,7 +29,7 @@ const LabelProps = {
   foregroundColor: ColorPropOpt,
   backgroundColor: ColorPropOpt,
   border: BorderPropOpt,
-  rotationAngle: FloatPropOpt,
+  rotationStep: FloatPropOpt,
   wrapWords: BoolPropOpt
 };
 
@@ -42,16 +42,21 @@ export const LabelComponent = (
   props: InferWidgetProps<typeof LabelProps>
 ): JSX.Element => {
   // Default labels to transparent.
-
-  const transparent = props.transparent ?? true;
-
   const {
+    transparent = true,
+    foregroundColor = defaultColours.palette.primary.contrastText,
     textAlign = "left",
     textAlignV = "top",
     text = "",
-    rotationAngle,
+    rotationStep = 0,
     wrapWords
   } = props;
+  const backgroundColor = transparent
+    ? "transparent"
+    : (props.backgroundColor?.toString() ??
+      defaultColours.palette.primary.main);
+  const font = props.font?.css() ?? defaultColours.typography;
+
   // Since display is "flex", use "flex-start" and "flex-end" to align
   // the content.
   let alignment = "center";
@@ -68,39 +73,27 @@ export const LabelComponent = (
     alignmentV = "flex-end";
   }
 
-  let transform = undefined;
-  if (rotationAngle) {
-    transform = `rotate(${rotationAngle}deg)`;
-  }
-
   // Simple component to display text - defaults to black text and dark grey background
   return (
-    <ThemeProvider theme={defaultColours}>
-      <Typography
-        noWrap={!wrapWords}
-        sx={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          justifyContent: alignment,
-          alignItems: alignmentV,
-          textAlign: textAlign,
-          wordBreak: wrapWords ? "break-word" : null,
-          whiteSpace: wrapWords ? "break-spaces" : null,
-          color:
-            props.foregroundColor?.toString() ??
-            defaultColours.palette.primary.contrastText,
-          backgroundColor: transparent
-            ? null
-            : (props.backgroundColor?.toString() ??
-              defaultColours.palette.primary.main),
-          fontFamily: props.font?.css() ?? null,
-          transform: transform?.toString() ?? null
-        }}
-      >
-        {text}
-      </Typography>
-    </ThemeProvider>
+    <Typography
+      noWrap={!wrapWords}
+      sx={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        justifyContent: alignment,
+        alignItems: alignmentV,
+        textAlign: textAlign,
+        wordBreak: wrapWords ? "break-word" : null,
+        whiteSpace: wrapWords ? "break-spaces" : null,
+        color: foregroundColor.toString(),
+        backgroundColor: backgroundColor,
+        fontFamily: font,
+        transform: `rotate(${rotationStep * -90}deg)`.toString()
+      }}
+    >
+      {text}
+    </Typography>
   );
 };
 
