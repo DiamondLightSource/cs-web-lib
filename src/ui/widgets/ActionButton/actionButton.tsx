@@ -20,7 +20,7 @@ import { Font } from "../../../types/font";
 import { Border } from "../../../types/border";
 import { MacroContext } from "../../../types/macros";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
-import { Button } from "@mui/material";
+import { styled, Button as MuiButton } from "@mui/material";
 
 import { diamondTheme } from "../../../diamondTheme";
 
@@ -38,6 +38,27 @@ export interface ActionButtonProps {
   rotationStep?: number;
   transparent?: boolean;
 }
+
+const Button = styled(MuiButton)({
+  "&.MuiButton-root": {
+    display: "block",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100%",
+    width: "100%",
+    minWidth: 0,
+    minHeight: 0,
+    padding: 0,
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+    wordBreak: "break-word",
+    textTransform: "none"
+  },
+  "&.Mui-disabled": {
+    cursor: "not-allowed",
+    pointerEvents: "all !important"
+  }
+});
 
 export const ActionButtonComponent = (
   props: ActionButtonProps
@@ -64,24 +85,7 @@ export const ActionButtonComponent = (
         color: foregroundColor.toString(),
         backgroundColor: backgroundColor,
         border: border,
-        "&.MuiButton-root": {
-          display: "block",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "100%",
-          width: "100%",
-          minWidth: 0,
-          minHeight: 0,
-          padding: 0,
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          fontFamily: font,
-          textTransform: "none"
-        },
-        "&.Mui-disabled": {
-          cursor: "not-allowed",
-          pointerEvents: "all !important"
-        }
+        fontFamily: font
       }}
       onClick={props.onClick}
     >
@@ -98,9 +102,7 @@ export const ActionButtonComponent = (
         <span
           style={{
             display: "block",
-            transform: `rotation(${rotationStep * -90}deg)`.toString(),
-            whiteSpace: "nowrap",
-            textOverflow: "ellipsis"
+            transform: `rotation(${rotationStep * -90}deg)`.toString()
           }}
         >
           {props.text ?? ""}
