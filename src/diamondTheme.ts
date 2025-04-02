@@ -1,6 +1,6 @@
 import { createTheme } from "@mui/material/styles";
 
-export const defaultColours = createTheme({
+export const diamondTheme = createTheme({
   palette: {
     primary: {
       main: "#D2D2D2",
@@ -10,6 +10,8 @@ export const defaultColours = createTheme({
     }
   },
   typography: {
+    fontFamily: "Liberation Sans",
+    fontSize: 14,
     button: {
       textTransform: "none"
     }
