@@ -2,7 +2,7 @@
 
 exports[`<ActionButton /> > it matches the snapshot 1`] = `
 <button
-  className="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-kpvziq-MuiButtonBase-root-MuiButton-root"
+  className="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-fullWidth css-13zohxw-MuiButtonBase-root-MuiButton-root"
   disabled={false}
   onBlur={[Function]}
   onClick={[MockFunction spy]}
@@ -20,6 +20,17 @@ exports[`<ActionButton /> > it matches the snapshot 1`] = `
   tabIndex={0}
   type="button"
 >
-  hello
+  <span
+    style={
+      {
+        "display": "block",
+        "textOverflow": "ellipsis",
+        "transform": "rotation(0deg)",
+        "whiteSpace": "nowrap",
+      }
+    }
+  >
+    hello
+  </span>
 </button>
 `;
