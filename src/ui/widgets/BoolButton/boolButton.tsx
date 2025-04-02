@@ -8,14 +8,15 @@ import {
   IntPropOpt,
   PointsPropOpt,
   BoolPropOpt,
-  StringPropOpt
+  StringPropOpt,
+  FontPropOpt
 } from "../propTypes";
 import { Color } from "../../../types/color";
 import classes from "./boolButton.module.css";
 import { writePv } from "../../hooks/useSubscription";
 import { DType } from "../../../types/dtypes";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
-import { Button, ThemeProvider } from "@mui/material";
+import { Button } from "@mui/material";
 import { defaultColours } from "../../../colourscheme";
 
 // For HTML button, these are the sizes of the buffer on
@@ -42,7 +43,9 @@ const BoolButtonProps = {
   showBooleanLabel: BoolPropOpt,
   showLed: BoolPropOpt,
   confirmMessage: StringPropOpt,
-  labelsFromPv: BoolPropOpt
+  labelsFromPv: BoolPropOpt,
+  enabled: BoolPropOpt,
+  font: FontPropOpt
 };
 
 export type BoolButtonComponentProps = InferWidgetProps<
@@ -62,6 +65,8 @@ export const BoolButtonComponent = (
   const {
     width = WIDGET_DEFAULT_SIZES["bool_button"][0],
     height = WIDGET_DEFAULT_SIZES["bool_button"][1],
+    foregroundColor = defaultColours.palette.primary.contrastText,
+    backgroundColor = defaultColours.palette.primary.main,
     pvName,
     value,
     onState = 1,
@@ -71,8 +76,11 @@ export const BoolButtonComponent = (
     squareButton = false,
     showBooleanLabel = true,
     showLed = true,
-    labelsFromPv = false
+    labelsFromPv = false,
+    enabled = true
   } = props;
+
+  const font = props.font?.css() ?? defaultColours.typography;
 
   // These could be overwritten by  PV labels
   let { onLabel = "On", offLabel = "Off" } = props;
@@ -147,36 +155,37 @@ export const BoolButtonComponent = (
 
   return (
     <>
-      <ThemeProvider theme={defaultColours}>
-        <Button
-          variant="contained"
-          onClick={handleClick}
-          sx={{
-            color:
-              props.foregroundColor?.toString() ??
-              defaultColours.palette.primary.contrastText,
-            // If no LED, use on/off colours as background
-            backgroundColor: showLed
-              ? (props.backgroundColor?.toString() ??
-                defaultColours.palette.primary.main)
-              : ledColor,
-            width: props.width
+      <Button
+        variant="contained"
+        onClick={handleClick}
+        disabled={!enabled}
+        sx={{
+          fontFamily: font,
+          color: foregroundColor.toString(),
+          // If no LED, use on/off colours as background
+          backgroundColor: showLed ? backgroundColor.toString() : ledColor,
+          width: "100%",
+          height: "100%",
+          textTransform: "none",
+          "&.Mui-disabled": {
+            cursor: "not-allowed",
+            pointerEvents: "all !important"
+          }
+        }}
+      >
+        <span
+          className={classes.LedAndText}
+          style={{
+            width: width - BUTTON_BUFFER.width,
+            height: height - BUTTON_BUFFER.height
           }}
         >
-          <span
-            className={classes.LedAndText}
-            style={{
-              width: width - BUTTON_BUFFER.width,
-              height: height - BUTTON_BUFFER.height
-            }}
-          >
-            <span className={classes.Led} style={ledStyle} />
-            <span className={classes.Text} style={textStyle}>
-              {label}
-            </span>
+          <span className={classes.Led} style={ledStyle} />
+          <span className={classes.Text} style={textStyle}>
+            {label}
           </span>
-        </Button>
-      </ThemeProvider>
+        </span>
+      </Button>
     </>
   );
 };
