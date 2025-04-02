@@ -29,8 +29,8 @@ export interface ActionButtonProps {
   enabled?: boolean;
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
   image?: string;
-  backgroundColor?: Color | string;
-  foregroundColor?: Color | string;
+  backgroundColor?: Color;
+  foregroundColor?: Color;
   border?: Border;
   font?: Font;
   actions?: WidgetActions;
@@ -57,7 +57,7 @@ export const ActionButtonComponent = (
 
   return (
     <Button
-      variant="contained"
+      variant={transparent ? "text" : "contained"}
       disabled={!enabled}
       fullWidth={true}
       sx={{
