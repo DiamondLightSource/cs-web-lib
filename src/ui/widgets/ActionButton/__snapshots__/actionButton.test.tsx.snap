@@ -2,7 +2,7 @@
 
 exports[`<ActionButton /> > it matches the snapshot 1`] = `
 <button
-  className="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-fullWidth css-13zohxw-MuiButtonBase-root-MuiButton-root"
+  className="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-fullWidth css-q0v14n-MuiButtonBase-root-MuiButton-root"
   disabled={false}
   onBlur={[Function]}
   onClick={[MockFunction spy]}
@@ -24,9 +24,8 @@ exports[`<ActionButton /> > it matches the snapshot 1`] = `
     style={
       {
         "display": "block",
-        "textOverflow": "ellipsis",
+        "lineHeight": 1,
         "transform": "rotation(0deg)",
-        "whiteSpace": "nowrap",
       }
     }
   >
