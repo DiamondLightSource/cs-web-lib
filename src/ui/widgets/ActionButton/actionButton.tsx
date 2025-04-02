@@ -12,16 +12,17 @@ import {
   FontPropOpt,
   BorderPropOpt,
   BoolPropOpt,
-  FuncPropOpt
+  FuncPropOpt,
+  FloatPropOpt
 } from "../propTypes";
 import { Color } from "../../../types/color";
 import { Font } from "../../../types/font";
 import { Border } from "../../../types/border";
 import { MacroContext } from "../../../types/macros";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
-import { Box, Button, ThemeProvider } from "@mui/material";
+import { Button, ThemeProvider } from "@mui/material";
 
-import { defaultColours } from "../../../colourscheme";
+import { diamondTheme } from "../../../diamondTheme";
 
 export interface ActionButtonProps {
   text: string;
@@ -34,6 +35,8 @@ export interface ActionButtonProps {
   font?: Font;
   actions?: WidgetActions;
   visible?: boolean;
+  rotationStep?: number;
+  transparent?: boolean;
 }
 
 export const ActionButtonComponent = (
@@ -41,30 +44,39 @@ export const ActionButtonComponent = (
 ): JSX.Element => {
   const {
     enabled = true,
-    foregroundColor = defaultColours.palette.primary.contrastText,
-    backgroundColor = defaultColours.palette.primary.main
+    foregroundColor = diamondTheme.palette.primary.contrastText,
+    rotationStep = 0,
+    transparent = false
   } = props;
+
+  const backgroundColor = transparent
+    ? "transparent"
+    : (props.backgroundColor?.toString() ?? diamondTheme.palette.primary.main);
+  const font = props.font?.css() ?? diamondTheme.typography;
+  const border = props.border?.css() ?? null;
+
   return (
-    <ThemeProvider theme={defaultColours}>
+    <ThemeProvider theme={diamondTheme}>
       <Button
         variant="contained"
         disabled={!enabled}
         fullWidth={true}
         sx={{
-          height: "100%",
-          width: "100%",
-          minWidth: 0,
-          minHeight: 0,
-          padding: 0,
-          fontFamily: props.font?.css() ?? "",
           color: foregroundColor.toString(),
-          backgroundColor: backgroundColor.toString(),
-          border: props.border?.css() ?? "",
+          backgroundColor: backgroundColor,
+          border: border,
           "&.MuiButton-root": {
-            whiteSpace: "nowrap",
-            wordBreak: "normal",
+            display: "block",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100%",
+            width: "100%",
+            minWidth: 0,
+            minHeight: 0,
+            padding: 0,
             overflow: "hidden",
-            display: "block"
+            textOverflow: "ellipsis",
+            fontFamily: font
           },
           "&.Mui-disabled": {
             cursor: "not-allowed",
@@ -83,7 +95,16 @@ export const ActionButtonComponent = (
             <figcaption>{props.text}</figcaption>
           </figure>
         ) : (
-          (props.text ?? "")
+          <span
+            style={{
+              display: "block",
+              transform: `rotation(${rotationStep * -90}deg)`.toString(),
+              whiteSpace: "nowrap",
+              textOverflow: "ellipsis"
+            }}
+          >
+            {props.text ?? ""}
+          </span>
         )}
       </Button>
     </ThemeProvider>
@@ -100,7 +121,9 @@ const ActionButtonPropType = {
   border: BorderPropOpt,
   visible: BoolPropOpt,
   enabled: BoolPropOpt,
-  onClick: FuncPropOpt
+  onClick: FuncPropOpt,
+  transparent: BoolPropOpt,
+  rotationStep: FloatPropOpt
 };
 
 const ActionButtonWidgetProps = {
@@ -137,6 +160,8 @@ export const ActionButtonWidget = (
       border={props.border}
       actions={props.actions as WidgetActions}
       visible={props.visible}
+      transparent={props.transparent}
+      rotationStep={props.rotationStep}
     />
   );
 };
