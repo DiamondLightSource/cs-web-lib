@@ -5,15 +5,12 @@ import {
   StringPropOpt,
   FloatPropOpt,
   FontPropOpt,
-  ColorPropOpt
+  ColorPropOpt,
+  BoolPropOpt
 } from "../propTypes";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
-import {
-  FormControlLabel,
-  Checkbox as CheckboxMui,
-  ThemeProvider
-} from "@mui/material";
+import { FormControlLabel, Checkbox as CheckboxMui } from "@mui/material";
 import { defaultColours } from "../../../colourscheme";
 
 export const CheckboxProps = {
@@ -21,7 +18,8 @@ export const CheckboxProps = {
   width: FloatPropOpt,
   height: FloatPropOpt,
   font: FontPropOpt,
-  foregroundColor: ColorPropOpt
+  foregroundColor: ColorPropOpt,
+  enabled: BoolPropOpt
 };
 
 export type CheckboxComponentProps = InferWidgetProps<typeof CheckboxProps> &
@@ -37,6 +35,7 @@ export type CheckboxComponentProps = InferWidgetProps<typeof CheckboxProps> &
 export const CheckboxComponent = (
   props: CheckboxComponentProps
 ): JSX.Element => {
+  const { enabled = true } = props;
   const [checked, setChecked] = useState(true);
 
   const handleChange = (): void => {
@@ -44,30 +43,37 @@ export const CheckboxComponent = (
   };
 
   return (
-    <ThemeProvider theme={defaultColours}>
-      <FormControlLabel
-        sx={{
+    <FormControlLabel
+      disabled={!enabled}
+      sx={{
+        display: "block",
+        alignItems: "center",
+        cursor: "pointer",
+        whiteSpace: "nowrap",
+        wordBreak: "break-word",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        fontFamily: props.font?.css() ?? defaultColours.typography,
+        color:
+          props.foregroundColor?.toString() ??
+          defaultColours.palette.primary.contrastText,
+        "&:npt($checked) .MuiIconButton-label:after": {
           color:
             props.foregroundColor?.toString() ??
-            defaultColours.palette.primary.contrastText,
-          "&:npt($checked) .MuiIconButton-label:after": {
-            color:
-              props.foregroundColor?.toString() ??
-              defaultColours.palette.primary.main
-          }
-        }}
-        control={
-          <CheckboxMui
-            checked={checked}
-            onChange={handleChange}
-            sx={{
-              color: defaultColours.palette.primary.main
-            }}
-          />
+            defaultColours.palette.primary.main
         }
-        label={props.label}
-      />
-    </ThemeProvider>
+      }}
+      control={
+        <CheckboxMui
+          checked={checked}
+          onChange={handleChange}
+          sx={{
+            color: defaultColours.palette.primary.main
+          }}
+        />
+      }
+      label={props.label}
+    />
   );
 };
 
