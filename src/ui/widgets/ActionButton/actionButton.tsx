@@ -102,6 +102,7 @@ export const ActionButtonComponent = (
         <span
           style={{
             display: "block",
+            lineHeight: 1,
             transform: `rotation(${rotationStep * -90}deg)`.toString()
           }}
         >
