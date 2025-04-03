@@ -17,7 +17,7 @@ import { Color } from "../../../types/color";
 import { AlarmQuality, DType } from "../../../types/dtypes";
 import { InputComponent } from "../../components/input/input";
 import { TextField, ThemeProvider } from "@mui/material";
-import { defaultColours } from "../../../colourscheme";
+import { diamondTheme } from "../../../diamondTheme";
 
 export interface InputProps {
   pvName: string;
@@ -43,6 +43,7 @@ const InputWidgetProps = {
   backgroundColor: ColorPropOpt,
   transparent: BoolPropOpt,
   alarmSensitive: BoolPropOpt,
+  enabled: BoolPropOpt,
   textAlign: ChoicePropOpt(["left", "center", "right"])
 };
 
@@ -53,9 +54,16 @@ export const SmartInputComponent = (
     backgroundColor?: Color;
     transparent?: boolean;
     alarmSensitive?: boolean;
+    enabled?: boolean;
     textAlign?: "left" | "center" | "right";
   }
 ): JSX.Element => {
+  const {
+    enabled = true,
+    transparent = false,
+    foregroundColor = diamondTheme.palette.primary.contrastText
+  } = props;
+
   const alarmQuality = props.value?.getAlarm().quality ?? AlarmQuality.VALID;
   // if (props.textAlign) {
   //   style.textAlign = props.textAlign;
@@ -85,6 +93,11 @@ export const SmartInputComponent = (
   //   }
   // }
 
+  const font = props.font?.css() ?? diamondTheme.typography;
+  const backgroundColor = transparent
+    ? "transparent"
+    : (props.backgroundColor?.toString() ?? diamondTheme.palette.primary.main);
+
   const [inputValue, setInputValue] = useState("");
 
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -95,31 +108,37 @@ export const SmartInputComponent = (
   };
 
   return (
-    <ThemeProvider theme={defaultColours}>
-      <TextField
-        variant="outlined"
-        type="text"
-        onKeyDown={onKeyPress}
-        onChange={event => setInputValue(event.target.value)}
-        sx={{
-          "& .MuiInputBase-input": {
-            color:
-              props.foregroundColor?.toString() ??
-              defaultColours.palette.primary.contrastText,
-            backgroundColor: props.backgroundColor?.toString() ?? null,
-            border: "2px solid",
-            borderRadius: "4px",
-            borderColor: "#000000"
-          },
-          "& .MuiInputBase-input:hover": {
+    <TextField
+      disabled={!enabled}
+      variant="outlined"
+      type="text"
+      onKeyDown={onKeyPress}
+      onChange={event => setInputValue(event.target.value)}
+      sx={{
+        "& .MuiInputBase-input": {
+          fontFamily: font
+        },
+        "&.MuiFormControl-root": {
+          height: "100%",
+          width: "100%",
+          display: "block"
+        },
+        "& .MuiInputBase-root": {
+          height: "100%",
+          width: "100%",
+          padding: 0,
+          color: foregroundColor.toString(),
+          backgroundColor: backgroundColor
+        },
+        "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
+          {
             borderColor: "#0000FF"
           },
-          "& .MuiInputBase-input:focus": {
-            borderColor: "#FFFFFF"
-          }
-        }}
-      />
-    </ThemeProvider>
+        "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+          borderColor: "#00FF00"
+        }
+      }}
+    />
   );
 };
 

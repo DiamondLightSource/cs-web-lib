@@ -1,6 +1,6 @@
 import { TextField, ThemeProvider } from "@mui/material";
 import React, { CSSProperties, useState } from "react";
-import { defaultColours } from "../../../colourscheme";
+import { diamondTheme } from "../../../diamondTheme";
 
 export const InputComponent = (props: {
   value: string;
@@ -33,7 +33,7 @@ export const InputComponent = (props: {
   }
 
   return (
-    <ThemeProvider theme={defaultColours}>
+    <ThemeProvider theme={diamondTheme}>
       <TextField
         variant="outlined"
         type="text"
