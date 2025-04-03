@@ -15,7 +15,7 @@ import {
   MacrosPropOpt
 } from "../propTypes";
 import { Typography } from "@mui/material";
-import { defaultColours } from "../../../colourscheme";
+import { diamondTheme } from "../../../diamondTheme";
 
 const LabelProps = {
   macros: MacrosPropOpt,
@@ -44,7 +44,7 @@ export const LabelComponent = (
   // Default labels to transparent.
   const {
     transparent = true,
-    foregroundColor = defaultColours.palette.primary.contrastText,
+    foregroundColor = diamondTheme.palette.primary.contrastText,
     textAlign = "left",
     textAlignV = "top",
     text = "",
@@ -53,9 +53,8 @@ export const LabelComponent = (
   } = props;
   const backgroundColor = transparent
     ? "transparent"
-    : (props.backgroundColor?.toString() ??
-      defaultColours.palette.primary.main);
-  const font = props.font?.css() ?? defaultColours.typography;
+    : (props.backgroundColor?.toString() ?? diamondTheme.palette.primary.main);
+  const font = props.font?.css() ?? diamondTheme.typography;
 
   // Since display is "flex", use "flex-start" and "flex-end" to align
   // the content.
