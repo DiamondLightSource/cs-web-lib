@@ -103,7 +103,7 @@ export const ActionButtonComponent = (
           style={{
             display: "block",
             lineHeight: 1,
-            transform: `rotation(${rotationStep * -90}deg)`.toString()
+            transform: `rotate(${rotationStep * -90}deg)`
           }}
         >
           {props.text ?? ""}
