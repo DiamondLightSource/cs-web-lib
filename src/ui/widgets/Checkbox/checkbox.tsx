@@ -34,7 +34,8 @@ const FormControlLabel = styled(MuiFormControlLabel)({
     whiteSpace: "nowrap",
     wordBreak: "break-word",
     overflow: "hidden",
-    textOverflow: "ellipsis"
+    textOverflow: "ellipsis",
+    padding: 0
   },
   "&.Mui-disabled": {
     cursor: "not-allowed",
