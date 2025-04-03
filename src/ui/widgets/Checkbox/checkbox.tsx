@@ -10,8 +10,12 @@ import {
 } from "../propTypes";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
-import { FormControlLabel, Checkbox as CheckboxMui } from "@mui/material";
-import { defaultColours } from "../../../colourscheme";
+import {
+  FormControlLabel as MuiFormControlLabel,
+  Checkbox as MuiCheckbox,
+  styled
+} from "@mui/material";
+import { diamondTheme } from "../../../diamondTheme";
 
 export const CheckboxProps = {
   label: StringPropOpt,
@@ -21,6 +25,22 @@ export const CheckboxProps = {
   foregroundColor: ColorPropOpt,
   enabled: BoolPropOpt
 };
+
+const FormControlLabel = styled(MuiFormControlLabel)({
+  "&.MuiFormControlLabel-root": {
+    display: "block",
+    alignItems: "center",
+    cursor: "pointer",
+    whiteSpace: "nowrap",
+    wordBreak: "break-word",
+    overflow: "hidden",
+    textOverflow: "ellipsis"
+  },
+  "&.Mui-disabled": {
+    cursor: "not-allowed",
+    pointerEvents: "all !important"
+  }
+});
 
 export type CheckboxComponentProps = InferWidgetProps<typeof CheckboxProps> &
   PVComponent;
@@ -46,29 +66,22 @@ export const CheckboxComponent = (
     <FormControlLabel
       disabled={!enabled}
       sx={{
-        display: "block",
-        alignItems: "center",
-        cursor: "pointer",
-        whiteSpace: "nowrap",
-        wordBreak: "break-word",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        fontFamily: props.font?.css() ?? defaultColours.typography,
         color:
           props.foregroundColor?.toString() ??
-          defaultColours.palette.primary.contrastText,
-        "&:npt($checked) .MuiIconButton-label:after": {
-          color:
-            props.foregroundColor?.toString() ??
-            defaultColours.palette.primary.main
+          diamondTheme.palette.primary.contrastText,
+        ".MuiFormControlLabel-label": {
+          fontFamily: props.font?.css() ?? diamondTheme.typography
         }
       }}
       control={
-        <CheckboxMui
+        <MuiCheckbox
           checked={checked}
           onChange={handleChange}
           sx={{
-            color: defaultColours.palette.primary.main
+            color: diamondTheme.palette.primary.main,
+            "&.Mui-checked": {
+              color: diamondTheme.palette.primary.main
+            }
           }}
         />
       }
