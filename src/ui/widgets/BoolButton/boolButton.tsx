@@ -16,8 +16,8 @@ import classes from "./boolButton.module.css";
 import { writePv } from "../../hooks/useSubscription";
 import { DType } from "../../../types/dtypes";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
-import { Button } from "@mui/material";
-import { defaultColours } from "../../../colourscheme";
+import { Button as MuiButton, styled } from "@mui/material";
+import { diamondTheme } from "../../../diamondTheme";
 
 // For HTML button, these are the sizes of the buffer on
 // width and height. Must take into account when allocating
@@ -48,6 +48,27 @@ const BoolButtonProps = {
   font: FontPropOpt
 };
 
+const Button = styled(MuiButton)({
+  "&.MuiButton-root": {
+    display: "block",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100%",
+    width: "100%",
+    minWidth: 0,
+    minHeight: 0,
+    padding: 0,
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+    wordBreak: "break-word",
+    textTransform: "none"
+  },
+  "&.Mui-disabled": {
+    cursor: "not-allowed",
+    pointerEvents: "all !important"
+  }
+});
+
 export type BoolButtonComponentProps = InferWidgetProps<
   typeof BoolButtonProps
 > &
@@ -65,8 +86,8 @@ export const BoolButtonComponent = (
   const {
     width = WIDGET_DEFAULT_SIZES["bool_button"][0],
     height = WIDGET_DEFAULT_SIZES["bool_button"][1],
-    foregroundColor = defaultColours.palette.primary.contrastText,
-    backgroundColor = defaultColours.palette.primary.main,
+    foregroundColor = diamondTheme.palette.primary.contrastText,
+    backgroundColor = diamondTheme.palette.primary.main,
     pvName,
     value,
     onState = 1,
@@ -80,7 +101,7 @@ export const BoolButtonComponent = (
     enabled = true
   } = props;
 
-  const font = props.font?.css() ?? defaultColours.typography;
+  const font = props.font?.css() ?? diamondTheme.typography;
 
   // These could be overwritten by  PV labels
   let { onLabel = "On", offLabel = "Off" } = props;
@@ -163,14 +184,7 @@ export const BoolButtonComponent = (
           fontFamily: font,
           color: foregroundColor.toString(),
           // If no LED, use on/off colours as background
-          backgroundColor: showLed ? backgroundColor.toString() : ledColor,
-          width: "100%",
-          height: "100%",
-          textTransform: "none",
-          "&.Mui-disabled": {
-            cursor: "not-allowed",
-            pointerEvents: "all !important"
-          }
+          backgroundColor: showLed ? backgroundColor.toString() : ledColor
         }}
       >
         <span
