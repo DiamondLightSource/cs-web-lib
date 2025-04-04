@@ -41,7 +41,7 @@ const LabelWidgetProps = {
 const Typography = styled(MuiTypography)({
   width: "100%",
   height: "100%",
-  display: "block",
+  display: "flex",
   overflow: "hidden",
   padding: 0
 });
