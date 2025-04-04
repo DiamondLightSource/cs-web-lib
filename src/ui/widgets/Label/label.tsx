@@ -14,7 +14,7 @@ import {
   FloatPropOpt,
   MacrosPropOpt
 } from "../propTypes";
-import { Typography } from "@mui/material";
+import { Typography as MuiTypography, styled } from "@mui/material";
 import { diamondTheme } from "../../../diamondTheme";
 
 const LabelProps = {
@@ -38,6 +38,14 @@ const LabelWidgetProps = {
   ...WidgetPropType
 };
 
+const Typography = styled(MuiTypography)({
+  width: "100%",
+  height: "100%",
+  display: "block",
+  overflow: "hidden",
+  padding: 0
+});
+
 export const LabelComponent = (
   props: InferWidgetProps<typeof LabelProps>
 ): JSX.Element => {
@@ -49,7 +57,7 @@ export const LabelComponent = (
     textAlignV = "top",
     text = "",
     rotationStep = 0,
-    wrapWords
+    wrapWords = true
   } = props;
   const backgroundColor = transparent
     ? "transparent"
@@ -77,9 +85,6 @@ export const LabelComponent = (
     <Typography
       noWrap={!wrapWords}
       sx={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
         justifyContent: alignment,
         alignItems: alignmentV,
         textAlign: textAlign,
