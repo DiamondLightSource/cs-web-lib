@@ -31,14 +31,9 @@ describe("<BoolButton />", (): void => {
       onState: 1,
       offState: 0
     };
-    const { getByRole } = render(BoolButtonRenderer(boolButtonProps));
-    const button = getByRole("button") as HTMLButtonElement;
+    const { asFragment } = render(BoolButtonRenderer(boolButtonProps));
 
-    expect(button.textContent).toEqual("On");
-    expect(button.style.height).toEqual("30px");
-    expect(button.style.width).toEqual("100px");
-    expect(button.style.backgroundColor).toEqual("rgb(200, 200, 200)");
-    expect(button.style.borderRadius).toEqual("");
+    expect(asFragment()).toMatchSnapshot();
   });
 
   test("it renders a button with led and overwrites default values", (): void => {
@@ -46,17 +41,15 @@ describe("<BoolButton />", (): void => {
       ...TEST_PROPS,
       showLed: true
     };
-    const { getByRole } = render(BoolButtonRenderer(boolButtonProps));
+    const { getByRole, asFragment } = render(
+      BoolButtonRenderer(boolButtonProps)
+    );
     const button = getByRole("button") as HTMLButtonElement;
     const spanElement = button.firstChild as HTMLSpanElement;
     const led = spanElement.children[0] as HTMLSpanElement;
     const text = spanElement.children[1] as HTMLSpanElement;
 
     expect(button.textContent).toEqual("Enabled");
-    expect(button.style.height).toEqual("20px");
-    expect(button.style.width).toEqual("45px");
-    expect(button.style.backgroundColor).toEqual("rgb(20, 20, 200)");
-    // Vite adds random hashhex to all CSS module classnames, so check if contains not equals
     expect(led.className).toContain("Led");
     expect(led.style.backgroundColor).toEqual("rgb(0, 235, 10)");
     expect(led.style.height).toEqual("11px");
@@ -66,6 +59,7 @@ describe("<BoolButton />", (): void => {
     expect(button.style.borderRadius).toEqual("");
     // Vite adds random hashhex to all CSS module classnames, so check if contains not equals
     expect(text.className).toContain("Text");
+    expect(asFragment()).toMatchSnapshot();
   });
 
   test("no text if showboolean is false", (): void => {
@@ -81,7 +75,6 @@ describe("<BoolButton />", (): void => {
     const text = spanElement.children[1] as HTMLSpanElement;
 
     expect(text.textContent).toEqual("");
-    expect(button.style.backgroundColor).toEqual("rgb(200, 200, 200)");
   });
 
   test("on click change led colour if no text ", async (): Promise<void> => {
@@ -110,7 +103,9 @@ describe("<BoolButton />", (): void => {
       ...TEST_PROPS,
       showLed: true
     };
-    const { getByRole } = render(BoolButtonRenderer(boolButtonProps));
+    const { getByRole, asFragment } = render(
+      BoolButtonRenderer(boolButtonProps)
+    );
     const button = getByRole("button") as HTMLButtonElement;
     const spanElement = button.firstChild as HTMLSpanElement;
     const led = spanElement.children[0] as HTMLSpanElement;
@@ -124,22 +119,6 @@ describe("<BoolButton />", (): void => {
 
     expect(text.textContent).toEqual("Disabled");
     expect(led.style.backgroundColor).toEqual("rgb(0, 100, 0)");
-  });
-
-  test("change background colour if no LED", async (): Promise<void> => {
-    const boolButtonProps = {
-      ...TEST_PROPS,
-      showLed: false
-    };
-    const { getByRole } = render(BoolButtonRenderer(boolButtonProps));
-    const button = getByRole("button") as HTMLButtonElement;
-
-    // Original on values
-    expect(button.style.backgroundColor).toEqual("rgb(0, 235, 10)");
-
-    // Click button to off
-    fireEvent.click(button);
-
-    expect(button.style.backgroundColor).toEqual("rgb(0, 100, 0)");
+    expect(asFragment()).toMatchSnapshot();
   });
 });

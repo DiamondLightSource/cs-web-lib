@@ -1,0 +1,79 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`<BoolButton /> > it renders a button with default values 1`] = `
+<DocumentFragment>
+  <button
+    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1rvqe9o-MuiButtonBase-root-MuiButton-root"
+    tabindex="0"
+    type="button"
+  >
+    <span
+      class="_LedAndText_69ddbc"
+      style="width: 88px; height: 24px;"
+    >
+      <span
+        class="_Led_69ddbc"
+        style="width: 16px; height: 16px; background-color: rgb(0, 255, 0); box-shadow: inset 4px 4px 6.4px rgba(255,255,255,.5); visibility: visible;"
+      />
+      <span
+        class="_Text_69ddbc"
+        style="max-width: 72px; max-height: 24px;"
+      >
+        On
+      </span>
+    </span>
+  </button>
+</DocumentFragment>
+`;
+
+exports[`<BoolButton /> > it renders a button with led and overwrites default values 1`] = `
+<DocumentFragment>
+  <button
+    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-ry8voz-MuiButtonBase-root-MuiButton-root"
+    tabindex="0"
+    type="button"
+  >
+    <span
+      class="_LedAndText_69ddbc"
+      style="width: 33px; height: 14px;"
+    >
+      <span
+        class="_Led_69ddbc"
+        style="width: 11px; height: 11px; background-color: rgb(0, 235, 10); box-shadow: inset 2.75px 2.75px 4.4px rgba(255,255,255,.5); visibility: visible; border-radius: 0;"
+      />
+      <span
+        class="_Text_69ddbc"
+        style="max-width: 22px; max-height: 14px;"
+      >
+        Enabled
+      </span>
+    </span>
+  </button>
+</DocumentFragment>
+`;
+
+exports[`<BoolButton /> > on click change text and led colour  1`] = `
+<DocumentFragment>
+  <button
+    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-ry8voz-MuiButtonBase-root-MuiButton-root"
+    tabindex="0"
+    type="button"
+  >
+    <span
+      class="_LedAndText_69ddbc"
+      style="width: 33px; height: 14px;"
+    >
+      <span
+        class="_Led_69ddbc"
+        style="width: 11px; height: 11px; background-color: rgb(0, 100, 0); box-shadow: inset 2.75px 2.75px 4.4px rgba(255,255,255,.5); visibility: visible; border-radius: 0;"
+      />
+      <span
+        class="_Text_69ddbc"
+        style="max-width: 22px; max-height: 14px;"
+      >
+        Disabled
+      </span>
+    </span>
+  </button>
+</DocumentFragment>
+`;
