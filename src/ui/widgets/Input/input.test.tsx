@@ -19,10 +19,7 @@ beforeEach((): void => {
 });
 describe("<Input />", (): void => {
   it("renders an input", (): void => {
-    const { getByDisplayValue } = render(input);
-    const renderedInput = getByDisplayValue("hello");
-    expect(renderedInput).toBeInTheDocument();
-    expect(renderedInput).toHaveStyle("color: var(--warning)");
-    expect(renderedInput.className).toContain("readonly");
+    const { asFragment } = render(input);
+    expect(asFragment()).toMatchSnapshot();
   });
 });
