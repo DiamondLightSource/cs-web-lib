@@ -37,7 +37,9 @@ describe("opi widget parser", (): void => {
     <x>10</x>
     <y>20</y>
     <not_a_property>hello</not_a_property>
+    <transparent>true</transparent>
     <wrap_words>false</wrap_words>
+    <rotation_step>1</rotation_step>
   </widget>
   </display>`;
 
@@ -58,6 +60,7 @@ describe("opi widget parser", (): void => {
     // Unrecognised property not passed on.
     expect(widget.not_a_property).toEqual(undefined);
     expect(widget.wrapWords).toEqual(false);
+    expect(widget.transparent).toEqual(true);
   });
 
   const readbackString = `

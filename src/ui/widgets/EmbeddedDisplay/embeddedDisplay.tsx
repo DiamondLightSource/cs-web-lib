@@ -24,6 +24,8 @@ import { GroupBoxComponent } from "../GroupBox/groupBox";
 import { useOpiFile } from "./useOpiFile";
 import { useId } from "react-id-generator";
 import { getOptionalValue, trimFromString } from "../utils";
+import { ThemeProvider } from "@mui/material";
+import { diamondTheme } from "../../../diamondTheme";
 
 const RESIZE_STRINGS = [
   "scroll-widget",
@@ -209,7 +211,7 @@ export const EmbeddedDisplay = (
     return (
       <MacroContext.Provider value={embeddedDisplayMacroContext}>
         <GroupBoxComponent name={resolvedName} styleOpt={0}>
-          {component}
+          <ThemeProvider theme={diamondTheme}>{component}</ThemeProvider>
         </GroupBoxComponent>
       </MacroContext.Provider>
     );
