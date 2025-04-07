@@ -13,6 +13,7 @@ import {
   ColorPropOpt,
   BorderPropOpt
 } from "../propTypes";
+import { LinearProgress } from "@mui/material";
 
 export const ProgressBarProps = {
   min: FloatPropOpt,
@@ -22,6 +23,7 @@ export const ProgressBarProps = {
   horizontal: BoolPropOpt,
   showLabel: BoolPropOpt,
   fillColor: ColorPropOpt,
+  backgroundColor: ColorPropOpt,
   precision: IntPropOpt,
   font: FontPropOpt,
   border: BorderPropOpt
@@ -37,50 +39,46 @@ export const ProgressBarComponent = (
     showLabel = false,
     font,
     horizontal = true,
-    fillColor = "#00aa00",
+    fillColor = "#3CFF3C",
+    backgroundColor = "#FAFAFA",
     precision = undefined,
     logScale = false
   } = props;
-  let { min = 1e-10, max = 100 } = props;
+  let { min = 0, max = 100 } = props;
 
   if (limitsFromPv && value?.display.controlRange) {
     min = value.display.controlRange?.min;
     max = value.display.controlRange?.max;
   }
   const numValue = value?.getDoubleValue() || 0;
-  let fraction = 0;
-  if (logScale) {
-    fraction =
-      (Math.log10(numValue) - Math.log10(min)) /
-      (Math.log10(max) - Math.log10(min));
-  } else {
-    fraction = (numValue - min) / (max - min);
-  }
+  const progress = logScale
+    ? (Math.log10(numValue) - Math.log10(min)) /
+      (Math.log10(max) - Math.log10(min))
+    : (numValue - min) / (max - min);
 
-  const onPercent = numValue < min ? 0 : numValue > max ? 100 : fraction * 100;
   // Store styles in these variables
   // Change the direction of the gradient depending on wehether the bar is vertical
-  const direction = horizontal ? "to top" : "to left";
-  let fillStyle: CSSProperties = {
-    left: style.borderWidth,
-    bottom: style.borderWidth,
-    backgroundImage: `linear-gradient(${direction}, ${fillColor.toString()} 50%, #ffffff 130%)`
-  };
-  if (horizontal) {
-    fillStyle = {
-      ...fillStyle,
-      height: "100%",
-      top: style.borderWidth,
-      width: `${onPercent}%`
-    };
-  } else {
-    fillStyle = {
-      ...fillStyle,
-      width: "100%",
-      left: style.borderWidth,
-      height: `${onPercent}%`
-    };
-  }
+  // const direction = horizontal ? "to top" : "to left";
+  // let fillStyle: CSSProperties = {
+  //   left: style.borderWidth,
+  //   bottom: style.borderWidth,
+  //   backgroundImage: `linear-gradient(${direction}, ${fillColor.toString()} 50%, #ffffff 130%)`
+  // };
+  // if (horizontal) {
+  //   fillStyle = {
+  //     ...fillStyle,
+  //     height: "100%",
+  //     top: style.borderWidth,
+  //     width: `${onPercent}%`
+  //   };
+  // } else {
+  //   fillStyle = {
+  //     ...fillStyle,
+  //     width: "100%",
+  //     left: style.borderWidth,
+  //     height: `${onPercent}%`
+  //   };
+  // }
 
   // Show a warning if min is bigger than max and apply precision if provided
   let label = "";
@@ -97,12 +95,27 @@ export const ProgressBarComponent = (
   }
 
   return (
-    <div className={classes.bar} style={style}>
-      <div className={classes.fill} style={fillStyle} />
-      <div className={classes.label} style={{ ...font?.css() }}>
-        {label}
-      </div>
-    </div>
+    <LinearProgress
+      variant="determinate"
+      value={50}
+      sx={{
+        height: "100%",
+        width: "100%",
+        border: 1,
+        borderColor: "#000000",
+        borderRadius: "4px",
+        backgroundColor: backgroundColor.toString(),
+        "& .MuiLinearProgress-bar": {
+          backgroundColor: fillColor.toString()
+        }
+      }}
+    />
+    // <div className={classes.bar} style={style}>
+    //   <div className={classes.fill} style={fillStyle} />
+    //   <div className={classes.label} style={{ ...font?.css() }}>
+    //     {label}
+    //   </div>
+    // </div>
   );
 };
 
