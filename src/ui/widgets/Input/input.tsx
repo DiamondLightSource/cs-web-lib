@@ -9,7 +9,8 @@ import {
   FontPropOpt,
   ChoicePropOpt,
   ColorPropOpt,
-  BoolPropOpt
+  BoolPropOpt,
+  FloatPropOpt
 } from "../propTypes";
 import { Font } from "../../../types/font";
 import { Color } from "../../../types/color";
@@ -32,6 +33,8 @@ export interface InputProps {
   onClick: (event: React.MouseEvent<HTMLInputElement>) => void;
   font?: Font;
   textAlign?: "left" | "center" | "right";
+  horizontalAlignment?: number;
+  verticalAlignment?: number;
 }
 
 const InputWidgetProps = {
@@ -42,7 +45,9 @@ const InputWidgetProps = {
   transparent: BoolPropOpt,
   alarmSensitive: BoolPropOpt,
   enabled: BoolPropOpt,
-  textAlign: ChoicePropOpt(["left", "center", "right"])
+  textAlign: ChoicePropOpt(["left", "center", "right"]),
+  horizontalAlignment: FloatPropOpt,
+  verticalAlignment: FloatPropOpt
 };
 
 const TextField = styled(MuiTextField)({
@@ -74,9 +79,16 @@ export const SmartInputComponent = (
     alarmSensitive?: boolean;
     enabled?: boolean;
     textAlign?: "left" | "center" | "right";
+    horizontalAlignment?: number;
+    verticalAlignment?: number;
   }
 ): JSX.Element => {
-  const { enabled = true, transparent = false, textAlign = 0 } = props;
+  const {
+    enabled = true,
+    transparent = false,
+    horizontalAlignment = 0,
+    verticalAlignment = 0
+  } = props;
 
   const font = props.font?.css() ?? diamondTheme.typography;
 
@@ -106,6 +118,32 @@ export const SmartInputComponent = (
     ? "transparent"
     : (props.backgroundColor?.toString() ?? diamondTheme.palette.primary.main);
 
+  const textAlign = function () {
+    switch (horizontalAlignment) {
+      case 0:
+        return "left";
+      case 1:
+        return "center";
+      case 2:
+        return "right";
+      default:
+        return "left";
+    }
+  };
+
+  const alignItems = function () {
+    switch (verticalAlignment) {
+      case 0:
+        return "start";
+      case 1:
+        return "center";
+      case 2:
+        return "end";
+      default:
+        return "start";
+    }
+  };
+
   const [inputValue, setInputValue] = useState("");
 
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -124,12 +162,12 @@ export const SmartInputComponent = (
       onChange={event => setInputValue(event.target.value)}
       sx={{
         "& .MuiInputBase-input": {
-          textAlign: "left",
+          textAlign: textAlign,
           padding: "2px",
           fontFamily: font
         },
         "& .MuiInputBase-root": {
-          alignItems: "start",
+          alignItems: alignItems,
           color: foregroundColor,
           backgroundColor: backgroundColor
         }
