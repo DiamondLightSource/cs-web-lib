@@ -1,14 +1,31 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`<Label /> > it handles transparent prop`] = `
+<DocumentFragment>
+  <p
+    class="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-k3pvii-MuiTypography-root"
+  >
+    hello
+  </p>
+</DocumentFragment>
+`;
+
+exports[`<Label /> > it handles transparent prop 1`] = `
+<DocumentFragment>
+  <p
+    class="MuiTypography-root MuiTypography-body1 css-1fe740m-MuiTypography-root"
+  >
+    hello
+  </p>
+</DocumentFragment>
+`;
+
 exports[`<Label /> > it matches the snapshot 1`] = `
 <DocumentFragment>
-  <div
-    class="Label _Label_c35983"
-    style="background-color: transparent; cursor: default; justify-content: flex-start; align-items: flex-start;"
+  <p
+    class="MuiTypography-root MuiTypography-body1 css-1fe740m-MuiTypography-root"
   >
-    <span>
-       hello 
-    </span>
-  </div>
+    hello
+  </p>
 </DocumentFragment>
 `;

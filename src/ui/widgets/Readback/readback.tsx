@@ -34,7 +34,7 @@ const ReadbackProps = {
   foregroundColor: ColorPropOpt,
   backgroundColor: ColorPropOpt,
   border: BorderPropOpt,
-  rotationAngle: FloatPropOpt,
+  rotationStep: FloatPropOpt,
   visible: BoolPropOpt,
   wrapWords: BoolPropOpt
 };
@@ -60,7 +60,7 @@ export const ReadbackComponent = (
     textAlignV = "top",
     showUnits = false,
     precisionFromPv = false,
-    rotationAngle,
+    rotationStep,
     visible,
     wrapWords = false
   } = props;
@@ -140,7 +140,7 @@ export const ReadbackComponent = (
       foregroundColor={foregroundColor}
       backgroundColor={backgroundColor}
       border={border}
-      rotationAngle={rotationAngle}
+      rotationStep={rotationStep}
       visible={visible}
       wrapWords={wrapWords}
     ></LabelComponent>
