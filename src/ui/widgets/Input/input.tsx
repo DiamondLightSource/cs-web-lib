@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 
-import classes from "./input.module.css";
 import { writePv } from "../../hooks/useSubscription";
 import { Widget } from "../widget";
 import { PVInputComponent, PVWidgetPropType } from "../widgetProps";
@@ -15,8 +14,7 @@ import {
 import { Font } from "../../../types/font";
 import { Color } from "../../../types/color";
 import { AlarmQuality, DType } from "../../../types/dtypes";
-import { InputComponent } from "../../components/input/input";
-import { TextField, ThemeProvider } from "@mui/material";
+import { TextField as MuiTextField, styled } from "@mui/material";
 import { diamondTheme } from "../../../diamondTheme";
 
 export interface InputProps {
@@ -47,6 +45,26 @@ const InputWidgetProps = {
   textAlign: ChoicePropOpt(["left", "center", "right"])
 };
 
+const TextField = styled(MuiTextField)({
+  "&.MuiFormControl-root": {
+    height: "100%",
+    width: "100%",
+    display: "block"
+  },
+  "& .MuiInputBase-root": {
+    height: "100%",
+    width: "100%"
+  },
+  "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
+    border: "2",
+    borderColor: "#000000"
+  },
+  "&:hover .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+    border: "1",
+    borderColor: "#000000"
+  }
+});
+
 export const SmartInputComponent = (
   props: PVInputComponent & {
     font?: Font;
@@ -58,42 +76,32 @@ export const SmartInputComponent = (
     textAlign?: "left" | "center" | "right";
   }
 ): JSX.Element => {
-  const {
-    enabled = true,
-    transparent = false,
-    foregroundColor = diamondTheme.palette.primary.contrastText
-  } = props;
-
-  const alarmQuality = props.value?.getAlarm().quality ?? AlarmQuality.VALID;
-  // if (props.textAlign) {
-  //   style.textAlign = props.textAlign;
-  // }
-  // style.color = props.foregroundColor?.toString();
-  // style.backgroundColor = props.backgroundColor?.toString();
-  // // Transparent prop overrides backgroundColor.
-  // if (props.transparent) {
-  //   style["backgroundColor"] = "transparent";
-  // }
-  // if (props.readonly) {
-  //   allClasses += ` ${classes.readonly}`;
-  // }
-  // if (props.alarmSensitive) {
-  //   switch (alarmQuality) {
-  //     case AlarmQuality.UNDEFINED:
-  //     case AlarmQuality.INVALID:
-  //     case AlarmQuality.CHANGING:
-  //       style.color = "var(--invalid)";
-  //       break;
-  //     case AlarmQuality.WARNING:
-  //       style.color = "var(--alarm)";
-  //       break;
-  //     case AlarmQuality.ALARM:
-  //       style.color = "var(--alarm)";
-  //       break;
-  //   }
-  // }
+  const { enabled = true, transparent = false, textAlign = 0 } = props;
 
   const font = props.font?.css() ?? diamondTheme.typography;
+
+  const alarmQuality = props.value?.getAlarm().quality ?? AlarmQuality.VALID;
+  const foregroundColor = props.alarmSensitive
+    ? function () {
+        switch (alarmQuality) {
+          case AlarmQuality.UNDEFINED:
+          case AlarmQuality.INVALID:
+          case AlarmQuality.CHANGING:
+            return "var(--invalid)";
+          case AlarmQuality.WARNING:
+            return "var(--alarm)";
+          case AlarmQuality.ALARM:
+            return "var(--alarm)";
+          case AlarmQuality.VALID:
+            return (
+              props.foregroundColor?.toString() ??
+              diamondTheme.palette.primary.contrastText
+            );
+        }
+      }
+    : (props.foregroundColor?.toString() ??
+      diamondTheme.palette.primary.contrastText);
+
   const backgroundColor = transparent
     ? "transparent"
     : (props.backgroundColor?.toString() ?? diamondTheme.palette.primary.main);
@@ -116,26 +124,14 @@ export const SmartInputComponent = (
       onChange={event => setInputValue(event.target.value)}
       sx={{
         "& .MuiInputBase-input": {
+          textAlign: "left",
+          padding: "2px",
           fontFamily: font
         },
-        "&.MuiFormControl-root": {
-          height: "100%",
-          width: "100%",
-          display: "block"
-        },
         "& .MuiInputBase-root": {
-          height: "100%",
-          width: "100%",
-          padding: 0,
-          color: foregroundColor.toString(),
+          alignItems: "start",
+          color: foregroundColor,
           backgroundColor: backgroundColor
-        },
-        "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
-          {
-            borderColor: "#0000FF"
-          },
-        "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
-          borderColor: "#00FF00"
         }
       }}
     />
