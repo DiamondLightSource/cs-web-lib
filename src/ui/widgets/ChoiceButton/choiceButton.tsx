@@ -17,7 +17,7 @@ import { DType } from "../../../types/dtypes";
 import { writePv } from "../../hooks/useSubscription";
 import { Font } from "../../../types/font";
 import { ToggleButton, ToggleButtonGroup, ThemeProvider } from "@mui/material";
-import { defaultColours } from "../../../colourscheme";
+import { diamondTheme } from "../../../diamondTheme";
 import { Color } from "../../../types";
 
 const ChoiceButtonProps = {
@@ -89,45 +89,43 @@ export const ChoiceButtonComponent = (
   };
 
   return (
-    <ThemeProvider theme={defaultColours}>
-      <ToggleButtonGroup
-        exclusive
-        fullWidth={true}
-        disabled={enabled ? false : true}
-        value={selected}
-        onChange={handleChange}
-        orientation={horizontal ? "horizontal" : "vertical"}
-        sx={{
-          height: height,
-          width: width
-        }}
-      >
-        {options
-          .filter(item => typeof item === "string")
-          .map((item, idx) => (
-            <ToggleButton
-              key={item}
-              value={idx}
-              sx={{
-                minWidth: buttonWidth,
-                minHeight: buttonHeight,
-                fontFamily: font.css(),
-                color:
-                  props.foregroundColor?.toString() ??
-                  defaultColours.palette.primary.contrastText,
-                backgroundColor:
-                  props.backgroundColor?.toString() ??
-                  defaultColours.palette.primary.main,
-                "&.Mui-selected, &.Mui-selected:hover, &:hover": {
-                  backgroundColor: selectedColor.toString()
-                }
-              }}
-            >
-              {item}
-            </ToggleButton>
-          ))}
-      </ToggleButtonGroup>
-    </ThemeProvider>
+    <ToggleButtonGroup
+      exclusive
+      fullWidth={true}
+      disabled={enabled ? false : true}
+      value={selected}
+      onChange={handleChange}
+      orientation={horizontal ? "horizontal" : "vertical"}
+      sx={{
+        height: height,
+        width: width
+      }}
+    >
+      {options
+        .filter(item => typeof item === "string")
+        .map((item, idx) => (
+          <ToggleButton
+            key={item}
+            value={idx}
+            sx={{
+              minWidth: buttonWidth,
+              minHeight: buttonHeight,
+              fontFamily: font.css(),
+              color:
+                props.foregroundColor?.toString() ??
+                diamondTheme.palette.primary.contrastText,
+              backgroundColor:
+                props.backgroundColor?.toString() ??
+                diamondTheme.palette.primary.main,
+              "&.Mui-selected, &.Mui-selected:hover, &:hover": {
+                backgroundColor: selectedColor.toString()
+              }
+            }}
+          >
+            {item}
+          </ToggleButton>
+        ))}
+    </ToggleButtonGroup>
   );
 };
 
