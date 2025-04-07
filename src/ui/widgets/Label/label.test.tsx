@@ -14,15 +14,9 @@ describe("<Label />", (): void => {
   });
 
   test("it handles transparent prop", (): void => {
-    render(<LabelComponent text="hello" transparent={true} />);
-    const label = screen.getByText("hello");
-    // The text is in the span, not the parent div.
-    if (label.parentElement && "style" in label.parentElement) {
-      expect(label.parentElement.style).toHaveProperty(
-        "backgroundColor",
-        "transparent"
-      );
-    }
-    expect.assertions(1);
+    const { asFragment } = render(
+      <LabelComponent text="hello" transparent={true} />
+    );
+    expect(asFragment()).toMatchSnapshot();
   });
 });
