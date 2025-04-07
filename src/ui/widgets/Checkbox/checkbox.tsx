@@ -28,14 +28,19 @@ export const CheckboxProps = {
 
 const FormControlLabel = styled(MuiFormControlLabel)({
   "&.MuiFormControlLabel-root": {
-    display: "block",
+    height: "100%",
+    width: "100%",
+    maxHeight: "100%",
+    maxWidth: "100%",
+    display: "flex",
+    justifyContent: "flex-start",
     alignItems: "center",
     cursor: "pointer",
     whiteSpace: "nowrap",
     wordBreak: "break-word",
     overflow: "hidden",
-    textOverflow: "ellipsis",
-    padding: 0
+    padding: 0,
+    margin: 0
   },
   "&.Mui-disabled": {
     cursor: "not-allowed",
@@ -79,6 +84,7 @@ export const CheckboxComponent = (
           checked={checked}
           onChange={handleChange}
           sx={{
+            padding: 0,
             color: diamondTheme.palette.primary.main,
             "&.Mui-checked": {
               color: diamondTheme.palette.primary.main
