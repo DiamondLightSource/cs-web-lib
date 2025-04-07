@@ -15,8 +15,11 @@ import {
 import { DType } from "../../../types/dtypes";
 // import classes from "./choiceButton.module.css";
 import { writePv } from "../../hooks/useSubscription";
-import { Font } from "../../../types/font";
-import { ToggleButton, ToggleButtonGroup, ThemeProvider } from "@mui/material";
+import {
+  ToggleButton as MuiToggleButton,
+  styled,
+  ToggleButtonGroup
+} from "@mui/material";
 import { diamondTheme } from "../../../diamondTheme";
 import { Color } from "../../../types";
 
@@ -40,6 +43,19 @@ export type ChoiceButtonComponentProps = InferWidgetProps<
 > &
   PVComponent;
 
+const ToggleButton = styled(MuiToggleButton)({
+  "&.MuiToggleButton-root": {
+    textTransform: "none",
+    overflow: "hidden",
+    padding: 0,
+    lineHeight: 1
+  },
+  "&.Mui-disabled": {
+    cursor: "not-allowed",
+    pointerEvents: "all !important"
+  }
+});
+
 export const ChoiceButtonComponent = (
   props: ChoiceButtonComponentProps
 ): JSX.Element => {
@@ -52,9 +68,11 @@ export const ChoiceButtonComponent = (
     pvName,
     items = ["Item 1", "Item 2"],
     horizontal = true,
-    selectedColor = Color.fromRgba(200, 200, 200),
-    font = new Font(14)
+    foregroundColor = diamondTheme.palette.primary.contrastText,
+    backgroundColor = diamondTheme.palette.primary.main,
+    selectedColor = Color.fromRgba(200, 200, 200)
   } = props;
+  const font = props.font?.css() ?? diamondTheme.typography;
   const [selected, setSelected] = useState(value?.getDoubleValue());
 
   // Use items from file, unless itemsFRomPv set
@@ -92,7 +110,7 @@ export const ChoiceButtonComponent = (
     <ToggleButtonGroup
       exclusive
       fullWidth={true}
-      disabled={enabled ? false : true}
+      disabled={!enabled}
       value={selected}
       onChange={handleChange}
       orientation={horizontal ? "horizontal" : "vertical"}
@@ -110,13 +128,9 @@ export const ChoiceButtonComponent = (
             sx={{
               minWidth: buttonWidth,
               minHeight: buttonHeight,
-              fontFamily: font.css(),
-              color:
-                props.foregroundColor?.toString() ??
-                diamondTheme.palette.primary.contrastText,
-              backgroundColor:
-                props.backgroundColor?.toString() ??
-                diamondTheme.palette.primary.main,
+              fontFamily: font,
+              color: foregroundColor.toString(),
+              backgroundColor: backgroundColor.toString(),
               "&.Mui-selected, &.Mui-selected:hover, &:hover": {
                 backgroundColor: selectedColor.toString()
               }
