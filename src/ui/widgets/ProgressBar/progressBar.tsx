@@ -49,21 +49,13 @@ export const ProgressBarComponent = (
     logScale = false
   } = props;
 
-  const width = !props.width
-    ? horizontal
-      ? WIDGET_DEFAULT_SIZES["progressbar"][0]
-      : WIDGET_DEFAULT_SIZES["progressbar"][1]
-    : horizontal
-      ? props.width
-      : props.height;
+  const width = props.width
+    ? props.width
+    : WIDGET_DEFAULT_SIZES["progressbar"][0];
 
-  const height = !props.height
-    ? horizontal
-      ? WIDGET_DEFAULT_SIZES["progressbar"][1]
-      : WIDGET_DEFAULT_SIZES["progressbar"][0]
-    : horizontal
-      ? props.height
-      : props.width;
+  const height = props.height
+    ? props.height
+    : WIDGET_DEFAULT_SIZES["progressbar"][1];
 
   let { min = 0, max = 100 } = props;
 
