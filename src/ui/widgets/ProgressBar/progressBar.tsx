@@ -39,8 +39,6 @@ export const ProgressBarComponent = (
   const style = commonCss(props);
   const {
     value,
-    width = WIDGET_DEFAULT_SIZES["progressbar"][0],
-    height = WIDGET_DEFAULT_SIZES["progressbar"][1],
     limitsFromPv = false,
     showLabel = false,
     font,
@@ -50,6 +48,22 @@ export const ProgressBarComponent = (
     precision = undefined,
     logScale = false
   } = props;
+
+  const width = !props.width
+    ? horizontal
+      ? WIDGET_DEFAULT_SIZES["progressbar"][0]
+      : WIDGET_DEFAULT_SIZES["progressbar"][1]
+    : horizontal
+      ? props.width
+      : props.height;
+
+  const height = !props.height
+    ? horizontal
+      ? WIDGET_DEFAULT_SIZES["progressbar"][1]
+      : WIDGET_DEFAULT_SIZES["progressbar"][0]
+    : horizontal
+      ? props.height
+      : props.width;
 
   let { min = 0, max = 100 } = props;
 
