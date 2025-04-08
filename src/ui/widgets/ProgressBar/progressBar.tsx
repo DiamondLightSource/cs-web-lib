@@ -6,6 +6,7 @@ import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import {
   FloatPropOpt,
+  FloatProp,
   BoolPropOpt,
   IntPropOpt,
   InferWidgetProps,
@@ -14,6 +15,7 @@ import {
   BorderPropOpt
 } from "../propTypes";
 import { LinearProgress } from "@mui/material";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 export const ProgressBarProps = {
   min: FloatPropOpt,
@@ -26,7 +28,9 @@ export const ProgressBarProps = {
   backgroundColor: ColorPropOpt,
   precision: IntPropOpt,
   font: FontPropOpt,
-  border: BorderPropOpt
+  border: BorderPropOpt,
+  height: FloatPropOpt,
+  width: FloatPropOpt
 };
 
 export const ProgressBarComponent = (
@@ -35,6 +39,8 @@ export const ProgressBarComponent = (
   const style = commonCss(props);
   const {
     value,
+    width = WIDGET_DEFAULT_SIZES["progressbar"][0],
+    height = WIDGET_DEFAULT_SIZES["progressbar"][1],
     limitsFromPv = false,
     showLabel = false,
     font,
@@ -44,17 +50,22 @@ export const ProgressBarComponent = (
     precision = undefined,
     logScale = false
   } = props;
+
   let { min = 0, max = 100 } = props;
 
   if (limitsFromPv && value?.display.controlRange) {
     min = value.display.controlRange?.min;
     max = value.display.controlRange?.max;
   }
-  const numValue = value?.getDoubleValue() || 0;
-  const progress = logScale
+  const numValue = value?.getDoubleValue() ?? 0;
+  const percent = logScale
     ? (Math.log10(numValue) - Math.log10(min)) /
       (Math.log10(max) - Math.log10(min))
     : (numValue - min) / (max - min);
+
+  const transform = horizontal
+    ? null
+    : `translateY(${100 - percent}%)!important`.toString();
 
   // Store styles in these variables
   // Change the direction of the gradient depending on wehether the bar is vertical
@@ -97,15 +108,16 @@ export const ProgressBarComponent = (
   return (
     <LinearProgress
       variant="determinate"
-      value={50}
+      value={percent}
       sx={{
-        height: "100%",
-        width: "100%",
+        height: height,
+        width: width,
         border: 1,
         borderColor: "#000000",
         borderRadius: "4px",
         backgroundColor: backgroundColor.toString(),
         "& .MuiLinearProgress-bar": {
+          transform: transform,
           backgroundColor: fillColor.toString()
         }
       }}
