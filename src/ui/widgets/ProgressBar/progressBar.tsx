@@ -42,19 +42,12 @@ export const ProgressBarComponent = (
     fillColor = "#3CFF3C",
     backgroundColor = "#FAFAFA",
     precision = undefined,
-    logScale = false
+    logScale = false,
+    width = WIDGET_DEFAULT_SIZES["progressbar"][0],
+    height = WIDGET_DEFAULT_SIZES["progressbar"][1]
   } = props;
 
-  const width = props.width
-    ? props.width
-    : WIDGET_DEFAULT_SIZES["progressbar"][0];
-
-  const height = props.height
-    ? props.height
-    : WIDGET_DEFAULT_SIZES["progressbar"][1];
-
   let { min = 0, max = 100 } = props;
-
   if (limitsFromPv && value?.display.controlRange) {
     min = value.display.controlRange?.min;
     max = value.display.controlRange?.max;
@@ -64,10 +57,6 @@ export const ProgressBarComponent = (
     ? (Math.log10(numValue) - Math.log10(min)) /
       (Math.log10(max) - Math.log10(min))
     : (numValue - min) / (max - min);
-
-  const transform = horizontal
-    ? null
-    : `translateY(${100 - percent}%)!important`.toString();
 
   // Show a warning if min is bigger than max and apply precision if provided
   let label = "";
@@ -97,7 +86,9 @@ export const ProgressBarComponent = (
           borderRadius: "4px",
           backgroundColor: backgroundColor.toString(),
           "& .MuiLinearProgress-bar": {
-            transform: transform,
+            transform: horizontal
+              ? null
+              : `translateY(${100 - percent}%)!important`.toString(),
             backgroundColor: fillColor.toString()
           }
         }}
