@@ -7,7 +7,9 @@ import {
   BoolPropOpt,
   ColorPropOpt,
   InferWidgetProps,
-  StringPropOpt
+  StringArrayPropOpt,
+  StringPropOpt,
+  FontPropOpt
 } from "../propTypes";
 import { DType } from "../../../types/dtypes";
 import {
@@ -21,6 +23,9 @@ import {
 import { FileContext } from "../../../misc/fileContext";
 import { Border } from "../../../types/border";
 import { Color } from "../../../types/color";
+import { MenuItem, Select } from "@mui/material";
+import { diamondTheme } from "../../../diamondTheme";
+import { Font } from "../../../types";
 
 export interface MenuButtonProps {
   connected: boolean;
@@ -35,6 +40,8 @@ export interface MenuButtonProps {
   foregroundColor?: Color;
   backgroundColor?: Color;
   border?: Border;
+  font?: Font;
+  items?: string[];
 }
 
 export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
@@ -45,7 +52,8 @@ export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
     actionsFromPv = true,
     itemsFromPv = false,
     pvName,
-    label
+    label,
+    items = ["Item 1", "Item 2"]
   } = props;
   const fromPv = actionsFromPv || itemsFromPv;
   let actions: WidgetAction[] = props.actions?.actions || [];
@@ -95,15 +103,19 @@ export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
     cursor: disabled ? "not-allowed" : "default"
   };
 
-  const mappedOptions = options.map((text, index): JSX.Element => {
+  const mappedOptions = items.map((text, index): JSX.Element => {
     return (
-      <option
+      <MenuItem
         key={index}
         value={index}
         disabled={index === 0 && text === label}
+        sx={{
+          fontFamily: props.font?.css() ?? "",
+          color: props.foregroundColor?.toString() ?? ""
+        }}
       >
         {text}
-      </option>
+      </MenuItem>
     );
   });
 
@@ -116,18 +128,43 @@ export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
   }
 
   return (
-    <select
+    <Select
       value={displayIndex}
-      onMouseDown={onMouseDown}
-      style={style}
-      onChange={event => {
-        props.onChange(
-          actions[parseFloat(event.currentTarget.value) - displayOffset]
-        );
+      MenuProps={{
+        slotProps: {
+          paper: {
+            sx: {
+              backgroundColor: diamondTheme.palette.primary.main
+            }
+          }
+        }
       }}
+      sx={{
+        height: "100%",
+        width: "100%",
+        backgroundColor: diamondTheme.palette.primary.main,
+        "&:hover .MuiOutlinedInput-notchedOutline": {
+          borderColor: "#000000"
+        },
+        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+          border: 2,
+          borderColor: "#000000"
+        },
+        "& .MuiSelect-outlined": {
+          fontFamily: props.font?.css() ?? "",
+          color: props.foregroundColor?.toString() ?? ""
+        }
+      }}
+      // onMouseDown={onMouseDown}
+      // style={style}
+      // onChange={event => {
+      //   props.onChange(
+      //     actions[parseFloat(event.currentTarget.value) - displayOffset]
+      //   );
+      // }}
     >
       {mappedOptions}
-    </select>
+    </Select>
   );
 };
 
@@ -143,6 +180,8 @@ export const SmartMenuButton = (props: {
   foregroundColor?: Color;
   backgroundColor?: Color;
   border?: Border;
+  items?: string[];
+  font?: Font;
 }): JSX.Element => {
   const files = useContext(FileContext);
   // Function to send the value on to the PV
@@ -164,6 +203,8 @@ export const SmartMenuButton = (props: {
       label={props.label}
       foregroundColor={props.foregroundColor}
       backgroundColor={props.backgroundColor}
+      items={props.items}
+      font={props.font}
     />
   );
 };
@@ -174,7 +215,9 @@ const MenuButtonWidgetProps = {
   itemsFromPv: BoolPropOpt,
   label: StringPropOpt,
   foregroundColor: ColorPropOpt,
-  backgroundColor: ColorPropOpt
+  backgroundColor: ColorPropOpt,
+  items: StringArrayPropOpt,
+  font: FontPropOpt
 };
 
 export const MenuButton = (
