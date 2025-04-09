@@ -1,4 +1,4 @@
-import React, { CSSProperties, useContext } from "react";
+import React, { CSSProperties, useContext, useState } from "react";
 
 import { commonCss, Widget } from "../widget";
 import { PVWidgetPropType } from "../widgetProps";
@@ -106,9 +106,9 @@ export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
   const mappedOptions = items.map((text, index): JSX.Element => {
     return (
       <MenuItem
-        key={index}
-        value={index}
-        disabled={index === 0 && text === label}
+        // Start indexing menuitems from 1 rather than 0
+        key={index + 1}
+        value={text}
         sx={{
           fontFamily: props.font?.css() ?? "",
           color: props.foregroundColor?.toString() ?? ""
@@ -127,9 +127,12 @@ export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
     }
   }
 
+  const [selected, setSelected] = useState<string>("");
+
   return (
     <Select
-      value={displayIndex}
+      displayEmpty
+      value={selected}
       MenuProps={{
         slotProps: {
           paper: {
@@ -139,6 +142,13 @@ export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
           }
         }
       }}
+      renderValue={value => {
+        if (!value) {
+          return "Name";
+        }
+        return selected;
+      }}
+      onChange={event => setSelected(event.target.value)}
       sx={{
         height: "100%",
         width: "100%",
