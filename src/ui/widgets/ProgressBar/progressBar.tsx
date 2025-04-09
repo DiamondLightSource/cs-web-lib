@@ -1,12 +1,9 @@
-import React, { CSSProperties } from "react";
-
-import classes from "./progressBar.module.css";
-import { commonCss, Widget } from "../widget";
+import React from "react";
+import { Widget } from "../widget";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import {
   FloatPropOpt,
-  FloatProp,
   BoolPropOpt,
   IntPropOpt,
   InferWidgetProps,
@@ -36,7 +33,6 @@ export const ProgressBarProps = {
 export const ProgressBarComponent = (
   props: InferWidgetProps<typeof ProgressBarProps> & PVComponent
 ): JSX.Element => {
-  const style = commonCss(props);
   const {
     value,
     limitsFromPv = false,
@@ -73,30 +69,6 @@ export const ProgressBarComponent = (
     ? null
     : `translateY(${100 - percent}%)!important`.toString();
 
-  // Store styles in these variables
-  // Change the direction of the gradient depending on wehether the bar is vertical
-  // const direction = horizontal ? "to top" : "to left";
-  // let fillStyle: CSSProperties = {
-  //   left: style.borderWidth,
-  //   bottom: style.borderWidth,
-  //   backgroundImage: `linear-gradient(${direction}, ${fillColor.toString()} 50%, #ffffff 130%)`
-  // };
-  // if (horizontal) {
-  //   fillStyle = {
-  //     ...fillStyle,
-  //     height: "100%",
-  //     top: style.borderWidth,
-  //     width: `${onPercent}%`
-  //   };
-  // } else {
-  //   fillStyle = {
-  //     ...fillStyle,
-  //     width: "100%",
-  //     left: style.borderWidth,
-  //     height: `${onPercent}%`
-  //   };
-  // }
-
   // Show a warning if min is bigger than max and apply precision if provided
   let label = "";
   if (showLabel) {
@@ -112,28 +84,38 @@ export const ProgressBarComponent = (
   }
 
   return (
-    <LinearProgress
-      variant="determinate"
-      value={percent}
-      sx={{
-        height: height,
-        width: width,
-        border: 1,
-        borderColor: "#000000",
-        borderRadius: "4px",
-        backgroundColor: backgroundColor.toString(),
-        "& .MuiLinearProgress-bar": {
-          transform: transform,
-          backgroundColor: fillColor.toString()
-        }
-      }}
-    />
-    // <div className={classes.bar} style={style}>
-    //   <div className={classes.fill} style={fillStyle} />
-    //   <div className={classes.label} style={{ ...font?.css() }}>
-    //     {label}
-    //   </div>
-    // </div>
+    <>
+      <LinearProgress
+        variant="determinate"
+        value={percent}
+        sx={{
+          position: "absolute",
+          height: height,
+          width: width,
+          border: 1,
+          borderColor: "#000000",
+          borderRadius: "4px",
+          backgroundColor: backgroundColor.toString(),
+          "& .MuiLinearProgress-bar": {
+            transform: transform,
+            backgroundColor: fillColor.toString()
+          }
+        }}
+      />
+      <div
+        style={{
+          position: "relative",
+          height: "100%",
+          width: "100%",
+          color: "#000000",
+          alignContent: "center",
+          transform: horizontal ? undefined : "rotate(-90deg)",
+          ...font?.css()
+        }}
+      >
+        {label}
+      </div>
+    </>
   );
 };
 
