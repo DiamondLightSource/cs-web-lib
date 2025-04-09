@@ -114,10 +114,6 @@ export const ChoiceButtonComponent = (
       value={selected}
       onChange={handleChange}
       orientation={horizontal ? "horizontal" : "vertical"}
-      sx={{
-        height: height,
-        width: width
-      }}
     >
       {options
         .filter(item => typeof item === "string")
