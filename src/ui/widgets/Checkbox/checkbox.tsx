@@ -1,22 +1,52 @@
 import React, { useState } from "react";
-import { commonCss, Widget } from "../widget";
+import { Widget } from "../widget";
 import {
   InferWidgetProps,
   StringPropOpt,
   FloatPropOpt,
   FontPropOpt,
-  ColorPropOpt
+  ColorPropOpt,
+  BoolPropOpt
 } from "../propTypes";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
+import {
+  FormControlLabel as MuiFormControlLabel,
+  Checkbox as MuiCheckbox,
+  styled
+} from "@mui/material";
+import { diamondTheme } from "../../../diamondTheme";
 
 export const CheckboxProps = {
   label: StringPropOpt,
   width: FloatPropOpt,
   height: FloatPropOpt,
   font: FontPropOpt,
-  foregroundColor: ColorPropOpt
+  foregroundColor: ColorPropOpt,
+  enabled: BoolPropOpt
 };
+
+const FormControlLabel = styled(MuiFormControlLabel)({
+  "&.MuiFormControlLabel-root": {
+    height: "100%",
+    width: "100%",
+    maxHeight: "100%",
+    maxWidth: "100%",
+    display: "flex",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    cursor: "pointer",
+    whiteSpace: "nowrap",
+    wordBreak: "break-word",
+    overflow: "hidden",
+    padding: 0,
+    margin: 0
+  },
+  "&.Mui-disabled": {
+    cursor: "not-allowed",
+    pointerEvents: "all !important"
+  }
+});
 
 export type CheckboxComponentProps = InferWidgetProps<typeof CheckboxProps> &
   PVComponent;
@@ -31,33 +61,39 @@ export type CheckboxComponentProps = InferWidgetProps<typeof CheckboxProps> &
 export const CheckboxComponent = (
   props: CheckboxComponentProps
 ): JSX.Element => {
-  const style = {
-    ...commonCss(props as any),
-    display: "flex",
-    alignItems: "center",
-    cursor: "pointer"
-  };
-
+  const { enabled = true } = props;
   const [checked, setChecked] = useState(true);
 
-  const toggle = (): void => {
+  const handleChange = (): void => {
     setChecked(!checked);
   };
-  const inp = (
-    <input
-      style={{ cursor: "inherit" }}
-      id="cb"
-      type="checkbox"
-      checked={checked}
-      readOnly={true}
-    />
-  );
 
   return (
-    <form onClick={toggle} style={style}>
-      {inp}
-      <label style={{ cursor: "inherit" }}>{props.label}</label>
-    </form>
+    <FormControlLabel
+      disabled={!enabled}
+      sx={{
+        color:
+          props.foregroundColor?.toString() ??
+          diamondTheme.palette.primary.contrastText,
+        ".MuiFormControlLabel-label": {
+          fontFamily: props.font?.css() ?? diamondTheme.typography
+        }
+      }}
+      control={
+        <MuiCheckbox
+          checked={checked}
+          onChange={handleChange}
+          sx={{
+            padding: 0,
+            color: diamondTheme.palette.primary.main,
+            "&.Mui-checked": {
+              color: diamondTheme.palette.primary.main
+            }
+          }}
+        />
+      }
+      label={props.label}
+    />
   );
 };
 
