@@ -13,7 +13,6 @@ import {
   StringPropOpt
 } from "../propTypes";
 import { DType } from "../../../types/dtypes";
-// import classes from "./choiceButton.module.css";
 import { writePv } from "../../hooks/useSubscription";
 import {
   ToggleButton as MuiToggleButton,
