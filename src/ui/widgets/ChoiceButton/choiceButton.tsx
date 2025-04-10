@@ -47,12 +47,21 @@ const ToggleButton = styled(MuiToggleButton)({
   "&.MuiToggleButton-root": {
     textTransform: "none",
     overflow: "hidden",
+    display: "block",
     padding: 0,
-    lineHeight: 1
+    lineHeight: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    textOverflow: "ellipsis",
+    wordWrap: "break-word"
   },
   "&.Mui-disabled": {
     cursor: "not-allowed",
     pointerEvents: "all !important"
+  },
+  "&.MuiToggleButtonGroup-grouped": {
+    border: "1px solid !important",
+    borderColor: "#000000"
   }
 });
 
@@ -114,6 +123,11 @@ export const ChoiceButtonComponent = (
       value={selected}
       onChange={handleChange}
       orientation={horizontal ? "horizontal" : "vertical"}
+      sx={{
+        display: "flex",
+        height: "100%",
+        width: "100%"
+      }}
     >
       {options
         .filter(item => typeof item === "string")
@@ -122,8 +136,8 @@ export const ChoiceButtonComponent = (
             key={item}
             value={idx}
             sx={{
-              minWidth: buttonWidth,
-              minHeight: buttonHeight,
+              maxWidth: buttonWidth,
+              maxHeight: buttonHeight,
               fontFamily: font,
               color: foregroundColor.toString(),
               backgroundColor: backgroundColor.toString(),
