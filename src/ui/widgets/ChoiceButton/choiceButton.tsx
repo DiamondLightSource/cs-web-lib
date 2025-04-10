@@ -127,8 +127,12 @@ export const ChoiceButtonComponent = (
               fontFamily: font,
               color: foregroundColor.toString(),
               backgroundColor: backgroundColor.toString(),
-              "&.Mui-selected, &.Mui-selected:hover, &:hover": {
+              "&.Mui-selected": {
                 backgroundColor: selectedColor.toString()
+              },
+              "&.Mui-selected:hover, &:hover": {
+                backgroundColor: selectedColor.toString(),
+                opacity: 0.6
               }
             }}
           >
