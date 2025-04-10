@@ -68,31 +68,29 @@ export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
   // Show 0 by default where there is only one option
   let displayIndex = 0;
 
-  if (fromPv && pvName) {
-    if (!connected || value === null) {
-      disabled = true;
-    } else if (value?.display?.choices) {
-      options = options.concat(value?.display?.choices);
-      actions = options.map((option, i) => {
-        const writePv: WritePv = {
-          type: WRITE_PV,
-          writePvInfo: {
-            pvName: pvName,
-            value: i
-          }
-        };
-        return writePv;
-      });
-      displayIndex = (value.getDoubleValue() ?? 0) + displayOffset;
-    } else {
-      disabled = true;
-    }
-  } else {
+  if (!(fromPv && pvName)) {
     options = options.concat(
       actions.map(action => {
         return getActionDescription(action);
       })
     );
+  } else if (!connected || value === null) {
+    disabled = true;
+  } else if (value?.display?.choices) {
+    options = options.concat(value?.display?.choices);
+    actions = options.map((option, i) => {
+      const writePv: WritePv = {
+        type: WRITE_PV,
+        writePvInfo: {
+          pvName: pvName,
+          value: i
+        }
+      };
+      return writePv;
+    });
+    displayIndex = (value.getDoubleValue() ?? 0) + displayOffset;
+  } else {
+    disabled = true;
   }
 
   const style: CSSProperties = {
@@ -107,8 +105,8 @@ export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
     return (
       <MenuItem
         // Start indexing menuitems from 1 rather than 0
-        key={index + 1}
-        value={text}
+        key={index}
+        value={index}
         sx={{
           fontFamily: props.font?.css() ?? "",
           color: props.foregroundColor?.toString() ?? ""
@@ -143,7 +141,7 @@ export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
         }
       }}
       renderValue={value => {
-        if (!value) {
+        if (value === "") {
           return "Name";
         }
         return selected;
@@ -162,6 +160,7 @@ export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
         },
         "& .MuiSelect-outlined": {
           fontFamily: props.font?.css() ?? "",
+
           color: props.foregroundColor?.toString() ?? ""
         }
       }}
