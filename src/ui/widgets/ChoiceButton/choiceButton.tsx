@@ -1,4 +1,4 @@
-import React, { CSSProperties, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Widget } from "../widget";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
@@ -13,10 +13,14 @@ import {
   StringPropOpt
 } from "../propTypes";
 import { DType } from "../../../types/dtypes";
-import classes from "./choiceButton.module.css";
-import { Color } from "../../../types/color";
 import { writePv } from "../../hooks/useSubscription";
-import { Font } from "../../../types/font";
+import {
+  ToggleButton as MuiToggleButton,
+  styled,
+  ToggleButtonGroup
+} from "@mui/material";
+import { diamondTheme } from "../../../diamondTheme";
+import { Color } from "../../../types";
 
 const ChoiceButtonProps = {
   pvName: StringPropOpt,
@@ -38,6 +42,28 @@ export type ChoiceButtonComponentProps = InferWidgetProps<
 > &
   PVComponent;
 
+const ToggleButton = styled(MuiToggleButton)({
+  "&.MuiToggleButton-root": {
+    textTransform: "none",
+    overflow: "hidden",
+    display: "block",
+    padding: 0,
+    lineHeight: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    textOverflow: "ellipsis",
+    wordWrap: "break-word"
+  },
+  "&.Mui-disabled": {
+    cursor: "not-allowed",
+    pointerEvents: "all !important"
+  },
+  "&.MuiToggleButtonGroup-grouped": {
+    border: "1px solid !important",
+    borderColor: "#000000"
+  }
+});
+
 export const ChoiceButtonComponent = (
   props: ChoiceButtonComponentProps
 ): JSX.Element => {
@@ -50,11 +76,11 @@ export const ChoiceButtonComponent = (
     pvName,
     items = ["Item 1", "Item 2"],
     horizontal = true,
-    backgroundColor = Color.fromRgba(210, 210, 210),
-    foregroundColor = Color.BLACK,
-    selectedColor = Color.fromRgba(200, 200, 200),
-    font = new Font(14)
+    foregroundColor = diamondTheme.palette.primary.contrastText,
+    backgroundColor = diamondTheme.palette.primary.main,
+    selectedColor = Color.fromRgba(200, 200, 200)
   } = props;
+  const font = props.font?.css() ?? diamondTheme.typography;
   const [selected, setSelected] = useState(value?.getDoubleValue());
 
   // Use items from file, unless itemsFRomPv set
@@ -74,61 +100,63 @@ export const ChoiceButtonComponent = (
   // Number of buttons to create
   const numButtons = options.length || 1;
   // Determine width and height of buttons if horizontal or vertically placed
-  const buttonHeight = horizontal ? height : height / numButtons - 4;
-  const buttonWidth = horizontal ? width / numButtons - 4 : width;
+  const buttonHeight = horizontal ? height : height / numButtons;
+  const buttonWidth = horizontal ? width / numButtons : width;
 
-  const style: CSSProperties = {
-    height: buttonHeight,
-    width: buttonWidth,
-    textAlignLast: "center",
-    cursor: enabled ? "default" : "not-allowed",
-    color: foregroundColor?.toString(),
-    ...font.css()
-  };
-
-  function handleClick(index: number) {
+  const handleChange = (
+    event: React.MouseEvent<HTMLElement>,
+    newSelect: number
+  ) => {
     // Write to PV
     if (pvName) {
-      writePv(pvName, new DType({ doubleValue: index }));
+      writePv(pvName, new DType({ doubleValue: newSelect }));
     }
-  }
-
-  // Iterate over items to create buttons
-  const elements: Array<JSX.Element> = [];
-  options.forEach((item: string | null | undefined, idx: number) => {
-    if (typeof item === "string") {
-      elements.push(
-        <button
-          className={classes.ChoiceButton}
-          disabled={enabled ? false : true}
-          onClick={() => handleClick(idx)}
-          style={{
-            ...style,
-            backgroundColor:
-              selected === idx
-                ? selectedColor.toString()
-                : backgroundColor.toString(),
-            boxShadow:
-              selected === idx
-                ? `inset 0px ${Math.round(height / 6)}px ${Math.round(
-                    height / 4
-                  )}px 0px rgba(0,0,0,0.3)`
-                : "none"
-          }}
-          key={item}
-        >
-          {item}
-        </button>
-      );
-    }
-  });
+    setSelected(newSelect);
+  };
 
   return (
-    <div
-      style={{ display: "flex", flexDirection: horizontal ? "row" : "column" }}
+    <ToggleButtonGroup
+      exclusive
+      fullWidth={true}
+      disabled={!enabled}
+      value={selected}
+      onChange={handleChange}
+      orientation={horizontal ? "horizontal" : "vertical"}
+      sx={{
+        display: "flex",
+        height: "100%",
+        width: "100%"
+      }}
     >
-      {elements}
-    </div>
+      {options
+        .filter(item => typeof item === "string")
+        .map((item, idx) => (
+          <ToggleButton
+            key={item}
+            value={idx}
+            sx={{
+              width: buttonWidth,
+              height: buttonHeight,
+              fontFamily: font,
+              color: foregroundColor.toString(),
+              backgroundColor: backgroundColor.toString(),
+              "&.Mui-selected": {
+                backgroundColor: selectedColor.toString()
+              },
+              "&.Mui-selected:hover": {
+                backgroundColor: selectedColor.toString(),
+                opacity: 0.6
+              },
+              "&:hover": {
+                backgroundColor: backgroundColor.toString(),
+                opacity: 0.6
+              }
+            }}
+          >
+            {item}
+          </ToggleButton>
+        ))}
+    </ToggleButtonGroup>
   );
 };
 
