@@ -3,12 +3,12 @@
 exports[`<BoolButton /> > it renders ChoiceButton with default props 1`] = `
 <DocumentFragment>
   <div
-    class="MuiToggleButtonGroup-root MuiToggleButtonGroup-horizontal MuiToggleButtonGroup-fullWidth css-4ybkxl-MuiToggleButtonGroup-root"
+    class="MuiToggleButtonGroup-root MuiToggleButtonGroup-horizontal MuiToggleButtonGroup-fullWidth css-scf8o0-MuiToggleButtonGroup-root"
     role="group"
   >
     <button
       aria-pressed="false"
-      class="MuiButtonBase-root MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButton-root MuiToggleButton-fullWidth MuiToggleButton-sizeMedium MuiToggleButton-standard MuiToggleButtonGroup-firstButton css-1269rce-MuiButtonBase-root-MuiToggleButton-root"
+      class="MuiButtonBase-root MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButton-root MuiToggleButton-fullWidth MuiToggleButton-sizeMedium MuiToggleButton-standard MuiToggleButtonGroup-firstButton css-afbcu5-MuiButtonBase-root-MuiToggleButton-root"
       tabindex="0"
       type="button"
       value="0"
@@ -17,7 +17,7 @@ exports[`<BoolButton /> > it renders ChoiceButton with default props 1`] = `
     </button>
     <button
       aria-pressed="false"
-      class="MuiButtonBase-root MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButton-root MuiToggleButton-fullWidth MuiToggleButton-sizeMedium MuiToggleButton-standard MuiToggleButtonGroup-lastButton css-1269rce-MuiButtonBase-root-MuiToggleButton-root"
+      class="MuiButtonBase-root MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButton-root MuiToggleButton-fullWidth MuiToggleButton-sizeMedium MuiToggleButton-standard MuiToggleButtonGroup-lastButton css-afbcu5-MuiButtonBase-root-MuiToggleButton-root"
       tabindex="0"
       type="button"
       value="1"
@@ -31,12 +31,12 @@ exports[`<BoolButton /> > it renders ChoiceButton with default props 1`] = `
 exports[`<BoolButton /> > pass props to widget 1`] = `
 <DocumentFragment>
   <div
-    class="MuiToggleButtonGroup-root MuiToggleButtonGroup-vertical MuiToggleButtonGroup-fullWidth css-pqsrz6-MuiToggleButtonGroup-root"
+    class="MuiToggleButtonGroup-root MuiToggleButtonGroup-vertical MuiToggleButtonGroup-fullWidth css-wsp9w8-MuiToggleButtonGroup-root"
     role="group"
   >
     <button
       aria-pressed="true"
-      class="MuiButtonBase-root Mui-disabled MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedVertical Mui-disabled MuiToggleButton-root Mui-selected Mui-disabled MuiToggleButton-fullWidth MuiToggleButton-sizeMedium MuiToggleButton-standard MuiToggleButtonGroup-firstButton css-tzwn7e-MuiButtonBase-root-MuiToggleButton-root"
+      class="MuiButtonBase-root Mui-disabled MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedVertical Mui-disabled MuiToggleButton-root Mui-selected Mui-disabled MuiToggleButton-fullWidth MuiToggleButton-sizeMedium MuiToggleButton-standard MuiToggleButtonGroup-firstButton css-13g5uod-MuiButtonBase-root-MuiToggleButton-root"
       disabled=""
       tabindex="-1"
       type="button"
@@ -46,7 +46,7 @@ exports[`<BoolButton /> > pass props to widget 1`] = `
     </button>
     <button
       aria-pressed="false"
-      class="MuiButtonBase-root Mui-disabled MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedVertical Mui-disabled MuiToggleButton-root Mui-disabled MuiToggleButton-fullWidth MuiToggleButton-sizeMedium MuiToggleButton-standard MuiToggleButtonGroup-middleButton css-tzwn7e-MuiButtonBase-root-MuiToggleButton-root"
+      class="MuiButtonBase-root Mui-disabled MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedVertical Mui-disabled MuiToggleButton-root Mui-disabled MuiToggleButton-fullWidth MuiToggleButton-sizeMedium MuiToggleButton-standard MuiToggleButtonGroup-middleButton css-13g5uod-MuiButtonBase-root-MuiToggleButton-root"
       disabled=""
       tabindex="-1"
       type="button"
@@ -56,7 +56,7 @@ exports[`<BoolButton /> > pass props to widget 1`] = `
     </button>
     <button
       aria-pressed="false"
-      class="MuiButtonBase-root Mui-disabled MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedVertical Mui-disabled MuiToggleButton-root Mui-disabled MuiToggleButton-fullWidth MuiToggleButton-sizeMedium MuiToggleButton-standard MuiToggleButtonGroup-middleButton css-tzwn7e-MuiButtonBase-root-MuiToggleButton-root"
+      class="MuiButtonBase-root Mui-disabled MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedVertical Mui-disabled MuiToggleButton-root Mui-disabled MuiToggleButton-fullWidth MuiToggleButton-sizeMedium MuiToggleButton-standard MuiToggleButtonGroup-middleButton css-13g5uod-MuiButtonBase-root-MuiToggleButton-root"
       disabled=""
       tabindex="-1"
       type="button"
@@ -66,7 +66,7 @@ exports[`<BoolButton /> > pass props to widget 1`] = `
     </button>
     <button
       aria-pressed="false"
-      class="MuiButtonBase-root Mui-disabled MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedVertical Mui-disabled MuiToggleButton-root Mui-disabled MuiToggleButton-fullWidth MuiToggleButton-sizeMedium MuiToggleButton-standard MuiToggleButtonGroup-lastButton css-tzwn7e-MuiButtonBase-root-MuiToggleButton-root"
+      class="MuiButtonBase-root Mui-disabled MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedVertical Mui-disabled MuiToggleButton-root Mui-disabled MuiToggleButton-fullWidth MuiToggleButton-sizeMedium MuiToggleButton-standard MuiToggleButtonGroup-lastButton css-13g5uod-MuiButtonBase-root-MuiToggleButton-root"
       disabled=""
       tabindex="-1"
       type="button"
