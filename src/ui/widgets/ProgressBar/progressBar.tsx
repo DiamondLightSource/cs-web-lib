@@ -54,9 +54,9 @@ export const ProgressBarComponent = (
   }
   const numValue = value?.getDoubleValue() ?? 0;
   const percent = logScale
-    ? (Math.log10(numValue) - Math.log10(min)) /
+    ? ((Math.log10(numValue) - Math.log10(min)) * 100) /
       (Math.log10(max) - Math.log10(min))
-    : (numValue - min) / (max - min);
+    : ((numValue - min) * 100) / (max - min);
 
   // Show a warning if min is bigger than max and apply precision if provided
   let label = "";
