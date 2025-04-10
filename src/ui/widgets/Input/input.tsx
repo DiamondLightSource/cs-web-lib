@@ -83,7 +83,7 @@ export const SmartInputComponent = (
     enabled = true,
     transparent = false,
     textAlign = "left",
-    textAlignV = "top"
+    textAlignV = "center"
   } = props;
 
   const font = props.font?.css() ?? diamondTheme.typography;
@@ -109,6 +109,13 @@ export const SmartInputComponent = (
       }
     : (props.foregroundColor?.toString() ??
       diamondTheme.palette.primary.contrastText);
+
+  let alignmentV = "center";
+  if (textAlignV === "top") {
+    alignmentV = "start";
+  } else if (textAlignV === "bottom") {
+    alignmentV = "end";
+  }
 
   const backgroundColor = transparent
     ? "transparent"
@@ -137,7 +144,7 @@ export const SmartInputComponent = (
           fontFamily: font
         },
         "& .MuiInputBase-root": {
-          alignItems: textAlignV,
+          alignItems: alignmentV,
           color: foregroundColor,
           backgroundColor: backgroundColor
         }
