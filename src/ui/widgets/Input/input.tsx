@@ -152,6 +152,10 @@ export const SmartInputComponent = (
           alignItems: alignmentV,
           color: foregroundColor,
           backgroundColor: backgroundColor
+        },
+        "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+          border: props.border?.width,
+          borderColor: props.border?.color.toString()
         }
       }}
     />
