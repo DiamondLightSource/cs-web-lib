@@ -119,7 +119,7 @@ export const SmartInputComponent = (
 
   const backgroundColor = transparent
     ? "transparent"
-    : (props.backgroundColor?.toString() ?? diamondTheme.palette.primary.main);
+    : (props.backgroundColor?.toString() ?? "#80FFFF");
 
   const [inputValue, setInputValue] = useState("");
 
