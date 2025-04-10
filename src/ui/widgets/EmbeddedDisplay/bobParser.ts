@@ -381,8 +381,8 @@ export function parseBob(
     styleOpt: ["style", bobParseNumber],
     lineColor: ["line_color", opiParseColor],
     rotationStep: ["rotation_step", bobParseNumber],
-    horizontalAlignment: ["horizontal_alignment", bobParseNumber],
-    verticalAlignment: ["vertical_alignment", bobParseNumber]
+    borderWidth: ["border_width", bobParseNumber],
+    borderColor: ["border_color", opiParseColor]
   };
 
   const complexParsers = {
