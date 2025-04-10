@@ -135,16 +135,20 @@ export const ChoiceButtonComponent = (
             key={item}
             value={idx}
             sx={{
-              maxWidth: buttonWidth,
-              maxHeight: buttonHeight,
+              width: buttonWidth,
+              height: buttonHeight,
               fontFamily: font,
               color: foregroundColor.toString(),
               backgroundColor: backgroundColor.toString(),
               "&.Mui-selected": {
                 backgroundColor: selectedColor.toString()
               },
-              "&.Mui-selected:hover, &:hover": {
+              "&.Mui-selected:hover": {
                 backgroundColor: selectedColor.toString(),
+                opacity: 0.6
+              },
+              "&:hover": {
+                backgroundColor: backgroundColor.toString(),
                 opacity: 0.6
               }
             }}
