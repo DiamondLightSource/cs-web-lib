@@ -27,7 +27,8 @@ export const ProgressBarProps = {
   font: FontPropOpt,
   border: BorderPropOpt,
   height: FloatPropOpt,
-  width: FloatPropOpt
+  width: FloatPropOpt,
+  transparent: BoolPropOpt
 };
 
 export const ProgressBarComponent = (
@@ -40,12 +41,16 @@ export const ProgressBarComponent = (
     font,
     horizontal = true,
     fillColor = "#3CFF3C",
-    backgroundColor = "#FAFAFA",
     precision = undefined,
     logScale = false,
     width = WIDGET_DEFAULT_SIZES["progressbar"][0],
-    height = WIDGET_DEFAULT_SIZES["progressbar"][1]
+    height = WIDGET_DEFAULT_SIZES["progressbar"][1],
+    transparent = true
   } = props;
+
+  const backgroundColor = transparent
+    ? "transparent"
+    : (props.backgroundColor?.toString() ?? "#FAFAFA");
 
   let { min = 0, max = 100 } = props;
   if (limitsFromPv && value?.display.controlRange) {
@@ -82,9 +87,9 @@ export const ProgressBarComponent = (
           height: height,
           width: width,
           border: 1,
-          borderColor: "#000000",
+          borderColor: "#D2D2D2",
           borderRadius: "4px",
-          backgroundColor: backgroundColor.toString(),
+          backgroundColor: backgroundColor,
           "& .MuiLinearProgress-bar": {
             transform: horizontal
               ? null
