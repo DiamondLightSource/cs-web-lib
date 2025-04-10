@@ -380,9 +380,7 @@ export function parseBob(
     rotation: ["rotation", bobParseNumber],
     styleOpt: ["style", bobParseNumber],
     lineColor: ["line_color", opiParseColor],
-    rotationStep: ["rotation_step", bobParseNumber],
-    borderWidth: ["border_width", bobParseNumber],
-    borderColor: ["border_color", opiParseColor]
+    rotationStep: ["rotation_step", bobParseNumber]
   };
 
   const complexParsers = {
