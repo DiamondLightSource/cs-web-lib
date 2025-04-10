@@ -9,13 +9,15 @@ import {
   FontPropOpt,
   ChoicePropOpt,
   ColorPropOpt,
-  BoolPropOpt
+  BoolPropOpt,
+  BorderPropOpt
 } from "../propTypes";
 import { Font } from "../../../types/font";
 import { Color } from "../../../types/color";
 import { AlarmQuality, DType } from "../../../types/dtypes";
 import { TextField as MuiTextField, styled } from "@mui/material";
 import { diamondTheme } from "../../../diamondTheme";
+import { Border } from "../../../types";
 
 export interface InputProps {
   pvName: string;
@@ -33,6 +35,7 @@ export interface InputProps {
   font?: Font;
   textAlign?: "left" | "center" | "right";
   textAlignV?: "top" | "center" | "bottom";
+  border?: Border;
 }
 
 const InputWidgetProps = {
@@ -44,7 +47,8 @@ const InputWidgetProps = {
   alarmSensitive: BoolPropOpt,
   enabled: BoolPropOpt,
   textAlign: ChoicePropOpt(["left", "center", "right"]),
-  textAlignV: ChoicePropOpt(["top", "center", "bottom"])
+  textAlignV: ChoicePropOpt(["top", "center", "bottom"]),
+  border: BorderPropOpt
 };
 
 const TextField = styled(MuiTextField)({
@@ -59,11 +63,11 @@ const TextField = styled(MuiTextField)({
   },
   "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
     border: "2",
-    borderColor: "#000000"
+    borderColor: "#0000FF"
   },
   "&:hover .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
     border: "1",
-    borderColor: "#000000"
+    borderColor: "#0000FF"
   }
 });
 
@@ -77,6 +81,7 @@ export const SmartInputComponent = (
     enabled?: boolean;
     textAlign?: "left" | "center" | "right";
     textAlignV?: "top" | "center" | "bottom";
+    border?: Border;
   }
 ): JSX.Element => {
   const {
