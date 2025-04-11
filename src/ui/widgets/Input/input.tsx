@@ -61,13 +61,13 @@ const TextField = styled(MuiTextField)({
     height: "100%",
     width: "100%"
   },
-  "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
-    border: "2",
-    borderColor: "#0000FF"
-  },
-  "&:hover .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
-    border: "1",
-    borderColor: "#0000FF"
+  "& .MuiOutlinedInput-root": {
+    "&:hover fieldset": {
+      borderColor: "#1976D2"
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: "#1976D2"
+    }
   }
 });
 
@@ -145,7 +145,7 @@ export const SmartInputComponent = (
       sx={{
         "& .MuiInputBase-input": {
           textAlign: textAlign,
-          padding: "2px",
+          padding: "4px",
           fontFamily: font
         },
         "& .MuiInputBase-root": {
@@ -153,9 +153,9 @@ export const SmartInputComponent = (
           color: foregroundColor,
           backgroundColor: backgroundColor
         },
-        "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
-          border: props.border?.width,
-          borderColor: props.border?.color.toString()
+        "& fieldset": {
+          border: props.border?.width ?? "0",
+          borderColor: props.border?.color.toString() ?? "#000000"
         }
       }}
     />
