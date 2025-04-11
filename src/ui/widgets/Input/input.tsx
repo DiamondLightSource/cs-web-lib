@@ -126,11 +126,14 @@ export const SmartInputComponent = (
     ? "transparent"
     : (props.backgroundColor?.toString() ?? "#80FFFF");
 
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState(
+    props.value?.getStringValue() ?? ""
+  );
 
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       writePv(props.pvName, new DType({ stringValue: inputValue }));
+      event.preventDefault();
       event.currentTarget.blur();
     }
   };
@@ -138,6 +141,7 @@ export const SmartInputComponent = (
   return (
     <TextField
       disabled={!enabled}
+      value={inputValue}
       variant="outlined"
       type="text"
       onKeyDown={onKeyPress}
