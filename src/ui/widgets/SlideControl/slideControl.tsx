@@ -49,7 +49,7 @@ export const SlideControlComponent = (
     setEditing(false);
     try {
       const doubleValue = parseFloat(event.currentTarget.value);
-      writePv(pvName, new DType({ doubleValue: doubleValue }));
+      writePv(pvName.name, new DType({ doubleValue: doubleValue }));
     } catch (error) {
       log.warn(`Unexpected value ${event.currentTarget.value} set to slider.`);
     }
