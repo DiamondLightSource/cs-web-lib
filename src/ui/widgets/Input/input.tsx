@@ -41,9 +41,11 @@ const TextField = styled(MuiTextField)({
   },
   "& .MuiOutlinedInput-root": {
     "&:hover fieldset": {
+      borderWidth: "2px",
       borderColor: "#1976D2"
     },
     "&.Mui-focused fieldset": {
+      borderWidth: "1px",
       borderColor: "#1976D2"
     },
     "&.Mui-disabled": {
@@ -133,7 +135,7 @@ export const SmartInputComponent = (
           backgroundColor: backgroundColor
         },
         "& fieldset": {
-          border: props.border?.width ?? "1",
+          borderWidth: props.border?.width ?? "0px",
           borderColor: props.border?.color.toString() ?? "#0000003B"
         }
       }}
