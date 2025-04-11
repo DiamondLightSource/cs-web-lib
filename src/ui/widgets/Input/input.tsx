@@ -41,11 +41,11 @@ const TextField = styled(MuiTextField)({
   },
   "& .MuiOutlinedInput-root": {
     "&:hover fieldset": {
-      borderWidth: "2px",
+      borderWidth: "1px",
       borderColor: "#1976D2"
     },
     "&.Mui-focused fieldset": {
-      borderWidth: "1px",
+      borderWidth: "2px",
       borderColor: "#1976D2"
     },
     "&.Mui-disabled": {
