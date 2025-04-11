@@ -58,10 +58,12 @@ export const ProgressBarComponent = (
     max = value.display.controlRange?.max;
   }
   const numValue = value?.getDoubleValue() ?? 0;
-  const percent = logScale
+  const percentCalc = logScale
     ? ((Math.log10(numValue) - Math.log10(min)) * 100) /
       (Math.log10(max) - Math.log10(min))
     : ((numValue - min) * 100) / (max - min);
+
+  const percent = numValue < min ? 0 : numValue > max ? 100 : percentCalc;
 
   // Show a warning if min is bigger than max and apply precision if provided
   let label = "";
