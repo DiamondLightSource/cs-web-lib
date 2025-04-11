@@ -13,6 +13,7 @@ import {
 
 import { GenericProp } from "../../types/props";
 import { DType } from "../../types/dtypes";
+import { PV } from "../../types";
 
 export const WidgetPropType = {
   position: PositionProp,
@@ -58,4 +59,4 @@ export interface Component {
 }
 
 export type PVComponent = Component & PvState;
-export type PVInputComponent = PVComponent & { pvName: string };
+export type PVInputComponent = PVComponent & { pvName: PV };

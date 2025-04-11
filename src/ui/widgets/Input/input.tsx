@@ -104,7 +104,7 @@ export const SmartInputComponent = (
 
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
-      writePv(props.pvName, new DType({ stringValue: inputValue }));
+      writePv(props.pvName.name, new DType({ stringValue: inputValue }));
       event.preventDefault();
       event.currentTarget.blur();
     }
