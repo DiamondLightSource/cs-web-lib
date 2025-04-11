@@ -3,7 +3,7 @@
 exports[`<Input /> > renders an input 1`] = `
 <DocumentFragment>
   <div
-    class="MuiFormControl-root MuiTextField-root css-1ki3y36-MuiFormControl-root-MuiTextField-root"
+    class="MuiFormControl-root MuiTextField-root css-1dixp0z-MuiFormControl-root-MuiTextField-root"
   >
     <div
       class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-quhxjy-MuiInputBase-root-MuiOutlinedInput-root"
@@ -13,7 +13,7 @@ exports[`<Input /> > renders an input 1`] = `
         class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
         id=":r0:"
         type="text"
-        value=""
+        value="hello"
       />
       <fieldset
         aria-hidden="true"
