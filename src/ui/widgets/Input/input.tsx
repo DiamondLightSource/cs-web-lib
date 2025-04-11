@@ -12,31 +12,9 @@ import {
   BoolPropOpt,
   BorderPropOpt
 } from "../propTypes";
-import { Font } from "../../../types/font";
-import { Color } from "../../../types/color";
 import { AlarmQuality, DType } from "../../../types/dtypes";
 import { TextField as MuiTextField, styled } from "@mui/material";
 import { diamondTheme } from "../../../diamondTheme";
-import { Border } from "../../../types";
-
-export interface InputProps {
-  pvName: string;
-  value: string;
-  readonly: boolean;
-  foregroundColor?: Color;
-  backgroundColor?: Color;
-  transparent: boolean;
-  alarm: AlarmQuality;
-  alarmSensitive: boolean;
-  onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onBlur: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onClick: (event: React.MouseEvent<HTMLInputElement>) => void;
-  font?: Font;
-  textAlign?: "left" | "center" | "right";
-  textAlignV?: "top" | "center" | "bottom";
-  border?: Border;
-}
 
 const InputWidgetProps = {
   ...PVWidgetPropType,
@@ -67,22 +45,16 @@ const TextField = styled(MuiTextField)({
     },
     "&.Mui-focused fieldset": {
       borderColor: "#1976D2"
+    },
+    "&.Mui-disabled": {
+      cursor: "not-allowed",
+      pointerEvents: "all !important"
     }
   }
 });
 
 export const SmartInputComponent = (
-  props: PVInputComponent & {
-    font?: Font;
-    foregroundColor?: Color;
-    backgroundColor?: Color;
-    transparent?: boolean;
-    alarmSensitive?: boolean;
-    enabled?: boolean;
-    textAlign?: "left" | "center" | "right";
-    textAlignV?: "top" | "center" | "bottom";
-    border?: Border;
-  }
+  props: PVInputComponent & InferWidgetProps<typeof InputWidgetProps>
 ): JSX.Element => {
   const {
     enabled = true,
@@ -158,8 +130,8 @@ export const SmartInputComponent = (
           backgroundColor: backgroundColor
         },
         "& fieldset": {
-          border: props.border?.width ?? "0",
-          borderColor: props.border?.color.toString() ?? "#000000"
+          border: props.border?.width ?? "1",
+          borderColor: props.border?.color.toString() ?? "#0000003B"
         }
       }}
     />
