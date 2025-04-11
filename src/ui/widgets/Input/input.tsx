@@ -105,7 +105,7 @@ export const SmartInputComponent = (
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       writePv(props.pvName.name, new DType({ stringValue: inputValue }));
-      event.preventDefault();
+      // event.preventDefault();
       event.currentTarget.blur();
     }
   };
@@ -116,7 +116,11 @@ export const SmartInputComponent = (
       value={inputValue}
       variant="outlined"
       type="text"
-      onKeyDown={onKeyPress}
+      slotProps={{
+        input: {
+          onKeyDown: onKeyPress
+        }
+      }}
       onChange={event => setInputValue(event.target.value)}
       sx={{
         "& .MuiInputBase-input": {
