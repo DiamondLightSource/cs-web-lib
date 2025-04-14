@@ -2,9 +2,6 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import { ddouble } from "../../../testResources";
 import { SlideControlComponent } from "./slideControl";
-import { PV } from "../../../types";
-
-const pv = new PV("loc://test", "ca");
 
 test("slideControl", () => {
   const { container } = render(
@@ -12,7 +9,7 @@ test("slideControl", () => {
       value={ddouble(5)}
       connected={true}
       readonly={false}
-      pvName={pv}
+      pvName="pv"
       max={10}
       min={0}
     ></SlideControlComponent>
