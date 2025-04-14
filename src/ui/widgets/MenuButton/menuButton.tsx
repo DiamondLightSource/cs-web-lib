@@ -1,6 +1,6 @@
-import React, { CSSProperties, useContext, useState } from "react";
+import React, { useContext } from "react";
 
-import { commonCss, Widget } from "../widget";
+import { Widget } from "../widget";
 import { PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import {
@@ -9,7 +9,13 @@ import {
   InferWidgetProps,
   StringArrayPropOpt,
   StringPropOpt,
-  FontPropOpt
+  FontPropOpt,
+  ActionsPropType,
+  // BoolProp,
+  // DTypeProp,
+  // FuncProp,
+  // DTypePropOpt,
+  FuncPropOpt
 } from "../propTypes";
 import { DType } from "../../../types/dtypes";
 import {
@@ -42,24 +48,49 @@ export interface MenuButtonProps {
   border?: Border;
   font?: Font;
   items?: string[];
+  enabled?: boolean;
 }
 
-export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
+const MenuButtonComponentProps = {
+  pvName: StringPropOpt,
+  foregroundColor: ColorPropOpt,
+  backgroundColor: ColorPropOpt,
+  font: FontPropOpt,
+  enabled: BoolPropOpt,
+  // value: DTypePropOpt,
+  actions: ActionsPropType,
+  connected: BoolPropOpt,
+  onChange: FuncPropOpt,
+  // opi specific prop
+  readonly: BoolPropOpt,
+  actionsFromPv: BoolPropOpt,
+  label: StringPropOpt,
+  // bob specific prop
+  items: StringArrayPropOpt,
+  itemsFromPv: BoolPropOpt
+};
+
+export const MenuButtonComponent = (
+  props: MenuButtonProps
+  // props: InferWidgetProps<typeof MenuButtonComponentProps>
+): JSX.Element => {
   const {
     connected,
     value = null,
-    readonly,
+    enabled = true,
     actionsFromPv = true,
-    itemsFromPv = false,
+    itemsFromPv = true,
     pvName,
     label,
-    items = ["Item 1", "Item 2"]
+    items = ["Item 1", "Item 2"],
+    foregroundColor = diamondTheme.palette.primary.contrastText,
+    backgroundColor = diamondTheme.palette.primary.main
   } = props;
-  const fromPv = actionsFromPv || itemsFromPv;
-  let actions: WidgetAction[] = props.actions?.actions || [];
+  const fromPv = actionsFromPv && itemsFromPv;
+  let actions: WidgetAction[] = props.actions?.actions ?? [];
 
   // Store whether component is disabled or not
-  let disabled = readonly;
+  let disabled = !enabled;
 
   let options: string[] = label ? [label] : [];
   const displayOffset = label ? 1 : 0;
@@ -93,23 +124,14 @@ export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
     disabled = true;
   }
 
-  const style: CSSProperties = {
-    ...commonCss(props),
-    width: "100%",
-    height: "100%",
-    textAlignLast: "center",
-    cursor: disabled ? "not-allowed" : "default"
-  };
-
   const mappedOptions = items.map((text, index): JSX.Element => {
     return (
       <MenuItem
-        // Start indexing menuitems from 1 rather than 0
         key={index}
         value={index}
         sx={{
           fontFamily: props.font?.css() ?? "",
-          color: props.foregroundColor?.toString() ?? ""
+          color: foregroundColor.toString()
         }}
       >
         {text}
@@ -119,58 +141,54 @@ export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
 
   /* Don't disable the element itself because that prevents
      any interaction even for ancestor elements, including middle-click copy. */
-  function onMouseDown(event: React.MouseEvent<HTMLSelectElement>): void {
+  function onMouseDown(event: React.MouseEvent<HTMLDivElement>): void {
     if (disabled) {
       event.preventDefault();
     }
   }
 
-  const [selected, setSelected] = useState<string>("");
-
   return (
     <Select
       displayEmpty
-      value={selected}
+      value={displayIndex.toString()}
       MenuProps={{
         slotProps: {
           paper: {
             sx: {
-              backgroundColor: diamondTheme.palette.primary.main
+              backgroundColor: backgroundColor.toString()
             }
           }
         }
       }}
       renderValue={value => {
         if (value === "") {
-          return "Name";
+          return label ?? "Value";
         }
-        return selected;
+        return items[displayIndex];
       }}
-      onChange={event => setSelected(event.target.value)}
+      onChange={event => {
+        props.onChange(actions[parseInt(event.target.value) - displayOffset]);
+      }}
+      onMouseDown={event => onMouseDown(event)}
       sx={{
+        cursor: disabled ? "not-allowed" : "default",
         height: "100%",
         width: "100%",
-        backgroundColor: diamondTheme.palette.primary.main,
+        textAlignLast: "center",
+        backgroundColor: backgroundColor.toString(),
         "&:hover .MuiOutlinedInput-notchedOutline": {
-          borderColor: "#000000"
+          borderWidth: "1px",
+          borderColor: "#1976d2"
         },
         "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-          border: 2,
-          borderColor: "#000000"
+          borderWidth: "2px",
+          borderColor: "#1976d2"
         },
         "& .MuiSelect-outlined": {
           fontFamily: props.font?.css() ?? "",
-
-          color: props.foregroundColor?.toString() ?? ""
+          color: foregroundColor.toString()
         }
       }}
-      // onMouseDown={onMouseDown}
-      // style={style}
-      // onChange={event => {
-      //   props.onChange(
-      //     actions[parseFloat(event.currentTarget.value) - displayOffset]
-      //   );
-      // }}
     >
       {mappedOptions}
     </Select>
@@ -178,20 +196,10 @@ export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
 };
 
 // Menu button which also knows how to write to a PV
-export const SmartMenuButton = (props: {
-  connected: boolean;
-  pvName: string;
-  value?: DType;
-  readonly: boolean;
-  actionsFromPv?: boolean;
-  actions?: WidgetActions;
-  label?: string;
-  foregroundColor?: Color;
-  backgroundColor?: Color;
-  border?: Border;
-  items?: string[];
-  font?: Font;
-}): JSX.Element => {
+export const SmartMenuButton = (
+  props: MenuButtonProps
+  // props: InferWidgetProps<typeof MenuButtonComponentProps>
+): JSX.Element => {
   const files = useContext(FileContext);
   // Function to send the value on to the PV
   function onChange(action: WidgetAction): void {
@@ -207,6 +215,7 @@ export const SmartMenuButton = (props: {
       value={props.value}
       readonly={props.readonly}
       actionsFromPv={props.actionsFromPv}
+      itemsFromPv={props.itemsFromPv}
       actions={props.actions}
       onChange={onChange}
       label={props.label}
@@ -219,18 +228,12 @@ export const SmartMenuButton = (props: {
 };
 
 const MenuButtonWidgetProps = {
-  ...PVWidgetPropType,
-  actionsFromPv: BoolPropOpt,
-  itemsFromPv: BoolPropOpt,
-  label: StringPropOpt,
-  foregroundColor: ColorPropOpt,
-  backgroundColor: ColorPropOpt,
-  items: StringArrayPropOpt,
-  font: FontPropOpt
+  ...MenuButtonComponentProps,
+  ...PVWidgetPropType
 };
 
 export const MenuButton = (
   props: InferWidgetProps<typeof MenuButtonWidgetProps>
 ): JSX.Element => <Widget baseWidget={SmartMenuButton} {...props} />;
 
-registerWidget(MenuButton, MenuButtonWidgetProps, "menubutton");
+registerWidget(MenuButton, MenuButtonComponentProps, "menubutton");
