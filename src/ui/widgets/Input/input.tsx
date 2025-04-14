@@ -10,14 +10,15 @@ import {
   ChoicePropOpt,
   ColorPropOpt,
   BoolPropOpt,
-  BorderPropOpt
+  BorderPropOpt,
+  StringPropOpt
 } from "../propTypes";
 import { AlarmQuality, DType } from "../../../types/dtypes";
 import { TextField as MuiTextField, styled } from "@mui/material";
 import { diamondTheme } from "../../../diamondTheme";
 
-const InputWidgetProps = {
-  ...PVWidgetPropType,
+const InputComponentProps = {
+  pvName: StringPropOpt,
   font: FontPropOpt,
   foregroundColor: ColorPropOpt,
   backgroundColor: ColorPropOpt,
@@ -56,7 +57,7 @@ const TextField = styled(MuiTextField)({
 });
 
 export const SmartInputComponent = (
-  props: PVInputComponent & InferWidgetProps<typeof InputWidgetProps>
+  props: PVInputComponent & InferWidgetProps<typeof InputComponentProps>
 ): JSX.Element => {
   const {
     enabled = true,
@@ -106,7 +107,7 @@ export const SmartInputComponent = (
 
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
-      writePv(props.pvName.name, new DType({ stringValue: inputValue }));
+      writePv(props.pvName, new DType({ stringValue: inputValue }));
       event.currentTarget.blur();
     }
   };
@@ -141,6 +142,11 @@ export const SmartInputComponent = (
       }}
     />
   );
+};
+
+const InputWidgetProps = {
+  ...InputComponentProps,
+  ...PVWidgetPropType
 };
 
 export const Input = (
