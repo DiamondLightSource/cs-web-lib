@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { writePv } from "../../hooks/useSubscription";
 import { Widget } from "../widget";
@@ -63,7 +63,8 @@ export const SmartInputComponent = (
     enabled = true,
     transparent = false,
     textAlign = "left",
-    textAlignV = "center"
+    textAlignV = "center",
+    value = null
   } = props;
 
   const font = props.font?.css() ?? diamondTheme.typography;
@@ -101,9 +102,13 @@ export const SmartInputComponent = (
     ? "transparent"
     : (props.backgroundColor?.toString() ?? "#80FFFF");
 
-  const [inputValue, setInputValue] = useState(
-    props.value?.getStringValue() ?? ""
-  );
+  const [inputValue, setInputValue] = useState(value?.getStringValue() ?? "");
+
+  useEffect(() => {
+    if (value) {
+      setInputValue(value.getStringValue() ?? "");
+    }
+  }, [value]);
 
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
