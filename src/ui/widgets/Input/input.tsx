@@ -27,7 +27,8 @@ const InputComponentProps = {
   enabled: BoolPropOpt,
   textAlign: ChoicePropOpt(["left", "center", "right"]),
   textAlignV: ChoicePropOpt(["top", "center", "bottom"]),
-  border: BorderPropOpt
+  border: BorderPropOpt,
+  multiLine: BoolPropOpt
 };
 
 const TextField = styled(MuiTextField)({
@@ -64,7 +65,8 @@ export const SmartInputComponent = (
     transparent = false,
     textAlign = "left",
     textAlignV = "center",
-    value = null
+    value = null,
+    multiLine = false
   } = props;
 
   const font = props.font?.css() ?? diamondTheme.typography;
@@ -111,9 +113,16 @@ export const SmartInputComponent = (
   }, [value]);
 
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
-      writePv(props.pvName, new DType({ stringValue: inputValue }));
-      event.currentTarget.blur();
+    if (multiLine) {
+      if (event.key === "Enter" && event.ctrlKey) {
+        writePv(props.pvName, new DType({ stringValue: inputValue }));
+        event.currentTarget.blur();
+      }
+    } else {
+      if (event.key === "Enter") {
+        writePv(props.pvName, new DType({ stringValue: inputValue }));
+        event.currentTarget.blur();
+      }
     }
   };
 
@@ -121,6 +130,7 @@ export const SmartInputComponent = (
     <TextField
       disabled={!enabled}
       value={inputValue}
+      multiline={multiLine}
       variant="outlined"
       type="text"
       slotProps={{
