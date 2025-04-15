@@ -388,7 +388,8 @@ export function parseBob(
     showHihi: ["show_hihi", opiParseBoolean],
     showHigh: ["show_high", opiParseBoolean],
     showLolo: ["show_lolo", opiParseBoolean],
-    showLow: ["show_low", opiParseBoolean]
+    showLow: ["show_low", opiParseBoolean],
+    increment: ["increment", bobParseNumber]
   };
 
   const complexParsers = {
