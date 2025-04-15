@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import log from "loglevel";
 
 import classes from "./slideControl.module.css";
@@ -38,7 +38,17 @@ export const SliderControlProps = {
   border: BorderPropOpt,
   height: FloatPropOpt,
   width: FloatPropOpt,
-  transparent: BoolPropOpt
+  enabled: BoolPropOpt,
+  transparent: BoolPropOpt,
+  levelHihi: FloatPropOpt,
+  levelHigh: FloatPropOpt,
+  levelLow: FloatPropOpt,
+  levelLolo: FloatPropOpt,
+  showHihi: BoolPropOpt,
+  showHigh: BoolPropOpt,
+  showLow: BoolPropOpt,
+  showLolo: BoolPropOpt,
+  increment: FloatPropOpt
 };
 
 export const SlideControlComponent = (
@@ -47,49 +57,81 @@ export const SlideControlComponent = (
   const {
     pvName,
     connected,
-    value,
+    value = null,
+    enabled = true,
     horizontal = true,
     limitsFromPv = false,
     foregroundColor = diamondTheme.palette.primary.contrastText,
     backgroundColor = diamondTheme.palette.primary.main,
-    /* TODO: Implement vertical style and allow absolute positioning */
-    //vertical = false,
-    precision = undefined
+    // precision = undefined,
+    levelHihi = 90,
+    levelHigh = 80,
+    levelLow = 20,
+    levelLolo = 10,
+    showHihi = true,
+    showHigh = true,
+    showLow = true,
+    showLolo = true,
+    increment = 1
   } = props;
   let { min = 0, max = 100 } = props;
+
+  const disabled = !connected || value === null ? true : !enabled;
+
   if (limitsFromPv && value?.display.controlRange) {
     min = value.display.controlRange?.min;
     max = value.display.controlRange?.max;
   }
 
-  const [inputValue, setInputValue] = useState<number>(0);
-  const [editing, setEditing] = useState(false);
+  const [inputValue, setInputValue] = useState<number>(
+    value?.getDoubleValue() ?? 0
+  );
 
-  function onMouseDown(event: React.MouseEvent<HTMLInputElement>): void {
-    setEditing(true);
-  }
+  useEffect(() => {
+    if (value) {
+      setInputValue(value?.getDoubleValue() ?? 0);
+    }
+  }, [value]);
+
   function onMouseUp(value: number): void {
-    setEditing(false);
-    // try {
-    //   const doubleValue = parseFloat(event.currentTarget.value);
-    //   writePv(pvName, new DType({ doubleValue: doubleValue }));
-    // } catch (error) {
-    //   log.warn(`Unexpected value ${event.currentTarget.value} set to slider.`);
-    // }
+    try {
+      writePv(pvName, new DType({ doubleValue: value }));
+    } catch (error) {
+      log.warn(`Unexpected value ${value} set to slider.`);
+    }
   }
 
-  // const stringValue = DType.coerceString(value);
-  // if (!editing && inputValue !== stringValue) {
-  //   setInputValue(stringValue);
-  // }
+  const marks = [
+    {
+      value: levelHihi,
+      label: showHihi ? levelHihi.toString() : ""
+    },
+    {
+      value: levelHigh,
+      label: showHigh ? levelHigh.toString() : ""
+    },
+    {
+      value: levelLow,
+      label: showLow ? levelLow.toString() : ""
+    },
+    {
+      value: levelLolo,
+      label: showLolo ? levelLolo.toString() : ""
+    }
+  ];
 
   return (
     <Slider
       value={inputValue}
+      disabled={disabled}
       orientation={horizontal ? "horizontal" : "vertical"}
       onChange={(_, newValue) => setInputValue(newValue as number)}
       onChangeCommitted={(_, newValue) => onMouseUp(newValue as number)}
       valueLabelDisplay="auto"
+      min={min}
+      max={max}
+      marks={marks}
+      step={increment}
       sx={{
         color: backgroundColor.toString(),
         "& .MuiSlider-thumb": {
