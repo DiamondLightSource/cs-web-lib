@@ -67,10 +67,7 @@ const MenuButtonComponentProps = {
   itemsFromPv: BoolPropOpt
 };
 
-export const MenuButtonComponent = (
-  props: MenuButtonProps
-  // props: InferWidgetProps<typeof MenuButtonComponentProps>
-): JSX.Element => {
+export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
   const {
     connected,
     value = null,
@@ -79,7 +76,6 @@ export const MenuButtonComponent = (
     itemsFromPv = true,
     pvName,
     label,
-    items = ["Item 1", "Item 2"],
     foregroundColor = diamondTheme.palette.primary.contrastText,
     backgroundColor = diamondTheme.palette.primary.main
   } = props;
@@ -121,7 +117,7 @@ export const MenuButtonComponent = (
     disabled = true;
   }
 
-  const mappedOptions = items.map((text, index): JSX.Element => {
+  const mappedOptions = options.map((text, index): JSX.Element => {
     return (
       <MenuItem
         key={index}
@@ -157,7 +153,7 @@ export const MenuButtonComponent = (
         }
       }}
       renderValue={value => {
-        return items[displayIndex];
+        return options[displayIndex];
       }}
       onChange={event => {
         props.onChange(actions[parseInt(event.target.value) - displayOffset]);
@@ -189,10 +185,7 @@ export const MenuButtonComponent = (
 };
 
 // Menu button which also knows how to write to a PV
-export const SmartMenuButton = (
-  props: MenuButtonProps
-  // props: InferWidgetProps<typeof MenuButtonComponentProps>
-): JSX.Element => {
+export const SmartMenuButton = (props: MenuButtonProps): JSX.Element => {
   const files = useContext(FileContext);
   // Function to send the value on to the PV
   function onChange(action: WidgetAction): void {
