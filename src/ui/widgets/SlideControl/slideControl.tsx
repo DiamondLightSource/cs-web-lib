@@ -96,22 +96,38 @@ export const SlideControlComponent = (
   }
 
   const marks = [
-    {
-      value: levelHihi,
-      label: showHihi ? levelHihi.toString() : ""
-    },
-    {
-      value: levelHigh,
-      label: showHigh ? levelHigh.toString() : ""
-    },
-    {
-      value: levelLow,
-      label: showLow ? levelLow.toString() : ""
-    },
-    {
-      value: levelLolo,
-      label: showLolo ? levelLolo.toString() : ""
-    }
+    ...(showHihi
+      ? [
+          {
+            value: levelHihi,
+            label: levelHihi.toString()
+          }
+        ]
+      : []),
+    ...(showHigh
+      ? [
+          {
+            value: levelHigh,
+            label: levelHigh.toString()
+          }
+        ]
+      : []),
+    ...(showLow
+      ? [
+          {
+            value: levelLow,
+            label: levelLow.toString()
+          }
+        ]
+      : []),
+    ...(showLolo
+      ? [
+          {
+            value: levelLolo,
+            label: levelLolo.toString()
+          }
+        ]
+      : [])
   ];
 
   return (
