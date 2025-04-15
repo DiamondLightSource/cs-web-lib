@@ -11,11 +11,8 @@ import {
   StringPropOpt,
   FontPropOpt,
   ActionsPropType,
-  // BoolProp,
-  // DTypeProp,
-  // FuncProp,
-  // DTypePropOpt,
-  FuncPropOpt
+  FuncPropOpt,
+  DTypePropOpt
 } from "../propTypes";
 import { DType } from "../../../types/dtypes";
 import {
@@ -57,7 +54,7 @@ const MenuButtonComponentProps = {
   backgroundColor: ColorPropOpt,
   font: FontPropOpt,
   enabled: BoolPropOpt,
-  // value: DTypePropOpt,
+  value: DTypePropOpt,
   actions: ActionsPropType,
   connected: BoolPropOpt,
   onChange: FuncPropOpt,
@@ -149,7 +146,6 @@ export const MenuButtonComponent = (
 
   return (
     <Select
-      displayEmpty
       value={displayIndex.toString()}
       MenuProps={{
         slotProps: {
@@ -161,9 +157,6 @@ export const MenuButtonComponent = (
         }
       }}
       renderValue={value => {
-        if (value === "") {
-          return label ?? "Value";
-        }
         return items[displayIndex];
       }}
       onChange={event => {

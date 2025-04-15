@@ -8,6 +8,7 @@ import { FileDescription } from "../../misc/fileContext";
 import { Traces } from "../../types/traces";
 import { Axes } from "../../types/axes";
 import { Points } from "../../types/points";
+import { DType } from "../../types";
 
 export type ExcludeNulls<T> = {
   [P in keyof T]: Exclude<T[P], null>;
@@ -181,3 +182,6 @@ export const ActionsPropType = PropTypes.shape({
   executeAsOne: BoolPropOpt,
   actions: PropTypes.arrayOf(ActionPropType).isRequired
 });
+
+export const DTypeProp = PropTypes.instanceOf(DType).isRequired;
+export const DTypePropOpt = PropTypes.instanceOf(DType);
