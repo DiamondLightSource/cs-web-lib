@@ -1,6 +1,3 @@
-// Component to allow setting of values using a slider.
-// Displays value via an embedded progressbar widget
-
 import React, { useState } from "react";
 import log from "loglevel";
 
@@ -13,18 +10,48 @@ import {
 import { writePv } from "../../hooks/useSubscription";
 import { Widget } from "../widget";
 import { PVInputComponent, PVWidgetPropType } from "../widgetProps";
-import { InferWidgetProps } from "../propTypes";
+import {
+  BoolPropOpt,
+  BorderPropOpt,
+  ColorPropOpt,
+  FloatPropOpt,
+  FontPropOpt,
+  InferWidgetProps,
+  IntPropOpt
+} from "../propTypes";
 import { registerWidget } from "../register";
 import { DType } from "../../../types/dtypes";
+import { Slider } from "@mui/material";
+import { diamondTheme } from "../../../diamondTheme";
+
+export const SliderControlProps = {
+  min: FloatPropOpt,
+  max: FloatPropOpt,
+  limitsFromPv: BoolPropOpt,
+  logScale: BoolPropOpt,
+  horizontal: BoolPropOpt,
+  showLabel: BoolPropOpt,
+  foregroundColor: ColorPropOpt,
+  backgroundColor: ColorPropOpt,
+  precision: IntPropOpt,
+  font: FontPropOpt,
+  border: BorderPropOpt,
+  height: FloatPropOpt,
+  width: FloatPropOpt,
+  transparent: BoolPropOpt
+};
 
 export const SlideControlComponent = (
-  props: InferWidgetProps<typeof ProgressBarProps> & PVInputComponent
+  props: InferWidgetProps<typeof SliderControlProps> & PVInputComponent
 ): JSX.Element => {
   const {
     pvName,
     connected,
     value,
+    horizontal = true,
     limitsFromPv = false,
+    foregroundColor = diamondTheme.palette.primary.contrastText,
+    backgroundColor = diamondTheme.palette.primary.main,
     /* TODO: Implement vertical style and allow absolute positioning */
     //vertical = false,
     precision = undefined
@@ -35,81 +62,59 @@ export const SlideControlComponent = (
     max = value.display.controlRange?.max;
   }
 
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState<number>(0);
   const [editing, setEditing] = useState(false);
-
-  function onChange(event: React.ChangeEvent<HTMLInputElement>): void {
-    setInputValue(event.currentTarget.value);
-  }
 
   function onMouseDown(event: React.MouseEvent<HTMLInputElement>): void {
     setEditing(true);
   }
-  function onMouseUp(event: React.MouseEvent<HTMLInputElement>): void {
+  function onMouseUp(value: number): void {
     setEditing(false);
-    try {
-      const doubleValue = parseFloat(event.currentTarget.value);
-      writePv(pvName, new DType({ doubleValue: doubleValue }));
-    } catch (error) {
-      log.warn(`Unexpected value ${event.currentTarget.value} set to slider.`);
-    }
+    // try {
+    //   const doubleValue = parseFloat(event.currentTarget.value);
+    //   writePv(pvName, new DType({ doubleValue: doubleValue }));
+    // } catch (error) {
+    //   log.warn(`Unexpected value ${event.currentTarget.value} set to slider.`);
+    // }
   }
 
-  const stringValue = DType.coerceString(value);
-  if (!editing && inputValue !== stringValue) {
-    setInputValue(stringValue);
-  }
+  // const stringValue = DType.coerceString(value);
+  // if (!editing && inputValue !== stringValue) {
+  //   setInputValue(stringValue);
+  // }
 
   return (
-    <div>
-      <div
-        style={{
-          display: "block",
-          position: "relative",
-          height: "90%",
-          width: "100%",
-          top: "0%",
-          left: "0%"
-        }}
-      >
-        <ProgressBarComponent
-          connected={connected}
-          value={value}
-          min={min}
-          max={max}
-          limitsFromPv={limitsFromPv}
-          precision={precision}
-          readonly={props.readonly}
-          showLabel={true}
-        />
-      </div>
-      <div
-        style={{
-          display: "block",
-          position: "relative",
-          height: "10%",
-          width: "100%",
-          bottom: "0%",
-          left: "0%"
-        }}
-      >
-        <input
-          className={`Slider ${classes.Slider}`}
-          type="range"
-          min={min}
-          max={max}
-          value={inputValue}
-          onChange={onChange}
-          onMouseDown={onMouseDown}
-          onMouseUp={onMouseUp}
-        ></input>
-      </div>
-    </div>
+    <Slider
+      value={inputValue}
+      orientation={horizontal ? "horizontal" : "vertical"}
+      onChange={(_, newValue) => setInputValue(newValue as number)}
+      onChangeCommitted={(_, newValue) => onMouseUp(newValue as number)}
+      valueLabelDisplay="auto"
+      sx={{
+        color: backgroundColor.toString(),
+        "& .MuiSlider-thumb": {
+          height: 24,
+          width: 24,
+          backgroundColor: foregroundColor.toString(),
+          border: "2px solid currentColor",
+          "&:focus, &:hover, &.Mui-active, &.Mui-focusVisible": {
+            boxShadow: "inherit"
+          }
+        },
+        "& .MuiSlider-valueLabelOpen": {
+          color: foregroundColor.toString(),
+          backgroundColor: backgroundColor.toString(),
+          opacity: 0.6,
+          borderRadius: "4px",
+          borderColor: foregroundColor.toString()
+        }
+      }}
+    />
   );
 };
 
 const SlideControlWidgetProps = {
-  ...ProgressBarProps,
+  ...SliderControlProps,
   ...PVWidgetPropType
 };
 
