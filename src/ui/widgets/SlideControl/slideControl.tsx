@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from "react";
 import log from "loglevel";
 
-import classes from "./slideControl.module.css";
-
-import {
-  ProgressBarComponent,
-  ProgressBarProps
-} from "../ProgressBar/progressBar";
 import { writePv } from "../../hooks/useSubscription";
 import { Widget } from "../widget";
 import { PVInputComponent, PVWidgetPropType } from "../widgetProps";
@@ -63,7 +57,6 @@ export const SlideControlComponent = (
     limitsFromPv = false,
     foregroundColor = diamondTheme.palette.primary.contrastText,
     backgroundColor = diamondTheme.palette.primary.main,
-    // precision = undefined,
     levelHihi = 90,
     levelHigh = 80,
     levelLow = 20,
@@ -77,6 +70,7 @@ export const SlideControlComponent = (
   let { min = 0, max = 100 } = props;
 
   const disabled = !connected || value === null ? true : !enabled;
+  const font = props.font?.css() ?? diamondTheme.typography;
 
   if (limitsFromPv && value?.display.controlRange) {
     min = value.display.controlRange?.min;
@@ -144,11 +138,16 @@ export const SlideControlComponent = (
           }
         },
         "& .MuiSlider-valueLabelOpen": {
+          fontFamily: font,
           color: foregroundColor.toString(),
           backgroundColor: backgroundColor.toString(),
           opacity: 0.6,
           borderRadius: "4px",
           borderColor: foregroundColor.toString()
+        },
+        "& .MuiSlider-markLabel": {
+          fontFamily: font,
+          color: foregroundColor.toString()
         }
       }}
     />
