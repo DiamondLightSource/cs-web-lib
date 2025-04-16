@@ -1,8 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
-import classes from "./input.module.css";
 import { writePv } from "../../hooks/useSubscription";
-import { commonCss, Widget } from "../widget";
+import { Widget } from "../widget";
 import { PVInputComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import {
@@ -10,93 +9,159 @@ import {
   FontPropOpt,
   ChoicePropOpt,
   ColorPropOpt,
-  BoolPropOpt
+  BoolPropOpt,
+  BorderPropOpt,
+  StringPropOpt
 } from "../propTypes";
-import { Font } from "../../../types/font";
-import { Color } from "../../../types/color";
 import { AlarmQuality, DType } from "../../../types/dtypes";
-import { InputComponent } from "../../components/input/input";
+import { TextField as MuiTextField, styled } from "@mui/material";
+import { diamondTheme } from "../../../diamondTheme";
 
-export interface InputProps {
-  pvName: string;
-  value: string;
-  readonly: boolean;
-  foregroundColor?: Color;
-  backgroundColor?: Color;
-  transparent: boolean;
-  alarm: AlarmQuality;
-  alarmSensitive: boolean;
-  onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onBlur: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onClick: (event: React.MouseEvent<HTMLInputElement>) => void;
-  font?: Font;
-  textAlign?: "left" | "center" | "right";
-}
-
-export const SmartInputComponent = (
-  props: PVInputComponent & {
-    font?: Font;
-    foregroundColor?: Color;
-    backgroundColor?: Color;
-    transparent?: boolean;
-    alarmSensitive?: boolean;
-    textAlign?: "left" | "center" | "right";
-  }
-): JSX.Element => {
-  const alarmQuality = props.value?.getAlarm().quality ?? AlarmQuality.VALID;
-  let allClasses = classes.Input;
-  const style = commonCss(props);
-  if (props.textAlign) {
-    style.textAlign = props.textAlign;
-  }
-  style.color = props.foregroundColor?.toString();
-  style.backgroundColor = props.backgroundColor?.toString();
-  // Transparent prop overrides backgroundColor.
-  if (props.transparent) {
-    style["backgroundColor"] = "transparent";
-  }
-  if (props.readonly) {
-    allClasses += ` ${classes.readonly}`;
-  }
-  if (props.alarmSensitive) {
-    switch (alarmQuality) {
-      case AlarmQuality.UNDEFINED:
-      case AlarmQuality.INVALID:
-      case AlarmQuality.CHANGING:
-        style.color = "var(--invalid)";
-        break;
-      case AlarmQuality.WARNING:
-        style.color = "var(--alarm)";
-        break;
-      case AlarmQuality.ALARM:
-        style.color = "var(--alarm)";
-        break;
-    }
-  }
-  function onEnter(value: string): void {
-    writePv(props.pvName, new DType({ stringValue: value }));
-  }
-
-  return (
-    <InputComponent
-      value={DType.coerceString(props.value)}
-      readonly={props.readonly}
-      onEnter={onEnter}
-      style={style}
-      className={allClasses}
-    />
-  );
-};
-
-const InputWidgetProps = {
-  ...PVWidgetPropType,
+const InputComponentProps = {
+  pvName: StringPropOpt,
   font: FontPropOpt,
   foregroundColor: ColorPropOpt,
   backgroundColor: ColorPropOpt,
   transparent: BoolPropOpt,
   alarmSensitive: BoolPropOpt,
-  textAlign: ChoicePropOpt(["left", "center", "right"])
+  enabled: BoolPropOpt,
+  textAlign: ChoicePropOpt(["left", "center", "right"]),
+  textAlignV: ChoicePropOpt(["top", "center", "bottom"]),
+  border: BorderPropOpt,
+  multiLine: BoolPropOpt
+};
+
+const TextField = styled(MuiTextField)({
+  "&.MuiFormControl-root": {
+    height: "100%",
+    width: "100%",
+    display: "block"
+  },
+  "& .MuiInputBase-root": {
+    height: "100%",
+    width: "100%"
+  },
+  "& .MuiOutlinedInput-root": {
+    "&:hover fieldset": {
+      borderWidth: "1px",
+      borderColor: "#1976D2"
+    },
+    "&.Mui-focused fieldset": {
+      borderWidth: "2px",
+      borderColor: "#1976D2"
+    },
+    "&.Mui-disabled": {
+      cursor: "not-allowed",
+      pointerEvents: "all !important"
+    }
+  }
+});
+
+export const SmartInputComponent = (
+  props: PVInputComponent & InferWidgetProps<typeof InputComponentProps>
+): JSX.Element => {
+  const {
+    enabled = true,
+    transparent = false,
+    textAlign = "left",
+    textAlignV = "center",
+    value = null,
+    multiLine = false
+  } = props;
+
+  const font = props.font?.css() ?? diamondTheme.typography;
+
+  const alarmQuality = props.value?.getAlarm().quality ?? AlarmQuality.VALID;
+  const foregroundColor = props.alarmSensitive
+    ? function () {
+        switch (alarmQuality) {
+          case AlarmQuality.UNDEFINED:
+          case AlarmQuality.INVALID:
+          case AlarmQuality.CHANGING:
+            return "var(--invalid)";
+          case AlarmQuality.WARNING:
+            return "var(--alarm)";
+          case AlarmQuality.ALARM:
+            return "var(--alarm)";
+          case AlarmQuality.VALID:
+            return (
+              props.foregroundColor?.toString() ??
+              diamondTheme.palette.primary.contrastText
+            );
+        }
+      }
+    : (props.foregroundColor?.toString() ??
+      diamondTheme.palette.primary.contrastText);
+
+  let alignmentV = "center";
+  if (textAlignV === "top") {
+    alignmentV = "start";
+  } else if (textAlignV === "bottom") {
+    alignmentV = "end";
+  }
+
+  const backgroundColor = transparent
+    ? "transparent"
+    : (props.backgroundColor?.toString() ?? "#80FFFF");
+
+  const [inputValue, setInputValue] = useState(value?.getStringValue() ?? "");
+
+  useEffect(() => {
+    if (value) {
+      setInputValue(value.getStringValue() ?? "");
+    }
+  }, [value]);
+
+  const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (multiLine) {
+      if (event.key === "Enter" && event.ctrlKey) {
+        writePv(props.pvName, new DType({ stringValue: inputValue }));
+        event.currentTarget.blur();
+      }
+    } else {
+      if (event.key === "Enter") {
+        writePv(props.pvName, new DType({ stringValue: inputValue }));
+        event.currentTarget.blur();
+      }
+    }
+  };
+
+  return (
+    <TextField
+      disabled={!enabled}
+      value={inputValue}
+      multiline={multiLine}
+      variant="outlined"
+      type="text"
+      slotProps={{
+        input: {
+          onKeyDown: onKeyPress
+        }
+      }}
+      onChange={event => setInputValue(event.target.value)}
+      sx={{
+        "& .MuiInputBase-input": {
+          textAlign: textAlign,
+          padding: "4px",
+          fontFamily: font
+        },
+        "& .MuiInputBase-root": {
+          alignItems: alignmentV,
+          color: foregroundColor,
+          backgroundColor: backgroundColor
+        },
+        "& fieldset": {
+          borderWidth: props.border?.width ?? "0px",
+          borderColor: props.border?.color.toString() ?? "#0000003B"
+        }
+      }}
+    />
+  );
+};
+
+const InputWidgetProps = {
+  ...InputComponentProps,
+  ...PVWidgetPropType
 };
 
 export const Input = (
