@@ -3,7 +3,6 @@ import React from "react";
 import { Widget } from "../widget";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 
-import classes from "./readback.module.css";
 import {
   IntPropOpt,
   BoolPropOpt,
@@ -16,9 +15,9 @@ import {
   FloatPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
-import { LabelComponent } from "../Label/label";
-import { AlarmQuality, DAlarm, DType } from "../../../types/dtypes";
-import { Color } from "../../../types/color";
+import { AlarmQuality, DType } from "../../../types/dtypes";
+import { TextField as MuiTextField, styled } from "@mui/material";
+import { diamondTheme } from "../../../diamondTheme";
 
 const ReadbackProps = {
   precision: IntPropOpt,
@@ -36,8 +35,25 @@ const ReadbackProps = {
   border: BorderPropOpt,
   rotationStep: FloatPropOpt,
   visible: BoolPropOpt,
-  wrapWords: BoolPropOpt
+  wrapWords: BoolPropOpt,
+  enabled: BoolPropOpt,
+  height: FloatPropOpt,
+  width: FloatPropOpt
 };
+
+const TextField = styled(MuiTextField)({
+  "&.MuiFormControl-root": {
+    height: "100%",
+    width: "100%",
+    display: "block"
+  },
+  "& .MuiInputBase-root": {
+    height: "100%",
+    width: "100%",
+    padding: "4px",
+    overflow: "hidden"
+  }
+});
 
 // Needs to be exported for testing
 export type ReadbackComponentProps = InferWidgetProps<typeof ReadbackProps> &
@@ -47,28 +63,34 @@ export const ReadbackComponent = (
   props: ReadbackComponentProps
 ): JSX.Element => {
   const {
+    enabled = true,
     value,
     precision,
     formatType = "default",
-    font,
-    backgroundColor,
-    border,
     alarmSensitive = true,
     transparent = false,
-    text = "######",
+    // text = "######",
+    text = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa",
     textAlign = "left",
     textAlignV = "top",
     showUnits = false,
     precisionFromPv = false,
+<<<<<<< HEAD
     rotationStep,
     visible,
     wrapWords = false
+=======
+    rotationStep = 0,
+    wrapWords = false,
+    height = 20,
+    width = 100
+>>>>>>> a8b0e59 (Replace Label component with MUI TextField)
   } = props;
-  let { foregroundColor } = props;
   // Decide what to display.
-  const alarm = value?.getAlarm() || DAlarm.NONE;
   const display = value?.getDisplay();
   const prec = precisionFromPv ? (display?.precision ?? precision) : precision;
+  const rotation = `rotate(${rotationStep * -90}deg)`;
+
   let displayedValue;
   if (!value) {
     displayedValue = text;
@@ -108,28 +130,46 @@ export const ReadbackComponent = (
     displayedValue = displayedValue + ` ${display.units}`;
   }
 
-  // Handle alarm sensitivity.
-  let className = classes.Readback;
+  let foregroundColor =
+    props.foregroundColor?.toString() ??
+    diamondTheme.palette.primary.contrastText;
+  let border = props.border?.css() ?? "0px solid #000000";
+
+  const alarmQuality = props.value?.getAlarm().quality ?? AlarmQuality.VALID;
   if (alarmSensitive) {
-    className += ` ${classes[alarm.quality]}`;
-  }
-  if (alarmSensitive) {
-    switch (alarm.quality) {
+    switch (alarmQuality) {
       case AlarmQuality.UNDEFINED:
       case AlarmQuality.INVALID:
       case AlarmQuality.CHANGING:
-        foregroundColor = new Color("var(--invalid)");
-        break;
-      case AlarmQuality.WARNING:
-        foregroundColor = new Color("var(--warning)");
+        foregroundColor = "var(--invalid)";
+        border = "1px solid var(--invalid";
         break;
       case AlarmQuality.ALARM:
-        foregroundColor = new Color("var(--alarm)");
-        break;
+      case AlarmQuality.WARNING:
+        foregroundColor = "var(--alarm)";
+        border = "2px solid var(--alarm)";
     }
   }
-  // Use a LabelComponent to display it.
+
+  const font = props.font?.css() ?? diamondTheme.typography;
+
+  const backgroundColor = transparent
+    ? "transparent"
+    : (props.backgroundColor?.toString() ?? diamondTheme.palette.primary.main);
+
+  let alignmentV = "center";
+  if (textAlignV === "top") {
+    alignmentV = "start";
+  } else if (textAlignV === "bottom") {
+    alignmentV = "end";
+  }
+
+  const inputHeight = rotationStep === 0 || rotationStep === 2 ? height : width;
+
+  const inputWidth = rotationStep === 1 || rotationStep === 3 ? height : width;
+
   return (
+<<<<<<< HEAD
     <LabelComponent
       className={className}
       text={displayedValue}
@@ -144,6 +184,51 @@ export const ReadbackComponent = (
       visible={visible}
       wrapWords={wrapWords}
     ></LabelComponent>
+=======
+    <TextField
+      disabled={!enabled}
+      value={displayedValue}
+      multiline
+      variant="outlined"
+      slotProps={{
+        input: {
+          readOnly: true
+        }
+      }}
+      sx={{
+        "& .MuiInputBase-input": {
+          textAlign: textAlign,
+          padding: "4px",
+          font: font,
+          width: "100%",
+          lineHeight: 1,
+          textOverflow: "ellipsis",
+          whiteSpace: "pre-wrap"
+        },
+        "& .MuiInputBase-root": {
+          alignItems: alignmentV,
+          color: foregroundColor,
+          backgroundColor: backgroundColor
+        },
+        "& .MuiOutlinedInput-root": {
+          "& .MuiOutlinedInput-notchedOutline": {
+            border: border,
+            borderRadius: "4px"
+          },
+          "&.Mui-focused": {
+            "& .MuiOutlinedInput-notchedOutline": {
+              border: border
+            }
+          },
+          "&:hover": {
+            "& .MuiOutlinedInput-notchedOutline": {
+              border: border
+            }
+          }
+        }
+      }}
+    />
+>>>>>>> a8b0e59 (Replace Label component with MUI TextField)
   );
 };
 
