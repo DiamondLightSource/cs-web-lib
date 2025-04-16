@@ -9,7 +9,7 @@ test("slideControl", () => {
       value={ddouble(5)}
       connected={true}
       readonly={false}
-      pvName="dummy"
+      pvName="pv"
       max={10}
       min={0}
     ></SlideControlComponent>
