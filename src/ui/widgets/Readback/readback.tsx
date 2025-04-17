@@ -75,16 +75,10 @@ export const ReadbackComponent = (
     textAlignV = "top",
     showUnits = false,
     precisionFromPv = false,
-<<<<<<< HEAD
-    rotationStep,
-    visible,
-    wrapWords = false
-=======
     rotationStep = 0,
     wrapWords = false,
     height = 20,
     width = 100
->>>>>>> a8b0e59 (Replace Label component with MUI TextField)
   } = props;
   // Decide what to display.
   const display = value?.getDisplay();
@@ -164,31 +158,25 @@ export const ReadbackComponent = (
     alignmentV = "end";
   }
 
-  const inputHeight = rotationStep === 0 || rotationStep === 2 ? height : width;
+  const fontSize = props.font?.css().fontSize
+    ? parseFloat(
+        props.font
+          .css()
+          .fontSize?.toString()
+          .match(/\d+.\d+/)
+          ?.toString() ?? ""
+      ) * 16
+    : diamondTheme.typography.fontSize;
 
-  const inputWidth = rotationStep === 1 || rotationStep === 3 ? height : width;
+  const maxRows =
+    Math.floor(height / fontSize) < 1 ? 1 : Math.floor(height / fontSize);
 
   return (
-<<<<<<< HEAD
-    <LabelComponent
-      className={className}
-      text={displayedValue}
-      transparent={transparent}
-      textAlign={textAlign}
-      textAlignV={textAlignV}
-      font={font}
-      foregroundColor={foregroundColor}
-      backgroundColor={backgroundColor}
-      border={border}
-      rotationStep={rotationStep}
-      visible={visible}
-      wrapWords={wrapWords}
-    ></LabelComponent>
-=======
     <TextField
       disabled={!enabled}
-      value={displayedValue}
+      value={text}
       multiline
+      maxRows={maxRows}
       variant="outlined"
       slotProps={{
         input: {
@@ -201,9 +189,11 @@ export const ReadbackComponent = (
           padding: "4px",
           font: font,
           width: "100%",
+          height: "100%",
           lineHeight: 1,
           textOverflow: "ellipsis",
-          whiteSpace: "pre-wrap"
+          whiteSpace: "pre-wrap",
+          textAlignLast: "left"
         },
         "& .MuiInputBase-root": {
           alignItems: alignmentV,
@@ -228,7 +218,6 @@ export const ReadbackComponent = (
         }
       }}
     />
->>>>>>> a8b0e59 (Replace Label component with MUI TextField)
   );
 };
 
