@@ -16,10 +16,10 @@ beforeEach((): void => {
 
 function getMenubuttonComponent(
   value?: number,
-  readonly?: boolean
+  enabled?: boolean
 ): JSX.Element {
   const val = value ?? 0;
-  const disabled = readonly ?? false;
+  const disabled = enabled ?? true;
   return (
     <MenuButtonComponent
       connected={true}
@@ -33,7 +33,7 @@ function getMenubuttonComponent(
           })
         )
       }
-      readonly={disabled}
+      enabled={!disabled}
       pvName="testpv"
       actionsFromPv={true}
       onChange={mock}
@@ -44,7 +44,7 @@ function getMenubuttonComponent(
 const menuButtonActions = (
   <MenuButtonComponent
     connected={false}
-    readonly={false}
+    enabled={true}
     actionsFromPv={false}
     actions={ACTIONS_EX_FIRST}
     label="menu button with label"
