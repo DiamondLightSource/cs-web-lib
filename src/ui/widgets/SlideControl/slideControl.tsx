@@ -145,8 +145,8 @@ export const SlideControlComponent = (
       sx={{
         color: foregroundColor.toString(),
         "& .MuiSlider-thumb": {
-          height: 24,
-          width: 24,
+          height: 16,
+          width: 16,
           backgroundColor: foregroundColor.toString(),
           "&:focus, &:hover, &.Mui-active, &.Mui-focusVisible": {
             boxShadow: "inherit"
