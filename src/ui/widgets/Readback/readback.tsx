@@ -183,68 +183,60 @@ export const ReadbackComponent = (
       : Math.floor(inputHeight / fontSize) - 1;
 
   return (
-    <div
-      style={{
-        transform: transform,
-        height: inputHeight,
-        width: inputWidth,
-        display: "flex"
+    <TextField
+      disabled={!enabled}
+      value={text}
+      multiline={wrapWords}
+      maxRows={maxRows}
+      variant="outlined"
+      slotProps={{
+        input: {
+          readOnly: true
+        }
       }}
-    >
-      <TextField
-        disabled={!enabled}
-        value={text}
-        multiline={wrapWords}
-        maxRows={maxRows}
-        variant="outlined"
-        slotProps={{
-          input: {
-            readOnly: true
-          }
-        }}
-        sx={{
-          "&.MuiFormControl-root": {
-            height: "100%",
-            width: "100%",
-            display: "block"
+      sx={{
+        "&.MuiFormControl-root": {
+          height: inputHeight,
+          width: inputWidth,
+          display: "flex",
+          transform: transform
+        },
+        "& .MuiInputBase-input": {
+          textAlign: textAlign,
+          padding: "0px",
+          font: font,
+          lineHeight: 1,
+          textOverflow: "ellipsis",
+          whiteSpace: "pre-wrap",
+          height: "100%",
+          width: "100%"
+        },
+        "& .MuiInputBase-root": {
+          padding: "0px",
+          alignItems: alignmentV,
+          color: foregroundColor,
+          height: "100%",
+          width: "100%",
+          backgroundColor: backgroundColor
+        },
+        "& .MuiOutlinedInput-root": {
+          "& .MuiOutlinedInput-notchedOutline": {
+            border: border,
+            borderRadius: "4px"
           },
-          "& .MuiInputBase-input": {
-            textAlign: textAlign,
-            padding: "0px",
-            font: font,
-            lineHeight: 1,
-            textOverflow: "ellipsis",
-            whiteSpace: "pre-wrap",
-            height: "100%",
-            width: "100%"
-          },
-          "& .MuiInputBase-root": {
-            padding: "0px",
-            alignItems: alignmentV,
-            color: foregroundColor,
-            height: "100%",
-            width: "100%",
-            backgroundColor: backgroundColor
-          },
-          "& .MuiOutlinedInput-root": {
+          "&.Mui-focused": {
             "& .MuiOutlinedInput-notchedOutline": {
-              border: border,
-              borderRadius: "4px"
-            },
-            "&.Mui-focused": {
-              "& .MuiOutlinedInput-notchedOutline": {
-                border: border
-              }
-            },
-            "&:hover": {
-              "& .MuiOutlinedInput-notchedOutline": {
-                border: border
-              }
+              border: border
+            }
+          },
+          "&:hover": {
+            "& .MuiOutlinedInput-notchedOutline": {
+              border: border
             }
           }
-        }}
-      />
-    </div>
+        }
+      }}
+    />
   );
 };
 
