@@ -42,17 +42,16 @@ const ReadbackProps = {
 };
 
 const TextField = styled(MuiTextField)({
-  "&.MuiFormControl-root": {
-    height: "100%",
-    width: "100%",
-    display: "block"
-  },
-  "& .MuiInputBase-root": {
-    height: "100%",
-    width: "100%",
-    padding: "4px",
-    overflow: "hidden"
-  }
+  // "&.MuiFormControl-root": {
+  //   height: "100%",
+  //   width: "100%",
+  //   display: "block"
+  // },
+  // "& .MuiInputBase-root": {
+  //   height: "100%",
+  //   width: "100%",
+  //   overflow: "hidden"
+  // }
 });
 
 // Needs to be exported for testing
@@ -76,14 +75,13 @@ export const ReadbackComponent = (
     showUnits = false,
     precisionFromPv = false,
     rotationStep = 0,
-    wrapWords = false,
+    wrapWords = true,
     height = 20,
     width = 100
   } = props;
   // Decide what to display.
   const display = value?.getDisplay();
   const prec = precisionFromPv ? (display?.precision ?? precision) : precision;
-  const rotation = `rotate(${rotationStep * -90}deg)`;
 
   let displayedValue;
   if (!value) {
@@ -158,6 +156,8 @@ export const ReadbackComponent = (
     alignmentV = "end";
   }
 
+  // If props.font exists, extracts the font size in rem and returns is back to size in px
+  // using the default browser size of 16px, as used in ../../../types/font.ts
   const fontSize = props.font?.css().fontSize
     ? parseFloat(
         props.font
@@ -168,56 +168,83 @@ export const ReadbackComponent = (
       ) * 16
     : diamondTheme.typography.fontSize;
 
+  const inputWidth = rotationStep === 0 || rotationStep === 2 ? width : height;
+  const inputHeight = rotationStep === 0 || rotationStep === 2 ? height : width;
+  // let transform = `rotate(${rotationStep * -90}deg)`;
+  const offset = width / 2 - height / 2;
+  const transform =
+    rotationStep === 1 || rotationStep === 3
+      ? `rotate(${rotationStep * -90}deg) translateY(${offset}px) translateX(${offset}px)`
+      : `rotate(${rotationStep * -90}deg)`;
+
   const maxRows =
-    Math.floor(height / fontSize) < 1 ? 1 : Math.floor(height / fontSize);
+    Math.floor(inputHeight / fontSize) - 1 < 1
+      ? 1
+      : Math.floor(inputHeight / fontSize) - 1;
 
   return (
-    <TextField
-      disabled={!enabled}
-      value={text}
-      multiline
-      maxRows={maxRows}
-      variant="outlined"
-      slotProps={{
-        input: {
-          readOnly: true
-        }
+    <div
+      style={{
+        transform: transform,
+        height: inputHeight,
+        width: inputWidth,
+        display: "flex"
       }}
-      sx={{
-        "& .MuiInputBase-input": {
-          textAlign: textAlign,
-          padding: "4px",
-          font: font,
-          width: "100%",
-          height: "100%",
-          lineHeight: 1,
-          textOverflow: "ellipsis",
-          whiteSpace: "pre-wrap",
-          textAlignLast: "left"
-        },
-        "& .MuiInputBase-root": {
-          alignItems: alignmentV,
-          color: foregroundColor,
-          backgroundColor: backgroundColor
-        },
-        "& .MuiOutlinedInput-root": {
-          "& .MuiOutlinedInput-notchedOutline": {
-            border: border,
-            borderRadius: "4px"
+    >
+      <TextField
+        disabled={!enabled}
+        value={text}
+        multiline={wrapWords}
+        maxRows={maxRows}
+        variant="outlined"
+        slotProps={{
+          input: {
+            readOnly: true
+          }
+        }}
+        sx={{
+          "&.MuiFormControl-root": {
+            height: "100%",
+            width: "100%",
+            display: "block"
           },
-          "&.Mui-focused": {
-            "& .MuiOutlinedInput-notchedOutline": {
-              border: border
-            }
+          "& .MuiInputBase-input": {
+            textAlign: textAlign,
+            padding: "0px",
+            font: font,
+            lineHeight: 1,
+            textOverflow: "ellipsis",
+            whiteSpace: "pre-wrap",
+            height: "100%",
+            width: "100%"
           },
-          "&:hover": {
+          "& .MuiInputBase-root": {
+            padding: "0px",
+            alignItems: alignmentV,
+            color: foregroundColor,
+            height: "100%",
+            width: "100%",
+            backgroundColor: backgroundColor
+          },
+          "& .MuiOutlinedInput-root": {
             "& .MuiOutlinedInput-notchedOutline": {
-              border: border
+              border: border,
+              borderRadius: "4px"
+            },
+            "&.Mui-focused": {
+              "& .MuiOutlinedInput-notchedOutline": {
+                border: border
+              }
+            },
+            "&:hover": {
+              "& .MuiOutlinedInput-notchedOutline": {
+                border: border
+              }
             }
           }
-        }
-      }}
-    />
+        }}
+      />
+    </div>
   );
 };
 
