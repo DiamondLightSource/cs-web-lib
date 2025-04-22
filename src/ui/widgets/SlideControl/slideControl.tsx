@@ -143,12 +143,11 @@ export const SlideControlComponent = (
       marks={marks}
       step={increment}
       sx={{
-        color: backgroundColor.toString(),
+        color: foregroundColor.toString(),
         "& .MuiSlider-thumb": {
           height: 24,
           width: 24,
           backgroundColor: foregroundColor.toString(),
-          border: "2px solid currentColor",
           "&:focus, &:hover, &.Mui-active, &.Mui-focusVisible": {
             boxShadow: "inherit"
           }
@@ -157,9 +156,7 @@ export const SlideControlComponent = (
           fontFamily: font,
           color: foregroundColor.toString(),
           backgroundColor: backgroundColor.toString(),
-          opacity: 0.6,
-          borderRadius: "4px",
-          borderColor: foregroundColor.toString()
+          opacity: 0.6
         },
         "& .MuiSlider-markLabel": {
           fontFamily: font,
