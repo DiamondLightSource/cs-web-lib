@@ -38,6 +38,7 @@ export const SliderControlProps = {
   levelHigh: FloatPropOpt,
   levelLow: FloatPropOpt,
   levelLolo: FloatPropOpt,
+  showScale: BoolPropOpt,
   showHihi: BoolPropOpt,
   showHigh: BoolPropOpt,
   showLow: BoolPropOpt,
@@ -61,6 +62,7 @@ export const SlideControlComponent = (
     levelHigh = 80,
     levelLow = 20,
     levelLolo = 10,
+    showScale = true,
     showHihi = true,
     showHigh = true,
     showLow = true,
@@ -95,40 +97,42 @@ export const SlideControlComponent = (
     }
   }
 
-  const marks = [
-    ...(showHihi
-      ? [
-          {
-            value: levelHihi,
-            label: levelHihi.toString()
-          }
-        ]
-      : []),
-    ...(showHigh
-      ? [
-          {
-            value: levelHigh,
-            label: levelHigh.toString()
-          }
-        ]
-      : []),
-    ...(showLow
-      ? [
-          {
-            value: levelLow,
-            label: levelLow.toString()
-          }
-        ]
-      : []),
-    ...(showLolo
-      ? [
-          {
-            value: levelLolo,
-            label: levelLolo.toString()
-          }
-        ]
-      : [])
-  ];
+  const marks = showScale
+    ? [
+        ...(showHihi
+          ? [
+              {
+                value: levelHihi,
+                label: levelHihi.toString()
+              }
+            ]
+          : []),
+        ...(showHigh
+          ? [
+              {
+                value: levelHigh,
+                label: levelHigh.toString()
+              }
+            ]
+          : []),
+        ...(showLow
+          ? [
+              {
+                value: levelLow,
+                label: levelLow.toString()
+              }
+            ]
+          : []),
+        ...(showLolo
+          ? [
+              {
+                value: levelLolo,
+                label: levelLolo.toString()
+              }
+            ]
+          : [])
+      ]
+    : [];
 
   return (
     <Slider
