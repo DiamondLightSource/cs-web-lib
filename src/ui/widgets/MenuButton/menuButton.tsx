@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { Widget } from "../widget";
 import { PVWidgetPropType } from "../widgetProps";
@@ -108,8 +108,13 @@ export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
       };
       return writePv;
     });
-    setDisplayIndex((value.getDoubleValue() ?? 0) + displayOffset);
   }
+
+  useEffect(() => {
+    if (value) {
+      setDisplayIndex((value.getDoubleValue() ?? 0) + displayOffset);
+    }
+  }, [value, displayOffset]);
 
   const mappedOptions = options.map((text, index): JSX.Element => {
     return (
