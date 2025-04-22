@@ -385,6 +385,7 @@ export function parseBob(
     levelHigh: ["level_high", bobParseNumber],
     levelLolo: ["level_lolo", bobParseNumber],
     levelLow: ["level_low", bobParseNumber],
+    showScale: ["show_scale", opiParseBoolean],
     showHihi: ["show_hihi", opiParseBoolean],
     showHigh: ["show_high", opiParseBoolean],
     showLolo: ["show_lolo", opiParseBoolean],
