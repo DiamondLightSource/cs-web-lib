@@ -1,115 +1,178 @@
-// Component to allow setting of values using a slider.
-// Displays value via an embedded progressbar widget
-
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import log from "loglevel";
 
-import classes from "./slideControl.module.css";
-
-import {
-  ProgressBarComponent,
-  ProgressBarProps
-} from "../ProgressBar/progressBar";
 import { writePv } from "../../hooks/useSubscription";
 import { Widget } from "../widget";
 import { PVInputComponent, PVWidgetPropType } from "../widgetProps";
-import { InferWidgetProps } from "../propTypes";
+import {
+  BoolPropOpt,
+  BorderPropOpt,
+  ColorPropOpt,
+  FloatPropOpt,
+  FontPropOpt,
+  InferWidgetProps,
+  IntPropOpt
+} from "../propTypes";
 import { registerWidget } from "../register";
 import { DType } from "../../../types/dtypes";
+import { Slider } from "@mui/material";
+import { diamondTheme } from "../../../diamondTheme";
+
+export const SliderControlProps = {
+  min: FloatPropOpt,
+  max: FloatPropOpt,
+  limitsFromPv: BoolPropOpt,
+  logScale: BoolPropOpt,
+  horizontal: BoolPropOpt,
+  showLabel: BoolPropOpt,
+  foregroundColor: ColorPropOpt,
+  backgroundColor: ColorPropOpt,
+  precision: IntPropOpt,
+  font: FontPropOpt,
+  border: BorderPropOpt,
+  height: FloatPropOpt,
+  width: FloatPropOpt,
+  enabled: BoolPropOpt,
+  transparent: BoolPropOpt,
+  levelHihi: FloatPropOpt,
+  levelHigh: FloatPropOpt,
+  levelLow: FloatPropOpt,
+  levelLolo: FloatPropOpt,
+  showScale: BoolPropOpt,
+  showHihi: BoolPropOpt,
+  showHigh: BoolPropOpt,
+  showLow: BoolPropOpt,
+  showLolo: BoolPropOpt,
+  increment: FloatPropOpt
+};
 
 export const SlideControlComponent = (
-  props: InferWidgetProps<typeof ProgressBarProps> & PVInputComponent
+  props: InferWidgetProps<typeof SliderControlProps> & PVInputComponent
 ): JSX.Element => {
   const {
     pvName,
     connected,
-    value,
+    value = null,
+    enabled = true,
+    horizontal = true,
     limitsFromPv = false,
-    /* TODO: Implement vertical style and allow absolute positioning */
-    //vertical = false,
-    precision = undefined
+    foregroundColor = diamondTheme.palette.primary.contrastText,
+    backgroundColor = diamondTheme.palette.primary.main,
+    levelHihi = 90,
+    levelHigh = 80,
+    levelLow = 20,
+    levelLolo = 10,
+    showScale = true,
+    showHihi = true,
+    showHigh = true,
+    showLow = true,
+    showLolo = true,
+    increment = 1
   } = props;
   let { min = 0, max = 100 } = props;
+
+  const disabled = !connected || value === null ? true : !enabled;
+  const font = props.font?.css() ?? diamondTheme.typography;
+
   if (limitsFromPv && value?.display.controlRange) {
     min = value.display.controlRange?.min;
     max = value.display.controlRange?.max;
   }
 
-  const [inputValue, setInputValue] = useState("");
-  const [editing, setEditing] = useState(false);
+  const [inputValue, setInputValue] = useState<number>(
+    value?.getDoubleValue() ?? 0
+  );
 
-  function onChange(event: React.ChangeEvent<HTMLInputElement>): void {
-    setInputValue(event.currentTarget.value);
-  }
+  useEffect(() => {
+    if (value) {
+      setInputValue(value?.getDoubleValue() ?? 0);
+    }
+  }, [value]);
 
-  function onMouseDown(event: React.MouseEvent<HTMLInputElement>): void {
-    setEditing(true);
-  }
-  function onMouseUp(event: React.MouseEvent<HTMLInputElement>): void {
-    setEditing(false);
+  function onMouseUp(value: number): void {
     try {
-      const doubleValue = parseFloat(event.currentTarget.value);
-      writePv(pvName, new DType({ doubleValue: doubleValue }));
+      writePv(pvName, new DType({ doubleValue: value }));
     } catch (error) {
-      log.warn(`Unexpected value ${event.currentTarget.value} set to slider.`);
+      log.warn(`Unexpected value ${value} set to slider.`);
     }
   }
 
-  const stringValue = DType.coerceString(value);
-  if (!editing && inputValue !== stringValue) {
-    setInputValue(stringValue);
-  }
+  const marks = showScale
+    ? [
+        ...(showHihi
+          ? [
+              {
+                value: levelHihi,
+                label: levelHihi.toString()
+              }
+            ]
+          : []),
+        ...(showHigh
+          ? [
+              {
+                value: levelHigh,
+                label: levelHigh.toString()
+              }
+            ]
+          : []),
+        ...(showLow
+          ? [
+              {
+                value: levelLow,
+                label: levelLow.toString()
+              }
+            ]
+          : []),
+        ...(showLolo
+          ? [
+              {
+                value: levelLolo,
+                label: levelLolo.toString()
+              }
+            ]
+          : [])
+      ]
+    : [];
 
   return (
-    <div>
-      <div
-        style={{
-          display: "block",
-          position: "relative",
-          height: "90%",
-          width: "100%",
-          top: "0%",
-          left: "0%"
-        }}
-      >
-        <ProgressBarComponent
-          connected={connected}
-          value={value}
-          min={min}
-          max={max}
-          limitsFromPv={limitsFromPv}
-          precision={precision}
-          readonly={props.readonly}
-          showLabel={true}
-        />
-      </div>
-      <div
-        style={{
-          display: "block",
-          position: "relative",
-          height: "10%",
-          width: "100%",
-          bottom: "0%",
-          left: "0%"
-        }}
-      >
-        <input
-          className={`Slider ${classes.Slider}`}
-          type="range"
-          min={min}
-          max={max}
-          value={inputValue}
-          onChange={onChange}
-          onMouseDown={onMouseDown}
-          onMouseUp={onMouseUp}
-        ></input>
-      </div>
-    </div>
+    <Slider
+      value={inputValue}
+      disabled={disabled}
+      orientation={horizontal ? "horizontal" : "vertical"}
+      onChange={(_, newValue) => setInputValue(newValue as number)}
+      onChangeCommitted={(_, newValue) => onMouseUp(newValue as number)}
+      valueLabelDisplay="auto"
+      min={min}
+      max={max}
+      marks={marks}
+      step={increment}
+      sx={{
+        color: foregroundColor.toString(),
+        "& .MuiSlider-thumb": {
+          height: 16,
+          width: 16,
+          backgroundColor: foregroundColor.toString(),
+          "&:focus, &:hover, &.Mui-active, &.Mui-focusVisible": {
+            boxShadow: "inherit"
+          }
+        },
+        "& .MuiSlider-valueLabelOpen": {
+          fontFamily: font,
+          color: foregroundColor.toString(),
+          backgroundColor: backgroundColor.toString(),
+          opacity: 0.6
+        },
+        "& .MuiSlider-markLabel": {
+          fontFamily: font,
+          color: foregroundColor.toString()
+        }
+      }}
+    />
   );
 };
 
 const SlideControlWidgetProps = {
-  ...ProgressBarProps,
+  ...SliderControlProps,
   ...PVWidgetPropType
 };
 
