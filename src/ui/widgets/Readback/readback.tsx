@@ -42,16 +42,19 @@ const ReadbackProps = {
 };
 
 const TextField = styled(MuiTextField)({
-  // "&.MuiFormControl-root": {
-  //   height: "100%",
-  //   width: "100%",
-  //   display: "block"
-  // },
-  // "& .MuiInputBase-root": {
-  //   height: "100%",
-  //   width: "100%",
-  //   overflow: "hidden"
-  // }
+  "& .MuiInputBase-root": {
+    height: "100%",
+    width: "100%",
+    padding: "0px"
+  },
+  "& .MuiInputBase-input": {
+    padding: "0px",
+    lineHeight: 1,
+    textOverflow: "ellipsis",
+    whiteSpace: "pre-wrap",
+    height: "100%",
+    width: "100%"
+  }
 });
 
 // Needs to be exported for testing
@@ -68,8 +71,7 @@ export const ReadbackComponent = (
     formatType = "default",
     alarmSensitive = true,
     transparent = false,
-    // text = "######",
-    text = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa",
+    text = "######",
     textAlign = "left",
     textAlignV = "top",
     showUnits = false,
@@ -203,20 +205,12 @@ export const ReadbackComponent = (
         },
         "& .MuiInputBase-input": {
           textAlign: textAlign,
-          padding: "0px",
           font: font,
-          lineHeight: 1,
-          textOverflow: "ellipsis",
-          whiteSpace: "pre-wrap",
-          height: "100%",
-          width: "100%"
+          lineHeight: 1
         },
         "& .MuiInputBase-root": {
-          padding: "0px",
           alignItems: alignmentV,
           color: foregroundColor,
-          height: "100%",
-          width: "100%",
           backgroundColor: backgroundColor
         },
         "& .MuiOutlinedInput-root": {
