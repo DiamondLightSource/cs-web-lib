@@ -187,7 +187,7 @@ export const ReadbackComponent = (
   return (
     <TextField
       disabled={!enabled}
-      value={text}
+      value={displayedValue}
       multiline={wrapWords}
       maxRows={maxRows}
       variant="outlined"
