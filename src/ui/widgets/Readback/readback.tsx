@@ -172,13 +172,15 @@ export const ReadbackComponent = (
 
   const inputWidth = rotationStep === 0 || rotationStep === 2 ? width : height;
   const inputHeight = rotationStep === 0 || rotationStep === 2 ? height : width;
-  // let transform = `rotate(${rotationStep * -90}deg)`;
+
   const offset = width / 2 - height / 2;
   const transform =
     rotationStep === 1 || rotationStep === 3
       ? `rotate(${rotationStep * -90}deg) translateY(${offset}px) translateX(${offset}px)`
       : `rotate(${rotationStep * -90}deg)`;
 
+  // Calculate max number of rows based on the height of the widget and the height of the font
+  // an extra row is then subtracted to make it fit nicer
   const maxRows =
     Math.floor(inputHeight / fontSize) - 1 < 1
       ? 1
