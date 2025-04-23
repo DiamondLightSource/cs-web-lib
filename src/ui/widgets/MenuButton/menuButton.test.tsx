@@ -2,8 +2,11 @@ import React from "react";
 import { MenuButtonComponent } from "./menuButton";
 import { create } from "react-test-renderer";
 import { dtimeNow, DAlarm, DType, DDisplay } from "../../../types/dtypes";
-import { ACTIONS_EX_FIRST, WRITE_PV_ACTION } from "../../../testResources";
-import { fireEvent, render } from "@testing-library/react";
+import {
+  ACTIONS_EX_FIRST,
+  WRITE_PV_ACTION_NO_DESC
+} from "../../../testResources";
+import { act, fireEvent, render } from "@testing-library/react";
 import { vi } from "vitest";
 
 const mock = vi.fn();
@@ -13,10 +16,10 @@ beforeEach((): void => {
 
 function getMenubuttonComponent(
   value?: number,
-  readonly?: boolean
+  enabled?: boolean
 ): JSX.Element {
   const val = value ?? 0;
-  const disabled = readonly ?? false;
+  const disabled = enabled ?? true;
   return (
     <MenuButtonComponent
       connected={true}
@@ -30,7 +33,7 @@ function getMenubuttonComponent(
           })
         )
       }
-      readonly={disabled}
+      enabled={!disabled}
       pvName="testpv"
       actionsFromPv={true}
       onChange={mock}
@@ -41,7 +44,7 @@ function getMenubuttonComponent(
 const menuButtonActions = (
   <MenuButtonComponent
     connected={false}
-    readonly={false}
+    enabled={true}
     actionsFromPv={false}
     actions={ACTIONS_EX_FIRST}
     label="menu button with label"
@@ -56,30 +59,41 @@ describe("<MenuButton />", (): void => {
   });
 
   test("it renders all the choices", (): void => {
-    const { getByRole } = render(getMenubuttonComponent());
+    const { getAllByRole, getByRole } = render(getMenubuttonComponent());
     const select = getByRole("combobox");
-    expect(select.childElementCount).toBe(6);
+    fireEvent.mouseDown(select);
+    const options = getAllByRole("option");
+    expect(options.length).toBe(6);
   });
   test("it renders actions", (): void => {
-    const { getByRole } = render(menuButtonActions);
+    const { getAllByRole, getByRole } = render(menuButtonActions);
     const select = getByRole("combobox");
     expect(select.firstChild?.textContent).toEqual("menu button with label");
+    fireEvent.mouseDown(select);
+    const options = getAllByRole("option");
     // Two actions plus label.
-    expect(select.childElementCount).toBe(3);
+    expect(options.length).toBe(3);
   });
   test("it renders the option with the correct index", (): void => {
-    const { getByText } = render(getMenubuttonComponent(5));
-    expect((getByText("zero") as HTMLOptionElement).selected).toBe(false);
-    expect((getByText("five") as HTMLOptionElement).selected).toBe(true);
+    const { getAllByRole, getByRole } = render(getMenubuttonComponent(5));
+    const select = getByRole("combobox");
+    fireEvent.mouseDown(select);
+    const options = getAllByRole("option");
+    expect(options[5]).toHaveFocus();
   });
 
   test("function called on click", async (): Promise<void> => {
-    const { getByRole } = render(menuButtonActions);
-    // Select the 1st option (0th option is the label)
-    fireEvent.change(getByRole("combobox"), {
-      target: { value: 1 }
+    const { getAllByRole, getByRole } = render(menuButtonActions);
+    const trigger = getByRole("combobox");
+    fireEvent.mouseDown(trigger);
+    const options = getAllByRole("option");
+
+    expect(options[0]).toHaveFocus();
+
+    act(() => {
+      options[2].click();
     });
-    expect(mock).toHaveBeenCalledWith(WRITE_PV_ACTION);
+    expect(mock).toHaveBeenCalledWith(WRITE_PV_ACTION_NO_DESC);
   });
   test("preventDefault called on mousedown when widget is disabled", async (): Promise<void> => {
     const { getByRole } = render(getMenubuttonComponent(0, true));
