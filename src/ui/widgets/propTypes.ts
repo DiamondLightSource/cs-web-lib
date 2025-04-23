@@ -8,7 +8,6 @@ import { FileDescription } from "../../misc/fileContext";
 import { Traces } from "../../types/traces";
 import { Axes } from "../../types/axes";
 import { Points } from "../../types/points";
-import { DType } from "../../types";
 
 export type ExcludeNulls<T> = {
   [P in keyof T]: Exclude<T[P], null>;
