@@ -182,6 +182,3 @@ export const ActionsPropType = PropTypes.shape({
   executeAsOne: BoolPropOpt,
   actions: PropTypes.arrayOf(ActionPropType).isRequired
 });
-
-export const DTypeProp = PropTypes.instanceOf(DType).isRequired;
-export const DTypePropOpt = PropTypes.instanceOf(DType);
