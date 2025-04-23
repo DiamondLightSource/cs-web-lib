@@ -10,9 +10,7 @@ import {
   StringArrayPropOpt,
   StringPropOpt,
   FontPropOpt,
-  ActionsPropType,
-  FuncPropOpt,
-  DTypePropOpt
+  FuncPropOpt
 } from "../propTypes";
 import { DType } from "../../../types/dtypes";
 import {
@@ -47,14 +45,10 @@ export interface MenuButtonProps {
 }
 
 const MenuButtonComponentProps = {
-  pvName: StringPropOpt,
   foregroundColor: ColorPropOpt,
   backgroundColor: ColorPropOpt,
   font: FontPropOpt,
   enabled: BoolPropOpt,
-  value: DTypePropOpt,
-  actions: ActionsPropType,
-  connected: BoolPropOpt,
   onChange: FuncPropOpt,
   // opi specific prop
   actionsFromPv: BoolPropOpt,
