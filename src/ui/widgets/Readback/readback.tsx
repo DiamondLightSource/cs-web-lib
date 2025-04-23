@@ -136,7 +136,7 @@ export const ReadbackComponent = (
       case AlarmQuality.INVALID:
       case AlarmQuality.CHANGING:
         foregroundColor = "var(--invalid)";
-        border = "1px solid var(--invalid";
+        border = "1px solid var(--invalid)";
         break;
       case AlarmQuality.ALARM:
       case AlarmQuality.WARNING:
