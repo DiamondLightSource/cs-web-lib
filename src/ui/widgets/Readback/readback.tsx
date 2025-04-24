@@ -241,16 +241,7 @@ export const ReadbackComponent = (
           },
           "&.Mui-focused": {
             "& .MuiOutlinedInput-notchedOutline": {
-              outlineWidth: "2px",
-              outlineStyle: borderStyle,
-              outlineColor: borderColor
-            }
-          },
-          "&:hover:not(.Mui-focused)": {
-            "& .MuiOutlinedInput-notchedOutline": {
-              outlineWidth: borderWidth,
-              outlineStyle: borderStyle,
-              outlineColor: borderColor
+              outlineWidth: "2px"
             }
           }
         }
