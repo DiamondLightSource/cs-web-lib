@@ -3,7 +3,7 @@
 exports[`readback component > alarm-sensitive foreground colour 1`] = `
 <DocumentFragment>
   <div
-    class="MuiFormControl-root MuiTextField-root css-1i0n7o6-MuiFormControl-root-MuiTextField-root"
+    class="MuiFormControl-root MuiTextField-root css-14ljhbu-MuiFormControl-root-MuiTextField-root"
   >
     <div
       class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline Mui-readOnly MuiInputBase-readOnly css-xrmkj5-MuiInputBase-root-MuiOutlinedInput-root"
