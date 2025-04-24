@@ -43,6 +43,10 @@ const ReadbackProps = {
 };
 
 const TextField = styled(MuiTextField)({
+  // MUI Textfield contains a fieldset with a legend that needs to be removed
+  "& .css-w4cd9x": {
+    lineHeight: "0px"
+  },
   "& .MuiInputBase-root": {
     height: "100%",
     width: "100%",
@@ -55,6 +59,13 @@ const TextField = styled(MuiTextField)({
     whiteSpace: "pre-wrap",
     height: "100%",
     width: "100%"
+  },
+  "& .MuiOutlinedInput-root": {
+    "& .MuiOutlinedInput-notchedOutline": {
+      borderRadius: "4px",
+      borderWidth: "0px",
+      inset: "0px"
+    }
   }
 });
 
@@ -128,7 +139,9 @@ export const ReadbackComponent = (
   let foregroundColor =
     props.foregroundColor?.toString() ??
     diamondTheme.palette.primary.contrastText;
-  let border = props.border?.css() ?? "0px solid #000000";
+  let borderColor = props.border?.color.toString() ?? "#000000";
+  let borderStyle = props.border?.css().borderStyle ?? "solid";
+  let borderWidth = props.border?.width ?? "0px";
 
   const alarmQuality = props.value?.getAlarm().quality ?? AlarmQuality.VALID;
   if (alarmSensitive) {
@@ -137,12 +150,16 @@ export const ReadbackComponent = (
       case AlarmQuality.INVALID:
       case AlarmQuality.CHANGING:
         foregroundColor = "var(--invalid)";
-        border = "1px solid var(--invalid)";
+        borderColor = "var(--invalid)";
+        borderStyle = "solid";
+        borderWidth = "1px";
         break;
       case AlarmQuality.ALARM:
       case AlarmQuality.WARNING:
         foregroundColor = "var(--alarm)";
-        border = "2px solid var(--alarm)";
+        borderColor = "var(--alarm)";
+        borderStyle = "solid";
+        borderWidth = "2px";
     }
   }
 
@@ -218,17 +235,22 @@ export const ReadbackComponent = (
         },
         "& .MuiOutlinedInput-root": {
           "& .MuiOutlinedInput-notchedOutline": {
-            border: border,
-            borderRadius: "4px"
+            outlineWidth: borderWidth,
+            outlineStyle: borderStyle,
+            outlineColor: borderColor
           },
           "&.Mui-focused": {
             "& .MuiOutlinedInput-notchedOutline": {
-              border: border
+              outlineWidth: "2px",
+              outlineStyle: borderStyle,
+              outlineColor: borderColor
             }
           },
-          "&:hover": {
+          "&:hover:not(.Mui-focused)": {
             "& .MuiOutlinedInput-notchedOutline": {
-              border: border
+              outlineWidth: borderWidth,
+              outlineStyle: borderStyle,
+              outlineColor: borderColor
             }
           }
         }
