@@ -241,7 +241,8 @@ export const ReadbackComponent = (
           },
           "&.Mui-focused": {
             "& .MuiOutlinedInput-notchedOutline": {
-              outlineWidth: "2px"
+              outlineWidth: "2px",
+              borderWidth: "0px"
             }
           }
         }
