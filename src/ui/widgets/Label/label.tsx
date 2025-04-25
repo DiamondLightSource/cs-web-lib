@@ -63,6 +63,7 @@ export const LabelComponent = (
     ? "transparent"
     : (props.backgroundColor?.toString() ?? diamondTheme.palette.primary.main);
   const font = props.font?.css() ?? diamondTheme.typography;
+  const border = props.border?.css() ?? "0px solid #000000";
 
   // Since display is "flex", use "flex-start" and "flex-end" to align
   // the content.
@@ -93,7 +94,8 @@ export const LabelComponent = (
         color: foregroundColor.toString(),
         backgroundColor: backgroundColor,
         fontFamily: font,
-        transform: `rotate(${rotationStep * -90}deg)`.toString()
+        transform: `rotate(${rotationStep * -90}deg)`.toString(),
+        border: border
       }}
     >
       {text}
