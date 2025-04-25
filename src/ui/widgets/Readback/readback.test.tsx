@@ -16,9 +16,9 @@ describe("readback component", (): void => {
       />
     );
 
-    const { queryByText } = render(readback);
+    const { getByRole } = render(readback);
     // Check for precision.
-    expect(queryByText("3.14")).toBeInTheDocument();
+    expect(getByRole("textbox").textContent).toBe("3.14");
   });
   test("string value with units", (): void => {
     const readback = (
@@ -58,8 +58,7 @@ describe("readback component", (): void => {
       />
     );
 
-    const { queryByText } = render(readback);
-    // 'alarm' class added.
-    expect(queryByText("hello")).toHaveStyle("color: var(--alarm)");
+    const { asFragment } = render(readback);
+    expect(asFragment()).toMatchSnapshot();
   });
 });

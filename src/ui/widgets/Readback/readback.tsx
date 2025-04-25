@@ -3,7 +3,6 @@ import React from "react";
 import { Widget } from "../widget";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 
-import classes from "./readback.module.css";
 import {
   IntPropOpt,
   BoolPropOpt,
@@ -16,9 +15,10 @@ import {
   FloatPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
-import { LabelComponent } from "../Label/label";
-import { AlarmQuality, DAlarm, DType } from "../../../types/dtypes";
-import { Color } from "../../../types/color";
+import { AlarmQuality, DType } from "../../../types/dtypes";
+import { TextField as MuiTextField, styled } from "@mui/material";
+import { diamondTheme } from "../../../diamondTheme";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const ReadbackProps = {
   precision: IntPropOpt,
@@ -36,8 +36,38 @@ const ReadbackProps = {
   border: BorderPropOpt,
   rotationStep: FloatPropOpt,
   visible: BoolPropOpt,
-  wrapWords: BoolPropOpt
+  wrapWords: BoolPropOpt,
+  enabled: BoolPropOpt,
+  height: FloatPropOpt,
+  width: FloatPropOpt
 };
+
+const TextField = styled(MuiTextField)({
+  // MUI Textfield contains a fieldset with a legend that needs to be removed
+  "& .css-w4cd9x": {
+    lineHeight: "0px"
+  },
+  "& .MuiInputBase-root": {
+    height: "100%",
+    width: "100%",
+    padding: "0px"
+  },
+  "& .MuiInputBase-input": {
+    padding: "0px",
+    lineHeight: 1,
+    textOverflow: "ellipsis",
+    whiteSpace: "pre-wrap",
+    height: "100%",
+    width: "100%"
+  },
+  "& .MuiOutlinedInput-root": {
+    "& .MuiOutlinedInput-notchedOutline": {
+      borderRadius: "4px",
+      borderWidth: "0px",
+      inset: "0px"
+    }
+  }
+});
 
 // Needs to be exported for testing
 export type ReadbackComponentProps = InferWidgetProps<typeof ReadbackProps> &
@@ -47,12 +77,10 @@ export const ReadbackComponent = (
   props: ReadbackComponentProps
 ): JSX.Element => {
   const {
+    enabled = true,
     value,
     precision,
     formatType = "default",
-    font,
-    backgroundColor,
-    border,
     alarmSensitive = true,
     transparent = false,
     text = "######",
@@ -60,15 +88,15 @@ export const ReadbackComponent = (
     textAlignV = "top",
     showUnits = false,
     precisionFromPv = false,
-    rotationStep,
-    visible,
-    wrapWords = false
+    rotationStep = 0,
+    wrapWords = true,
+    height = WIDGET_DEFAULT_SIZES["textupdate"][1],
+    width = WIDGET_DEFAULT_SIZES["textupdate"][0]
   } = props;
-  let { foregroundColor } = props;
   // Decide what to display.
-  const alarm = value?.getAlarm() || DAlarm.NONE;
   const display = value?.getDisplay();
   const prec = precisionFromPv ? (display?.precision ?? precision) : precision;
+
   let displayedValue;
   if (!value) {
     displayedValue = text;
@@ -108,42 +136,118 @@ export const ReadbackComponent = (
     displayedValue = displayedValue + ` ${display.units}`;
   }
 
-  // Handle alarm sensitivity.
-  let className = classes.Readback;
+  let foregroundColor =
+    props.foregroundColor?.toString() ??
+    diamondTheme.palette.primary.contrastText;
+  let borderColor = props.border?.color.toString() ?? "#000000";
+  let borderStyle = props.border?.css().borderStyle ?? "solid";
+  let borderWidth = props.border?.width ?? "0px";
+
+  const alarmQuality = props.value?.getAlarm().quality ?? AlarmQuality.VALID;
   if (alarmSensitive) {
-    className += ` ${classes[alarm.quality]}`;
-  }
-  if (alarmSensitive) {
-    switch (alarm.quality) {
+    switch (alarmQuality) {
       case AlarmQuality.UNDEFINED:
       case AlarmQuality.INVALID:
       case AlarmQuality.CHANGING:
-        foregroundColor = new Color("var(--invalid)");
-        break;
-      case AlarmQuality.WARNING:
-        foregroundColor = new Color("var(--warning)");
+        foregroundColor = "var(--invalid)";
+        borderColor = "var(--invalid)";
+        borderStyle = "solid";
+        borderWidth = "1px";
         break;
       case AlarmQuality.ALARM:
-        foregroundColor = new Color("var(--alarm)");
-        break;
+      case AlarmQuality.WARNING:
+        foregroundColor = "var(--alarm)";
+        borderColor = "var(--alarm)";
+        borderStyle = "solid";
+        borderWidth = "2px";
     }
   }
-  // Use a LabelComponent to display it.
+
+  const font = props.font?.css() ?? diamondTheme.typography;
+
+  const backgroundColor = transparent
+    ? "transparent"
+    : (props.backgroundColor?.toString() ?? diamondTheme.palette.primary.main);
+
+  let alignmentV = "center";
+  if (textAlignV === "top") {
+    alignmentV = "start";
+  } else if (textAlignV === "bottom") {
+    alignmentV = "end";
+  }
+
+  // If props.font exists, extracts the font size in rem and returns is back to size in px
+  // using the default browser size of 16px, as used in ../../../types/font.ts
+  const fontSize = props.font?.css().fontSize
+    ? parseFloat(
+        props.font
+          .css()
+          .fontSize?.toString()
+          .match(/\d+.\d+/)
+          ?.toString() ?? ""
+      ) * 16
+    : diamondTheme.typography.fontSize;
+
+  const inputWidth = rotationStep === 0 || rotationStep === 2 ? width : height;
+  const inputHeight = rotationStep === 0 || rotationStep === 2 ? height : width;
+
+  const offset = width / 2 - height / 2;
+  const transform =
+    rotationStep === 1 || rotationStep === 3
+      ? `rotate(${rotationStep * -90}deg) translateY(${offset}px) translateX(${offset}px)`
+      : `rotate(${rotationStep * -90}deg)`;
+
+  // Calculate max number of rows based on the height of the widget and the height of the font
+  // an extra row is then subtracted to make it fit nicer
+  const maxRows =
+    Math.floor(inputHeight / fontSize) - 1 < 1
+      ? 1
+      : Math.floor(inputHeight / fontSize) - 1;
+
   return (
-    <LabelComponent
-      className={className}
-      text={displayedValue}
-      transparent={transparent}
-      textAlign={textAlign}
-      textAlignV={textAlignV}
-      font={font}
-      foregroundColor={foregroundColor}
-      backgroundColor={backgroundColor}
-      border={border}
-      rotationStep={rotationStep}
-      visible={visible}
-      wrapWords={wrapWords}
-    ></LabelComponent>
+    <TextField
+      disabled={!enabled}
+      value={displayedValue}
+      multiline={wrapWords}
+      maxRows={maxRows}
+      variant="outlined"
+      slotProps={{
+        input: {
+          readOnly: true
+        }
+      }}
+      sx={{
+        "&.MuiFormControl-root": {
+          height: inputHeight,
+          width: inputWidth,
+          display: "flex",
+          transform: transform
+        },
+        "& .MuiInputBase-input": {
+          textAlign: textAlign,
+          font: font,
+          lineHeight: 1
+        },
+        "& .MuiInputBase-root": {
+          alignItems: alignmentV,
+          color: foregroundColor,
+          backgroundColor: backgroundColor
+        },
+        "& .MuiOutlinedInput-root": {
+          "& .MuiOutlinedInput-notchedOutline": {
+            outlineWidth: borderWidth,
+            outlineStyle: borderStyle,
+            outlineColor: borderColor
+          },
+          "&.Mui-focused": {
+            "& .MuiOutlinedInput-notchedOutline": {
+              outlineWidth: "2px",
+              borderWidth: "0px"
+            }
+          }
+        }
+      }}
+    />
   );
 };
 
