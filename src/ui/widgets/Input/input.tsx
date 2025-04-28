@@ -11,11 +11,13 @@ import {
   ColorPropOpt,
   BoolPropOpt,
   BorderPropOpt,
-  StringPropOpt
+  StringPropOpt,
+  FloatPropOpt
 } from "../propTypes";
 import { AlarmQuality, DType } from "../../../types/dtypes";
 import { TextField as MuiTextField, styled } from "@mui/material";
 import { diamondTheme } from "../../../diamondTheme";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const InputComponentProps = {
   pvName: StringPropOpt,
@@ -28,27 +30,38 @@ const InputComponentProps = {
   textAlign: ChoicePropOpt(["left", "center", "right"]),
   textAlignV: ChoicePropOpt(["top", "center", "bottom"]),
   border: BorderPropOpt,
-  multiLine: BoolPropOpt
+  multiLine: BoolPropOpt,
+  height: FloatPropOpt
 };
 
 const TextField = styled(MuiTextField)({
+  // MUI Textfield contains a fieldset with a legend that needs to be removed
+  "& .css-w4cd9x": {
+    lineHeight: "0px"
+  },
   "&.MuiFormControl-root": {
     height: "100%",
     width: "100%",
-    display: "block"
+    display: "flex"
   },
   "& .MuiInputBase-root": {
+    height: "100%",
+    width: "100%",
+    padding: "0px 4px"
+  },
+  "& .MuiInputBase-input": {
+    padding: "0px",
+    lineHeight: 1,
+    textOverflow: "ellipsis",
+    whiteSpace: "pre-wrap",
     height: "100%",
     width: "100%"
   },
   "& .MuiOutlinedInput-root": {
-    "&:hover fieldset": {
-      borderWidth: "1px",
-      borderColor: "#1976D2"
-    },
-    "&.Mui-focused fieldset": {
-      borderWidth: "2px",
-      borderColor: "#1976D2"
+    "& .MuiOutlinedInput-notchedOutline": {
+      borderRadius: "4px",
+      borderWidth: "0px",
+      inset: "0px"
     },
     "&.Mui-disabled": {
       cursor: "not-allowed",
@@ -66,32 +79,43 @@ export const SmartInputComponent = (
     textAlign = "left",
     textAlignV = "center",
     value = null,
-    multiLine = false
+    multiLine = false,
+    alarmSensitive = true,
+    height = WIDGET_DEFAULT_SIZES["textupdate"][1]
   } = props;
 
   const font = props.font?.css() ?? diamondTheme.typography;
 
+  let foregroundColor =
+    props.foregroundColor?.toString() ??
+    diamondTheme.palette.primary.contrastText;
+
+  let borderColor = props.border?.css().borderColor ?? "#000000";
+  let borderStyle = props.border?.css().borderStyle ?? "solid";
+  let borderWidth = props.border?.width ?? "0px";
+
   const alarmQuality = props.value?.getAlarm().quality ?? AlarmQuality.VALID;
-  const foregroundColor = props.alarmSensitive
-    ? function () {
-        switch (alarmQuality) {
-          case AlarmQuality.UNDEFINED:
-          case AlarmQuality.INVALID:
-          case AlarmQuality.CHANGING:
-            return "var(--invalid)";
-          case AlarmQuality.WARNING:
-            return "var(--alarm)";
-          case AlarmQuality.ALARM:
-            return "var(--alarm)";
-          case AlarmQuality.VALID:
-            return (
-              props.foregroundColor?.toString() ??
-              diamondTheme.palette.primary.contrastText
-            );
-        }
-      }
-    : (props.foregroundColor?.toString() ??
-      diamondTheme.palette.primary.contrastText);
+  if (alarmSensitive) {
+    switch (alarmQuality) {
+      case AlarmQuality.UNDEFINED:
+      case AlarmQuality.INVALID:
+      case AlarmQuality.CHANGING:
+        foregroundColor = "var(--invalid)";
+        borderColor = "var(--invalid)";
+        borderStyle = "solid";
+        borderWidth = "1px";
+        break;
+      case AlarmQuality.ALARM:
+      case AlarmQuality.WARNING:
+        foregroundColor = "var(--alarm)";
+        borderColor = "var(--alarm)";
+        borderStyle = "solid";
+        borderWidth = "2px";
+        break;
+      default:
+        break;
+    }
+  }
 
   let alignmentV = "center";
   if (textAlignV === "top") {
@@ -103,6 +127,24 @@ export const SmartInputComponent = (
   const backgroundColor = transparent
     ? "transparent"
     : (props.backgroundColor?.toString() ?? "#80FFFF");
+
+  // If props.font exists, extracts the font size in rem and returns is back to size in px
+  // using the default browser size of 16px, as used in ../../../types/font.ts
+  const fontSize = props.font?.css().fontSize
+    ? parseFloat(
+        props.font
+          .css()
+          .fontSize?.toString()
+          .match(/\d+.\d+/)
+          ?.toString() ?? ""
+      ) * 16
+    : diamondTheme.typography.fontSize;
+
+  const maxRows = multiLine
+    ? Math.floor(height / fontSize) - 1 < 1
+      ? 1
+      : Math.floor(height / fontSize) - 1
+    : 1;
 
   const [inputValue, setInputValue] = useState(value?.getStringValue() ?? "");
 
@@ -130,7 +172,7 @@ export const SmartInputComponent = (
     <TextField
       disabled={!enabled}
       value={inputValue}
-      multiline={multiLine}
+      maxRows={maxRows}
       variant="outlined"
       type="text"
       slotProps={{
@@ -142,17 +184,25 @@ export const SmartInputComponent = (
       sx={{
         "& .MuiInputBase-input": {
           textAlign: textAlign,
-          padding: "4px",
-          fontFamily: font
+          font: font
         },
         "& .MuiInputBase-root": {
           alignItems: alignmentV,
           color: foregroundColor,
           backgroundColor: backgroundColor
         },
-        "& fieldset": {
-          borderWidth: props.border?.width ?? "0px",
-          borderColor: props.border?.color.toString() ?? "#0000003B"
+        "& .MuiOutlinedInput-root": {
+          "& .MuiOutlinedInput-notchedOutline": {
+            outlineWidth: borderWidth,
+            outlineStyle: borderStyle,
+            outlineColor: borderColor
+          },
+          "&.Mui-focused": {
+            "& .MuiOutlinedInput-notchedOutline": {
+              outlineWidth: "2px",
+              borderWidth: "0px"
+            }
+          }
         }
       }}
     />
