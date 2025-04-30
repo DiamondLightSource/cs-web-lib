@@ -3,7 +3,7 @@
 exports[`<Input /> > renders an input 1`] = `
 <DocumentFragment>
   <div
-    class="MuiFormControl-root MuiTextField-root css-1x2hah6-MuiFormControl-root-MuiTextField-root"
+    class="MuiFormControl-root MuiTextField-root css-hbvq8u-MuiFormControl-root-MuiTextField-root"
   >
     <div
       class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-quhxjy-MuiInputBase-root-MuiOutlinedInput-root"
