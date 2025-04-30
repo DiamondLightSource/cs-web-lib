@@ -12,7 +12,7 @@ import {
   StringOrNumPropOpt,
   MacrosPropOpt
 } from "../propTypes";
-import { Border, Color } from "../../../types";
+import { Color } from "../../../types";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const ShapeProps = {
