@@ -19,6 +19,7 @@ import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
  */
 export const LedProps = {
   width: FloatPropOpt,
+  height: FloatPropOpt,
   onColor: ColorPropOpt,
   offColor: ColorPropOpt,
   lineColor: ColorPropOpt,
@@ -41,6 +42,7 @@ export const LedComponent = (props: LedComponentProps): JSX.Element => {
     offColor = Color.fromRgba(60, 100, 60),
     lineColor = Color.fromRgba(50, 50, 50, 178),
     width = WIDGET_DEFAULT_SIZES["led"][0],
+    height = WIDGET_DEFAULT_SIZES["led"][1],
     alarmSensitive = false,
     bit = -1
   } = props;
@@ -64,7 +66,7 @@ export const LedComponent = (props: LedComponentProps): JSX.Element => {
   // make sizes similar to size in CS-Studio, five taken
   // away from default in css file too
   style.width = `${width - 5}px`;
-  style.height = `${width - 5}px`;
+  style.height = `${height - 5}px`;
 
   let className = classes.Led;
   if (alarmSensitive) {
