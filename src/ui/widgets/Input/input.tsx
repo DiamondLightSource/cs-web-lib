@@ -173,6 +173,7 @@ export const SmartInputComponent = (
       disabled={!enabled}
       value={inputValue}
       maxRows={maxRows}
+      multiline={multiLine}
       variant="outlined"
       type="text"
       slotProps={{
