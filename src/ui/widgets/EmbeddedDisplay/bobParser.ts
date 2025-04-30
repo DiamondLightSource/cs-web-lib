@@ -391,7 +391,8 @@ export function parseBob(
     showLolo: ["show_lolo", opiParseBoolean],
     showLow: ["show_low", opiParseBoolean],
     increment: ["increment", bobParseNumber],
-    multiLine: ["multi_line", opiParseBoolean]
+    multiLine: ["multi_line", opiParseBoolean],
+    lineStyle: ["line_style", bobParseNumber]
   };
 
   const complexParsers = {
