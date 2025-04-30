@@ -27,6 +27,7 @@ const ShapeProps = {
   backgroundColor: ColorPropOpt,
   lineColor: ColorPropOpt,
   lineWidth: IntPropOpt,
+  lineStyle: IntPropOpt,
   visible: BoolPropOpt
 };
 
@@ -45,11 +46,12 @@ export const ShapeComponent = (
   const cornerRadius = `${props.cornerWidth || 0}px / ${
     props.cornerHeight || 0
   }px`;
-  const borderCss = new Border(1, lineColor, lineWidth).css();
-  borderCss.borderRadius = cornerRadius;
+
   // Use line properties to set border, unless alarm border
   const style: CSSProperties = {
-    ...borderCss,
+    borderColor: lineColor.toString(),
+    borderWidth: lineWidth,
+    borderRadius: cornerRadius,
     width: width,
     height: height,
     backgroundColor: props.transparent
@@ -58,6 +60,20 @@ export const ShapeComponent = (
     transform: props.shapeTransform ?? "",
     visibility: visible ? undefined : "hidden"
   };
+
+  style.borderStyle = (function () {
+    switch (props.lineStyle) {
+      case 1: // Dashed
+      case 3: // Dash-Dot
+        return "dashed";
+      case 2: // Dot
+      case 4: // Dash-Dot-Dot
+        return "dotted";
+      default:
+        return "solid";
+    }
+  })();
+
   return <div style={style} />;
 };
 
