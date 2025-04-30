@@ -199,7 +199,6 @@ export const SmartInputComponent = (
           },
           "&.Mui-focused": {
             "& .MuiOutlinedInput-notchedOutline": {
-              outlineWidth: "2px",
               borderWidth: "0px"
             }
           }
