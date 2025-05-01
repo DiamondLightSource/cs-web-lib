@@ -54,6 +54,7 @@ export const ShapeComponent = (
     borderRadius: cornerRadius,
     width: width,
     height: height,
+    boxSizing: "border-box",
     backgroundColor: props.transparent
       ? "transparent"
       : backgroundColor.toString(),
