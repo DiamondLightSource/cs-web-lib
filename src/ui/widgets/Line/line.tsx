@@ -7,7 +7,6 @@ import {
   FloatPropOpt,
   ColorPropOpt,
   BoolPropOpt,
-  FloatProp,
   PointsProp,
   MacrosPropOpt
 } from "../propTypes";
@@ -17,8 +16,8 @@ import { Point } from "../../../types/points";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const LineProps = {
-  width: FloatProp,
-  height: FloatProp,
+  width: FloatPropOpt,
+  height: FloatPropOpt,
   points: PointsProp,
   macros: MacrosPropOpt,
   lineWidth: FloatPropOpt,
@@ -46,7 +45,7 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
     points,
     arrowLength = 2,
     arrows = 0,
-    fillArrow
+    fillArrow = true
   } = props;
 
   const transform = `rotation(${rotationAngle},0,0)`;
@@ -55,14 +54,11 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
   const uid = uuidv4();
 
   // Create a marker if arrows set
-  let arrowSize = "";
   let arrowConfig = {};
   let markerConfig = <></>;
   const linePoints = points ? points.values : [];
+
   if (arrows) {
-    arrowSize = `M 0 0 L ${arrowLength} ${arrowLength / 4} L 0 ${
-      arrowLength / 2
-    } ${fillArrow ? "z" : ""}`; // add z to close path if filling
     switch (arrows) {
       // Arrow from
       case 1:
@@ -114,7 +110,6 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
       <defs>
         <marker
           id={`arrow${uid}`}
-          viewBox={`0 0 ${arrowLength} ${arrowLength}`}
           refX={fillArrow ? 0 : arrowLength}
           refY={`${arrowLength / 4}`}
           markerWidth={
@@ -128,7 +123,7 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
           overflow={"visible"}
         >
           <path
-            d={arrowSize}
+            d={`M 0 0 L ${arrowLength} ${arrowLength / 4} L 0 ${arrowLength / 2}`}
             stroke={backgroundColor?.toString()}
             fill={fillArrow ? backgroundColor?.toString() : "none"}
             strokeWidth={fillArrow ? 2 : lineWidth}
@@ -141,7 +136,7 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
 
   let coordinates = "";
   if (points !== undefined && visible) {
-    points.values.forEach((point: Point) => {
+    linePoints.forEach((point: Point) => {
       coordinates += `${point.x},${point.y} `;
     });
     return (
