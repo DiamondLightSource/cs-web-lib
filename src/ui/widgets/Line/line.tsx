@@ -67,8 +67,8 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
         // If filled, shorten line length to prevent overlap
         if (fillArrow) {
           linePoints[0] = recalculateLineLength(
-            points.values[1],
-            points.values[0],
+            linePoints[1],
+            linePoints[0],
             arrowLength
           );
         }
