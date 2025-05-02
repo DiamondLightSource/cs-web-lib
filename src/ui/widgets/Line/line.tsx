@@ -48,6 +48,7 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
     fillArrow = true
   } = props;
 
+  const color = transparent ? "transparent" : backgroundColor.toString();
   const transform = `rotation(${rotationAngle},0,0)`;
 
   // Each marker definition needs a unique ID or colours overlap
@@ -66,8 +67,8 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
         // If filled, shorten line length to prevent overlap
         if (fillArrow) {
           linePoints[0] = recalculateLineLength(
-            linePoints[1],
-            linePoints[0],
+            points.values[1],
+            points.values[0],
             arrowLength
           );
         }
@@ -112,22 +113,18 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
           id={`arrow${uid}`}
           refX={fillArrow ? 0 : arrowLength}
           refY={`${arrowLength / 4}`}
-          markerWidth={
-            fillArrow ? `${arrowLength}` : `${arrowLength / lineWidth}`
-          }
-          markerHeight={
-            fillArrow ? `${arrowLength}` : `${arrowLength / lineWidth}`
-          }
+          markerWidth={arrowLength}
+          markerHeight={arrowLength / 2}
           orient="auto-start-reverse"
-          markerUnits={props.fillArrow ? "userSpaceOnUse" : "strokeWidth"}
-          overflow={"visible"}
+          markerUnits="userSpaceOnUse"
+          overflow="visible"
         >
           <path
             d={`M 0 0 L ${arrowLength} ${arrowLength / 4} L 0 ${arrowLength / 2}`}
-            stroke={backgroundColor?.toString()}
-            fill={fillArrow ? backgroundColor?.toString() : "none"}
-            strokeWidth={fillArrow ? 2 : lineWidth}
-            overflow={"visible"}
+            stroke={fillArrow ? "none" : color}
+            fill={fillArrow ? color : "none"}
+            overflow="visible"
+            strokeWidth={lineWidth}
           />
         </marker>
       </defs>
@@ -148,12 +145,7 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
         {markerConfig}
         <polyline
           overflow={"visible"}
-          stroke={
-            transparent
-              ? Color.TRANSPARENT.toString()
-              : backgroundColor?.toString()
-          }
-          fill={"none"}
+          stroke={color}
           strokeWidth={lineWidth}
           transform={transform}
           points={coordinates}
