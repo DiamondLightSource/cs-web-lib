@@ -8,7 +8,6 @@ exports[`<LineComponent /> > matches snapshot 1`] = `
     xmlns="http://www.w3.org/2000/svg"
   >
     <polyline
-      fill="none"
       overflow="visible"
       points="2,20 6,30 15,4 "
       stroke="rgba(0,255,255,255)"
