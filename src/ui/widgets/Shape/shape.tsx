@@ -12,7 +12,7 @@ import {
   StringOrNumPropOpt,
   MacrosPropOpt
 } from "../propTypes";
-import { Border, Color } from "../../../types";
+import { Color } from "../../../types";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const ShapeProps = {
@@ -27,6 +27,7 @@ const ShapeProps = {
   backgroundColor: ColorPropOpt,
   lineColor: ColorPropOpt,
   lineWidth: IntPropOpt,
+  lineStyle: IntPropOpt,
   visible: BoolPropOpt
 };
 
@@ -45,19 +46,35 @@ export const ShapeComponent = (
   const cornerRadius = `${props.cornerWidth || 0}px / ${
     props.cornerHeight || 0
   }px`;
-  const borderCss = new Border(1, lineColor, lineWidth).css();
-  borderCss.borderRadius = cornerRadius;
+
   // Use line properties to set border, unless alarm border
   const style: CSSProperties = {
-    ...borderCss,
+    borderColor: lineColor.toString(),
+    borderWidth: lineWidth,
+    borderRadius: cornerRadius,
     width: width,
     height: height,
+    boxSizing: "border-box",
     backgroundColor: props.transparent
       ? "transparent"
       : backgroundColor.toString(),
     transform: props.shapeTransform ?? "",
     visibility: visible ? undefined : "hidden"
   };
+
+  style.borderStyle = (function () {
+    switch (props.lineStyle) {
+      case 1: // Dashed
+      case 3: // Dash-Dot
+        return "dashed";
+      case 2: // Dot
+      case 4: // Dash-Dot-Dot
+        return "dotted";
+      default:
+        return "solid";
+    }
+  })();
+
   return <div style={style} />;
 };
 
