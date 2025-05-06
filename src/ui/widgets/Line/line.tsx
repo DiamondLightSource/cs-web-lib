@@ -21,6 +21,7 @@ const LineProps = {
   points: PointsProp,
   macros: MacrosPropOpt,
   lineWidth: FloatPropOpt,
+  lineColor: ColorPropOpt,
   backgroundColor: ColorPropOpt,
   visible: BoolPropOpt,
   transparent: BoolPropOpt,
@@ -43,12 +44,20 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
     height = WIDGET_DEFAULT_SIZES["polyline"][1],
     lineWidth = 3,
     points,
-    arrowLength = 2,
+    arrowLength = 20,
     arrows = 0,
-    fillArrow = true
+    fillArrow = true,
+    lineColor
   } = props;
 
-  const color = transparent ? "transparent" : backgroundColor.toString();
+  let color = (function () {
+    if (lineColor) return lineColor.toString();
+    else if (backgroundColor) return backgroundColor.toString();
+    else return Color.fromRgba(0, 0, 255).toString();
+  })();
+
+  if (transparent) color = "transparent";
+  // const color = transparent ? "transparent" : backgroundColor.toString();
   const transform = `rotation(${rotationAngle},0,0)`;
 
   // Each marker definition needs a unique ID or colours overlap
@@ -147,6 +156,7 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
           overflow={"visible"}
           stroke={color}
           strokeWidth={lineWidth}
+          fill={"none"}
           transform={transform}
           points={coordinates}
           {...arrowConfig}
