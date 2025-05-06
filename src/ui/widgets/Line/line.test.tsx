@@ -83,7 +83,7 @@ describe("<LineComponent />", (): void => {
 
     const lines = svg.children as Array<ReactTestRendererJSON>;
 
-    expect(lines[0].props.stroke).toEqual("rgba(0,0,0,0)");
+    expect(lines[0].props.stroke).toEqual("transparent");
     expect(lines[0].props.strokeWidth).toEqual(15);
     expect(lines[0].props.transform).toEqual("rotation(45,0,0)");
     expect(lines[0].props.points).toEqual("16,4 25,10 4,15 ");
@@ -117,8 +117,8 @@ describe("<LineComponent />", (): void => {
     const marker = lines[0].children as Array<ReactTestRendererJSON>;
 
     // Check arrowhead definitions were created
-    expect(marker[0].props.markerWidth).toEqual("2");
-    expect(marker[0].props.markerHeight).toEqual("2");
+    expect(marker[0].props.markerWidth).toEqual(2);
+    expect(marker[0].props.markerHeight).toEqual(1);
     expect(marker[0].props.orient).toEqual("auto-start-reverse");
     expect(marker[0].props.markerUnits).toEqual("userSpaceOnUse");
 
@@ -155,13 +155,13 @@ describe("<LineComponent />", (): void => {
     const marker = lines[0].children as Array<ReactTestRendererJSON>;
 
     // Check arrowhead definitions were created
-    expect(marker[0].props.markerWidth).toEqual("1");
-    expect(marker[0].props.markerHeight).toEqual("1");
+    expect(marker[0].props.markerWidth).toEqual(2);
+    expect(marker[0].props.markerHeight).toEqual(1);
     expect(marker[0].props.orient).toEqual("auto-start-reverse");
-    expect(marker[0].props.markerUnits).toEqual("strokeWidth");
+    expect(marker[0].props.markerUnits).toEqual("userSpaceOnUse");
 
     expect(lines[1].props).toHaveProperty("markerStart");
-    expect(lines[1].props.stroke).toEqual("rgba(0,0,0,0)");
+    expect(lines[1].props.stroke).toEqual("transparent");
     expect(lines[1].props.points).toEqual("40,10 40,20 20,20 ");
   });
 
