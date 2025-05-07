@@ -10,6 +10,7 @@ import { AlarmQuality, DType } from "../../types/dtypes";
 import { SubscriptionType } from "../../connection/plugin";
 import { Border, BorderStyle } from "../../types/border";
 import { Color } from "../../types/color";
+import { opiParseColor } from "../widgets/EmbeddedDisplay/opiParser";
 
 // See https://stackoverflow.com/questions/54542318/using-an-enum-as-a-dictionary-key
 type EnumDictionary<T extends string | symbol | number, U> = {
@@ -90,7 +91,38 @@ export function useRules(props: AnyProps): AnyProps {
           // Not 'output expression': set the prop to the provided value.
           log.debug("Expression matched");
           if (!outExp) {
-            newProps[prop] = exp.convertedValue;
+            switch (prop) {
+              case "border_width":
+                if (newProps.border) {
+                  newProps["border"]["width"] = Number(exp.value._text);
+                } else {
+                  newProps.border = new Border(
+                    BorderStyle.None,
+                    Color.BLACK,
+                    Number(exp.value._text)
+                  );
+                }
+                break;
+              case "border_color":
+                if (newProps.border) {
+                  newProps["border"]["color"] = opiParseColor(exp.value);
+                } else {
+                  newProps.border = new Border(
+                    BorderStyle.None,
+                    opiParseColor(exp.value),
+                    0
+                  );
+                }
+                break;
+              case "x":
+                newProps["position"]["x"] = `${exp.value._text}px`;
+                break;
+              case "y":
+                newProps["position"]["y"] = `${exp.value._text}px`;
+                break;
+              default:
+                newProps[prop] = exp.convertedValue;
+            }
             log.debug("Output value");
             log.debug(newProps);
           } else {
