@@ -70,6 +70,8 @@ export class AbsolutePosition {
 }
 
 export class RelativePosition {
+  public x: string;
+  public y: string;
   public width: string;
   public height: string;
   public margin: string;
@@ -79,6 +81,8 @@ export class RelativePosition {
   public minHeight: string;
 
   public constructor(
+    x = "",
+    y = "",
     width = "",
     height = "",
     margin = "",
@@ -87,6 +91,8 @@ export class RelativePosition {
     maxWidth = "",
     minHeight = ""
   ) {
+    this.x = x;
+    this.y = y;
     this.width = width;
     this.height = height;
     this.margin = margin;
