@@ -400,6 +400,8 @@ export function parseBob(
   );
 
   displayWidget.position = new RelativePosition(
+    displayWidget.position.x,
+    displayWidget.position.y,
     displayWidget.position.width,
     displayWidget.position.height
   );
