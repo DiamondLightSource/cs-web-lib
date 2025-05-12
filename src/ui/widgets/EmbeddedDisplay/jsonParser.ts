@@ -44,6 +44,8 @@ function jsonParsePosition(props: Record<string, string>): Position {
     );
   } else {
     return new RelativePosition(
+      props.x,
+      props.y,
       props.width,
       props.height,
       props.margin,

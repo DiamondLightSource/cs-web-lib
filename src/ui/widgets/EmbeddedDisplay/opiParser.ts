@@ -876,6 +876,8 @@ export function parseOpi(
 
   displayWidget.position = new RelativePosition(
     // Handle generated display widgets with no width or height.
+    displayWidget.position?.x,
+    displayWidget.position?.y,
     displayWidget.position?.width,
     displayWidget.position?.height
   );
