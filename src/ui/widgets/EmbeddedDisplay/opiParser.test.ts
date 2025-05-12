@@ -21,7 +21,7 @@ describe("opi widget parser", (): void => {
   it("parses a display widget", (): void => {
     const displayWidget = parseOpi(displayString, "ca", PREFIX);
     expect(displayWidget.position).toEqual(
-      new RelativePosition("30px", "40px")
+      new RelativePosition("0px", "0px", "30px", "40px")
     );
   });
   const labelString = `
