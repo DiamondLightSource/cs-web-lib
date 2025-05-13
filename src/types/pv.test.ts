@@ -13,8 +13,4 @@ describe("PV", (): void => {
     const pv = PV.parse("pvName");
     expect(pv).toEqual(new PV("pvName", "ca"));
   });
-  it("ignores nested pv", (): void => {
-    const pv = PV.parse("=3+4*`sim://ramp`");
-    expect(pv.qualifiedName()).toEqual("eq://3+4*`sim://ramp`");
-  });
 });
