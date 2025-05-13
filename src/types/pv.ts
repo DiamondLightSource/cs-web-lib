@@ -49,7 +49,14 @@ export class PV {
     // This can happen if the name is substituted by a macro
     // after the PV object has been created.
     // Need to make sure that the PV.DELIMITER is not associated with a nested PV.
-    if (this.name.includes(PV.DELIMITER) && !this.name.includes("`")) {
+    if (
+      this.name.includes(PV.DELIMITER) &&
+      !this.name.includes("`") &&
+      !this.name.includes("'")
+    ) {
+      return this.name;
+      // In case the name has been substituted with another formula
+    } else if (this.name.startsWith("eq://")) {
       return this.name;
     } else {
       return `${this.protocol}${PV.DELIMITER}${this.name}`;
