@@ -56,7 +56,7 @@ export class PV {
     ) {
       return this.name;
       // In case the name has been substituted with another formula
-    } else if (this.name.startsWith("eq://")) {
+    } else if (this.name.startsWith("eq://") || this.name.startsWith("=")) {
       return this.name;
     } else {
       return `${this.protocol}${PV.DELIMITER}${this.name}`;
