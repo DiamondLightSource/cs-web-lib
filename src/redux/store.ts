@@ -28,6 +28,7 @@ if (PVWS_SOCKET !== undefined) {
   plugins.unshift(["sim://", pvws]);
   plugins.unshift(["ssim://", pvws]);
   plugins.unshift(["dev://", pvws]);
+  plugins.unshift(["eq://", pvws]);
 }
 const connection = new ConnectionForwarder(plugins);
 
