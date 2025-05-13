@@ -24,16 +24,9 @@ export class PV {
    * PV.parse("pvName")
    */
   public static parse(pvName: string, defaultProtocol = "ca"): PV {
-    if (pvName.startsWith("=")) {
-      return new PV(pvName.slice(1), "eq");
-    }
     if (pvName.includes(PV.DELIMITER)) {
-      // "protocol://name" -> ["protocol://name", "protocol", "name"]
-      const parts = /^(.*):\/\/(.*)$/.exec(pvName);
-      if (parts) {
-        return new PV(parts[2], parts[1]);
-      }
-      return new PV(pvName, defaultProtocol);
+      const parts = pvName.split(PV.DELIMITER);
+      return new PV(parts[1], parts[0]);
     } else {
       return new PV(pvName, defaultProtocol);
     }
@@ -48,8 +41,7 @@ export class PV {
   public qualifiedName(): string {
     // This can happen if the name is substituted by a macro
     // after the PV object has been created.
-    // Need to make sure that the PV.DELIMITER is not associated with a nested PV.
-    if (this.name.includes(PV.DELIMITER) && !this.name.includes("`")) {
+    if (this.name.includes(PV.DELIMITER)) {
       return this.name;
     } else {
       return `${this.protocol}${PV.DELIMITER}${this.name}`;
