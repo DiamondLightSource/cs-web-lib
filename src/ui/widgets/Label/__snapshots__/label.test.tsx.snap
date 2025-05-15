@@ -13,7 +13,7 @@ exports[`<Label /> > it handles transparent prop`] = `
 exports[`<Label /> > it handles transparent prop 1`] = `
 <DocumentFragment>
   <p
-    class="MuiTypography-root MuiTypography-body1 css-4hgpfw-MuiTypography-root"
+    class="MuiTypography-root MuiTypography-body1 css-qckjhq-MuiTypography-root"
   >
     hello
   </p>
@@ -23,7 +23,7 @@ exports[`<Label /> > it handles transparent prop 1`] = `
 exports[`<Label /> > it matches the snapshot 1`] = `
 <DocumentFragment>
   <p
-    class="MuiTypography-root MuiTypography-body1 css-4hgpfw-MuiTypography-root"
+    class="MuiTypography-root MuiTypography-body1 css-qckjhq-MuiTypography-root"
   >
     hello
   </p>
