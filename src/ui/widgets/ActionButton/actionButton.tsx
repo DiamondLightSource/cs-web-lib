@@ -20,9 +20,7 @@ import { Font } from "../../../types/font";
 import { Border } from "../../../types/border";
 import { MacroContext } from "../../../types/macros";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
-import { styled, Button as MuiButton } from "@mui/material";
-
-import { diamondTheme } from "../../../diamondTheme";
+import { styled, Button as MuiButton, useTheme } from "@mui/material";
 
 export interface ActionButtonProps {
   text: string;
@@ -63,17 +61,18 @@ const Button = styled(MuiButton)({
 export const ActionButtonComponent = (
   props: ActionButtonProps
 ): JSX.Element => {
+  const theme = useTheme();
   const {
     enabled = true,
-    foregroundColor = diamondTheme.palette.primary.contrastText,
+    foregroundColor = theme.palette.primary.contrastText,
     rotationStep = 0,
     transparent = false
   } = props;
 
   const backgroundColor = transparent
     ? "transparent"
-    : (props.backgroundColor?.toString() ?? diamondTheme.palette.primary.main);
-  const font = props.font?.css() ?? diamondTheme.typography;
+    : (props.backgroundColor?.toString() ?? theme.palette.primary.main);
+  const font = props.font?.css() ?? theme.typography;
   const border = props.border?.css() ?? null;
 
   return (

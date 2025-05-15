@@ -15,8 +15,7 @@ import {
   FloatPropOpt
 } from "../propTypes";
 import { AlarmQuality, DType } from "../../../types/dtypes";
-import { TextField as MuiTextField, styled } from "@mui/material";
-import { diamondTheme } from "../../../diamondTheme";
+import { TextField as MuiTextField, styled, useTheme } from "@mui/material";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const InputComponentProps = {
@@ -73,6 +72,7 @@ const TextField = styled(MuiTextField)({
 export const SmartInputComponent = (
   props: PVInputComponent & InferWidgetProps<typeof InputComponentProps>
 ): JSX.Element => {
+  const theme = useTheme();
   const {
     enabled = true,
     transparent = false,
@@ -84,11 +84,10 @@ export const SmartInputComponent = (
     height = WIDGET_DEFAULT_SIZES["textupdate"][1]
   } = props;
 
-  const font = props.font?.css() ?? diamondTheme.typography;
+  const font = props.font?.css() ?? theme.typography;
 
   let foregroundColor =
-    props.foregroundColor?.toString() ??
-    diamondTheme.palette.primary.contrastText;
+    props.foregroundColor?.toString() ?? theme.palette.primary.contrastText;
 
   let borderColor = props.border?.css().borderColor ?? "#000000";
   let borderStyle = props.border?.css().borderStyle ?? "solid";
@@ -138,7 +137,7 @@ export const SmartInputComponent = (
           .match(/\d+.\d+/)
           ?.toString() ?? ""
       ) * 16
-    : diamondTheme.typography.fontSize;
+    : theme.typography.fontSize;
 
   const maxRows = multiLine
     ? Math.floor(height / fontSize) - 1 < 1
