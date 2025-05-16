@@ -23,29 +23,47 @@ import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 import { styled, Button as MuiButton } from "@mui/material";
 
 import { diamondTheme } from "../../../diamondTheme";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 export interface ActionButtonProps {
-  text: string;
+  // text: string;
   enabled?: boolean;
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  image?: string;
-  backgroundColor?: Color;
-  foregroundColor?: Color;
-  border?: Border;
-  font?: Font;
-  actions?: WidgetActions;
-  visible?: boolean;
-  rotationStep?: number;
-  transparent?: boolean;
+  // image?: string;
+  // backgroundColor?: Color;
+  // foregroundColor?: Color;
+  // border?: Border;
+  // font?: Font;
+  // actions?: WidgetActions;
+  // visible?: boolean;
+  // rotationStep?: number;
+  // transparent?: boolean;
+  // width?: number;
+  // height?: number;
 }
+
+const ActionButtonPropType = {
+  text: StringPropOpt,
+  actions: ActionsPropType,
+  image: StringPropOpt,
+  backgroundColor: ColorPropOpt,
+  foregroundColor: ColorPropOpt,
+  font: FontPropOpt,
+  border: BorderPropOpt,
+  visible: BoolPropOpt,
+  enabled: BoolPropOpt,
+  onClick: FuncPropOpt,
+  transparent: BoolPropOpt,
+  rotationStep: FloatPropOpt,
+  height: FloatPropOpt,
+  width: FloatPropOpt
+};
 
 const Button = styled(MuiButton)({
   "&.MuiButton-root": {
     display: "block",
     alignItems: "center",
     justifyContent: "center",
-    height: "100%",
-    width: "100%",
     minWidth: 0,
     minHeight: 0,
     padding: 0,
@@ -61,13 +79,15 @@ const Button = styled(MuiButton)({
 });
 
 export const ActionButtonComponent = (
-  props: ActionButtonProps
+  props: InferWidgetProps<typeof ActionButtonPropType> & ActionButtonProps
 ): JSX.Element => {
   const {
     enabled = true,
     foregroundColor = diamondTheme.palette.primary.contrastText,
     rotationStep = 0,
-    transparent = false
+    transparent = false,
+    height = WIDGET_DEFAULT_SIZES["action_button"][1],
+    width = WIDGET_DEFAULT_SIZES["action_button"][0]
   } = props;
 
   const backgroundColor = transparent
@@ -76,16 +96,39 @@ export const ActionButtonComponent = (
   const font = props.font?.css() ?? diamondTheme.typography;
   const border = props.border?.css() ?? null;
 
+  const inputWidth = rotationStep === 0 || rotationStep === 2 ? width : height;
+  const inputHeight = rotationStep === 0 || rotationStep === 2 ? height : width;
+
+  const offset = width / 2 - height / 2;
+  const transform = (function () {
+    switch (rotationStep) {
+      case 0: // 0 degrees
+      case 2: // 180 degrees
+        return `rotate(${rotationStep * -90}deg)`;
+      case 1: // 90 degrees
+        return `rotate(${rotationStep * -90}deg) translateY(${offset}px) translateX(${offset}px)`;
+      case 3: // -90 degrees
+        return `rotate(${rotationStep * -90}deg) translateY(${-offset}px) translateX(${-offset}px)`;
+      default: // Unreachable
+        return "";
+    }
+  })();
+
   return (
     <Button
       variant={transparent ? "text" : "contained"}
       disabled={!enabled}
       fullWidth={true}
       sx={{
+        "&.MuiButton-root": {
+          height: inputHeight,
+          width: inputWidth
+        },
         color: foregroundColor.toString(),
         backgroundColor: backgroundColor,
         border: border,
-        fontFamily: font
+        fontFamily: font,
+        transform: transform.toString()
       }}
       onClick={props.onClick}
     >
@@ -102,8 +145,7 @@ export const ActionButtonComponent = (
         <span
           style={{
             display: "block",
-            lineHeight: 1,
-            transform: `rotate(${rotationStep * -90}deg)`
+            lineHeight: 1
           }}
         >
           {props.text ?? ""}
@@ -111,21 +153,6 @@ export const ActionButtonComponent = (
       )}
     </Button>
   );
-};
-
-const ActionButtonPropType = {
-  text: StringPropOpt,
-  actions: ActionsPropType,
-  image: StringPropOpt,
-  backgroundColor: ColorPropOpt,
-  foregroundColor: ColorPropOpt,
-  font: FontPropOpt,
-  border: BorderPropOpt,
-  visible: BoolPropOpt,
-  enabled: BoolPropOpt,
-  onClick: FuncPropOpt,
-  transparent: BoolPropOpt,
-  rotationStep: FloatPropOpt
 };
 
 const ActionButtonWidgetProps = {
@@ -164,6 +191,8 @@ export const ActionButtonWidget = (
       visible={props.visible}
       transparent={props.transparent}
       rotationStep={props.rotationStep}
+      height={props.height}
+      width={props.width}
     />
   );
 };
