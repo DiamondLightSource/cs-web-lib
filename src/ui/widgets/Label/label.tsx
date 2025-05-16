@@ -42,10 +42,11 @@ const LabelWidgetProps = {
 };
 
 const Typography = styled(MuiTypography)({
-  width: "100%",
-  height: "100%",
   display: "flex",
   overflow: "hidden",
+  borderRadius: "4px",
+  borderWidth: "0px",
+  lineHeight: 1,
   padding: 0
 });
 
@@ -68,6 +69,9 @@ export const LabelComponent = (
     ? "transparent"
     : (props.backgroundColor?.toString() ?? diamondTheme.palette.primary.main);
   const font = props.font?.css() ?? diamondTheme.typography;
+  const borderWidth = props.border?.css().borderWidth ?? "0px";
+  const borderColor = props.border?.css().borderColor ?? "#000000";
+  const borderStyle = props.border?.css().borderStyle ?? "solid";
 
   const inputWidth = rotationStep === 0 || rotationStep === 2 ? width : height;
   const inputHeight = rotationStep === 0 || rotationStep === 2 ? height : width;
@@ -110,6 +114,9 @@ export const LabelComponent = (
         backgroundColor: backgroundColor,
         fontFamily: font,
         transform: transform.toString(),
+        outlineWidth: borderWidth,
+        outlineColor: borderColor,
+        outlineStyle: borderStyle
       }}
     >
       {text}
