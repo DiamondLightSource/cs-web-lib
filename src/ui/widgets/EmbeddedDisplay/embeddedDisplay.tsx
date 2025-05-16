@@ -24,8 +24,7 @@ import { GroupBoxComponent } from "../GroupBox/groupBox";
 import { useOpiFile } from "./useOpiFile";
 import { useId } from "react-id-generator";
 import { getOptionalValue, trimFromString } from "../utils";
-import { ThemeProvider } from "@mui/material";
-import { diamondTheme } from "../../../diamondTheme";
+import { Theme, ThemeProvider, useTheme } from "@mui/material";
 
 const RESIZE_STRINGS = [
   "scroll-widget",
@@ -34,6 +33,10 @@ const RESIZE_STRINGS = [
   "stretch-content",
   "crop-content"
 ];
+
+export interface EmbeddedDisplayPropsExtra {
+  theme?: Theme;
+}
 
 const EmbeddedDisplayProps = {
   ...WidgetPropType,
@@ -48,8 +51,12 @@ const EmbeddedDisplayProps = {
 };
 
 export const EmbeddedDisplay = (
-  props: InferWidgetProps<typeof EmbeddedDisplayProps>
+  props: InferWidgetProps<typeof EmbeddedDisplayProps> &
+    EmbeddedDisplayPropsExtra
 ): JSX.Element => {
+  // Use this to grab MUI's default theme
+  const theme = useTheme();
+
   const description = useOpiFile(props.file);
   const id = useId();
   let resize = props.resize || "scroll-content";
@@ -209,17 +216,21 @@ export const EmbeddedDisplay = (
 
   if (props.border?.style === BorderStyle.GroupBox) {
     return (
-      <MacroContext.Provider value={embeddedDisplayMacroContext}>
-        <GroupBoxComponent name={resolvedName} styleOpt={0}>
-          <ThemeProvider theme={diamondTheme}>{component}</ThemeProvider>
-        </GroupBoxComponent>
-      </MacroContext.Provider>
+      <ThemeProvider theme={props.theme ?? theme}>
+        <MacroContext.Provider value={embeddedDisplayMacroContext}>
+          <GroupBoxComponent name={resolvedName} styleOpt={0}>
+            {component}
+          </GroupBoxComponent>
+        </MacroContext.Provider>
+      </ThemeProvider>
     );
   } else {
     return (
-      <MacroContext.Provider value={embeddedDisplayMacroContext}>
-        {component}
-      </MacroContext.Provider>
+      <ThemeProvider theme={props.theme ?? theme}>
+        <MacroContext.Provider value={embeddedDisplayMacroContext}>
+          {component}
+        </MacroContext.Provider>
+      </ThemeProvider>
     );
   }
 };
