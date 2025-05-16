@@ -16,6 +16,7 @@ import {
 } from "../propTypes";
 import { Typography as MuiTypography, styled } from "@mui/material";
 import { diamondTheme } from "../../../diamondTheme";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const LabelProps = {
   macros: MacrosPropOpt,
@@ -30,7 +31,9 @@ const LabelProps = {
   backgroundColor: ColorPropOpt,
   border: BorderPropOpt,
   rotationStep: FloatPropOpt,
-  wrapWords: BoolPropOpt
+  wrapWords: BoolPropOpt,
+  height: FloatPropOpt,
+  width: FloatPropOpt
 };
 
 const LabelWidgetProps = {
@@ -57,13 +60,23 @@ export const LabelComponent = (
     textAlignV = "top",
     text = "",
     rotationStep = 0,
-    wrapWords = true
+    wrapWords = true,
+    height = WIDGET_DEFAULT_SIZES["label"][1],
+    width = WIDGET_DEFAULT_SIZES["label"][0]
   } = props;
   const backgroundColor = transparent
     ? "transparent"
     : (props.backgroundColor?.toString() ?? diamondTheme.palette.primary.main);
   const font = props.font?.css() ?? diamondTheme.typography;
-  const border = props.border?.css() ?? "0px solid #000000";
+
+  const inputWidth = rotationStep === 0 || rotationStep === 2 ? width : height;
+  const inputHeight = rotationStep === 0 || rotationStep === 2 ? height : width;
+
+  const offset = width / 2 - height / 2;
+  const transform =
+    rotationStep === 1 || rotationStep === 3
+      ? `rotate(${rotationStep * -90}deg) translateY(${-offset}px) translateX(${-offset}px)`
+      : `rotate(${rotationStep * -90}deg)`;
 
   // Since display is "flex", use "flex-start" and "flex-end" to align
   // the content.
@@ -88,14 +101,15 @@ export const LabelComponent = (
       sx={{
         justifyContent: alignment,
         alignItems: alignmentV,
+        height: inputHeight,
+        width: inputWidth,
         textAlign: textAlign,
         wordBreak: wrapWords ? "break-word" : null,
         whiteSpace: wrapWords ? "break-spaces" : null,
         color: foregroundColor.toString(),
         backgroundColor: backgroundColor,
         fontFamily: font,
-        transform: `rotate(${rotationStep * -90}deg)`.toString(),
-        border: border
+        transform: transform.toString(),
       }}
     >
       {text}
