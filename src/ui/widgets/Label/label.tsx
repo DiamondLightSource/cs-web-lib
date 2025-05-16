@@ -77,10 +77,19 @@ export const LabelComponent = (
   const inputHeight = rotationStep === 0 || rotationStep === 2 ? height : width;
 
   const offset = width / 2 - height / 2;
-  const transform =
-    rotationStep === 1 || rotationStep === 3
-      ? `rotate(${rotationStep * -90}deg) translateY(${-offset}px) translateX(${-offset}px)`
-      : `rotate(${rotationStep * -90}deg)`;
+  const transform = (function () {
+    switch (rotationStep) {
+      case 0: // 0 degrees
+      case 2: // 180 degrees
+        return `rotate(${rotationStep * -90}deg)`;
+      case 1: // 90 degrees
+        return `rotate(${rotationStep * -90}deg) translateY(${offset}px) translateX(${offset}px)`;
+      case 3: // -90 degrees
+        return `rotate(${rotationStep * -90}deg) translateY(${-offset}px) translateX(${-offset}px)`;
+      default: // Unreachable
+        return "";
+    }
+  })();
 
   // Since display is "flex", use "flex-start" and "flex-end" to align
   // the content.
