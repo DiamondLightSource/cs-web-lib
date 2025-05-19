@@ -15,9 +15,6 @@ import {
   FuncPropOpt,
   FloatPropOpt
 } from "../propTypes";
-import { Color } from "../../../types/color";
-import { Font } from "../../../types/font";
-import { Border } from "../../../types/border";
 import { MacroContext } from "../../../types/macros";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 import { styled, Button as MuiButton } from "@mui/material";
@@ -26,20 +23,7 @@ import { diamondTheme } from "../../../diamondTheme";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 export interface ActionButtonProps {
-  // text: string;
-  enabled?: boolean;
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  // image?: string;
-  // backgroundColor?: Color;
-  // foregroundColor?: Color;
-  // border?: Border;
-  // font?: Font;
-  // actions?: WidgetActions;
-  // visible?: boolean;
-  // rotationStep?: number;
-  // transparent?: boolean;
-  // width?: number;
-  // height?: number;
 }
 
 const ActionButtonPropType = {
