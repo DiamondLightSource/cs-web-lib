@@ -24,7 +24,8 @@ import { GroupBoxComponent } from "../GroupBox/groupBox";
 import { useOpiFile } from "./useOpiFile";
 import { useId } from "react-id-generator";
 import { getOptionalValue, trimFromString } from "../utils";
-import { Theme, ThemeProvider, useTheme } from "@mui/material";
+import { Theme, ThemeProvider } from "@mui/material";
+import { phoebusTheme } from "../../../phoebusTheme";
 
 const RESIZE_STRINGS = [
   "scroll-widget",
@@ -54,9 +55,6 @@ export const EmbeddedDisplay = (
   props: InferWidgetProps<typeof EmbeddedDisplayProps> &
     EmbeddedDisplayPropsExtra
 ): JSX.Element => {
-  // Use this to grab MUI's default theme
-  const theme = useTheme();
-
   const description = useOpiFile(props.file);
   const id = useId();
   let resize = props.resize || "scroll-content";
@@ -216,7 +214,7 @@ export const EmbeddedDisplay = (
 
   if (props.border?.style === BorderStyle.GroupBox) {
     return (
-      <ThemeProvider theme={props.theme ?? theme}>
+      <ThemeProvider theme={props.theme ?? phoebusTheme}>
         <MacroContext.Provider value={embeddedDisplayMacroContext}>
           <GroupBoxComponent name={resolvedName} styleOpt={0}>
             {component}
@@ -226,7 +224,7 @@ export const EmbeddedDisplay = (
     );
   } else {
     return (
-      <ThemeProvider theme={props.theme ?? theme}>
+      <ThemeProvider theme={props.theme ?? phoebusTheme}>
         <MacroContext.Provider value={embeddedDisplayMacroContext}>
           {component}
         </MacroContext.Provider>
