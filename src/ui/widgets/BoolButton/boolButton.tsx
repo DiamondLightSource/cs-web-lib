@@ -16,8 +16,7 @@ import classes from "./boolButton.module.css";
 import { writePv } from "../../hooks/useSubscription";
 import { DType } from "../../../types/dtypes";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
-import { Button as MuiButton, styled } from "@mui/material";
-import { diamondTheme } from "../../../diamondTheme";
+import { Button as MuiButton, styled, useTheme } from "@mui/material";
 
 // For HTML button, these are the sizes of the buffer on
 // width and height. Must take into account when allocating
@@ -83,11 +82,12 @@ export type BoolButtonComponentProps = InferWidgetProps<
 export const BoolButtonComponent = (
   props: BoolButtonComponentProps
 ): JSX.Element => {
+  const theme = useTheme();
   const {
     width = WIDGET_DEFAULT_SIZES["bool_button"][0],
     height = WIDGET_DEFAULT_SIZES["bool_button"][1],
-    foregroundColor = diamondTheme.palette.primary.contrastText,
-    backgroundColor = diamondTheme.palette.primary.main,
+    foregroundColor = theme.palette.primary.contrastText,
+    backgroundColor = theme.palette.primary.main,
     pvName,
     value,
     onState = 1,
@@ -101,7 +101,7 @@ export const BoolButtonComponent = (
     enabled = true
   } = props;
 
-  const font = props.font?.css() ?? diamondTheme.typography;
+  const font = props.font?.css() ?? theme.typography;
 
   // These could be overwritten by  PV labels
   let { onLabel = "On", offLabel = "Off" } = props;

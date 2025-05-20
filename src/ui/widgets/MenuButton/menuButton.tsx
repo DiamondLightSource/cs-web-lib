@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from "react";
-
 import { Widget } from "../widget";
 import { PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
@@ -23,8 +22,7 @@ import {
 import { FileContext } from "../../../misc/fileContext";
 import { Border } from "../../../types/border";
 import { Color } from "../../../types/color";
-import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
-import { diamondTheme } from "../../../diamondTheme";
+import { MenuItem, Select, SelectChangeEvent, useTheme } from "@mui/material";
 import { Font } from "../../../types";
 
 export interface MenuButtonProps {
@@ -59,6 +57,7 @@ const MenuButtonComponentProps = {
 };
 
 export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
+  const theme = useTheme();
   const {
     connected,
     value = null,
@@ -67,8 +66,8 @@ export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
     itemsFromPv = true,
     pvName,
     label,
-    foregroundColor = diamondTheme.palette.primary.contrastText,
-    backgroundColor = diamondTheme.palette.primary.main,
+    foregroundColor = theme.palette.primary.contrastText,
+    backgroundColor = theme.palette.primary.main,
     items = ["Item 1", "Item 2"]
   } = props;
   const fromPv = actionsFromPv && itemsFromPv;

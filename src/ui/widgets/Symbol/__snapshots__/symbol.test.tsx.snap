@@ -83,7 +83,7 @@ exports[`<Symbol /> from .opi file > matches snapshot 1`] = `
       style="padding: 5%;"
     >
       <p
-        class="MuiTypography-root MuiTypography-body1 css-4hgpfw-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-qckjhq-MuiTypography-root"
       >
         Fake value
       </p>

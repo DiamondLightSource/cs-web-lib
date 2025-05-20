@@ -16,8 +16,7 @@ import {
 } from "../propTypes";
 import { registerWidget } from "../register";
 import { AlarmQuality, DType } from "../../../types/dtypes";
-import { TextField as MuiTextField, styled } from "@mui/material";
-import { diamondTheme } from "../../../diamondTheme";
+import { TextField as MuiTextField, styled, useTheme } from "@mui/material";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const ReadbackProps = {
@@ -76,6 +75,7 @@ export type ReadbackComponentProps = InferWidgetProps<typeof ReadbackProps> &
 export const ReadbackComponent = (
   props: ReadbackComponentProps
 ): JSX.Element => {
+  const theme = useTheme();
   const {
     enabled = true,
     value,
@@ -93,6 +93,7 @@ export const ReadbackComponent = (
     height = WIDGET_DEFAULT_SIZES["textupdate"][1],
     width = WIDGET_DEFAULT_SIZES["textupdate"][0]
   } = props;
+
   // Decide what to display.
   const display = value?.getDisplay();
   const prec = precisionFromPv ? (display?.precision ?? precision) : precision;
@@ -137,8 +138,7 @@ export const ReadbackComponent = (
   }
 
   let foregroundColor =
-    props.foregroundColor?.toString() ??
-    diamondTheme.palette.primary.contrastText;
+    props.foregroundColor?.toString() ?? theme.palette.primary.contrastText;
   let borderColor = props.border?.color.toString() ?? "#000000";
   let borderStyle = props.border?.css().borderStyle ?? "solid";
   let borderWidth = props.border?.width ?? "0px";
@@ -163,11 +163,11 @@ export const ReadbackComponent = (
     }
   }
 
-  const font = props.font?.css() ?? diamondTheme.typography;
+  const font = props.font?.css() ?? theme.typography;
 
   const backgroundColor = transparent
     ? "transparent"
-    : (props.backgroundColor?.toString() ?? diamondTheme.palette.primary.main);
+    : (props.backgroundColor?.toString() ?? theme.palette.primary.main);
 
   let alignmentV = "center";
   if (textAlignV === "top") {
@@ -186,7 +186,7 @@ export const ReadbackComponent = (
           .match(/\d+.\d+/)
           ?.toString() ?? ""
       ) * 16
-    : diamondTheme.typography.fontSize;
+    : theme.typography.fontSize;
 
   const inputWidth = rotationStep === 0 || rotationStep === 2 ? width : height;
   const inputHeight = rotationStep === 0 || rotationStep === 2 ? height : width;

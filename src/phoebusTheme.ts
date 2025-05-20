@@ -1,6 +1,6 @@
 import { createTheme } from "@mui/material/styles";
 
-export const diamondTheme = createTheme({
+export const phoebusTheme = createTheme({
   palette: {
     primary: {
       main: "#D2D2D2",
