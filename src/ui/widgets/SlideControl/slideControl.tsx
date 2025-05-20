@@ -15,8 +15,7 @@ import {
 } from "../propTypes";
 import { registerWidget } from "../register";
 import { DType } from "../../../types/dtypes";
-import { Slider } from "@mui/material";
-import { diamondTheme } from "../../../diamondTheme";
+import { Slider, useTheme } from "@mui/material";
 
 export const SliderControlProps = {
   min: FloatPropOpt,
@@ -49,6 +48,7 @@ export const SliderControlProps = {
 export const SlideControlComponent = (
   props: InferWidgetProps<typeof SliderControlProps> & PVInputComponent
 ): JSX.Element => {
+  const theme = useTheme();
   const {
     pvName,
     connected,
@@ -56,8 +56,8 @@ export const SlideControlComponent = (
     enabled = true,
     horizontal = true,
     limitsFromPv = false,
-    foregroundColor = diamondTheme.palette.primary.contrastText,
-    backgroundColor = diamondTheme.palette.primary.main,
+    foregroundColor = theme.palette.primary.contrastText,
+    backgroundColor = theme.palette.primary.main,
     levelHihi = 90,
     levelHigh = 80,
     levelLow = 20,
@@ -72,7 +72,7 @@ export const SlideControlComponent = (
   let { min = 0, max = 100 } = props;
 
   const disabled = !connected || value === null ? true : !enabled;
-  const font = props.font?.css() ?? diamondTheme.typography;
+  const font = props.font?.css() ?? theme.typography;
 
   if (limitsFromPv && value?.display.controlRange) {
     min = value.display.controlRange?.min;

@@ -17,9 +17,9 @@ import { writePv } from "../../hooks/useSubscription";
 import {
   ToggleButton as MuiToggleButton,
   styled,
-  ToggleButtonGroup
+  ToggleButtonGroup,
+  useTheme
 } from "@mui/material";
-import { diamondTheme } from "../../../diamondTheme";
 import { Color } from "../../../types";
 
 const ChoiceButtonProps = {
@@ -67,6 +67,7 @@ const ToggleButton = styled(MuiToggleButton)({
 export const ChoiceButtonComponent = (
   props: ChoiceButtonComponentProps
 ): JSX.Element => {
+  const theme = useTheme();
   const {
     width = 100,
     height = 43,
@@ -76,11 +77,11 @@ export const ChoiceButtonComponent = (
     pvName,
     items = ["Item 1", "Item 2"],
     horizontal = true,
-    foregroundColor = diamondTheme.palette.primary.contrastText,
-    backgroundColor = diamondTheme.palette.primary.main,
+    foregroundColor = theme.palette.primary.contrastText,
+    backgroundColor = theme.palette.primary.main,
     selectedColor = Color.fromRgba(200, 200, 200)
   } = props;
-  const font = props.font?.css() ?? diamondTheme.typography;
+  const font = props.font?.css() ?? theme.typography;
   const [selected, setSelected] = useState(value?.getDoubleValue());
 
   // Use items from file, unless itemsFRomPv set

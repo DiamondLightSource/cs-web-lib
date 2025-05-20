@@ -22,6 +22,7 @@ import { EmbeddedDisplay } from "../EmbeddedDisplay/embeddedDisplay";
 import { Color } from "../../../types/color";
 import { RelativePosition } from "../../../types/position";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
+import { useTheme } from "@mui/material";
 
 const DynamicPageProps = {
   location: StringProp,
@@ -34,6 +35,7 @@ const DynamicPageProps = {
 export const DynamicPageComponent = (
   props: InferWidgetProps<typeof DynamicPageProps>
 ): JSX.Element => {
+  const theme = useTheme();
   const style = commonCss(props);
   const fileContext = useContext(FileContext);
 
@@ -69,6 +71,7 @@ export const DynamicPageComponent = (
             position={new RelativePosition()}
             scalingOrigin={"0 0"}
             scroll={props.scroll ?? false}
+            theme={theme}
           />
           <div
             style={{
@@ -115,6 +118,7 @@ export const DynamicPageComponent = (
             position={new RelativePosition()}
             scalingOrigin={"0 0"}
             scroll={props.scroll ?? false}
+            theme={theme}
           />
         </div>
       </ExitFileContext.Provider>
