@@ -17,9 +17,7 @@ import {
 } from "../propTypes";
 import { MacroContext } from "../../../types/macros";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
-import { styled, Button as MuiButton } from "@mui/material";
-
-import { diamondTheme } from "../../../diamondTheme";
+import { styled, Button as MuiButton, useTheme } from "@mui/material";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 export interface ActionButtonProps {
@@ -65,9 +63,10 @@ const Button = styled(MuiButton)({
 export const ActionButtonComponent = (
   props: InferWidgetProps<typeof ActionButtonPropType> & ActionButtonProps
 ): JSX.Element => {
+  const theme = useTheme();
   const {
     enabled = true,
-    foregroundColor = diamondTheme.palette.primary.contrastText,
+    foregroundColor = theme.palette.primary.contrastText,
     rotationStep = 0,
     transparent = false,
     height = WIDGET_DEFAULT_SIZES["action_button"][1],
@@ -76,8 +75,8 @@ export const ActionButtonComponent = (
 
   const backgroundColor = transparent
     ? "transparent"
-    : (props.backgroundColor?.toString() ?? diamondTheme.palette.primary.main);
-  const font = props.font?.css() ?? diamondTheme.typography;
+    : (props.backgroundColor?.toString() ?? theme.palette.primary.main);
+  const font = props.font?.css() ?? theme.typography;
   const border = props.border?.css() ?? null;
 
   const inputWidth = rotationStep === 0 || rotationStep === 2 ? width : height;

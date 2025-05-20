@@ -13,9 +13,9 @@ import { registerWidget } from "../register";
 import {
   FormControlLabel as MuiFormControlLabel,
   Checkbox as MuiCheckbox,
-  styled
+  styled,
+  useTheme
 } from "@mui/material";
-import { diamondTheme } from "../../../diamondTheme";
 
 export const CheckboxProps = {
   label: StringPropOpt,
@@ -61,6 +61,7 @@ export type CheckboxComponentProps = InferWidgetProps<typeof CheckboxProps> &
 export const CheckboxComponent = (
   props: CheckboxComponentProps
 ): JSX.Element => {
+  const theme = useTheme();
   const { enabled = true } = props;
   const [checked, setChecked] = useState(true);
 
@@ -74,9 +75,9 @@ export const CheckboxComponent = (
       sx={{
         color:
           props.foregroundColor?.toString() ??
-          diamondTheme.palette.primary.contrastText,
+          theme.palette.primary.contrastText,
         ".MuiFormControlLabel-label": {
-          fontFamily: props.font?.css() ?? diamondTheme.typography
+          fontFamily: props.font?.css() ?? theme.typography
         }
       }}
       control={
@@ -85,9 +86,9 @@ export const CheckboxComponent = (
           onChange={handleChange}
           sx={{
             padding: 0,
-            color: diamondTheme.palette.primary.main,
+            color: theme.palette.primary.main,
             "&.Mui-checked": {
-              color: diamondTheme.palette.primary.main
+              color: theme.palette.primary.main
             }
           }}
         />
