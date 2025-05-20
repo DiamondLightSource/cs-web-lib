@@ -56,7 +56,8 @@ const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   rectangle: "shape",
   choice: "choicebutton",
   scaledslider: "slidecontrol",
-  symbol: "symbol"
+  symbol: "symbol",
+  tank: "tank"
 };
 
 // Default width and height of widgets in Phoebus
@@ -81,7 +82,8 @@ export const WIDGET_DEFAULT_SIZES: { [key: string]: [number, number] } = {
   progressbar: [100, 20],
   rectangle: [100, 20],
   scaledslider: [400, 55],
-  symbol: [100, 100]
+  symbol: [100, 100],
+  tank: [50, 100]
 };
 
 function bobParseType(props: any): string {
