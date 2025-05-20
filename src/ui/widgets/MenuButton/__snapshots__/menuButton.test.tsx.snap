@@ -2,7 +2,7 @@
 
 exports[`<MenuButton /> > it matches the snapshot 1`] = `
 <div
-  className="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary css-1vyvjuq-MuiInputBase-root-MuiOutlinedInput-root-MuiSelect-root"
+  className="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary css-wmsem7-MuiInputBase-root-MuiOutlinedInput-root-MuiSelect-root"
   onClick={[Function]}
   onMouseDown={[Function]}
 >

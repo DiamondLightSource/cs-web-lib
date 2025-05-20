@@ -1,5 +1,4 @@
 import React from "react";
-
 import { Widget } from "../widget";
 import { WidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
@@ -14,8 +13,7 @@ import {
   FloatPropOpt,
   MacrosPropOpt
 } from "../propTypes";
-import { Typography as MuiTypography, styled } from "@mui/material";
-import { diamondTheme } from "../../../diamondTheme";
+import { Typography as MuiTypography, styled, useTheme } from "@mui/material";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const LabelProps = {
@@ -53,10 +51,11 @@ const Typography = styled(MuiTypography)({
 export const LabelComponent = (
   props: InferWidgetProps<typeof LabelProps>
 ): JSX.Element => {
+  const theme = useTheme();
   // Default labels to transparent.
   const {
     transparent = true,
-    foregroundColor = diamondTheme.palette.primary.contrastText,
+    foregroundColor = theme.palette.primary.contrastText,
     textAlign = "left",
     textAlignV = "top",
     text = "",
@@ -67,8 +66,8 @@ export const LabelComponent = (
   } = props;
   const backgroundColor = transparent
     ? "transparent"
-    : (props.backgroundColor?.toString() ?? diamondTheme.palette.primary.main);
-  const font = props.font?.css() ?? diamondTheme.typography;
+    : (props.backgroundColor?.toString() ?? theme.palette.primary.main);
+  const font = props.font?.css() ?? theme.typography;
   const borderWidth = props.border?.css().borderWidth ?? "0px";
   const borderColor = props.border?.css().borderColor ?? "#000000";
   const borderStyle = props.border?.css().borderStyle ?? "solid";
