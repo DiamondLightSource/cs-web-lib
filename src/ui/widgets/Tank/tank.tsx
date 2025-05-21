@@ -13,7 +13,6 @@ import {
 import { Color, Font } from "../../../types";
 import classes from "./tank.module.css";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
-import { useTheme } from "@mui/material";
 
 export const TankProps = {
   min: FloatPropOpt,
@@ -63,30 +62,47 @@ const TankWithScale = (props: {
       <span
         className={classes.ScaleMarker}
         style={{
-          width: "20%",
+          height: "30px",
+          width: "100px",
           top: "10%",
           color: foregroundColor.toString(),
+          transform: "rotate(-90deg) translateX(15px) translateY(-30px)",
           ...font?.css()
         }}
       >
-        {max}
+        {Number(max).toFixed(1)}
       </span>
       <span
         className={classes.ScaleMarker}
         style={{
-          width: "20%",
-          top: "90%",
+          height: "30px",
+          width: "100px",
+          top: "50%",
           color: foregroundColor.toString(),
+          transform: "rotate(-90deg) translateX(15px) translateY(-30px)",
           ...font?.css()
         }}
       >
-        {min}
+        {Number(max / 2).toFixed(1)}
+      </span>
+      <span
+        className={classes.ScaleMarker}
+        style={{
+          height: "30px",
+          width: "100px",
+          top: "90%",
+          color: foregroundColor.toString(),
+          transform: "rotate(-90deg) translateX(15px) translateY(-30px)",
+          ...font?.css()
+        }}
+      >
+        {Number(min).toFixed(1)}
       </span>
       <span
         className={classes.EmptyTank}
         style={{
           height: "80%",
-          width: "80%",
+          width: `${width - 30}px`,
           top: "10%",
           right: "0%",
           backgroundColor: emptyColor.toString()
@@ -141,7 +157,6 @@ const TankWithoutScale = (props: {
 export const TankComponent = (
   props: InferWidgetProps<typeof TankProps> & PVComponent
 ): JSX.Element => {
-  const theme = useTheme();
   const {
     value,
     limitsFromPv = false,
