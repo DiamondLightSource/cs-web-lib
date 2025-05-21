@@ -1,0 +1,28 @@
+.TankBackground {
+  position: absolute;
+  border-radius: 4px;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  display: block;
+  z-index: 0;
+}
+
+.EmptyTank {
+  position: absolute;
+  display: block;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.TankFill {
+  position: absolute;
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.ScaleMarker {
+    position: absolute;
+    left: 0%;
+}
