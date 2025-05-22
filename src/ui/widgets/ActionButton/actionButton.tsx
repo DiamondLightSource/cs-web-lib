@@ -15,35 +15,38 @@ import {
   FuncPropOpt,
   FloatPropOpt
 } from "../propTypes";
-import { Color } from "../../../types/color";
-import { Font } from "../../../types/font";
-import { Border } from "../../../types/border";
 import { MacroContext } from "../../../types/macros";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 import { styled, Button as MuiButton, useTheme } from "@mui/material";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
+import { calculateRotationTransform } from "../utils";
 
 export interface ActionButtonProps {
-  text: string;
-  enabled?: boolean;
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  image?: string;
-  backgroundColor?: Color;
-  foregroundColor?: Color;
-  border?: Border;
-  font?: Font;
-  actions?: WidgetActions;
-  visible?: boolean;
-  rotationStep?: number;
-  transparent?: boolean;
 }
+
+const ActionButtonPropType = {
+  text: StringPropOpt,
+  actions: ActionsPropType,
+  image: StringPropOpt,
+  backgroundColor: ColorPropOpt,
+  foregroundColor: ColorPropOpt,
+  font: FontPropOpt,
+  border: BorderPropOpt,
+  visible: BoolPropOpt,
+  enabled: BoolPropOpt,
+  onClick: FuncPropOpt,
+  transparent: BoolPropOpt,
+  rotationStep: FloatPropOpt,
+  height: FloatPropOpt,
+  width: FloatPropOpt
+};
 
 const Button = styled(MuiButton)({
   "&.MuiButton-root": {
     display: "block",
     alignItems: "center",
     justifyContent: "center",
-    height: "100%",
-    width: "100%",
     minWidth: 0,
     minHeight: 0,
     padding: 0,
@@ -59,14 +62,16 @@ const Button = styled(MuiButton)({
 });
 
 export const ActionButtonComponent = (
-  props: ActionButtonProps
+  props: InferWidgetProps<typeof ActionButtonPropType> & ActionButtonProps
 ): JSX.Element => {
   const theme = useTheme();
   const {
     enabled = true,
     foregroundColor = theme.palette.primary.contrastText,
     rotationStep = 0,
-    transparent = false
+    transparent = false,
+    height = WIDGET_DEFAULT_SIZES["action_button"][1],
+    width = WIDGET_DEFAULT_SIZES["action_button"][0]
   } = props;
 
   const backgroundColor = transparent
@@ -75,16 +80,27 @@ export const ActionButtonComponent = (
   const font = props.font?.css() ?? theme.typography;
   const border = props.border?.css() ?? null;
 
+  const [inputWidth, inputHeight, transform] = calculateRotationTransform(
+    rotationStep,
+    width,
+    height
+  );
+
   return (
     <Button
       variant={transparent ? "text" : "contained"}
       disabled={!enabled}
       fullWidth={true}
       sx={{
+        "&.MuiButton-root": {
+          height: inputHeight,
+          width: inputWidth
+        },
         color: foregroundColor.toString(),
         backgroundColor: backgroundColor,
         border: border,
-        fontFamily: font
+        fontFamily: font,
+        transform: transform.toString()
       }}
       onClick={props.onClick}
     >
@@ -101,8 +117,7 @@ export const ActionButtonComponent = (
         <span
           style={{
             display: "block",
-            lineHeight: 1,
-            transform: `rotate(${rotationStep * -90}deg)`
+            lineHeight: 1
           }}
         >
           {props.text ?? ""}
@@ -110,21 +125,6 @@ export const ActionButtonComponent = (
       )}
     </Button>
   );
-};
-
-const ActionButtonPropType = {
-  text: StringPropOpt,
-  actions: ActionsPropType,
-  image: StringPropOpt,
-  backgroundColor: ColorPropOpt,
-  foregroundColor: ColorPropOpt,
-  font: FontPropOpt,
-  border: BorderPropOpt,
-  visible: BoolPropOpt,
-  enabled: BoolPropOpt,
-  onClick: FuncPropOpt,
-  transparent: BoolPropOpt,
-  rotationStep: FloatPropOpt
 };
 
 const ActionButtonWidgetProps = {
@@ -163,6 +163,8 @@ export const ActionButtonWidget = (
       visible={props.visible}
       transparent={props.transparent}
       rotationStep={props.rotationStep}
+      height={props.height}
+      width={props.width}
     />
   );
 };
