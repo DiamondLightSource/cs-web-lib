@@ -75,3 +75,37 @@ export function trimFromString(value: string): number {
 export function getOptionalValue(optionalParam: any, defValue: any): any {
   return typeof optionalParam === "undefined" ? defValue : optionalParam;
 }
+
+/**
+ * Returns the corrected width and height for a rotated widget along
+ * with its calculated transform string.
+ * @param rotationStep 0 | 1 | 2 | 3
+ * @param inputWidth current width of the widget
+ * @param inputHeight current height of the widget
+ * @returns an array containing the new width, height, and transform string
+ */
+export function calculateRotationTransform(
+  rotationStep: number,
+  inputWidth: number,
+  inputHeight: number
+): [outputWidth: number, outputHeight: number, transform: string] {
+  const outputWidth =
+    rotationStep === 0 || rotationStep === 2 ? inputWidth : inputHeight;
+  const outputHeight =
+    rotationStep === 0 || rotationStep === 2 ? inputHeight : inputWidth;
+  const offset = inputWidth / 2 - inputHeight / 2;
+  const transform = (function () {
+    switch (rotationStep) {
+      case 0: // 0 degrees
+      case 2: // 180 degrees
+        return `rotate(${rotationStep * -90}deg)`;
+      case 1: // 90 degrees
+        return `rotate(${rotationStep * -90}deg) translateY(${offset}px) translateX(${offset}px)`;
+      case 3: // -90 degrees
+        return `rotate(${rotationStep * -90}deg) translateY(${-offset}px) translateX(${-offset}px)`;
+      default: // Unreachable
+        return "";
+    }
+  })();
+  return [outputWidth, outputHeight, transform];
+}
