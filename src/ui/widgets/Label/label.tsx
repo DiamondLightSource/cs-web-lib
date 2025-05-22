@@ -14,6 +14,7 @@ import {
   MacrosPropOpt
 } from "../propTypes";
 import { Typography as MuiTypography, styled, useTheme } from "@mui/material";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const LabelProps = {
   macros: MacrosPropOpt,
@@ -28,7 +29,9 @@ const LabelProps = {
   backgroundColor: ColorPropOpt,
   border: BorderPropOpt,
   rotationStep: FloatPropOpt,
-  wrapWords: BoolPropOpt
+  wrapWords: BoolPropOpt,
+  height: FloatPropOpt,
+  width: FloatPropOpt
 };
 
 const LabelWidgetProps = {
@@ -37,10 +40,11 @@ const LabelWidgetProps = {
 };
 
 const Typography = styled(MuiTypography)({
-  width: "100%",
-  height: "100%",
   display: "flex",
   overflow: "hidden",
+  borderRadius: "4px",
+  borderWidth: "0px",
+  lineHeight: 1,
   padding: 0
 });
 
@@ -56,13 +60,35 @@ export const LabelComponent = (
     textAlignV = "top",
     text = "",
     rotationStep = 0,
-    wrapWords = true
+    wrapWords = true,
+    height = WIDGET_DEFAULT_SIZES["label"][1],
+    width = WIDGET_DEFAULT_SIZES["label"][0]
   } = props;
   const backgroundColor = transparent
     ? "transparent"
     : (props.backgroundColor?.toString() ?? theme.palette.primary.main);
   const font = props.font?.css() ?? theme.typography;
-  const border = props.border?.css() ?? "0px solid #000000";
+  const borderWidth = props.border?.css().borderWidth ?? "0px";
+  const borderColor = props.border?.css().borderColor ?? "#000000";
+  const borderStyle = props.border?.css().borderStyle ?? "solid";
+
+  const inputWidth = rotationStep === 0 || rotationStep === 2 ? width : height;
+  const inputHeight = rotationStep === 0 || rotationStep === 2 ? height : width;
+
+  const offset = width / 2 - height / 2;
+  const transform = (function () {
+    switch (rotationStep) {
+      case 0: // 0 degrees
+      case 2: // 180 degrees
+        return `rotate(${rotationStep * -90}deg)`;
+      case 1: // 90 degrees
+        return `rotate(${rotationStep * -90}deg) translateY(${offset}px) translateX(${offset}px)`;
+      case 3: // -90 degrees
+        return `rotate(${rotationStep * -90}deg) translateY(${-offset}px) translateX(${-offset}px)`;
+      default: // Unreachable
+        return "";
+    }
+  })();
 
   // Since display is "flex", use "flex-start" and "flex-end" to align
   // the content.
@@ -87,14 +113,18 @@ export const LabelComponent = (
       sx={{
         justifyContent: alignment,
         alignItems: alignmentV,
+        height: inputHeight,
+        width: inputWidth,
         textAlign: textAlign,
         wordBreak: wrapWords ? "break-word" : null,
         whiteSpace: wrapWords ? "break-spaces" : null,
         color: foregroundColor.toString(),
         backgroundColor: backgroundColor,
         fontFamily: font,
-        transform: `rotate(${rotationStep * -90}deg)`.toString(),
-        border: border
+        transform: transform.toString(),
+        outlineWidth: borderWidth,
+        outlineColor: borderColor,
+        outlineStyle: borderStyle
       }}
     >
       {text}
