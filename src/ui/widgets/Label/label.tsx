@@ -15,6 +15,7 @@ import {
 } from "../propTypes";
 import { Typography as MuiTypography, styled, useTheme } from "@mui/material";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
+import { calculateRotationTransform } from "../utils";
 
 const LabelProps = {
   macros: MacrosPropOpt,
@@ -72,23 +73,11 @@ export const LabelComponent = (
   const borderColor = props.border?.css().borderColor ?? "#000000";
   const borderStyle = props.border?.css().borderStyle ?? "solid";
 
-  const inputWidth = rotationStep === 0 || rotationStep === 2 ? width : height;
-  const inputHeight = rotationStep === 0 || rotationStep === 2 ? height : width;
-
-  const offset = width / 2 - height / 2;
-  const transform = (function () {
-    switch (rotationStep) {
-      case 0: // 0 degrees
-      case 2: // 180 degrees
-        return `rotate(${rotationStep * -90}deg)`;
-      case 1: // 90 degrees
-        return `rotate(${rotationStep * -90}deg) translateY(${offset}px) translateX(${offset}px)`;
-      case 3: // -90 degrees
-        return `rotate(${rotationStep * -90}deg) translateY(${-offset}px) translateX(${-offset}px)`;
-      default: // Unreachable
-        return "";
-    }
-  })();
+  const [inputWidth, inputHeight, transform] = calculateRotationTransform(
+    rotationStep,
+    width,
+    height
+  );
 
   // Since display is "flex", use "flex-start" and "flex-end" to align
   // the content.
