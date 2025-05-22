@@ -19,6 +19,7 @@ import { MacroContext } from "../../../types/macros";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 import { styled, Button as MuiButton, useTheme } from "@mui/material";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
+import { calculateRotationTransform } from "../utils";
 
 export interface ActionButtonProps {
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
@@ -79,23 +80,11 @@ export const ActionButtonComponent = (
   const font = props.font?.css() ?? theme.typography;
   const border = props.border?.css() ?? null;
 
-  const inputWidth = rotationStep === 0 || rotationStep === 2 ? width : height;
-  const inputHeight = rotationStep === 0 || rotationStep === 2 ? height : width;
-
-  const offset = width / 2 - height / 2;
-  const transform = (function () {
-    switch (rotationStep) {
-      case 0: // 0 degrees
-      case 2: // 180 degrees
-        return `rotate(${rotationStep * -90}deg)`;
-      case 1: // 90 degrees
-        return `rotate(${rotationStep * -90}deg) translateY(${offset}px) translateX(${offset}px)`;
-      case 3: // -90 degrees
-        return `rotate(${rotationStep * -90}deg) translateY(${-offset}px) translateX(${-offset}px)`;
-      default: // Unreachable
-        return "";
-    }
-  })();
+  const [inputWidth, inputHeight, transform] = calculateRotationTransform(
+    rotationStep,
+    width,
+    height
+  );
 
   return (
     <Button

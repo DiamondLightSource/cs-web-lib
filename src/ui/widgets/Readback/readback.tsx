@@ -18,6 +18,7 @@ import { registerWidget } from "../register";
 import { AlarmQuality, DType } from "../../../types/dtypes";
 import { TextField as MuiTextField, styled, useTheme } from "@mui/material";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
+import { calculateRotationTransform } from "../utils";
 
 const ReadbackProps = {
   precision: IntPropOpt,
@@ -188,23 +189,11 @@ export const ReadbackComponent = (
       ) * 16
     : theme.typography.fontSize;
 
-  const inputWidth = rotationStep === 0 || rotationStep === 2 ? width : height;
-  const inputHeight = rotationStep === 0 || rotationStep === 2 ? height : width;
-
-  const offset = width / 2 - height / 2;
-  const transform = (function () {
-    switch (rotationStep) {
-      case 0: // 0 degrees
-      case 2: // 180 degrees
-        return `rotate(${rotationStep * -90}deg)`;
-      case 1: // 90 degrees
-        return `rotate(${rotationStep * -90}deg) translateY(${offset}px) translateX(${offset}px)`;
-      case 3: // -90 degrees
-        return `rotate(${rotationStep * -90}deg) translateY(${-offset}px) translateX(${-offset}px)`;
-      default: // Unreachable
-        return "";
-    }
-  })();
+  const [inputWidth, inputHeight, transform] = calculateRotationTransform(
+    rotationStep,
+    width,
+    height
+  );
 
   // Calculate max number of rows based on the height of the widget and the height of the font
   // an extra row is then subtracted to make it fit nicer
