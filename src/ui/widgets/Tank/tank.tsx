@@ -10,9 +10,11 @@ import {
   ColorPropOpt,
   BorderPropOpt
 } from "../propTypes";
-import { Color, Font } from "../../../types";
-import classes from "./tank.module.css";
+import { Color } from "../../../types";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
+import { AlarmQuality } from "../../../types/dtypes";
+import { TankWithScale } from "./tankWithScale";
+import { TankWithoutScale } from "./tankWithoutScale";
 
 export const TankProps = {
   min: FloatPropOpt,
@@ -27,131 +29,8 @@ export const TankProps = {
   border: BorderPropOpt,
   height: FloatPropOpt,
   width: FloatPropOpt,
-  scaleVisible: BoolPropOpt
-};
-
-const TankWithScale = (props: {
-  min: number;
-  max: number;
-  emptyColor: Color;
-  fillColor: Color;
-  foregroundColor: Color;
-  backgroundColor: Color;
-  font: Font | undefined;
-  percent: number;
-  width: number;
-}): JSX.Element => {
-  const {
-    min,
-    max,
-    emptyColor,
-    fillColor,
-    foregroundColor,
-    backgroundColor,
-    font,
-    percent,
-    width
-  } = props;
-  return (
-    <span
-      className={classes.TankBackground}
-      style={{
-        backgroundColor: backgroundColor.toString()
-      }}
-    >
-      <span
-        className={classes.ScaleMarker}
-        style={{
-          height: "30px",
-          width: "100px",
-          top: "10%",
-          color: foregroundColor.toString(),
-          transform: "rotate(-90deg) translateX(15px) translateY(-30px)",
-          ...font?.css()
-        }}
-      >
-        {Number(max).toFixed(1)}
-      </span>
-      <span
-        className={classes.ScaleMarker}
-        style={{
-          height: "30px",
-          width: "100px",
-          top: "50%",
-          color: foregroundColor.toString(),
-          transform: "rotate(-90deg) translateX(15px) translateY(-30px)",
-          ...font?.css()
-        }}
-      >
-        {Number(max / 2).toFixed(1)}
-      </span>
-      <span
-        className={classes.ScaleMarker}
-        style={{
-          height: "30px",
-          width: "100px",
-          top: "90%",
-          color: foregroundColor.toString(),
-          transform: "rotate(-90deg) translateX(15px) translateY(-30px)",
-          ...font?.css()
-        }}
-      >
-        {Number(min).toFixed(1)}
-      </span>
-      <span
-        className={classes.EmptyTank}
-        style={{
-          height: "80%",
-          width: `${width - 30}px`,
-          top: "10%",
-          right: "0%",
-          backgroundColor: emptyColor.toString()
-        }}
-      >
-        <span
-          className={classes.TankFill}
-          style={{
-            backgroundColor: fillColor.toString(),
-            top: `${100 - percent}%`
-          }}
-        ></span>
-      </span>
-    </span>
-  );
-};
-
-const TankWithoutScale = (props: {
-  emptyColor: Color;
-  fillColor: Color;
-  backgroundColor: Color;
-  percent: number;
-}): JSX.Element => {
-  const { emptyColor, fillColor, backgroundColor, percent } = props;
-  return (
-    <span
-      className={classes.TankBackground}
-      style={{
-        backgroundColor: backgroundColor.toString()
-      }}
-    >
-      <span
-        className={classes.EmptyTank}
-        style={{
-          height: "100%",
-          width: "100%",
-          backgroundColor: emptyColor.toString()
-        }}
-      >
-        <span
-          className={classes.TankFill}
-          style={{
-            backgroundColor: fillColor.toString(),
-            top: `${100 - percent}%`
-          }}
-        ></span>
-      </span>
-    </span>
-  );
+  scaleVisible: BoolPropOpt,
+  alarmSensitive: BoolPropOpt
 };
 
 export const TankComponent = (
@@ -167,6 +46,7 @@ export const TankComponent = (
     backgroundColor = Color.WHITE,
     logScale = false,
     scaleVisible = true,
+    alarmSensitive = true,
     width = WIDGET_DEFAULT_SIZES["tank"][0]
   } = props;
 
@@ -183,6 +63,22 @@ export const TankComponent = (
 
   const percent = numValue < min ? 0 : numValue > max ? 100 : percentCalc;
 
+  let outline = "0px solid #000000";
+
+  const alarmQuality = props.value?.getAlarm().quality ?? AlarmQuality.VALID;
+  if (alarmSensitive) {
+    switch (alarmQuality) {
+      case AlarmQuality.UNDEFINED:
+      case AlarmQuality.INVALID:
+      case AlarmQuality.CHANGING:
+        outline = "1px solid var(--invalid)";
+        break;
+      case AlarmQuality.ALARM:
+      case AlarmQuality.WARNING:
+        outline = "2px solid var(--alarm)";
+    }
+  }
+
   if (scaleVisible) {
     return (
       <TankWithScale
@@ -195,6 +91,7 @@ export const TankComponent = (
         font={font}
         percent={percent}
         width={width}
+        outline={outline}
       ></TankWithScale>
     );
   } else {
@@ -204,6 +101,7 @@ export const TankComponent = (
         fillColor={fillColor}
         backgroundColor={backgroundColor}
         percent={percent}
+        outline={outline}
       ></TankWithoutScale>
     );
   }
