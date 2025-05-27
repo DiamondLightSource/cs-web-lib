@@ -381,7 +381,9 @@ export function parseBob(
     fallbackSymbol: ["fallback_symbol", opiParseString],
     rotation: ["rotation", bobParseNumber],
     styleOpt: ["style", bobParseNumber],
-    lineColor: ["line_color", opiParseColor]
+    lineColor: ["line_color", opiParseColor],
+    minimum: ["minimum", bobParseNumber],
+    maximum: ["maximum", bobParseNumber]
   };
 
   const complexParsers = {

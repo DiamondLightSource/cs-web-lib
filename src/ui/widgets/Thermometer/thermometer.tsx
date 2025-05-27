@@ -14,8 +14,8 @@ import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { AlarmQuality } from "../../../types/dtypes";
 
 export const ThermometerProps = {
-  min: FloatPropOpt,
-  max: FloatPropOpt,
+  minimum: FloatPropOpt,
+  maximum: FloatPropOpt,
   height: FloatPropOpt,
   width: FloatPropOpt,
   limitsFromPv: BoolPropOpt,
@@ -35,13 +35,13 @@ export const ThermometerComponent = (
     alarmSensitive = true
   } = props;
 
-  let { min = 0, max = 100 } = props;
+  let { minimum = 0, maximum = 100 } = props;
   if (limitsFromPv && value?.display.controlRange) {
-    min = value.display.controlRange?.min;
-    max = value.display.controlRange?.max;
+    minimum = value.display.controlRange?.min;
+    maximum = value.display.controlRange?.max;
   }
   const numValue = value?.getDoubleValue() ?? 0;
-  const percent = ((numValue - min) * 100) / (max - min);
+  const percent = ((numValue - minimum) * 100) / (maximum - minimum);
 
   let outline = "0px solid #000000";
 
