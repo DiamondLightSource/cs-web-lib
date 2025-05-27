@@ -395,7 +395,9 @@ export function parseBob(
     increment: ["increment", bobParseNumber],
     multiLine: ["multi_line", opiParseBoolean],
     lineStyle: ["line_style", bobParseNumber],
-    scaleVisible: ["scale_visible", opiParseBoolean]
+    scaleVisible: ["scale_visible", opiParseBoolean],
+    max: ["maximum", bobParseNumber],
+    min: ["minimum", bobParseNumber]
   };
 
   const complexParsers = {
