@@ -23,6 +23,15 @@
 }
 
 .ScaleMarker {
-    position: absolute;
-    left: 0%;
+  position: absolute;
+  left: 0%;
+}
+
+.ScaleTick {
+  position: absolute;
+  left: 20px;
+  height: 2px;
+  width: 10px;
+  background-color: black;
+  transform: translateY(-1px);
 }

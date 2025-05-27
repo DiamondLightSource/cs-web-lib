@@ -43,12 +43,18 @@ export const TankWithScale = (props: {
           width: "100px",
           top: "10%",
           color: foregroundColor.toString(),
-          transform: "rotate(-90deg) translateX(15px) translateY(-30px)",
+          transform: "rotate(-90deg) translateX(15px) translateY(-35px)",
           ...font?.css()
         }}
       >
         {logScale ? Number(max).toExponential(0) : Number(max).toFixed(1)}
       </span>
+      <span
+        className={classes.ScaleTick}
+        style={{
+          top: "10%"
+        }}
+      />
       <span
         className={classes.ScaleMarker}
         style={{
@@ -56,7 +62,7 @@ export const TankWithScale = (props: {
           width: "100px",
           top: "50%",
           color: foregroundColor.toString(),
-          transform: "rotate(-90deg) translateX(15px) translateY(-30px)",
+          transform: "rotate(-90deg) translateX(15px) translateY(-35px)",
           ...font?.css()
         }}
       >
@@ -65,18 +71,30 @@ export const TankWithScale = (props: {
           : Number(max / 2).toFixed(1)}
       </span>
       <span
+        className={classes.ScaleTick}
+        style={{
+          top: "50%"
+        }}
+      />
+      <span
         className={classes.ScaleMarker}
         style={{
           height: "30px",
           width: "100px",
           top: "90%",
           color: foregroundColor.toString(),
-          transform: "rotate(-90deg) translateX(15px) translateY(-30px)",
+          transform: "rotate(-90deg) translateX(15px) translateY(-35px)",
           ...font?.css()
         }}
       >
         {logScale ? Number(min).toExponential(0) : Number(min).toFixed(1)}
       </span>
+      <span
+        className={classes.ScaleTick}
+        style={{
+          top: "90%"
+        }}
+      />
       <span
         className={classes.EmptyTank}
         style={{
