@@ -37,6 +37,7 @@ export { DynamicTabs } from "./Tabs/dynamicTabs";
 export { XYPlot } from "./XYPlot/xyPlot";
 export { Webcam } from "./Webcam/webcam";
 export { executeAction } from "./widgetActions";
+export { Thermometer } from "./Thermometer/thermometer";
 
 // By importing and calling this function you ensure all the
 // above widgets are imported and thus registered.
