@@ -92,6 +92,7 @@ export const TankComponent = (
         percent={percent}
         width={width}
         outline={outline}
+        logScale={logScale}
       ></TankWithScale>
     );
   } else {

@@ -13,6 +13,7 @@ export const TankWithScale = (props: {
   percent: number;
   width: number;
   outline: string;
+  logScale: boolean;
 }): JSX.Element => {
   const {
     min,
@@ -24,7 +25,8 @@ export const TankWithScale = (props: {
     font,
     percent,
     width,
-    outline
+    outline,
+    logScale
   } = props;
   return (
     <span
@@ -45,7 +47,7 @@ export const TankWithScale = (props: {
           ...font?.css()
         }}
       >
-        {Number(max).toFixed(1)}
+        {logScale ? Number(max).toExponential(0) : Number(max).toFixed(1)}
       </span>
       <span
         className={classes.ScaleMarker}
@@ -58,7 +60,9 @@ export const TankWithScale = (props: {
           ...font?.css()
         }}
       >
-        {Number(max / 2).toFixed(1)}
+        {logScale
+          ? Number(max / 2).toExponential(0)
+          : Number(max / 2).toFixed(1)}
       </span>
       <span
         className={classes.ScaleMarker}
@@ -71,7 +75,7 @@ export const TankWithScale = (props: {
           ...font?.css()
         }}
       >
-        {Number(min).toFixed(1)}
+        {logScale ? Number(min).toExponential(0) : Number(min).toFixed(1)}
       </span>
       <span
         className={classes.EmptyTank}
