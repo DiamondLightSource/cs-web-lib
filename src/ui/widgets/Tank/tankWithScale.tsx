@@ -67,8 +67,8 @@ export const TankWithScale = (props: {
         }}
       >
         {logScale
-          ? Number(max / 2).toExponential(0)
-          : Number(max / 2).toFixed(1)}
+          ? Number((max - min) / 2).toExponential(0)
+          : Number((max - min) / 2).toFixed(1)}
       </span>
       <span
         className={classes.ScaleTick}
