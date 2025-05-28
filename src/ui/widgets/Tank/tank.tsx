@@ -17,8 +17,8 @@ import { TankWithScale } from "./tankWithScale";
 import { TankWithoutScale } from "./tankWithoutScale";
 
 export const TankProps = {
-  min: FloatPropOpt,
-  max: FloatPropOpt,
+  minimum: FloatPropOpt,
+  maximum: FloatPropOpt,
   limitsFromPv: BoolPropOpt,
   logScale: BoolPropOpt,
   fillColor: ColorPropOpt,
@@ -50,18 +50,19 @@ export const TankComponent = (
     width = WIDGET_DEFAULT_SIZES["tank"][0]
   } = props;
 
-  let { min = 0, max = 100 } = props;
+  let { minimum = 0, maximum = 100 } = props;
   if (limitsFromPv && value?.display.controlRange) {
-    min = value.display.controlRange?.min;
-    max = value.display.controlRange?.max;
+    minimum = value.display.controlRange?.min;
+    maximum = value.display.controlRange?.max;
   }
   const numValue = value?.getDoubleValue() ?? 0;
   const percentCalc = logScale
-    ? ((Math.log10(numValue) - Math.log10(min)) * 100) /
-      (Math.log10(max) - Math.log10(min))
-    : ((numValue - min) * 100) / (max - min);
+    ? ((Math.log10(numValue) - Math.log10(minimum)) * 100) /
+      (Math.log10(maximum) - Math.log10(minimum))
+    : ((numValue - minimum) * 100) / (maximum - minimum);
 
-  const percent = numValue < min ? 0 : numValue > max ? 100 : percentCalc;
+  const percent =
+    numValue < minimum ? 0 : numValue > maximum ? 100 : percentCalc;
 
   let outline = "0px solid #000000";
 
@@ -82,8 +83,8 @@ export const TankComponent = (
   if (scaleVisible) {
     return (
       <TankWithScale
-        min={min}
-        max={max}
+        min={minimum}
+        max={maximum}
         emptyColor={emptyColor}
         fillColor={fillColor}
         foregroundColor={foregroundColor}
