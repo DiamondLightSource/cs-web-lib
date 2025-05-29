@@ -37,13 +37,14 @@ export const TankWithScale = (props: {
       }}
     >
       <span
+        id="maxMarker"
         className={classes.ScaleMarker}
         style={{
-          height: "30px",
-          width: "100px",
           top: "10%",
           color: foregroundColor.toString(),
-          transform: "rotate(-90deg) translateX(15px) translateY(-35px)",
+          writingMode: "vertical-lr",
+          scale: "-1",
+          transform: "translateY(50%)",
           ...font?.css()
         }}
       >
@@ -58,11 +59,11 @@ export const TankWithScale = (props: {
       <span
         className={classes.ScaleMarker}
         style={{
-          height: "30px",
-          width: "100px",
           top: "50%",
           color: foregroundColor.toString(),
-          transform: "rotate(-90deg) translateX(15px) translateY(-35px)",
+          writingMode: "vertical-lr",
+          scale: "-1",
+          transform: "translateY(50%)",
           ...font?.css()
         }}
       >
@@ -79,11 +80,11 @@ export const TankWithScale = (props: {
       <span
         className={classes.ScaleMarker}
         style={{
-          height: "30px",
-          width: "100px",
           top: "90%",
           color: foregroundColor.toString(),
-          transform: "rotate(-90deg) translateX(15px) translateY(-35px)",
+          writingMode: "vertical-lr",
+          scale: "-1",
+          transform: "translateY(50%)",
           ...font?.css()
         }}
       >
