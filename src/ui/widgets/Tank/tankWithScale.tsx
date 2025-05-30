@@ -56,27 +56,33 @@ export const TankWithScale = (props: {
           top: "10%"
         }}
       />
-      <span
-        className={classes.ScaleMarker}
-        style={{
-          top: "50%",
-          color: foregroundColor.toString(),
-          writingMode: "vertical-lr",
-          scale: "-1",
-          transform: "translateY(50%)",
-          ...font?.css()
-        }}
-      >
-        {logScale
-          ? Number((max - min) / 2).toExponential(0)
-          : Number((max - min) / 2).toFixed(1)}
-      </span>
-      <span
-        className={classes.ScaleTick}
-        style={{
-          top: "50%"
-        }}
-      />
+      {!logScale ? (
+        <span
+          className={classes.ScaleMarker}
+          style={{
+            top: "50%",
+            color: foregroundColor.toString(),
+            writingMode: "vertical-lr",
+            scale: "-1",
+            transform: "translateY(50%)",
+            ...font?.css()
+          }}
+        >
+          {logScale ? "" : Number((max - min) / 2).toFixed(1)}
+        </span>
+      ) : (
+        <></>
+      )}
+      {!logScale ? (
+        <span
+          className={classes.ScaleTick}
+          style={{
+            top: "50%"
+          }}
+        />
+      ) : (
+        <></>
+      )}
       <span
         className={classes.ScaleMarker}
         style={{
