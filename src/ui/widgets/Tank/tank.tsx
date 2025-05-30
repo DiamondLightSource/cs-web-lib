@@ -57,8 +57,10 @@ export const TankComponent = (
   }
   const numValue = value?.getDoubleValue() ?? 0;
   const percentCalc = logScale
-    ? ((Math.log10(numValue) - Math.log10(minimum)) * 100) /
-      (Math.log10(maximum) - Math.log10(minimum))
+    ? minimum === 0
+      ? (Math.log10(numValue) * 100) / Math.log10(maximum)
+      : ((Math.log10(numValue) - Math.log10(minimum)) * 100) /
+        (Math.log10(maximum) - Math.log10(minimum))
     : ((numValue - minimum) * 100) / (maximum - minimum);
 
   const percent =
