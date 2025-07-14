@@ -23,6 +23,7 @@ import { MacroContext } from "../../../types/macros";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 import { DType } from "../../../types/dtypes";
 import classes from "./symbol.module.css";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const SymbolProps = {
   imageFile: StringPropOpt,
@@ -54,7 +55,9 @@ const SymbolProps = {
   arrayIndex: FloatPropOpt,
   enabled: BoolPropOpt,
   fallbackSymbol: StringPropOpt,
-  transparent: BoolPropOpt
+  transparent: BoolPropOpt,
+  width: FloatPropOpt,
+  height: FloatPropOpt
 };
 
 export type SymbolComponentProps = InferWidgetProps<typeof SymbolProps> &
@@ -74,7 +77,9 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
     transparent = true,
     backgroundColor = "white",
     showBooleanLabel = false,
-    enabled = true
+    enabled = true,
+    width = WIDGET_DEFAULT_SIZES["symbol"][0],
+    height = WIDGET_DEFAULT_SIZES["symbol"][1]
   } = props;
   const style = commonCss(props as any);
   // If symbols and not imagefile, we're in a bob file
@@ -153,7 +158,7 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
         {...props}
         imageFile={imageFile}
         onClick={onClick}
-        stretchToFit={true}
+        stretchToFit={false}
         overflow={true}
       />
       {isBob ? (
@@ -175,6 +180,7 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
             <div style={{ padding: "5%" }}>
               <LabelComponent
                 {...props}
+                textAlignV="bottom"
                 backgroundColor={Color.TRANSPARENT}
                 text={props.value?.getStringValue()}
               ></LabelComponent>
