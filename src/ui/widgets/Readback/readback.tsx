@@ -216,9 +216,9 @@ export const ReadbackComponent = (
       }}
       sx={{
         "&.MuiFormControl-root": {
+          display: props.visible ? "flex" : "none",
           height: inputHeight,
           width: inputWidth,
-          display: "flex",
           transform: transform
         },
         "& .MuiInputBase-input": {
