@@ -158,7 +158,7 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
         {...props}
         imageFile={imageFile}
         onClick={onClick}
-        stretchToFit={false}
+        stretchToFit={showBooleanLabel ? false : true}
         overflow={true}
       />
       {isBob ? (
