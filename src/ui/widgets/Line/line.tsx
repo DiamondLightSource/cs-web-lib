@@ -147,6 +147,7 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
     });
     return (
       <svg
+        display={"block"}
         viewBox={`0 0 ${width} ${height}`}
         xmlns="http://www.w3.org/2000/svg"
         overflow={"visible"}
