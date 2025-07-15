@@ -107,7 +107,7 @@ export const LabelComponent = (
         width: inputWidth,
         textAlign: textAlign,
         wordBreak: wrapWords ? "break-word" : null,
-        whiteSpace: wrapWords ? "break-spaces" : null,
+        whiteSpace: wrapWords ? "pre-wrap" : "pre",
         color: foregroundColor.toString(),
         backgroundColor: backgroundColor,
         fontFamily: font,
