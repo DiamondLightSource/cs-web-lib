@@ -100,7 +100,7 @@ export const LabelComponent = (
     <Typography
       noWrap={!wrapWords}
       sx={{
-        display: props.visible ? "flex" : "none",
+        display: visible ? "flex" : "none",
         justifyContent: alignment,
         alignItems: alignmentV,
         height: inputHeight,
