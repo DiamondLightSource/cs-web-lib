@@ -62,8 +62,7 @@ export const LabelComponent = (
     text = "",
     rotationStep = 0,
     wrapWords = true,
-    height = WIDGET_DEFAULT_SIZES["label"][1],
-    width = WIDGET_DEFAULT_SIZES["label"][0]
+    visible = true
   } = props;
   const backgroundColor = transparent
     ? "transparent"

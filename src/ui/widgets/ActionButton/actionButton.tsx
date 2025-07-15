@@ -70,8 +70,7 @@ export const ActionButtonComponent = (
     foregroundColor = theme.palette.primary.contrastText,
     rotationStep = 0,
     transparent = false,
-    height = WIDGET_DEFAULT_SIZES["action_button"][1],
-    width = WIDGET_DEFAULT_SIZES["action_button"][0]
+    visible = true
   } = props;
 
   const backgroundColor = transparent
@@ -93,14 +92,13 @@ export const ActionButtonComponent = (
       fullWidth={true}
       sx={{
         "&.MuiButton-root": {
-          height: inputHeight,
-          width: inputWidth
+          display: visible ? "flex" : "none",
         },
         color: foregroundColor.toString(),
         backgroundColor: backgroundColor,
         border: border,
         fontFamily: font,
-        transform: transform.toString()
+        transform: transform
       }}
       onClick={props.onClick}
     >
