@@ -12,11 +12,9 @@ import {
   BoolPropOpt,
   BorderPropOpt,
   StringPropOpt,
-  FloatPropOpt
 } from "../propTypes";
 import { AlarmQuality, DType } from "../../../types/dtypes";
 import { TextField as MuiTextField, styled, useTheme } from "@mui/material";
-import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const InputComponentProps = {
   pvName: StringPropOpt,
@@ -30,7 +28,6 @@ const InputComponentProps = {
   textAlignV: ChoicePropOpt(["top", "center", "bottom"]),
   border: BorderPropOpt,
   multiLine: BoolPropOpt,
-  height: FloatPropOpt
 };
 
 const TextField = styled(MuiTextField)({
@@ -81,7 +78,6 @@ export const SmartInputComponent = (
     value = null,
     multiLine = false,
     alarmSensitive = true,
-    height = WIDGET_DEFAULT_SIZES["textupdate"][1]
   } = props;
 
   const font = props.font?.css() ?? theme.typography;
@@ -139,12 +135,6 @@ export const SmartInputComponent = (
       ) * 16
     : theme.typography.fontSize;
 
-  const maxRows = multiLine
-    ? Math.floor(height / fontSize) - 1 < 1
-      ? 1
-      : Math.floor(height / fontSize) - 1
-    : 1;
-
   const [inputValue, setInputValue] = useState(value?.getStringValue() ?? "");
 
   useEffect(() => {
@@ -171,7 +161,7 @@ export const SmartInputComponent = (
     <TextField
       disabled={!enabled}
       value={inputValue}
-      maxRows={maxRows}
+      maxRows={multiLine ? "auto" : 1}
       multiline={multiLine}
       variant="outlined"
       type="text"
