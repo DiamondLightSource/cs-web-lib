@@ -86,25 +86,32 @@ export function getOptionalValue(optionalParam: any, defValue: any): any {
  */
 export function calculateRotationTransform(
   rotationStep: number,
-  inputWidth: number,
-  inputHeight: number
-): [outputWidth: number, outputHeight: number, transform: string] {
+  inputWidth: number | string,
+  inputHeight: number | string
+): [outputWidth: number | string, outputHeight: number | string, transform: string] {
   const outputWidth =
     rotationStep === 0 || rotationStep === 2 ? inputWidth : inputHeight;
   const outputHeight =
     rotationStep === 0 || rotationStep === 2 ? inputHeight : inputWidth;
-  const offset = inputWidth / 2 - inputHeight / 2;
   const transform = (function () {
-    switch (rotationStep) {
-      case 0: // 0 degrees
-      case 2: // 180 degrees
-        return `rotate(${rotationStep * -90}deg)`;
-      case 1: // 90 degrees
-        return `rotate(${rotationStep * -90}deg) translateY(${offset}px) translateX(${offset}px)`;
-      case 3: // -90 degrees
-        return `rotate(${rotationStep * -90}deg) translateY(${-offset}px) translateX(${-offset}px)`;
-      default: // Unreachable
-        return "";
+    if (typeof inputHeight === "number" && typeof inputWidth === "number") {
+      const offset = inputWidth / 2 - inputHeight / 2;
+      switch (rotationStep) {
+        case 0: // 0 degrees
+        case 2: // 180 degrees
+          return `rotate(${rotationStep * -90}deg)`;
+        case 1: // 90 degrees
+          return `rotate(${rotationStep * -90}deg) translateY(${offset}px) translateX(${offset}px)`;
+        case 3: // -90 degrees
+          return `rotate(${rotationStep * -90}deg) translateY(${-offset}px) translateX(${-offset}px)`;
+        default: // Unreachable
+          return "";
+      }
+    } else {
+      // If using .json file to define widgets and height/width not provided or given as vh or rem, we cannot perform
+      // a rotation
+      console.warn("Rotation of elements is not supported using relative sizing. Please set dimensions in pixels.")
+      return ""; 
     }
   })();
   return [outputWidth, outputHeight, transform];

@@ -11,10 +11,10 @@ import {
   ColorPropOpt,
   BorderPropOpt,
   FloatPropOpt,
-  MacrosPropOpt
+  MacrosPropOpt,
+  StringOrNumPropOpt
 } from "../propTypes";
 import { Typography as MuiTypography, styled, useTheme } from "@mui/material";
-import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { calculateRotationTransform } from "../utils";
 
 const LabelProps = {
@@ -31,8 +31,8 @@ const LabelProps = {
   border: BorderPropOpt,
   rotationStep: FloatPropOpt,
   wrapWords: BoolPropOpt,
-  height: FloatPropOpt,
-  width: FloatPropOpt
+  height: StringOrNumPropOpt,
+  width: StringOrNumPropOpt
 };
 
 const LabelWidgetProps = {
@@ -62,7 +62,9 @@ export const LabelComponent = (
     text = "",
     rotationStep = 0,
     wrapWords = true,
-    visible = true
+    visible = true,
+    height = "100%",
+    width = "100%"
   } = props;
   const backgroundColor = transparent
     ? "transparent"
@@ -102,8 +104,10 @@ export const LabelComponent = (
         display: visible ? "flex" : "none",
         justifyContent: alignment,
         alignItems: alignmentV,
-        height: inputHeight,
-        width: inputWidth,
+        // If size is given as %, rem or vh, allow element to fill parent div
+        // Otherwise, use the calculated height that accounts for rotationStep
+        height: typeof height === "string" ? "100%" : inputHeight,
+        width: typeof width === "string" ? "100%" :inputWidth,
         textAlign: textAlign,
         wordBreak: wrapWords ? "break-word" : null,
         whiteSpace: wrapWords ? "pre-wrap" : "pre",

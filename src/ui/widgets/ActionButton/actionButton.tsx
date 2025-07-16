@@ -13,12 +13,12 @@ import {
   BorderPropOpt,
   BoolPropOpt,
   FuncPropOpt,
-  FloatPropOpt
+  FloatPropOpt,
+  StringOrNumPropOpt
 } from "../propTypes";
 import { MacroContext } from "../../../types/macros";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 import { styled, Button as MuiButton, useTheme } from "@mui/material";
-import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { calculateRotationTransform } from "../utils";
 
 export interface ActionButtonProps {
@@ -38,8 +38,8 @@ const ActionButtonPropType = {
   onClick: FuncPropOpt,
   transparent: BoolPropOpt,
   rotationStep: FloatPropOpt,
-  height: FloatPropOpt,
-  width: FloatPropOpt
+  height: StringOrNumPropOpt,
+  width: StringOrNumPropOpt
 };
 
 const Button = styled(MuiButton)({
@@ -70,7 +70,9 @@ export const ActionButtonComponent = (
     foregroundColor = theme.palette.primary.contrastText,
     rotationStep = 0,
     transparent = false,
-    visible = true
+    visible = true,
+    height = "100%",
+    width = "100%"
   } = props;
 
   const backgroundColor = transparent
@@ -93,6 +95,10 @@ export const ActionButtonComponent = (
       sx={{
         "&.MuiButton-root": {
           display: visible ? "flex" : "none",
+          // If size is given as %, rem or vh, allow element to fill parent div
+          // Otherwise, use the calculated height that accounts for rotationStep
+          height: typeof height === "string" ? "100%" : inputHeight,
+          width: typeof width === "string" ? "100%" :inputWidth
         },
         color: foregroundColor.toString(),
         backgroundColor: backgroundColor,

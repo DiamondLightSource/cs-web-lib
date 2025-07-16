@@ -12,7 +12,8 @@ import {
   ColorPropOpt,
   BorderPropOpt,
   StringPropOpt,
-  FloatPropOpt
+  FloatPropOpt,
+  StringOrNumPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
 import { AlarmQuality, DType } from "../../../types/dtypes";
@@ -38,8 +39,8 @@ const ReadbackProps = {
   visible: BoolPropOpt,
   wrapWords: BoolPropOpt,
   enabled: BoolPropOpt,
-  height: FloatPropOpt,
-  width: FloatPropOpt
+  height: StringOrNumPropOpt,
+  width: StringOrNumPropOpt
 };
 
 const TextField = styled(MuiTextField)({
@@ -91,7 +92,9 @@ export const ReadbackComponent = (
     precisionFromPv = false,
     rotationStep = 0,
     wrapWords = true,
-    visible = true
+    visible = true,
+    height = "100%",
+    width = "100%"
   } = props;
 
   // Decide what to display.
@@ -216,8 +219,10 @@ export const ReadbackComponent = (
       sx={{
         "&.MuiFormControl-root": {
           display: visible ? "flex" : "none",
-          height: inputHeight,
-          width: inputWidth,
+          // If size is given as %, rem or vh, allow element to fill parent div
+          // Otherwise, use the calculated height that accounts for rotationStep
+          height: typeof height === "string" ? "100%" : inputHeight,
+          width: typeof width === "string" ? "100%" :inputWidth,
           transform: transform
         },
         "& .MuiInputBase-input": {
