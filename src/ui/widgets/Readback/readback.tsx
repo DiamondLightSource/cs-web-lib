@@ -18,7 +18,6 @@ import {
 import { registerWidget } from "../register";
 import { AlarmQuality, DType } from "../../../types/dtypes";
 import { TextField as MuiTextField, styled, useTheme } from "@mui/material";
-import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { calculateRotationTransform } from "../utils";
 
 const ReadbackProps = {
@@ -197,19 +196,12 @@ export const ReadbackComponent = (
     height
   );
 
-  // Calculate max number of rows based on the height of the widget and the height of the font
-  // an extra row is then subtracted to make it fit nicer
-  const maxRows =
-    Math.floor(inputHeight / fontSize) - 1 < 1
-      ? 1
-      : Math.floor(inputHeight / fontSize) - 1;
-
   return (
     <TextField
       disabled={!enabled}
       value={displayedValue}
       multiline={wrapWords}
-      maxRows={maxRows}
+      maxRows={"auto"}
       variant="outlined"
       slotProps={{
         input: {
