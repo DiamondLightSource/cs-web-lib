@@ -29,8 +29,6 @@ export const SliderControlProps = {
   precision: IntPropOpt,
   font: FontPropOpt,
   border: BorderPropOpt,
-  height: FloatPropOpt,
-  width: FloatPropOpt,
   enabled: BoolPropOpt,
   transparent: BoolPropOpt,
   levelHihi: FloatPropOpt,

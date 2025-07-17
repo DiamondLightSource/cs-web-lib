@@ -9,17 +9,13 @@ import {
   ColorPropOpt,
   PvPropOpt,
   IntPropOpt,
-  StringOrNumPropOpt,
   MacrosPropOpt
 } from "../propTypes";
 import { Color } from "../../../types";
-import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const ShapeProps = {
   pvName: PvPropOpt,
   macros: MacrosPropOpt,
-  width: StringOrNumPropOpt,
-  height: StringOrNumPropOpt,
   shapeTransform: StringPropOpt,
   cornerWidth: StringPropOpt,
   cornerHeight: StringPropOpt,
@@ -35,8 +31,6 @@ export const ShapeComponent = (
   props: InferWidgetProps<typeof ShapeProps>
 ): JSX.Element => {
   const {
-    width = WIDGET_DEFAULT_SIZES["rectangle"][0],
-    height = WIDGET_DEFAULT_SIZES["rectangle"][1],
     lineColor = Color.fromRgba(0, 0, 255),
     lineWidth = 3,
     backgroundColor = Color.fromRgba(30, 144, 255),
@@ -52,8 +46,8 @@ export const ShapeComponent = (
     borderColor: lineColor.toString(),
     borderWidth: lineWidth,
     borderRadius: cornerRadius,
-    width: width,
-    height: height,
+    width: "100%",
+    height: "100%",
     boxSizing: "border-box",
     backgroundColor: props.transparent
       ? "transparent"

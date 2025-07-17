@@ -26,8 +26,6 @@ export const ProgressBarProps = {
   precision: IntPropOpt,
   font: FontPropOpt,
   border: BorderPropOpt,
-  height: FloatPropOpt,
-  width: FloatPropOpt,
   transparent: BoolPropOpt
 };
 
@@ -43,8 +41,6 @@ export const ProgressBarComponent = (
     fillColor = "#3CFF3C",
     precision = undefined,
     logScale = false,
-    width = WIDGET_DEFAULT_SIZES["progressbar"][0],
-    height = WIDGET_DEFAULT_SIZES["progressbar"][1],
     transparent = true
   } = props;
 
@@ -86,8 +82,8 @@ export const ProgressBarComponent = (
         value={percent}
         sx={{
           position: "absolute",
-          height: height,
-          width: width,
+          height: "100%",
+          width: "100%",
           border: 1,
           borderColor: "#D2D2D2",
           borderRadius: "4px",

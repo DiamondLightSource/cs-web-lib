@@ -13,12 +13,9 @@ import {
 } from "../propTypes";
 import { Point } from "../../../types/points";
 import { Color } from "../../../types";
-import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const PolygonProps = {
   macros: MacrosPropOpt,
-  height: IntPropOpt,
-  width: IntPropOpt,
   border: BorderPropOpt,
   lineWidth: IntPropOpt,
   lineColor: ColorPropOpt,
@@ -32,8 +29,6 @@ export const PolygonComponent = (
   props: InferWidgetProps<typeof PolygonProps>
 ): JSX.Element => {
   const {
-    width = WIDGET_DEFAULT_SIZES["polygon"][0],
-    height = WIDGET_DEFAULT_SIZES["polygon"][1],
     lineWidth = 3,
     lineColor = Color.fromRgba(0, 0, 255),
     backgroundColor = Color.fromRgba(50, 50, 255),
@@ -51,7 +46,7 @@ export const PolygonComponent = (
 
   return (
     <svg
-      viewBox={`0 0 ${width} ${height}`}
+      viewBox={`0 0 100% 100%`}
       xmlns="http://www.w3.org/2000/svg"
       overflow={"visible"}
     >

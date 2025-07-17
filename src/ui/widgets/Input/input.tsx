@@ -11,7 +11,7 @@ import {
   ColorPropOpt,
   BoolPropOpt,
   BorderPropOpt,
-  StringPropOpt,
+  StringPropOpt
 } from "../propTypes";
 import { AlarmQuality, DType } from "../../../types/dtypes";
 import { TextField as MuiTextField, styled, useTheme } from "@mui/material";
@@ -27,7 +27,7 @@ const InputComponentProps = {
   textAlign: ChoicePropOpt(["left", "center", "right"]),
   textAlignV: ChoicePropOpt(["top", "center", "bottom"]),
   border: BorderPropOpt,
-  multiLine: BoolPropOpt,
+  multiLine: BoolPropOpt
 };
 
 const TextField = styled(MuiTextField)({
@@ -77,7 +77,7 @@ export const SmartInputComponent = (
     textAlignV = "center",
     value = null,
     multiLine = false,
-    alarmSensitive = true,
+    alarmSensitive = true
   } = props;
 
   const font = props.font?.css() ?? theme.typography;
@@ -122,18 +122,6 @@ export const SmartInputComponent = (
   const backgroundColor = transparent
     ? "transparent"
     : (props.backgroundColor?.toString() ?? "#80FFFF");
-
-  // If props.font exists, extracts the font size in rem and returns is back to size in px
-  // using the default browser size of 16px, as used in ../../../types/font.ts
-  const fontSize = props.font?.css().fontSize
-    ? parseFloat(
-        props.font
-          .css()
-          .fontSize?.toString()
-          .match(/\d+.\d+/)
-          ?.toString() ?? ""
-      ) * 16
-    : theme.typography.fontSize;
 
   const [inputValue, setInputValue] = useState(value?.getStringValue() ?? "");
 

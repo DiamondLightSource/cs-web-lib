@@ -3,7 +3,6 @@ import { Widget } from "../widget";
 import {
   InferWidgetProps,
   StringPropOpt,
-  FloatPropOpt,
   FontPropOpt,
   ColorPropOpt,
   BoolPropOpt
@@ -19,8 +18,6 @@ import {
 
 export const CheckboxProps = {
   label: StringPropOpt,
-  width: FloatPropOpt,
-  height: FloatPropOpt,
   font: FontPropOpt,
   foregroundColor: ColorPropOpt,
   enabled: BoolPropOpt

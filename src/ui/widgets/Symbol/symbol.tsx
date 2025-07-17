@@ -23,7 +23,6 @@ import { MacroContext } from "../../../types/macros";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 import { DType } from "../../../types/dtypes";
 import classes from "./symbol.module.css";
-import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const SymbolProps = {
   imageFile: StringPropOpt,
@@ -55,9 +54,7 @@ const SymbolProps = {
   arrayIndex: FloatPropOpt,
   enabled: BoolPropOpt,
   fallbackSymbol: StringPropOpt,
-  transparent: BoolPropOpt,
-  width: FloatPropOpt,
-  height: FloatPropOpt
+  transparent: BoolPropOpt
 };
 
 export type SymbolComponentProps = InferWidgetProps<typeof SymbolProps> &
@@ -77,9 +74,7 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
     transparent = true,
     backgroundColor = "white",
     showBooleanLabel = false,
-    enabled = true,
-    width = WIDGET_DEFAULT_SIZES["symbol"][0],
-    height = WIDGET_DEFAULT_SIZES["symbol"][1]
+    enabled = true
   } = props;
   const style = commonCss(props as any);
   // If symbols and not imagefile, we're in a bob file

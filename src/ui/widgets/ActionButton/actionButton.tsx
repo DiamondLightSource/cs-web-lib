@@ -98,7 +98,7 @@ export const ActionButtonComponent = (
           // If size is given as %, rem or vh, allow element to fill parent div
           // Otherwise, use the calculated height that accounts for rotationStep
           height: typeof height === "string" ? "100%" : inputHeight,
-          width: typeof width === "string" ? "100%" :inputWidth
+          width: typeof width === "string" ? "100%" : inputWidth
         },
         color: foregroundColor.toString(),
         backgroundColor: backgroundColor,

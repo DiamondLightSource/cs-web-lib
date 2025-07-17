@@ -88,7 +88,11 @@ export function calculateRotationTransform(
   rotationStep: number,
   inputWidth: number | string,
   inputHeight: number | string
-): [outputWidth: number | string, outputHeight: number | string, transform: string] {
+): [
+  outputWidth: number | string,
+  outputHeight: number | string,
+  transform: string
+] {
   const outputWidth =
     rotationStep === 0 || rotationStep === 2 ? inputWidth : inputHeight;
   const outputHeight =
@@ -110,8 +114,10 @@ export function calculateRotationTransform(
     } else {
       // If using .json file to define widgets and height/width not provided or given as vh or rem, we cannot perform
       // a rotation
-      console.warn("Rotation of elements is not supported using relative sizing. Please set dimensions in pixels.")
-      return ""; 
+      console.warn(
+        "Rotation of elements is not supported using relative sizing. Please set dimensions in pixels."
+      );
+      return "";
     }
   })();
   return [outputWidth, outputHeight, transform];

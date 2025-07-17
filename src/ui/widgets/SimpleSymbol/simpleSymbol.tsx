@@ -69,8 +69,8 @@ export const SimpleSymbolComponent = (
       alt="Simple symbol widget"
       onClick={onClick}
       style={{
-        width: `${props.width}px}`,
-        height: `${props.height}px`,
+        width: "100%",
+        height: "100%",
         display: "block",
         position: "absolute",
         clip,

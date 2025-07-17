@@ -13,11 +13,8 @@ import {
 import { registerWidget } from "../register";
 import { Color } from "../../../types/color";
 import { Point } from "../../../types/points";
-import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const LineProps = {
-  width: FloatPropOpt,
-  height: FloatPropOpt,
   points: PointsProp,
   macros: MacrosPropOpt,
   lineWidth: FloatPropOpt,
@@ -40,8 +37,6 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
     transparent = false,
     backgroundColor = Color.fromRgba(0, 0, 255),
     rotationAngle = 0,
-    width = WIDGET_DEFAULT_SIZES["polyline"][0],
-    height = WIDGET_DEFAULT_SIZES["polyline"][1],
     lineWidth = 3,
     points,
     arrowLength = 20,
@@ -148,7 +143,7 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
     return (
       <svg
         display={"block"}
-        viewBox={`0 0 ${width} ${height}`}
+        viewBox={`0 0 100% 100%`}
         xmlns="http://www.w3.org/2000/svg"
         overflow={"visible"}
       >
