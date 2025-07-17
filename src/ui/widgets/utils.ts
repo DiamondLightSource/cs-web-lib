@@ -111,14 +111,9 @@ export function calculateRotationTransform(
         default: // Unreachable
           return "";
       }
-    } else {
-      // If using .json file to define widgets and height/width not provided or given as vh or rem, we cannot perform
-      // a rotation
-      console.warn(
-        "Rotation of elements is not supported using relative sizing. Please set dimensions in pixels."
-      );
-      return "";
     }
+    // If height and width are not provided in pixels, we cannot accurately perform a transform
+    return "";
   })();
   return [outputWidth, outputHeight, transform];
 }
