@@ -1,19 +1,9 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`<Label /> > it handles transparent prop`] = `
-<DocumentFragment>
-  <p
-    class="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap css-k3pvii-MuiTypography-root"
-  >
-    hello
-  </p>
-</DocumentFragment>
-`;
-
 exports[`<Label /> > it handles transparent prop 1`] = `
 <DocumentFragment>
   <p
-    class="MuiTypography-root MuiTypography-body1 css-1y700xl-MuiTypography-root"
+    class="MuiTypography-root MuiTypography-body1 css-1aomc-MuiTypography-root"
   >
     hello
   </p>
@@ -23,7 +13,7 @@ exports[`<Label /> > it handles transparent prop 1`] = `
 exports[`<Label /> > it matches the snapshot 1`] = `
 <DocumentFragment>
   <p
-    class="MuiTypography-root MuiTypography-body1 css-1y700xl-MuiTypography-root"
+    class="MuiTypography-root MuiTypography-body1 css-1aomc-MuiTypography-root"
   >
     hello
   </p>

@@ -27,7 +27,7 @@ describe("<PolygonComponent />", (): void => {
     };
 
     const svg = PolygonRenderer(polygonProps);
-    expect(svg.props.viewBox).toEqual("0 0 20 10");
+    expect(svg.props.viewBox).toEqual("0 0 100% 100%");
 
     const polygons = svg.children as Array<ReactTestRendererJSON>;
 

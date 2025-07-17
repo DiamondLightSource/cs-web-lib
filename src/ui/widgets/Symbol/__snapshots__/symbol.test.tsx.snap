@@ -7,7 +7,7 @@ exports[`<Symbol /> from .bob file > matches snapshot (using fallback symbol) 1`
   >
     <img
       src="https://cs-web-symbol.diamond.ac.uk/catalogue/default.svg"
-      style="width: 100%; height: 100%; display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: fill; object-position: top left;"
+      style="display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: fill; object-position: top left;"
     />
   </div>
 </DocumentFragment>
@@ -20,7 +20,7 @@ exports[`<Symbol /> from .bob file > matches snapshot (with index) 1`] = `
   >
     <img
       src="img 3.svg"
-      style="width: 100%; height: 100%; display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: fill; object-position: top left;"
+      style="display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: fill; object-position: top left;"
     />
   </div>
 </DocumentFragment>
@@ -33,7 +33,7 @@ exports[`<Symbol /> from .bob file > matches snapshot (with rotation) 1`] = `
   >
     <img
       src="img 1.gif"
-      style="width: 100%; height: 100%; display: block; transform: rotate(45deg) scaleX(1) scaleY(1); object-fit: fill; object-position: top left;"
+      style="display: block; transform: rotate(45deg) scaleX(1) scaleY(1); object-fit: fill; object-position: top left;"
     />
   </div>
 </DocumentFragment>
@@ -46,7 +46,7 @@ exports[`<Symbol /> from .bob file > matches snapshot (without index) 1`] = `
   >
     <img
       src="img 1.gif"
-      style="width: 100%; height: 100%; display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: fill; object-position: top left;"
+      style="display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: fill; object-position: top left;"
     />
   </div>
 </DocumentFragment>
@@ -59,7 +59,7 @@ exports[`<Symbol /> from .opi file > matches snapshot (with rotation) 1`] = `
   >
     <img
       src="img 1.gif"
-      style="width: 100%; height: 100%; display: block; transform: rotate(45deg) scaleX(1) scaleY(1); object-fit: fill; object-position: top left;"
+      style="display: block; transform: rotate(45deg) scaleX(1) scaleY(1); object-fit: fill; object-position: top left;"
     />
   </div>
 </DocumentFragment>
@@ -72,7 +72,7 @@ exports[`<Symbol /> from .opi file > matches snapshot 1`] = `
   >
     <img
       src="img 1.gif"
-      style="width: 100%; height: 100%; display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: fill; object-position: top left;"
+      style="display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: none; object-position: top left;"
     />
   </div>
   <div
@@ -83,7 +83,7 @@ exports[`<Symbol /> from .opi file > matches snapshot 1`] = `
       style="padding: 5%;"
     >
       <p
-        class="MuiTypography-root MuiTypography-body1 css-1y700xl-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-body1 css-hoc3r1-MuiTypography-root"
       >
         Fake value
       </p>

@@ -49,7 +49,7 @@ describe("<LineComponent />", (): void => {
     };
 
     const svg = LineRenderer(lineProps);
-    expect(svg.props.viewBox).toEqual("0 0 20 25");
+    expect(svg.props.viewBox).toEqual("0 0 100% 100%");
 
     const lines = svg.children as Array<ReactTestRendererJSON>;
 
@@ -79,7 +79,7 @@ describe("<LineComponent />", (): void => {
     };
 
     const svg = LineRenderer(lineProps);
-    expect(svg.props.viewBox).toEqual("0 0 30 20");
+    expect(svg.props.viewBox).toEqual("0 0 100% 100%");
 
     const lines = svg.children as Array<ReactTestRendererJSON>;
 
@@ -111,7 +111,7 @@ describe("<LineComponent />", (): void => {
     };
 
     const svg = LineRenderer(lineProps);
-    expect(svg.props.viewBox).toEqual("0 0 30 20");
+    expect(svg.props.viewBox).toEqual("0 0 100% 100%");
 
     const lines = svg.children as Array<ReactTestRendererJSON>;
     const marker = lines[0].children as Array<ReactTestRendererJSON>;
@@ -149,7 +149,7 @@ describe("<LineComponent />", (): void => {
     };
 
     const svg = LineRenderer(lineProps);
-    expect(svg.props.viewBox).toEqual("0 0 30 20");
+    expect(svg.props.viewBox).toEqual("0 0 100% 100%");
 
     const lines = svg.children as Array<ReactTestRendererJSON>;
     const marker = lines[0].children as Array<ReactTestRendererJSON>;

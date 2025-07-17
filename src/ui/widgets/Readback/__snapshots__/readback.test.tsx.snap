@@ -3,7 +3,7 @@
 exports[`readback component > alarm-sensitive foreground colour 1`] = `
 <DocumentFragment>
   <div
-    class="MuiFormControl-root MuiTextField-root css-4d8i8x-MuiFormControl-root-MuiTextField-root"
+    class="MuiFormControl-root MuiTextField-root css-1ugufva-MuiFormControl-root-MuiTextField-root"
   >
     <div
       class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline Mui-readOnly MuiInputBase-readOnly css-xrmkj5-MuiInputBase-root-MuiOutlinedInput-root"
@@ -13,7 +13,6 @@ exports[`readback component > alarm-sensitive foreground colour 1`] = `
         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline Mui-readOnly MuiInputBase-readOnly css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
         id=":r2:"
         readonly=""
-        style="height: 0px; overflow: hidden;"
       >
         hello
       </textarea>
