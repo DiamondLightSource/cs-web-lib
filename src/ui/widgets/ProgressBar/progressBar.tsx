@@ -12,7 +12,6 @@ import {
   BorderPropOpt
 } from "../propTypes";
 import { LinearProgress } from "@mui/material";
-import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 export const ProgressBarProps = {
   min: FloatPropOpt,

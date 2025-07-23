@@ -178,18 +178,6 @@ export const ReadbackComponent = (
     alignmentV = "end";
   }
 
-  // If props.font exists, extracts the font size in rem and returns is back to size in px
-  // using the default browser size of 16px, as used in ../../../types/font.ts
-  const fontSize = props.font?.css().fontSize
-    ? parseFloat(
-        props.font
-          .css()
-          .fontSize?.toString()
-          .match(/\d+.\d+/)
-          ?.toString() ?? ""
-      ) * 16
-    : theme.typography.fontSize;
-
   const [inputWidth, inputHeight, transform] = calculateRotationTransform(
     rotationStep,
     width,
