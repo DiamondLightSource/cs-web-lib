@@ -51,7 +51,7 @@ const ToggleButton = styled(MuiToggleButton)({
     lineHeight: 1,
     alignItems: "center",
     justifyContent: "center",
-    textOverflow: "ellipsis",
+    textOverflow: "clip",
     wordWrap: "break-word"
   },
   "&.Mui-disabled": {

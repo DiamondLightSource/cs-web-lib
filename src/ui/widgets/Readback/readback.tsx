@@ -55,7 +55,7 @@ const TextField = styled(MuiTextField)({
   "& .MuiInputBase-input": {
     padding: "0px",
     lineHeight: 1,
-    textOverflow: "ellipsis",
+    textOverflow: "clip",
     whiteSpace: "pre-wrap",
     height: "100%",
     width: "100%"
