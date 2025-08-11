@@ -8,7 +8,8 @@ import {
   ColorPropOpt,
   BoolPropOpt,
   PointsProp,
-  MacrosPropOpt
+  MacrosPropOpt,
+  IntPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
 import { Color } from "../../../types/color";
@@ -19,6 +20,7 @@ const LineProps = {
   macros: MacrosPropOpt,
   lineWidth: FloatPropOpt,
   lineColor: ColorPropOpt,
+  lineStyle: IntPropOpt,
   backgroundColor: ColorPropOpt,
   visible: BoolPropOpt,
   transparent: BoolPropOpt,
@@ -42,13 +44,29 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
     arrowLength = 20,
     arrows = 0,
     fillArrow = true,
-    lineColor
+    lineColor,
+    lineStyle = 0
   } = props;
 
   let color = (function () {
     if (lineColor) return lineColor.toString();
     else if (backgroundColor) return backgroundColor.toString();
     else return Color.fromRgba(0, 0, 255).toString();
+  })();
+
+  const dashStyle = (function () {
+    switch (lineStyle) {
+      case 1: // Dashed
+        return "15, 5";
+      case 2: // Dot
+        return "5, 5";
+      case 3: // Dash-Dot
+        return "5, 5, 10, 5";
+      case 4: // Dash-Dot-Dot
+        return "15,5,5,5,5,5";
+      default:
+        return "0";
+    }
   })();
 
   if (transparent) color = "transparent";
@@ -152,6 +170,7 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
           overflow={"visible"}
           stroke={color}
           strokeWidth={lineWidth}
+          strokeDasharray={dashStyle}
           fill={"none"}
           transform={transform}
           points={coordinates}
