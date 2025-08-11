@@ -8,7 +8,7 @@ const DEFAULT_FILL_OPTIONS = {
   gradient: false,
   bgGradientColor: Color.fromRgba(0, 0, 0),
   fgGradientColor: Color.fromRgba(0, 0, 255),
-  bgColor: Color.fromRgba(0, 255, 255),
+  bgColor: Color.fromRgba(30, 144, 255),
   level: 0
 };
 
@@ -16,14 +16,14 @@ describe("<EllipseComponent />", (): void => {
   test("set solid color fill", (): void => {
     let style: CSSProperties = {};
     style = setFillOptions(style, DEFAULT_FILL_OPTIONS);
-    expect(style.background).toEqual("rgba(0,255,255,255)");
+    expect(style.background).toEqual("rgba(30,144,255,1)");
   });
   test("set gradient fill", (): void => {
     let style: CSSProperties = {};
     const fillOptions = { ...DEFAULT_FILL_OPTIONS, gradient: true };
     style = setFillOptions(style, fillOptions);
     expect(style.background).toEqual(
-      "-webkit-linear-gradient(left, rgba(0,0,0,255) 0%, rgba(0,255,255,255))"
+      "-webkit-linear-gradient(left, rgba(0,0,0,1) 0%, rgba(30,144,255,1))"
     );
   });
   test("set gradient color fill horizontal", (): void => {
@@ -36,7 +36,7 @@ describe("<EllipseComponent />", (): void => {
     };
     style = setFillOptions(style, fillOptions);
     expect(style.background).toEqual(
-      "-webkit-linear-gradient(bottom, rgba(0,255,255,255) 50%%, rgba(0,0,0,255))"
+      "-webkit-linear-gradient(bottom, rgba(30,144,255,1) 50%%, rgba(0,0,0,1))"
     );
   });
   test("set transparent", (): void => {

@@ -108,7 +108,13 @@ export function opiParseBoolean(jsonProp: ElementCompact): boolean {
 }
 
 export interface OpiColor {
-  _attributes: { name: string; red: string; blue: string; green: string };
+  _attributes: {
+    name: string;
+    red: string;
+    blue: string;
+    green: string;
+    alpha?: string;
+  };
 }
 
 /**
@@ -120,7 +126,8 @@ export function opiParseColor(jsonProp: ElementCompact): Color {
   return Color.fromRgba(
     parseInt(color._attributes.red),
     parseInt(color._attributes.green),
-    parseInt(color._attributes.blue)
+    parseInt(color._attributes.blue),
+    color._attributes.alpha ? parseInt(color._attributes.alpha) / 255 : 1 // Convert 0-255 scale to 0-1
   );
 }
 

@@ -7,7 +7,7 @@ describe("Border", () => {
     expect(border.css()).toEqual({
       borderStyle: "solid",
       borderWidth: "1px",
-      borderColor: "rgba(255,0,0,255)"
+      borderColor: "rgba(255,0,0,1)"
     });
   });
   it("sets border radius if defined", (): void => {
@@ -15,7 +15,7 @@ describe("Border", () => {
     expect(border.css()).toEqual({
       borderStyle: "solid",
       borderWidth: "1px",
-      borderColor: "rgba(255,0,0,255)",
+      borderColor: "rgba(255,0,0,1)",
       borderRadius: "2px"
     });
   });

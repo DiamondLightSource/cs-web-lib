@@ -73,7 +73,7 @@ export const EllipseComponent = (
     gradient: props.gradient ?? false,
     bgGradientColor: props.bgGradientColor,
     fgGradientColor: props.fgGradientColor,
-    bgColor: props.backgroundColor ?? Color.fromRgba(0, 255, 255),
+    bgColor: props.backgroundColor ?? Color.fromRgba(30, 144, 255),
     level: props.fillLevel ?? 0
   };
   style = setFillOptions(style, fillOptions);

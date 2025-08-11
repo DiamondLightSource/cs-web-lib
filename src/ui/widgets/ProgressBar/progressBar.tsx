@@ -12,6 +12,7 @@ import {
   BorderPropOpt
 } from "../propTypes";
 import { LinearProgress } from "@mui/material";
+import { Color } from "../../../types/color";
 
 export const ProgressBarProps = {
   min: FloatPropOpt,
@@ -37,15 +38,15 @@ export const ProgressBarComponent = (
     showLabel = false,
     font,
     horizontal = true,
-    fillColor = "#3CFF3C",
+    fillColor = Color.fromRgba(60, 255, 60),
     precision = undefined,
     logScale = false,
-    transparent = true
+    transparent = false // This property only exists in CSStudio, so default to false
   } = props;
 
   const backgroundColor = transparent
     ? "transparent"
-    : (props.backgroundColor?.toString() ?? "#FAFAFA");
+    : (props.backgroundColor?.toString() ?? "rgba(250, 250, 250, 255)");
 
   let { min = 0, max = 100 } = props;
   if (limitsFromPv && value?.display.controlRange) {

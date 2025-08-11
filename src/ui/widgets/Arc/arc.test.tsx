@@ -32,14 +32,14 @@ describe("<ArcComponent />", (): void => {
     expect(pathArray[0].props.d).toEqual(
       "M 50 50\nL 100 50\nA 50 50 0 0 1 50 100\nZ"
     );
-    expect(pathArray[0].props.fill).toEqual("rgba(200,1,60,255)");
-    expect(pathArray[0].props.stroke).toEqual("rgba(200,1,60,255)");
+    expect(pathArray[0].props.fill).toEqual("rgba(200,1,60,1)");
+    expect(pathArray[0].props.stroke).toEqual("rgba(200,1,60,1)");
     // BOrder
     expect(pathArray[1].props.d).toEqual(
       "M 100 50\nA 50 50 0 0 1 50 100\nL 50 50\nL 100 50"
     );
     expect(pathArray[1].props.fill).toEqual("transparent");
-    expect(pathArray[1].props.stroke).toEqual("rgba(0,0,255,255)");
+    expect(pathArray[1].props.stroke).toEqual("rgba(0,0,255,1)");
   });
 
   test("create arc of angle > 180 degrees with fill (phoebus)", (): void => {
@@ -66,10 +66,10 @@ describe("<ArcComponent />", (): void => {
     for (let i = 0; i < pathArray.length; i++) {
       if (i % 2) {
         // Even numbers are border elements
-        expect(pathArray[i].props.stroke).toEqual("rgba(0,100,200,255)");
+        expect(pathArray[i].props.stroke).toEqual("rgba(0,100,200,1)");
       } else {
         // Odd numbers are filled arc elements
-        expect(pathArray[i].props.fill).toEqual("rgba(45,1,180,255)");
+        expect(pathArray[i].props.fill).toEqual("rgba(45,1,180,1)");
       }
     }
   });
@@ -172,6 +172,6 @@ describe("findLineColor()", (): void => {
   });
   test("Use default line color", (): void => {
     const lineColor = findLineColor(undefined, undefined);
-    expect(lineColor).toEqual(Color.fromRgba(0, 0, 255, 255));
+    expect(lineColor).toEqual(Color.fromRgba(0, 0, 255, 1));
   });
 });
