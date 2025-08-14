@@ -15,12 +15,15 @@ import {
   styled,
   useTheme
 } from "@mui/material";
+import { writePv } from "../../hooks/useSubscription";
+import { DType } from "../../../types";
 
 export const CheckboxProps = {
   label: StringPropOpt,
   font: FontPropOpt,
   foregroundColor: ColorPropOpt,
-  enabled: BoolPropOpt
+  enabled: BoolPropOpt,
+  pvName: StringPropOpt
 };
 
 const FormControlLabel = styled(MuiFormControlLabel)({
@@ -42,6 +45,9 @@ const FormControlLabel = styled(MuiFormControlLabel)({
   "&.Mui-disabled": {
     cursor: "not-allowed",
     pointerEvents: "all !important"
+  },
+  "&.MuiButtonBase-root": {
+    border: "1px solid gray",
   }
 });
 
@@ -59,11 +65,17 @@ export const CheckboxComponent = (
   props: CheckboxComponentProps
 ): JSX.Element => {
   const theme = useTheme();
-  const { enabled = true } = props;
-  const [checked, setChecked] = useState(true);
+  const { 
+    enabled = true, 
+    label = "Label",
+    value, pvName  ,
+  } = props;
+  const checked = Boolean(value?.getDoubleValue());
 
-  const handleChange = (): void => {
-    setChecked(!checked);
+  const handleChange = (event: any): void => {
+    if (pvName) {
+      writePv(pvName, new DType({ doubleValue: Number(event.target.checked) }))
+    }
   };
 
   return (
@@ -79,18 +91,18 @@ export const CheckboxComponent = (
       }}
       control={
         <MuiCheckbox
+          color="default"
           checked={checked}
           onChange={handleChange}
           sx={{
             padding: 0,
-            color: theme.palette.primary.main,
-            "&.Mui-checked": {
-              color: theme.palette.primary.main
+            "&.MuiSvgIcon-root": {
+              fontSize: props.font?.css().fontSize ?? theme.typography.fontSize,
             }
           }}
         />
       }
-      label={props.label}
+      label={label}
     />
   );
 };
