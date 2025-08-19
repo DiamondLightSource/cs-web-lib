@@ -20,6 +20,7 @@ import { MacroContext } from "../../../types/macros";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 import { styled, Button as MuiButton, useTheme } from "@mui/material";
 import { calculateRotationTransform } from "../utils";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 export interface ActionButtonProps {
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
@@ -47,13 +48,13 @@ const Button = styled(MuiButton)({
     display: "block",
     alignItems: "center",
     justifyContent: "center",
-    minWidth: 0,
-    minHeight: 0,
-    padding: 0,
-    overflow: "hidden",
-    whiteSpace: "nowrap",
-    wordBreak: "break-word",
-    textTransform: "none"
+    minWidth: 1,
+    minHeight: 1,
+    padding: 1,
+    overflow: "clip",
+    textTransform: "none",
+    whiteSpace: "pre-wrap",
+    lineHeight: 1
   },
   "&.Mui-disabled": {
     cursor: "not-allowed",
@@ -71,8 +72,8 @@ export const ActionButtonComponent = (
     rotationStep = 0,
     transparent = false,
     visible = true,
-    height = "100%",
-    width = "100%"
+    height = WIDGET_DEFAULT_SIZES["action_button"][1],
+    width = WIDGET_DEFAULT_SIZES["action_button"][0]
   } = props;
 
   const backgroundColor = transparent
@@ -121,7 +122,10 @@ export const ActionButtonComponent = (
         <span
           style={{
             display: "block",
-            lineHeight: 1
+            height: "100%",
+            width: "100%",
+            wordBreak: "break-word",
+            whiteSpace: "pre-wrap"
           }}
         >
           {props.text ?? ""}

@@ -16,6 +16,7 @@ import {
 } from "../propTypes";
 import { Typography as MuiTypography, styled, useTheme } from "@mui/material";
 import { calculateRotationTransform } from "../utils";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const LabelProps = {
   macros: MacrosPropOpt,
@@ -63,8 +64,8 @@ export const LabelComponent = (
     rotationStep = 0,
     wrapWords = true,
     visible = true,
-    height = "100%",
-    width = "100%"
+    height = WIDGET_DEFAULT_SIZES["label"][1],
+    width = WIDGET_DEFAULT_SIZES["label"][0]
   } = props;
   const backgroundColor = transparent
     ? "transparent"

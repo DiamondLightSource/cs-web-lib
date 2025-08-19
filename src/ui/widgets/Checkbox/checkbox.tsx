@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Widget } from "../widget";
 import {
   InferWidgetProps,
@@ -47,7 +47,7 @@ const FormControlLabel = styled(MuiFormControlLabel)({
     pointerEvents: "all !important"
   },
   "&.MuiButtonBase-root": {
-    border: "1px solid gray",
+    border: "1px solid gray"
   }
 });
 
@@ -65,16 +65,12 @@ export const CheckboxComponent = (
   props: CheckboxComponentProps
 ): JSX.Element => {
   const theme = useTheme();
-  const { 
-    enabled = true, 
-    label = "Label",
-    value, pvName  ,
-  } = props;
+  const { enabled = true, label = "Label", value, pvName } = props;
   const checked = Boolean(value?.getDoubleValue());
 
   const handleChange = (event: any): void => {
     if (pvName) {
-      writePv(pvName, new DType({ doubleValue: Number(event.target.checked) }))
+      writePv(pvName, new DType({ doubleValue: Number(event.target.checked) }));
     }
   };
 
@@ -97,7 +93,7 @@ export const CheckboxComponent = (
           sx={{
             padding: 0,
             "&.MuiSvgIcon-root": {
-              fontSize: props.font?.css().fontSize ?? theme.typography.fontSize,
+              fontSize: props.font?.css().fontSize ?? theme.typography.fontSize
             }
           }}
         />

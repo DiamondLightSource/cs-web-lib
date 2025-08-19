@@ -66,6 +66,7 @@ export const WIDGET_DEFAULT_SIZES: { [key: string]: [number, number] } = {
   bool_button: [100, 30],
   byte_monitor: [160, 20],
   checkbox: [100, 20],
+  choice: [100, 43],
   combo: [100, 30],
   display: [800, 800],
   ellipse: [100, 50],
@@ -392,7 +393,10 @@ export function parseBob(
     showLow: ["show_low", opiParseBoolean],
     increment: ["increment", bobParseNumber],
     multiLine: ["multi_line", opiParseBoolean],
-    lineStyle: ["line_style", bobParseNumber]
+    lineStyle: ["line_style", bobParseNumber],
+    majorTickStepHint: ["major_tick_step_hint", bobParseNumber],
+    maximum: ["maximum", bobParseNumber],
+    minimum: ["minimum", bobParseNumber]
   };
 
   const complexParsers = {

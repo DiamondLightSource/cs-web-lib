@@ -19,6 +19,7 @@ import { registerWidget } from "../register";
 import { AlarmQuality, DType } from "../../../types/dtypes";
 import { TextField as MuiTextField, styled, useTheme } from "@mui/material";
 import { calculateRotationTransform } from "../utils";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const ReadbackProps = {
   precision: IntPropOpt,
@@ -92,8 +93,8 @@ export const ReadbackComponent = (
     rotationStep = 0,
     wrapWords = true,
     visible = true,
-    height = "100%",
-    width = "100%"
+    height = WIDGET_DEFAULT_SIZES["textupdate"][1],
+    width = WIDGET_DEFAULT_SIZES["textupdate"][0]
   } = props;
 
   // Decide what to display.

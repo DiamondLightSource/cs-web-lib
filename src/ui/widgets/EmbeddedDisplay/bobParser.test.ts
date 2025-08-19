@@ -8,7 +8,7 @@ ensureWidgetsRegistered();
 
 const PREFIX = "prefix";
 
-describe("opi widget parser", (): void => {
+describe("bob widget parser", (): void => {
   const labelString = `
   <display version="2.0.0">
   <name>Display</name>
@@ -61,6 +61,7 @@ describe("opi widget parser", (): void => {
     expect(widget.not_a_property).toEqual(undefined);
     expect(widget.wrapWords).toEqual(false);
     expect(widget.transparent).toEqual(true);
+    expect(widget.rotationStep).toEqual(1);
   });
 
   const readbackString = `

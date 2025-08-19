@@ -28,8 +28,8 @@ describe("<ActionButton />", (): void => {
     expect(button).toHaveStyle({
       "background-color": "rgb(210, 210, 210)",
       color: "rgb(0, 0, 0)",
-      width: "100%",
-      height: "100%"
+      width: "100px",
+      height: "30px"
     });
     // For some reason, background colour doesn't like to be passed as an object so pass as string
     expect(button.textContent).toEqual("hello");
