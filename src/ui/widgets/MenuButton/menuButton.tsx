@@ -124,14 +124,6 @@ export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
     );
   });
 
-  /* Don't disable the element itself because that prevents
-     any interaction even for ancestor elements, including middle-click copy. */
-  function onMouseDown(event: React.MouseEvent<HTMLDivElement>): void {
-    if (disabled) {
-      event.preventDefault();
-    }
-  }
-
   function onChange(event: SelectChangeEvent): void {
     setDisplayIndex(parseFloat(event.target.value));
     props.onChange(actions[parseFloat(event.target.value) - displayOffset]);
@@ -139,6 +131,7 @@ export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
 
   return (
     <Select
+      disabled={disabled}
       value={displayIndex.toString()}
       MenuProps={{
         slotProps: {
@@ -153,7 +146,6 @@ export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
         return options[displayIndex];
       }}
       onChange={event => onChange(event)}
-      onMouseDown={event => onMouseDown(event)}
       sx={{
         cursor: disabled ? "not-allowed" : "default",
         height: "100%",
@@ -203,6 +195,7 @@ export const SmartMenuButton = (props: MenuButtonProps): JSX.Element => {
       backgroundColor={props.backgroundColor}
       items={props.items}
       font={props.font}
+      enabled={props.enabled}
     />
   );
 };

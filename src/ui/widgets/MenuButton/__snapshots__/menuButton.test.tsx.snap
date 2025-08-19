@@ -4,7 +4,6 @@ exports[`<MenuButton /> > it matches the snapshot 1`] = `
 <div
   className="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary css-51mqx2-MuiInputBase-root-MuiOutlinedInput-root-MuiSelect-root"
   onClick={[Function]}
-  onMouseDown={[Function]}
 >
   <div
     aria-controls=":r0:"
@@ -24,6 +23,7 @@ exports[`<MenuButton /> > it matches the snapshot 1`] = `
     aria-hidden={true}
     aria-invalid={false}
     className="MuiSelect-nativeInput css-j0riat-MuiSelect-nativeInput"
+    disabled={false}
     onAnimationStart={[Function]}
     onChange={[Function]}
     tabIndex={-1}

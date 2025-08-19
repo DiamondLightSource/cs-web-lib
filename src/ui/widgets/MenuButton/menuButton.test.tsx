@@ -89,22 +89,23 @@ describe("<MenuButton />", (): void => {
     const options = getAllByRole("option");
     expect(options.length).toBe(6);
   });
+
   test("it renders actions", (): void => {
     const props = {
       ...BASE_PROPS,
       actionsFromPv: false,
       actions: ACTIONS_EX_FIRST,
-      label: "menu button with label",
-      value: undefined
+      label: "menu button with label"
     };
     const { getAllByRole, getByRole } = render(MenuButtonRenderer(props));
     const select = getByRole("combobox");
-    expect(select.firstChild?.textContent).toEqual("menu button with label");
+    expect(select.firstChild?.textContent).toEqual("Item 1");
     fireEvent.mouseDown(select);
     const options = getAllByRole("option");
     // Two actions plus label.
     expect(options.length).toBe(3);
   });
+
   test("it renders the option with the correct index", (): void => {
     const props = {
       ...BASE_PROPS,
@@ -124,36 +125,33 @@ describe("<MenuButton />", (): void => {
     expect(options[5]).toHaveFocus();
   });
 
-  test("function called on click", async (): Promise<void> => {
+  test("function called on click", (): void => {
     const props = {
       ...BASE_PROPS,
       actionsFromPv: false,
       actions: ACTIONS_EX_FIRST,
-      label: "menu button with label",
-      value: undefined
+      label: "menu button with label"
     };
     const { getAllByRole, getByRole } = render(MenuButtonRenderer(props));
     const trigger = getByRole("combobox");
     fireEvent.mouseDown(trigger);
     const options = getAllByRole("option");
 
-    expect(options[0]).toHaveFocus();
+    expect(options[1]).toHaveFocus();
 
     act(() => {
       options[2].click();
     });
     expect(mock).toHaveBeenCalledWith(WRITE_PV_ACTION_NO_DESC);
   });
-  test("preventDefault called on mousedown when widget is disabled", async (): Promise<void> => {
+
+  test("widget is disabled", (): void => {
     const props = {
       ...BASE_PROPS,
       enabled: false
     };
     const { getByRole } = render(MenuButtonRenderer(props));
-    const mockPreventDefault = vi.fn();
-    const event = new MouseEvent("mousedown", { bubbles: true });
-    event.preventDefault = mockPreventDefault;
-    fireEvent(getByRole("combobox"), event);
-    expect(mockPreventDefault).toHaveBeenCalled();
+    const select = getByRole("combobox");
+    expect(select).toHaveAttribute("aria-disabled");
   });
 });
