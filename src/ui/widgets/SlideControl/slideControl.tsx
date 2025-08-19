@@ -16,10 +16,11 @@ import {
 import { registerWidget } from "../register";
 import { DType } from "../../../types/dtypes";
 import { Slider, useTheme } from "@mui/material";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 export const SliderControlProps = {
-  min: FloatPropOpt,
-  max: FloatPropOpt,
+  minimum: FloatPropOpt,
+  maximum: FloatPropOpt,
   limitsFromPv: BoolPropOpt,
   logScale: BoolPropOpt,
   horizontal: BoolPropOpt,
@@ -40,7 +41,10 @@ export const SliderControlProps = {
   showHigh: BoolPropOpt,
   showLow: BoolPropOpt,
   showLolo: BoolPropOpt,
-  increment: FloatPropOpt
+  increment: FloatPropOpt,
+  majorTickStepHint: IntPropOpt,
+  width: FloatPropOpt,
+  height: FloatPropOpt
 };
 
 export const SlideControlComponent = (
@@ -49,7 +53,6 @@ export const SlideControlComponent = (
   const theme = useTheme();
   const {
     pvName,
-    connected,
     value = null,
     enabled = true,
     horizontal = true,
@@ -65,16 +68,58 @@ export const SlideControlComponent = (
     showHigh = true,
     showLow = true,
     showLolo = true,
-    increment = 1
+    increment = 1,
+    majorTickStepHint = 40,
+    width = WIDGET_DEFAULT_SIZES["scaledslider"][0],
+    height = WIDGET_DEFAULT_SIZES["scaledslider"][1]
   } = props;
-  let { min = 0, max = 100 } = props;
+  let { minimum = 0, maximum = 100 } = props;
 
-  const disabled = !connected || value === null ? true : !enabled;
   const font = props.font?.css() ?? theme.typography;
 
   if (limitsFromPv && value?.display.controlRange) {
-    min = value.display.controlRange?.min;
-    max = value.display.controlRange?.max;
+    minimum = value.display.controlRange?.min;
+    maximum = value.display.controlRange?.max;
+  }
+
+  const range = maximum - minimum;
+  let marks = [];
+  let decimalPlaces = 0;
+  let tickInterval;
+
+  // Calculate number of ticks to show
+  let numOfTicks = Math.round(
+    (horizontal ? width : height) / majorTickStepHint
+  );
+  if (numOfTicks > 15) numOfTicks = 15; // Phoebus roughly has a maximum of 15 ticks
+  // Check if the number of ticks makes equal markers, iterate until we find good value
+  // If range is less than one, we will never have round numbers
+  if (range > 1) {
+    let tickRemainder = range % numOfTicks;
+    while (tickRemainder !== 0) {
+      numOfTicks--;
+      tickRemainder = range % numOfTicks;
+    }
+    tickInterval = range / numOfTicks;
+  } else {
+    // Can't use remainder so round to 1 less decimal place than parent
+    decimalPlaces = (range / 10).toString().split(".")[1].length;
+    tickInterval = Number((range / numOfTicks).toFixed(decimalPlaces));
+  }
+
+  // Create marks
+  for (let i = minimum; i <= maximum; ) {
+    marks.push({
+      value: i,
+      label: i.toFixed(decimalPlaces)
+    });
+    i = i + tickInterval;
+    if (i > maximum) {
+      marks.push({
+        value: maximum,
+        label: maximum.toFixed(decimalPlaces)
+      });
+    }
   }
 
   const [inputValue, setInputValue] = useState<number>(
@@ -88,68 +133,70 @@ export const SlideControlComponent = (
   }, [value]);
 
   function onMouseUp(value: number): void {
-    try {
-      writePv(pvName, new DType({ doubleValue: value }));
-    } catch (error) {
-      log.warn(`Unexpected value ${value} set to slider.`);
+    if (pvName !== undefined) {
+      try {
+        writePv(pvName, new DType({ doubleValue: value }));
+      } catch (error) {
+        log.warn(`Unexpected value ${value} set to slider.`);
+      }
     }
   }
 
-  const marks = showScale
-    ? [
-        ...(showHihi
-          ? [
-              {
-                value: levelHihi,
-                label: levelHihi.toString()
-              }
-            ]
-          : []),
-        ...(showHigh
-          ? [
-              {
-                value: levelHigh,
-                label: levelHigh.toString()
-              }
-            ]
-          : []),
-        ...(showLow
-          ? [
-              {
-                value: levelLow,
-                label: levelLow.toString()
-              }
-            ]
-          : []),
-        ...(showLolo
-          ? [
-              {
-                value: levelLolo,
-                label: levelLolo.toString()
-              }
-            ]
-          : [])
-      ]
-    : [];
+  // Add HIGH, HIHI, LOW and LOLO markers
+  marks = marks.concat([
+    ...(showHihi
+      ? [
+          {
+            value: levelHihi,
+            label: "\nHIHI"
+          }
+        ]
+      : []),
+    ...(showHigh
+      ? [
+          {
+            value: levelHigh,
+            label: "\nHIGH"
+          }
+        ]
+      : []),
+    ...(showLow
+      ? [
+          {
+            value: levelLow,
+            label: "\nLOW"
+          }
+        ]
+      : []),
+    ...(showLolo
+      ? [
+          {
+            value: levelLolo,
+            label: "\nLOLO"
+          }
+        ]
+      : [])
+  ]);
 
   return (
     <Slider
       value={inputValue}
-      disabled={disabled}
+      disabled={!enabled}
       orientation={horizontal ? "horizontal" : "vertical"}
       onChange={(_, newValue) => setInputValue(newValue as number)}
       onChangeCommitted={(_, newValue) => onMouseUp(newValue as number)}
       valueLabelDisplay="auto"
-      min={min}
-      max={max}
-      marks={marks}
+      min={minimum}
+      max={maximum}
+      marks={showScale ? marks : false}
       step={increment}
       sx={{
         color: foregroundColor.toString(),
         "& .MuiSlider-thumb": {
           height: 16,
           width: 16,
-          backgroundColor: foregroundColor.toString(),
+          backgroundColor: "white",
+          border: "2px solid currentColor",
           "&:focus, &:hover, &.Mui-active, &.Mui-focusVisible": {
             boxShadow: "inherit"
           }
@@ -162,7 +209,12 @@ export const SlideControlComponent = (
         },
         "& .MuiSlider-markLabel": {
           fontFamily: font,
-          color: foregroundColor.toString()
+          color: foregroundColor.toString(),
+          whiteSpace: "pre"
+        },
+        "&.Mui-disabled": {
+          cursor: "not-allowed",
+          pointerEvents: "all !important"
         }
       }}
     />

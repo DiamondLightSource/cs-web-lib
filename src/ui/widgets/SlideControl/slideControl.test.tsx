@@ -10,13 +10,13 @@ test("slideControl", () => {
       connected={true}
       readonly={false}
       pvName="pv"
-      max={10}
-      min={0}
+      maximum={10}
+      minimum={0}
     ></SlideControlComponent>
   );
 
   // The label on the progress bar.
-  expect(screen.getByText("5")).toBeInTheDocument();
+  expect(screen.getByText("4")).toBeInTheDocument();
   // The slider element.
   const slider = container.querySelector("input");
   expect(slider?.value).toEqual("5");
