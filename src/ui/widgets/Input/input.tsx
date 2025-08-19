@@ -11,7 +11,8 @@ import {
   ColorPropOpt,
   BoolPropOpt,
   BorderPropOpt,
-  StringPropOpt
+  StringPropOpt,
+  IntPropOpt
 } from "../propTypes";
 import { AlarmQuality, DType } from "../../../types/dtypes";
 import { TextField as MuiTextField, styled, useTheme } from "@mui/material";
@@ -27,7 +28,11 @@ const InputComponentProps = {
   textAlign: ChoicePropOpt(["left", "center", "right"]),
   textAlignV: ChoicePropOpt(["top", "center", "bottom"]),
   border: BorderPropOpt,
-  multiLine: BoolPropOpt
+  multiLine: BoolPropOpt,
+  precision: IntPropOpt,
+  formatType: ChoicePropOpt(["default", "decimal", "exponential", "string"]),
+  showUnits: BoolPropOpt,
+  precisionFromPv: BoolPropOpt
 };
 
 const TextField = styled(MuiTextField)({
@@ -51,17 +56,17 @@ const TextField = styled(MuiTextField)({
     textOverflow: "clip",
     whiteSpace: "pre-wrap",
     height: "100%",
-    width: "100%"
+    width: "100%",
+    "&.Mui-disabled": {
+      cursor: "not-allowed",
+      pointerEvents: "all !important"
+    }
   },
   "& .MuiOutlinedInput-root": {
     "& .MuiOutlinedInput-notchedOutline": {
       borderRadius: "4px",
       borderWidth: "0px",
       inset: "0px"
-    },
-    "&.Mui-disabled": {
-      cursor: "not-allowed",
-      pointerEvents: "all !important"
     }
   }
 });
@@ -71,14 +76,61 @@ export const SmartInputComponent = (
 ): JSX.Element => {
   const theme = useTheme();
   const {
+    precision = -1,
     enabled = true,
     transparent = false,
     textAlign = "left",
     textAlignV = "center",
     value = null,
     multiLine = false,
-    alarmSensitive = true
+    alarmSensitive = true,
+    showUnits = false,
+    precisionFromPv = false,
+    formatType = "default"
   } = props;
+
+  // Decide what to display.
+  const display = value?.getDisplay();
+  const prec = precisionFromPv ? (display?.precision ?? precision) : precision;
+
+  let displayedValue;
+  if (!value) {
+    displayedValue = "";
+  } else {
+    if (value.display.choices) {
+      // Enum PV so use string representation.
+      displayedValue = DType.coerceString(value);
+    } else if (prec !== undefined && !isNaN(DType.coerceDouble(value))) {
+      if (formatType === "exponential") {
+        displayedValue = DType.coerceDouble(value).toExponential(prec);
+      } else {
+        displayedValue = DType.coerceDouble(value).toFixed(prec);
+      }
+    } else if (formatType === "string") {
+      const valarr = value.getArrayValue();
+      if (valarr !== undefined) {
+        displayedValue = DType.byteArrToString(valarr);
+      } else {
+        displayedValue = DType.coerceString(value);
+      }
+    } else if (value.getArrayValue() !== undefined && prec !== undefined) {
+      displayedValue = "";
+      const array = Array.prototype.slice.call(value.getArrayValue());
+      for (let i = 0; i < array.length; i++) {
+        displayedValue = displayedValue.concat(array[i].toFixed(prec));
+        if (i < array.length - 1) {
+          displayedValue = displayedValue.concat(", ");
+        }
+      }
+    } else {
+      displayedValue = DType.coerceString(value);
+    }
+  }
+
+  // Add units if there are any and show units is true.
+  if (showUnits && display?.units) {
+    displayedValue = displayedValue + ` ${display.units}`;
+  }
 
   const font = props.font?.css() ?? theme.typography;
 
@@ -123,13 +175,13 @@ export const SmartInputComponent = (
     ? "transparent"
     : (props.backgroundColor?.toString() ?? "#80FFFF");
 
-  const [inputValue, setInputValue] = useState(value?.getStringValue() ?? "");
+  const [inputValue, setInputValue] = useState(displayedValue ?? "");
 
   useEffect(() => {
     if (value) {
-      setInputValue(value.getStringValue() ?? "");
+      setInputValue(displayedValue ?? "");
     }
-  }, [value]);
+  }, [value, displayedValue]);
 
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (multiLine) {
@@ -163,7 +215,12 @@ export const SmartInputComponent = (
       sx={{
         "& .MuiInputBase-input": {
           textAlign: textAlign,
-          font: font
+          font: font,
+          "& .MuiOutlinedInput-input": {
+            "&.Mui-disabled": {
+              WebkitTextFillColor: foregroundColor.replace(/[^,]+(?=\))/, "0.4")
+            }
+          }
         },
         "& .MuiInputBase-root": {
           alignItems: alignmentV,
