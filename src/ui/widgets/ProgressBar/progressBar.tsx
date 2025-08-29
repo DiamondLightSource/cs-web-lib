@@ -68,7 +68,7 @@ export const ProgressBarComponent = (
       label = "Check min and max values";
     } else {
       if (precision) {
-        label = numValue.toFixed(precision);
+        label = numValue.toFixed(precision === -1 ? 3 : precision);
       } else {
         label = numValue.toString();
       }

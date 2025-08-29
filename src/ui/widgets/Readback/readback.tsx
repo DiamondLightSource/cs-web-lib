@@ -99,7 +99,10 @@ export const ReadbackComponent = (
 
   // Decide what to display.
   const display = value?.getDisplay();
-  const prec = precisionFromPv ? (display?.precision ?? precision) : precision;
+  // In Phoebus, default precision -1 seems to usually be 3. The toFixed functions
+  // cannot accept -1 as a valid answer
+  let prec = precisionFromPv ? (display?.precision ?? precision) : precision;
+  if (prec === -1) prec = 3;
 
   let displayedValue;
   if (!value) {
