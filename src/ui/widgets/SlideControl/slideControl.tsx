@@ -108,19 +108,22 @@ export const SlideControlComponent = (
   }
 
   // Create marks
-  for (let i = minimum; i <= maximum; ) {
-    marks.push({
-      value: i,
-      label: i.toFixed(decimalPlaces)
-    });
-    i = i + tickInterval;
-    if (i > maximum) {
+  if (showScale) {
+    for (let i = minimum; i <= maximum; ) {
       marks.push({
-        value: maximum,
-        label: maximum.toFixed(decimalPlaces)
+        value: i,
+        label: i.toFixed(decimalPlaces)
       });
+      i = i + tickInterval;
+      if (i > maximum) {
+        marks.push({
+          value: maximum,
+          label: maximum.toFixed(decimalPlaces)
+        });
+      }
     }
   }
+
 
   const [inputValue, setInputValue] = useState<number>(
     value?.getDoubleValue() ?? 0
@@ -148,7 +151,7 @@ export const SlideControlComponent = (
       ? [
           {
             value: levelHihi,
-            label: "\nHIHI"
+            label: `${showScale ? "\n" : ""}HIHI`
           }
         ]
       : []),
@@ -156,7 +159,7 @@ export const SlideControlComponent = (
       ? [
           {
             value: levelHigh,
-            label: "\nHIGH"
+            label: `${showScale ? "\n" : ""}HIGH`
           }
         ]
       : []),
@@ -164,7 +167,7 @@ export const SlideControlComponent = (
       ? [
           {
             value: levelLow,
-            label: "\nLOW"
+            label: `${showScale ? "\n" : ""}LOW`
           }
         ]
       : []),
@@ -172,7 +175,7 @@ export const SlideControlComponent = (
       ? [
           {
             value: levelLolo,
-            label: "\nLOLO"
+            label: `${showScale ? "\n" : ""}LOLO`
           }
         ]
       : [])
@@ -188,7 +191,7 @@ export const SlideControlComponent = (
       valueLabelDisplay="auto"
       min={minimum}
       max={maximum}
-      marks={showScale ? marks : false}
+      marks={marks}
       step={increment}
       sx={{
         color: foregroundColor.toString(),
