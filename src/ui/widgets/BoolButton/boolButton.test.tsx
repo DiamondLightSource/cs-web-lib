@@ -3,9 +3,15 @@ import { BoolButtonComponent } from "./boolButton";
 import { fireEvent, render } from "@testing-library/react";
 import { DType } from "../../../types/dtypes";
 import { Color } from "../../../types";
+import { ThemeProvider } from "@mui/material";
+import { phoebusTheme } from "../../../phoebusTheme";
 
 const BoolButtonRenderer = (boolButtonProps: any): JSX.Element => {
-  return <BoolButtonComponent {...boolButtonProps} />;
+  return (
+    <ThemeProvider theme={phoebusTheme}>
+      <BoolButtonComponent {...boolButtonProps} />
+    </ThemeProvider>
+  );
 };
 
 const TEST_PROPS = {
@@ -33,12 +39,16 @@ describe("<BoolButton />", (): void => {
     };
     const { getByRole } = render(BoolButtonRenderer(boolButtonProps));
     const button = getByRole("button") as HTMLButtonElement;
+    const spanElement = button.firstChild as HTMLSpanElement;
 
-    expect(button.textContent).toEqual("On");
-    expect(button.style.height).toEqual("30px");
-    expect(button.style.width).toEqual("100px");
-    expect(button.style.backgroundColor).toEqual("rgb(200, 200, 200)");
-    expect(button.style.borderRadius).toEqual("");
+    expect(button).toHaveStyle({
+      "background-color": "rgb(210, 210, 210)",
+      height: "100%",
+      width: "100%",
+      borderRadius: ""
+    });
+
+    expect(spanElement.children.length).toEqual(2);
   });
 
   test("it renders a button with led and overwrites default values", (): void => {
@@ -53,17 +63,19 @@ describe("<BoolButton />", (): void => {
     const text = spanElement.children[1] as HTMLSpanElement;
 
     expect(button.textContent).toEqual("Enabled");
-    expect(button.style.height).toEqual("20px");
-    expect(button.style.width).toEqual("45px");
-    expect(button.style.backgroundColor).toEqual("rgb(20, 20, 200)");
-    // Vite adds random hashhex to all CSS module classnames, so check if contains not equals
     expect(led.className).toContain("Led");
     expect(led.style.backgroundColor).toEqual("rgb(0, 235, 10)");
     expect(led.style.height).toEqual("11px");
     expect(led.style.boxShadow).toEqual(
       "inset 2.75px 2.75px 4.4px rgba(255,255,255,.5)"
     );
-    expect(button.style.borderRadius).toEqual("");
+
+    expect(button).toHaveStyle({
+      "background-color": "rgb(20, 20, 200)",
+      height: "100%",
+      width: "100%",
+      borderRadius: ""
+    });
     // Vite adds random hashhex to all CSS module classnames, so check if contains not equals
     expect(text.className).toContain("Text");
   });
@@ -81,7 +93,24 @@ describe("<BoolButton />", (): void => {
     const text = spanElement.children[1] as HTMLSpanElement;
 
     expect(text.textContent).toEqual("");
-    expect(button.style.backgroundColor).toEqual("rgb(200, 200, 200)");
+    expect(button).toHaveStyle("background-color: rgb(210, 210, 210)");
+  });
+
+  test("change background colour if no LED", async (): Promise<void> => {
+    const boolButtonProps = {
+      ...TEST_PROPS,
+      showLed: false
+    };
+    const { getByRole } = render(BoolButtonRenderer(boolButtonProps));
+    const button = getByRole("button") as HTMLButtonElement;
+
+    // Original on values
+    expect(button).toHaveStyle("background-color: rgb(0, 235, 10)");
+
+    // Click button to off
+    fireEvent.click(button);
+
+    expect(button).toHaveStyle("background-color: rgb(0, 100, 0)");
   });
 
   test("on click change led colour if no text ", async (): Promise<void> => {
@@ -124,22 +153,5 @@ describe("<BoolButton />", (): void => {
 
     expect(text.textContent).toEqual("Disabled");
     expect(led.style.backgroundColor).toEqual("rgb(0, 100, 0)");
-  });
-
-  test("change background colour if no LED", async (): Promise<void> => {
-    const boolButtonProps = {
-      ...TEST_PROPS,
-      showLed: false
-    };
-    const { getByRole } = render(BoolButtonRenderer(boolButtonProps));
-    const button = getByRole("button") as HTMLButtonElement;
-
-    // Original on values
-    expect(button.style.backgroundColor).toEqual("rgb(0, 235, 10)");
-
-    // Click button to off
-    fireEvent.click(button);
-
-    expect(button.style.backgroundColor).toEqual("rgb(0, 100, 0)");
   });
 });

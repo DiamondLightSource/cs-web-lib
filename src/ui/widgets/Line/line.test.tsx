@@ -49,11 +49,11 @@ describe("<LineComponent />", (): void => {
     };
 
     const svg = LineRenderer(lineProps);
-    expect(svg.props.viewBox).toEqual("0 0 20 25");
+    expect(svg.props.viewBox).toEqual("0 0 100% 100%");
 
     const lines = svg.children as Array<ReactTestRendererJSON>;
 
-    expect(lines[0].props.stroke).toEqual("rgba(0,255,255,255)");
+    expect(lines[0].props.stroke).toEqual("rgba(0,255,255,1)");
     expect(lines[0].props.strokeWidth).toEqual(3);
     expect(lines[0].props.transform).toEqual("rotation(0,0,0)");
     expect(lines[0].props.points).toEqual("1,10 15,20 4,15 ");
@@ -79,11 +79,11 @@ describe("<LineComponent />", (): void => {
     };
 
     const svg = LineRenderer(lineProps);
-    expect(svg.props.viewBox).toEqual("0 0 30 20");
+    expect(svg.props.viewBox).toEqual("0 0 100% 100%");
 
     const lines = svg.children as Array<ReactTestRendererJSON>;
 
-    expect(lines[0].props.stroke).toEqual("rgba(0,0,0,0)");
+    expect(lines[0].props.stroke).toEqual("transparent");
     expect(lines[0].props.strokeWidth).toEqual(15);
     expect(lines[0].props.transform).toEqual("rotation(45,0,0)");
     expect(lines[0].props.points).toEqual("16,4 25,10 4,15 ");
@@ -111,14 +111,14 @@ describe("<LineComponent />", (): void => {
     };
 
     const svg = LineRenderer(lineProps);
-    expect(svg.props.viewBox).toEqual("0 0 30 20");
+    expect(svg.props.viewBox).toEqual("0 0 100% 100%");
 
     const lines = svg.children as Array<ReactTestRendererJSON>;
     const marker = lines[0].children as Array<ReactTestRendererJSON>;
 
     // Check arrowhead definitions were created
-    expect(marker[0].props.markerWidth).toEqual("2");
-    expect(marker[0].props.markerHeight).toEqual("2");
+    expect(marker[0].props.markerWidth).toEqual(2);
+    expect(marker[0].props.markerHeight).toEqual(1);
     expect(marker[0].props.orient).toEqual("auto-start-reverse");
     expect(marker[0].props.markerUnits).toEqual("userSpaceOnUse");
 
@@ -145,24 +145,47 @@ describe("<LineComponent />", (): void => {
       },
       arrows: 1,
       arrowLength: 2,
-      fillArrow: false
+      fillArrow: false,
+      lineStyle: 3
     };
 
     const svg = LineRenderer(lineProps);
-    expect(svg.props.viewBox).toEqual("0 0 30 20");
+    expect(svg.props.viewBox).toEqual("0 0 100% 100%");
 
     const lines = svg.children as Array<ReactTestRendererJSON>;
     const marker = lines[0].children as Array<ReactTestRendererJSON>;
 
     // Check arrowhead definitions were created
-    expect(marker[0].props.markerWidth).toEqual("1");
-    expect(marker[0].props.markerHeight).toEqual("1");
+    expect(marker[0].props.markerWidth).toEqual(2);
+    expect(marker[0].props.markerHeight).toEqual(1);
     expect(marker[0].props.orient).toEqual("auto-start-reverse");
-    expect(marker[0].props.markerUnits).toEqual("strokeWidth");
+    expect(marker[0].props.markerUnits).toEqual("userSpaceOnUse");
 
     expect(lines[1].props).toHaveProperty("markerStart");
-    expect(lines[1].props.stroke).toEqual("rgba(0,0,0,0)");
+    expect(lines[1].props.stroke).toEqual("transparent");
     expect(lines[1].props.points).toEqual("40,10 40,20 20,20 ");
+  });
+
+  test("dashed line component created", (): void => {
+    const lineProps = {
+      width: 20,
+      height: 25,
+      lineWidth: 4,
+      backgroundColor: Color.fromRgba(0, 255, 255),
+      points: {
+        values: [
+          { x: 40, y: 10 },
+          { x: 40, y: 20 },
+          { x: 20, y: 20 }
+        ]
+      },
+      lineStyle: 3
+    };
+
+    const svg = LineRenderer(lineProps);
+
+    const lines = svg.children as Array<ReactTestRendererJSON>;
+    expect(lines[0].props.strokeDasharray).toEqual("5, 5, 10, 5");
   });
 
   test("line component not created if no points to plot", (): void => {

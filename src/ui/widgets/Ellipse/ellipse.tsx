@@ -30,6 +30,7 @@ export const EllipseProps = {
   fgGradientColor: ColorPropOpt,
   lineWidth: IntPropOpt,
   lineColor: ColorPropOpt,
+  lineStyle: IntPropOpt,
   transparent: BoolPropOpt,
   backgroundColor: ColorPropOpt,
   border: BorderPropOpt,
@@ -44,11 +45,24 @@ export const EllipseComponent = (
   let style: CSSProperties = {
     width: "100%",
     height: "100%",
-    borderStyle: "solid",
     borderWidth: 3,
     borderColor:
       props.lineColor?.toString() || Color.fromRgba(0, 0, 255).toString()
   };
+
+  style.borderStyle = (function () {
+    switch (props.lineStyle) {
+      case 1: // Dashed
+      case 3: // Dash-Dot
+        return "dashed";
+      case 2: // Dot
+      case 4: // Dash-Dot-Dot
+        return "dotted";
+      default:
+        return "solid";
+    }
+  })();
+
   // This has to be done separately because otherwise if width = 0, default
   // border width of 3 is set
   if (props.lineWidth !== undefined) style.borderWidth = props.lineWidth;
@@ -59,7 +73,7 @@ export const EllipseComponent = (
     gradient: props.gradient ?? false,
     bgGradientColor: props.bgGradientColor,
     fgGradientColor: props.fgGradientColor,
-    bgColor: props.backgroundColor ?? Color.fromRgba(0, 255, 255),
+    bgColor: props.backgroundColor ?? Color.fromRgba(30, 144, 255),
     level: props.fillLevel ?? 0
   };
   style = setFillOptions(style, fillOptions);

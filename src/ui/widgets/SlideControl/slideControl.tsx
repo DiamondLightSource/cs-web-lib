@@ -1,115 +1,230 @@
-// Component to allow setting of values using a slider.
-// Displays value via an embedded progressbar widget
-
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import log from "loglevel";
 
-import classes from "./slideControl.module.css";
-
-import {
-  ProgressBarComponent,
-  ProgressBarProps
-} from "../ProgressBar/progressBar";
 import { writePv } from "../../hooks/useSubscription";
 import { Widget } from "../widget";
 import { PVInputComponent, PVWidgetPropType } from "../widgetProps";
-import { InferWidgetProps } from "../propTypes";
+import {
+  BoolPropOpt,
+  BorderPropOpt,
+  ColorPropOpt,
+  FloatPropOpt,
+  FontPropOpt,
+  InferWidgetProps,
+  IntPropOpt
+} from "../propTypes";
 import { registerWidget } from "../register";
 import { DType } from "../../../types/dtypes";
+import { Slider, useTheme } from "@mui/material";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
+
+export const SliderControlProps = {
+  minimum: FloatPropOpt,
+  maximum: FloatPropOpt,
+  limitsFromPv: BoolPropOpt,
+  logScale: BoolPropOpt,
+  horizontal: BoolPropOpt,
+  showLabel: BoolPropOpt,
+  foregroundColor: ColorPropOpt,
+  backgroundColor: ColorPropOpt,
+  precision: IntPropOpt,
+  font: FontPropOpt,
+  border: BorderPropOpt,
+  enabled: BoolPropOpt,
+  transparent: BoolPropOpt,
+  levelHihi: FloatPropOpt,
+  levelHigh: FloatPropOpt,
+  levelLow: FloatPropOpt,
+  levelLolo: FloatPropOpt,
+  showScale: BoolPropOpt,
+  showHihi: BoolPropOpt,
+  showHigh: BoolPropOpt,
+  showLow: BoolPropOpt,
+  showLolo: BoolPropOpt,
+  increment: FloatPropOpt,
+  majorTickStepHint: IntPropOpt,
+  width: FloatPropOpt,
+  height: FloatPropOpt
+};
 
 export const SlideControlComponent = (
-  props: InferWidgetProps<typeof ProgressBarProps> & PVInputComponent
+  props: InferWidgetProps<typeof SliderControlProps> & PVInputComponent
 ): JSX.Element => {
+  const theme = useTheme();
   const {
     pvName,
-    connected,
-    value,
+    value = null,
+    enabled = true,
+    horizontal = true,
     limitsFromPv = false,
-    /* TODO: Implement vertical style and allow absolute positioning */
-    //vertical = false,
-    precision = undefined
+    foregroundColor = theme.palette.primary.contrastText,
+    backgroundColor = theme.palette.primary.main,
+    levelHihi = 90,
+    levelHigh = 80,
+    levelLow = 20,
+    levelLolo = 10,
+    showScale = true,
+    showHihi = true,
+    showHigh = true,
+    showLow = true,
+    showLolo = true,
+    increment = 1,
+    majorTickStepHint = 40,
+    width = WIDGET_DEFAULT_SIZES["scaledslider"][0],
+    height = WIDGET_DEFAULT_SIZES["scaledslider"][1]
   } = props;
-  let { min = 0, max = 100 } = props;
+  let { minimum = 0, maximum = 100 } = props;
+
+  const font = props.font?.css() ?? theme.typography;
+
   if (limitsFromPv && value?.display.controlRange) {
-    min = value.display.controlRange?.min;
-    max = value.display.controlRange?.max;
+    minimum = value.display.controlRange?.min;
+    maximum = value.display.controlRange?.max;
   }
 
-  const [inputValue, setInputValue] = useState("");
-  const [editing, setEditing] = useState(false);
+  const range = maximum - minimum;
+  let marks = [];
+  let decimalPlaces = 0;
+  let tickInterval;
 
-  function onChange(event: React.ChangeEvent<HTMLInputElement>): void {
-    setInputValue(event.currentTarget.value);
+  // Calculate number of ticks to show
+  let numOfTicks = Math.round(
+    (horizontal ? width : height) / majorTickStepHint
+  );
+  if (numOfTicks > 15) numOfTicks = 15; // Phoebus roughly has a maximum of 15 ticks
+  // Check if the number of ticks makes equal markers, iterate until we find good value
+  // If range is less than one, we will never have round numbers
+  if (range > 1) {
+    let tickRemainder = range % numOfTicks;
+    while (tickRemainder !== 0) {
+      numOfTicks--;
+      tickRemainder = range % numOfTicks;
+    }
+    tickInterval = range / numOfTicks;
+  } else {
+    // Can't use remainder so round to 1 less decimal place than parent
+    decimalPlaces = (range / 10).toString().split(".")[1].length;
+    tickInterval = Number((range / numOfTicks).toFixed(decimalPlaces));
   }
 
-  function onMouseDown(event: React.MouseEvent<HTMLInputElement>): void {
-    setEditing(true);
-  }
-  function onMouseUp(event: React.MouseEvent<HTMLInputElement>): void {
-    setEditing(false);
-    try {
-      const doubleValue = parseFloat(event.currentTarget.value);
-      writePv(pvName, new DType({ doubleValue: doubleValue }));
-    } catch (error) {
-      log.warn(`Unexpected value ${event.currentTarget.value} set to slider.`);
+  // Create marks
+  if (showScale) {
+    for (let i = minimum; i <= maximum; ) {
+      marks.push({
+        value: i,
+        label: i.toFixed(decimalPlaces)
+      });
+      i = i + tickInterval;
+      if (i > maximum) {
+        marks.push({
+          value: maximum,
+          label: maximum.toFixed(decimalPlaces)
+        });
+      }
     }
   }
 
-  const stringValue = DType.coerceString(value);
-  if (!editing && inputValue !== stringValue) {
-    setInputValue(stringValue);
+  const [inputValue, setInputValue] = useState<number>(
+    value?.getDoubleValue() ?? 0
+  );
+
+  useEffect(() => {
+    if (value) {
+      setInputValue(value?.getDoubleValue() ?? 0);
+    }
+  }, [value]);
+
+  function onMouseUp(value: number): void {
+    if (pvName !== undefined) {
+      try {
+        writePv(pvName, new DType({ doubleValue: value }));
+      } catch (error) {
+        log.warn(`Unexpected value ${value} set to slider.`);
+      }
+    }
   }
 
+  // Add HIGH, HIHI, LOW and LOLO markers
+  marks = marks.concat([
+    ...(showHihi
+      ? [
+          {
+            value: levelHihi,
+            label: `${showScale ? "\n" : ""}HIHI`
+          }
+        ]
+      : []),
+    ...(showHigh
+      ? [
+          {
+            value: levelHigh,
+            label: `${showScale ? "\n" : ""}HIGH`
+          }
+        ]
+      : []),
+    ...(showLow
+      ? [
+          {
+            value: levelLow,
+            label: `${showScale ? "\n" : ""}LOW`
+          }
+        ]
+      : []),
+    ...(showLolo
+      ? [
+          {
+            value: levelLolo,
+            label: `${showScale ? "\n" : ""}LOLO`
+          }
+        ]
+      : [])
+  ]);
+
   return (
-    <div>
-      <div
-        style={{
-          display: "block",
-          position: "relative",
-          height: "90%",
-          width: "100%",
-          top: "0%",
-          left: "0%"
-        }}
-      >
-        <ProgressBarComponent
-          connected={connected}
-          value={value}
-          min={min}
-          max={max}
-          limitsFromPv={limitsFromPv}
-          precision={precision}
-          readonly={props.readonly}
-          showLabel={true}
-        />
-      </div>
-      <div
-        style={{
-          display: "block",
-          position: "relative",
-          height: "10%",
-          width: "100%",
-          bottom: "0%",
-          left: "0%"
-        }}
-      >
-        <input
-          className={`Slider ${classes.Slider}`}
-          type="range"
-          min={min}
-          max={max}
-          value={inputValue}
-          onChange={onChange}
-          onMouseDown={onMouseDown}
-          onMouseUp={onMouseUp}
-        ></input>
-      </div>
-    </div>
+    <Slider
+      value={inputValue}
+      disabled={!enabled}
+      orientation={horizontal ? "horizontal" : "vertical"}
+      onChange={(_, newValue) => setInputValue(newValue as number)}
+      onChangeCommitted={(_, newValue) => onMouseUp(newValue as number)}
+      valueLabelDisplay="auto"
+      min={minimum}
+      max={maximum}
+      marks={marks}
+      step={increment}
+      sx={{
+        color: foregroundColor.toString(),
+        "& .MuiSlider-thumb": {
+          height: 16,
+          width: 16,
+          backgroundColor: "white",
+          border: "2px solid currentColor",
+          "&:focus, &:hover, &.Mui-active, &.Mui-focusVisible": {
+            boxShadow: "inherit"
+          }
+        },
+        "& .MuiSlider-valueLabelOpen": {
+          fontFamily: font,
+          color: foregroundColor.toString(),
+          backgroundColor: backgroundColor.toString(),
+          opacity: 0.6
+        },
+        "& .MuiSlider-markLabel": {
+          fontFamily: font,
+          color: foregroundColor.toString(),
+          whiteSpace: "pre"
+        },
+        "&.Mui-disabled": {
+          cursor: "not-allowed",
+          pointerEvents: "all !important"
+        }
+      }}
+    />
   );
 };
 
 const SlideControlWidgetProps = {
-  ...ProgressBarProps,
+  ...SliderControlProps,
   ...PVWidgetPropType
 };
 

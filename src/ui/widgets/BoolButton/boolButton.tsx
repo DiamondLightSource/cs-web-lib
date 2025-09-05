@@ -8,13 +8,15 @@ import {
   IntPropOpt,
   PointsPropOpt,
   BoolPropOpt,
-  StringPropOpt
+  StringPropOpt,
+  FontPropOpt
 } from "../propTypes";
 import { Color } from "../../../types/color";
 import classes from "./boolButton.module.css";
 import { writePv } from "../../hooks/useSubscription";
 import { DType } from "../../../types/dtypes";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
+import { Button as MuiButton, styled, useTheme } from "@mui/material";
 
 // For HTML button, these are the sizes of the buffer on
 // width and height. Must take into account when allocating
@@ -40,8 +42,31 @@ const BoolButtonProps = {
   showBooleanLabel: BoolPropOpt,
   showLed: BoolPropOpt,
   confirmMessage: StringPropOpt,
-  labelsFromPv: BoolPropOpt
+  labelsFromPv: BoolPropOpt,
+  enabled: BoolPropOpt,
+  font: FontPropOpt
 };
+
+const Button = styled(MuiButton)({
+  "&.MuiButton-root": {
+    display: "block",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100%",
+    width: "100%",
+    minWidth: 0,
+    minHeight: 0,
+    padding: 0,
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+    wordBreak: "break-word",
+    textTransform: "none"
+  },
+  "&.Mui-disabled": {
+    cursor: "not-allowed",
+    pointerEvents: "all !important"
+  }
+});
 
 export type BoolButtonComponentProps = InferWidgetProps<
   typeof BoolButtonProps
@@ -57,9 +82,12 @@ export type BoolButtonComponentProps = InferWidgetProps<
 export const BoolButtonComponent = (
   props: BoolButtonComponentProps
 ): JSX.Element => {
+  const theme = useTheme();
   const {
     width = WIDGET_DEFAULT_SIZES["bool_button"][0],
     height = WIDGET_DEFAULT_SIZES["bool_button"][1],
+    foregroundColor = theme.palette.primary.contrastText,
+    backgroundColor = theme.palette.primary.main,
     pvName,
     value,
     onState = 1,
@@ -67,12 +95,13 @@ export const BoolButtonComponent = (
     onColor = Color.fromRgba(0, 255, 0),
     offColor = Color.fromRgba(0, 100, 0),
     squareButton = false,
-    backgroundColor = Color.fromRgba(200, 200, 200),
-    foregroundColor = Color.fromRgba(0, 0, 0),
     showBooleanLabel = true,
     showLed = true,
-    labelsFromPv = false
+    labelsFromPv = false,
+    enabled = true
   } = props;
+
+  const font = props.font?.css() ?? theme.typography;
 
   // These could be overwritten by  PV labels
   let { onLabel = "On", offLabel = "Off" } = props;
@@ -89,15 +118,6 @@ export const BoolButtonComponent = (
   const [label, setLabel] = useState(showBooleanLabel ? offLabel : "");
   const [ledColor, setLedColor] = useState(offColor.toString());
   const doubleValue = value?.getDoubleValue();
-
-  // Establish style
-  const style: CSSProperties = {
-    width: width,
-    height: height,
-    // If no LED, use on/off colour for button
-    backgroundColor: showLed ? backgroundColor.toString() : ledColor,
-    color: foregroundColor.toString()
-  };
 
   // Establish LED style
   const [ledStyle, ledDiameter] = showLed
@@ -156,10 +176,16 @@ export const BoolButtonComponent = (
 
   return (
     <>
-      <button
-        className={classes.BoolButton}
-        style={style}
+      <Button
+        variant="contained"
         onClick={handleClick}
+        disabled={!enabled}
+        sx={{
+          fontFamily: font,
+          color: foregroundColor.toString(),
+          // If no LED, use on/off colours as background
+          backgroundColor: showLed ? backgroundColor.toString() : ledColor
+        }}
       >
         <span
           className={classes.LedAndText}
@@ -173,7 +199,7 @@ export const BoolButtonComponent = (
             {label}
           </span>
         </span>
-      </button>
+      </Button>
     </>
   );
 };

@@ -7,21 +7,20 @@ import {
   FloatPropOpt,
   ColorPropOpt,
   BoolPropOpt,
-  FloatProp,
   PointsProp,
-  MacrosPropOpt
+  MacrosPropOpt,
+  IntPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
 import { Color } from "../../../types/color";
 import { Point } from "../../../types/points";
-import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const LineProps = {
-  width: FloatProp,
-  height: FloatProp,
   points: PointsProp,
   macros: MacrosPropOpt,
   lineWidth: FloatPropOpt,
+  lineColor: ColorPropOpt,
+  lineStyle: IntPropOpt,
   backgroundColor: ColorPropOpt,
   visible: BoolPropOpt,
   transparent: BoolPropOpt,
@@ -40,29 +39,49 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
     transparent = false,
     backgroundColor = Color.fromRgba(0, 0, 255),
     rotationAngle = 0,
-    width = WIDGET_DEFAULT_SIZES["polyline"][0],
-    height = WIDGET_DEFAULT_SIZES["polyline"][1],
     lineWidth = 3,
     points,
-    arrowLength = 2,
+    arrowLength = 20,
     arrows = 0,
-    fillArrow
+    fillArrow = true,
+    lineColor,
+    lineStyle = 0
   } = props;
 
+  let color = (function () {
+    if (lineColor) return lineColor.toString();
+    else if (backgroundColor) return backgroundColor.toString();
+    else return Color.fromRgba(0, 0, 255).toString();
+  })();
+
+  const dashStyle = (function () {
+    switch (lineStyle) {
+      case 1: // Dashed
+        return "15, 5";
+      case 2: // Dot
+        return "5, 5";
+      case 3: // Dash-Dot
+        return "5, 5, 10, 5";
+      case 4: // Dash-Dot-Dot
+        return "15,5,5,5,5,5";
+      default:
+        return "0";
+    }
+  })();
+
+  if (transparent) color = "transparent";
+  // const color = transparent ? "transparent" : backgroundColor.toString();
   const transform = `rotation(${rotationAngle},0,0)`;
 
   // Each marker definition needs a unique ID or colours overlap
   const uid = uuidv4();
 
   // Create a marker if arrows set
-  let arrowSize = "";
   let arrowConfig = {};
   let markerConfig = <></>;
   const linePoints = points ? points.values : [];
+
   if (arrows) {
-    arrowSize = `M 0 0 L ${arrowLength} ${arrowLength / 4} L 0 ${
-      arrowLength / 2
-    } ${fillArrow ? "z" : ""}`; // add z to close path if filling
     switch (arrows) {
       // Arrow from
       case 1:
@@ -114,25 +133,20 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
       <defs>
         <marker
           id={`arrow${uid}`}
-          viewBox={`0 0 ${arrowLength} ${arrowLength}`}
           refX={fillArrow ? 0 : arrowLength}
           refY={`${arrowLength / 4}`}
-          markerWidth={
-            fillArrow ? `${arrowLength}` : `${arrowLength / lineWidth}`
-          }
-          markerHeight={
-            fillArrow ? `${arrowLength}` : `${arrowLength / lineWidth}`
-          }
+          markerWidth={arrowLength}
+          markerHeight={arrowLength / 2}
           orient="auto-start-reverse"
-          markerUnits={props.fillArrow ? "userSpaceOnUse" : "strokeWidth"}
-          overflow={"visible"}
+          markerUnits="userSpaceOnUse"
+          overflow="visible"
         >
           <path
-            d={arrowSize}
-            stroke={backgroundColor?.toString()}
-            fill={fillArrow ? backgroundColor?.toString() : "none"}
-            strokeWidth={fillArrow ? 2 : lineWidth}
-            overflow={"visible"}
+            d={`M 0 0 L ${arrowLength} ${arrowLength / 4} L 0 ${arrowLength / 2}`}
+            stroke={fillArrow ? "none" : color}
+            fill={fillArrow ? color : "none"}
+            overflow="visible"
+            strokeWidth={lineWidth}
           />
         </marker>
       </defs>
@@ -141,25 +155,23 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
 
   let coordinates = "";
   if (points !== undefined && visible) {
-    points.values.forEach((point: Point) => {
+    linePoints.forEach((point: Point) => {
       coordinates += `${point.x},${point.y} `;
     });
     return (
       <svg
-        viewBox={`0 0 ${width} ${height}`}
+        display={"block"}
+        viewBox={`0 0 100% 100%`}
         xmlns="http://www.w3.org/2000/svg"
         overflow={"visible"}
       >
         {markerConfig}
         <polyline
           overflow={"visible"}
-          stroke={
-            transparent
-              ? Color.TRANSPARENT.toString()
-              : backgroundColor?.toString()
-          }
-          fill={"none"}
+          stroke={color}
           strokeWidth={lineWidth}
+          strokeDasharray={dashStyle}
+          fill={"none"}
           transform={transform}
           points={coordinates}
           {...arrowConfig}

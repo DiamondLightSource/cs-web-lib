@@ -28,7 +28,7 @@ describe("<ByteMonitorComponent />", (): void => {
 
     expect(bits[0].props.style.marginRight).toEqual("-2px");
     expect(bits[1].props.style.borderWidth).toEqual("2px");
-    expect(bits[5].props.style.backgroundColor).toEqual("rgba(0,255,0,255)");
+    expect(bits[5].props.style.backgroundColor).toEqual("rgba(0,255,0,1)");
     expect(bits[7].props.style.borderRadius).toEqual("50%");
   });
   test("overwrite bytemonitor default values", (): void => {
@@ -54,9 +54,7 @@ describe("<ByteMonitorComponent />", (): void => {
 
     expect(bits[0].props.style.marginBottom).toEqual("-1px");
     expect(bits[1].props.style.borderWidth).toEqual("1px");
-    expect(bits[15].props.style.backgroundColor).toEqual(
-      "rgba(100,100,100,255)"
-    );
+    expect(bits[15].props.style.backgroundColor).toEqual("rgba(100,100,100,1)");
     expect(bits[10].props.style.boxShadow).toBeUndefined();
     expect(bits[15].props.style.borderRadius).toBeUndefined();
     expect(bits[1].props.style.marginRight).toBeUndefined();

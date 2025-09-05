@@ -9,17 +9,13 @@ import {
   ColorPropOpt,
   PvPropOpt,
   IntPropOpt,
-  StringOrNumPropOpt,
   MacrosPropOpt
 } from "../propTypes";
-import { Border, Color } from "../../../types";
-import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
+import { Color } from "../../../types";
 
 const ShapeProps = {
   pvName: PvPropOpt,
   macros: MacrosPropOpt,
-  width: StringOrNumPropOpt,
-  height: StringOrNumPropOpt,
   shapeTransform: StringPropOpt,
   cornerWidth: StringPropOpt,
   cornerHeight: StringPropOpt,
@@ -27,6 +23,7 @@ const ShapeProps = {
   backgroundColor: ColorPropOpt,
   lineColor: ColorPropOpt,
   lineWidth: IntPropOpt,
+  lineStyle: IntPropOpt,
   visible: BoolPropOpt
 };
 
@@ -34,8 +31,6 @@ export const ShapeComponent = (
   props: InferWidgetProps<typeof ShapeProps>
 ): JSX.Element => {
   const {
-    width = WIDGET_DEFAULT_SIZES["rectangle"][0],
-    height = WIDGET_DEFAULT_SIZES["rectangle"][1],
     lineColor = Color.fromRgba(0, 0, 255),
     lineWidth = 3,
     backgroundColor = Color.fromRgba(30, 144, 255),
@@ -45,19 +40,35 @@ export const ShapeComponent = (
   const cornerRadius = `${props.cornerWidth || 0}px / ${
     props.cornerHeight || 0
   }px`;
-  const borderCss = new Border(1, lineColor, lineWidth).css();
-  borderCss.borderRadius = cornerRadius;
+
   // Use line properties to set border, unless alarm border
   const style: CSSProperties = {
-    ...borderCss,
-    width: width,
-    height: height,
+    borderColor: lineColor.toString(),
+    borderWidth: lineWidth,
+    borderRadius: cornerRadius,
+    width: "100%",
+    height: "100%",
+    boxSizing: "border-box",
     backgroundColor: props.transparent
       ? "transparent"
       : backgroundColor.toString(),
     transform: props.shapeTransform ?? "",
     visibility: visible ? undefined : "hidden"
   };
+
+  style.borderStyle = (function () {
+    switch (props.lineStyle) {
+      case 1: // Dashed
+      case 3: // Dash-Dot
+        return "dashed";
+      case 2: // Dot
+      case 4: // Dash-Dot-Dot
+        return "dotted";
+      default:
+        return "solid";
+    }
+  })();
+
   return <div style={style} />;
 };
 

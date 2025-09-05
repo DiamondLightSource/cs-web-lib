@@ -1,57 +1,58 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`<MenuButton /> > it matches the snapshot 1`] = `
-<select
-  onChange={[Function]}
-  onMouseDown={[Function]}
-  style={
-    {
-      "backgroundColor": undefined,
-      "color": undefined,
-      "cursor": "default",
-      "height": "100%",
-      "textAlignLast": "center",
-      "visibility": undefined,
-      "width": "100%",
-    }
-  }
-  value={0}
+<div
+  className="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary css-51mqx2-MuiInputBase-root-MuiOutlinedInput-root-MuiSelect-root"
+  onClick={[Function]}
 >
-  <option
-    disabled={false}
-    value={0}
+  <div
+    aria-controls=":r0:"
+    aria-expanded="false"
+    aria-haspopup="listbox"
+    className="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-w76bbz-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+    onBlur={[Function]}
+    onFocus={[Function]}
+    onKeyDown={[Function]}
+    onMouseDown={[Function]}
+    role="combobox"
+    tabIndex={0}
   >
     zero
-  </option>
-  <option
+  </div>
+  <input
+    aria-hidden={true}
+    aria-invalid={false}
+    className="MuiSelect-nativeInput css-j0riat-MuiSelect-nativeInput"
     disabled={false}
-    value={1}
+    onAnimationStart={[Function]}
+    onChange={[Function]}
+    tabIndex={-1}
+    value="0"
+  />
+  <svg
+    aria-hidden={true}
+    className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-lohd6h-MuiSvgIcon-root-MuiSelect-icon"
+    data-testid="ArrowDropDownIcon"
+    focusable="false"
+    viewBox="0 0 24 24"
   >
-    one
-  </option>
-  <option
-    disabled={false}
-    value={2}
+    <path
+      d="M7 10l5 5 5-5z"
+    />
+  </svg>
+  <fieldset
+    aria-hidden={true}
+    className="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
   >
-    two
-  </option>
-  <option
-    disabled={false}
-    value={3}
-  >
-    three
-  </option>
-  <option
-    disabled={false}
-    value={4}
-  >
-    four
-  </option>
-  <option
-    disabled={false}
-    value={5}
-  >
-    five
-  </option>
-</select>
+    <legend
+      className="css-w4cd9x"
+    >
+      <span
+        className="notranslate"
+      >
+        ​
+      </span>
+    </legend>
+  </fieldset>
+</div>
 `;

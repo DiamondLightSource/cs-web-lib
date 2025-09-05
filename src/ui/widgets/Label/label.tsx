@@ -1,7 +1,5 @@
-import React, { CSSProperties } from "react";
-
-import classes from "./label.module.css";
-import { Widget, commonCss } from "../widget";
+import React from "react";
+import { Widget } from "../widget";
 import { WidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import {
@@ -13,8 +11,12 @@ import {
   ColorPropOpt,
   BorderPropOpt,
   FloatPropOpt,
-  MacrosPropOpt
+  MacrosPropOpt,
+  StringOrNumPropOpt
 } from "../propTypes";
+import { Typography as MuiTypography, styled, useTheme } from "@mui/material";
+import { calculateRotationTransform } from "../utils";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const LabelProps = {
   macros: MacrosPropOpt,
@@ -28,8 +30,10 @@ const LabelProps = {
   foregroundColor: ColorPropOpt,
   backgroundColor: ColorPropOpt,
   border: BorderPropOpt,
-  rotationAngle: FloatPropOpt,
-  wrapWords: BoolPropOpt
+  rotationStep: FloatPropOpt,
+  wrapWords: BoolPropOpt,
+  height: StringOrNumPropOpt,
+  width: StringOrNumPropOpt
 };
 
 const LabelWidgetProps = {
@@ -37,65 +41,88 @@ const LabelWidgetProps = {
   ...WidgetPropType
 };
 
+const Typography = styled(MuiTypography)({
+  display: "flex",
+  overflow: "hidden",
+  borderRadius: "4px",
+  borderWidth: "0px",
+  lineHeight: 1,
+  padding: 0
+});
+
 export const LabelComponent = (
   props: InferWidgetProps<typeof LabelProps>
 ): JSX.Element => {
+  const theme = useTheme();
   // Default labels to transparent.
-  const editedProps = {
-    ...props,
-    transparent: props.transparent ?? true
-  };
-  const style: CSSProperties = commonCss(editedProps);
   const {
+    transparent = true,
+    foregroundColor = theme.palette.primary.contrastText,
     textAlign = "left",
     textAlignV = "top",
     text = "",
-    rotationAngle,
-    wrapWords
+    rotationStep = 0,
+    wrapWords = true,
+    visible = true,
+    height = WIDGET_DEFAULT_SIZES["label"][1],
+    width = WIDGET_DEFAULT_SIZES["label"][0]
   } = props;
-  const className = props.className ?? `Label ${classes.Label}`;
+  const backgroundColor = transparent
+    ? "transparent"
+    : (props.backgroundColor?.toString() ?? theme.palette.primary.main);
+  const font = props.font?.css() ?? theme.typography;
+  const borderWidth = props.border?.css().borderWidth ?? "0px";
+  const borderColor = props.border?.css().borderColor ?? "#000000";
+  const borderStyle = props.border?.css().borderStyle ?? "solid";
+
+  const [inputWidth, inputHeight, transform] = calculateRotationTransform(
+    rotationStep,
+    width,
+    height
+  );
+
   // Since display is "flex", use "flex-start" and "flex-end" to align
   // the content.
   let alignment = "center";
   if (textAlign === "left") {
     alignment = "flex-start";
-    if (wrapWords) {
-      style["textAlign"] = "left";
-    }
   } else if (textAlign === "right") {
     alignment = "flex-end";
-    if (wrapWords) {
-      style["textAlign"] = "right";
-    }
-  } else {
-    if (wrapWords) {
-      style["textAlign"] = "center";
-    }
   }
-  style["justifyContent"] = alignment;
-  style["cursor"] = "default";
+
   let alignmentV = "center";
   if (textAlignV === "top") {
     alignmentV = "flex-start";
   } else if (textAlignV === "bottom") {
     alignmentV = "flex-end";
   }
-  style["alignItems"] = alignmentV;
-  let transform = undefined;
-  if (rotationAngle) {
-    transform = `rotate(${rotationAngle}deg)`;
-  }
-
-  if (wrapWords) {
-    style["wordBreak"] = "break-word";
-    style["whiteSpace"] = "break-spaces";
-  }
 
   // Simple component to display text - defaults to black text and dark grey background
   return (
-    <div className={className} style={style}>
-      <span style={{ transform }}> {text} </span>
-    </div>
+    <Typography
+      noWrap={!wrapWords}
+      sx={{
+        display: visible ? "flex" : "none",
+        justifyContent: alignment,
+        alignItems: alignmentV,
+        // If size is given as %, rem or vh, allow element to fill parent div
+        // Otherwise, use the calculated height that accounts for rotationStep
+        height: typeof height === "string" ? "100%" : inputHeight,
+        width: typeof width === "string" ? "100%" : inputWidth,
+        textAlign: textAlign,
+        wordBreak: wrapWords ? "break-word" : null,
+        whiteSpace: wrapWords ? "pre-wrap" : "pre",
+        color: foregroundColor.toString(),
+        backgroundColor: backgroundColor,
+        fontFamily: font,
+        transform: transform.toString(),
+        outlineWidth: borderWidth,
+        outlineColor: borderColor,
+        outlineStyle: borderStyle
+      }}
+    >
+      {text}
+    </Typography>
   );
 };
 

@@ -66,6 +66,7 @@ export const WIDGET_DEFAULT_SIZES: { [key: string]: [number, number] } = {
   bool_button: [100, 30],
   byte_monitor: [160, 20],
   checkbox: [100, 20],
+  choice: [100, 43],
   combo: [100, 30],
   display: [800, 800],
   ellipse: [100, 50],
@@ -379,7 +380,23 @@ export function parseBob(
     fallbackSymbol: ["fallback_symbol", opiParseString],
     rotation: ["rotation", bobParseNumber],
     styleOpt: ["style", bobParseNumber],
-    lineColor: ["line_color", opiParseColor]
+    lineColor: ["line_color", opiParseColor],
+    rotationStep: ["rotation_step", bobParseNumber],
+    levelHihi: ["level_hihi", bobParseNumber],
+    levelHigh: ["level_high", bobParseNumber],
+    levelLolo: ["level_lolo", bobParseNumber],
+    levelLow: ["level_low", bobParseNumber],
+    showScale: ["show_scale", opiParseBoolean],
+    showHihi: ["show_hihi", opiParseBoolean],
+    showHigh: ["show_high", opiParseBoolean],
+    showLolo: ["show_lolo", opiParseBoolean],
+    showLow: ["show_low", opiParseBoolean],
+    increment: ["increment", bobParseNumber],
+    multiLine: ["multi_line", opiParseBoolean],
+    lineStyle: ["line_style", bobParseNumber],
+    majorTickStepHint: ["major_tick_step_hint", bobParseNumber],
+    maximum: ["maximum", bobParseNumber],
+    minimum: ["minimum", bobParseNumber]
   };
 
   const complexParsers = {

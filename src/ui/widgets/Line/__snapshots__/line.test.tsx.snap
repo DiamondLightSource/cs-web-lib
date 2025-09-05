@@ -3,15 +3,17 @@
 exports[`<LineComponent /> > matches snapshot 1`] = `
 <DocumentFragment>
   <svg
+    display="block"
     overflow="visible"
-    viewBox="0 0 20 15"
+    viewBox="0 0 100% 100%"
     xmlns="http://www.w3.org/2000/svg"
   >
     <polyline
       fill="none"
       overflow="visible"
       points="2,20 6,30 15,4 "
-      stroke="rgba(0,255,255,255)"
+      stroke="rgba(0,255,255,1)"
+      stroke-dasharray="0"
       stroke-width="4"
       transform="rotation(45,0,0)"
     />

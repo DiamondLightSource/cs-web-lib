@@ -3,7 +3,6 @@ import React from "react";
 import { Widget } from "../widget";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 
-import classes from "./readback.module.css";
 import {
   IntPropOpt,
   BoolPropOpt,
@@ -13,12 +12,14 @@ import {
   ColorPropOpt,
   BorderPropOpt,
   StringPropOpt,
-  FloatPropOpt
+  FloatPropOpt,
+  StringOrNumPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
-import { LabelComponent } from "../Label/label";
-import { AlarmQuality, DAlarm, DType } from "../../../types/dtypes";
-import { Color } from "../../../types/color";
+import { AlarmQuality, DType } from "../../../types/dtypes";
+import { TextField as MuiTextField, styled, useTheme } from "@mui/material";
+import { calculateRotationTransform } from "../utils";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const ReadbackProps = {
   precision: IntPropOpt,
@@ -34,10 +35,40 @@ const ReadbackProps = {
   foregroundColor: ColorPropOpt,
   backgroundColor: ColorPropOpt,
   border: BorderPropOpt,
-  rotationAngle: FloatPropOpt,
+  rotationStep: FloatPropOpt,
   visible: BoolPropOpt,
-  wrapWords: BoolPropOpt
+  wrapWords: BoolPropOpt,
+  enabled: BoolPropOpt,
+  height: StringOrNumPropOpt,
+  width: StringOrNumPropOpt
 };
+
+const TextField = styled(MuiTextField)({
+  // MUI Textfield contains a fieldset with a legend that needs to be removed
+  "& .css-w4cd9x": {
+    lineHeight: "0px"
+  },
+  "& .MuiInputBase-root": {
+    height: "100%",
+    width: "100%",
+    padding: "0px"
+  },
+  "& .MuiInputBase-input": {
+    padding: "0px",
+    lineHeight: 1,
+    textOverflow: "clip",
+    whiteSpace: "pre-wrap",
+    height: "100%",
+    width: "100%"
+  },
+  "& .MuiOutlinedInput-root": {
+    "& .MuiOutlinedInput-notchedOutline": {
+      borderRadius: "4px",
+      borderWidth: "0px",
+      inset: "0px"
+    }
+  }
+});
 
 // Needs to be exported for testing
 export type ReadbackComponentProps = InferWidgetProps<typeof ReadbackProps> &
@@ -46,13 +77,12 @@ export type ReadbackComponentProps = InferWidgetProps<typeof ReadbackProps> &
 export const ReadbackComponent = (
   props: ReadbackComponentProps
 ): JSX.Element => {
+  const theme = useTheme();
   const {
+    enabled = true,
     value,
     precision,
     formatType = "default",
-    font,
-    backgroundColor,
-    border,
     alarmSensitive = true,
     transparent = false,
     text = "######",
@@ -60,15 +90,20 @@ export const ReadbackComponent = (
     textAlignV = "top",
     showUnits = false,
     precisionFromPv = false,
-    rotationAngle,
-    visible,
-    wrapWords = false
+    rotationStep = 0,
+    wrapWords = true,
+    visible = true,
+    height = WIDGET_DEFAULT_SIZES["textupdate"][1],
+    width = WIDGET_DEFAULT_SIZES["textupdate"][0]
   } = props;
-  let { foregroundColor } = props;
+
   // Decide what to display.
-  const alarm = value?.getAlarm() || DAlarm.NONE;
   const display = value?.getDisplay();
-  const prec = precisionFromPv ? (display?.precision ?? precision) : precision;
+  // In Phoebus, default precision -1 seems to usually be 3. The toFixed functions
+  // cannot accept -1 as a valid answer
+  let prec = precisionFromPv ? (display?.precision ?? precision) : precision;
+  if (prec === -1) prec = 3;
+
   let displayedValue;
   if (!value) {
     displayedValue = text;
@@ -108,42 +143,97 @@ export const ReadbackComponent = (
     displayedValue = displayedValue + ` ${display.units}`;
   }
 
-  // Handle alarm sensitivity.
-  let className = classes.Readback;
+  let foregroundColor =
+    props.foregroundColor?.toString() ?? theme.palette.primary.contrastText;
+  let borderColor = props.border?.color.toString() ?? "#000000";
+  let borderStyle = props.border?.css().borderStyle ?? "solid";
+  let borderWidth = props.border?.width ?? "0px";
+
+  const alarmQuality = props.value?.getAlarm().quality ?? AlarmQuality.VALID;
   if (alarmSensitive) {
-    className += ` ${classes[alarm.quality]}`;
-  }
-  if (alarmSensitive) {
-    switch (alarm.quality) {
+    switch (alarmQuality) {
       case AlarmQuality.UNDEFINED:
       case AlarmQuality.INVALID:
       case AlarmQuality.CHANGING:
-        foregroundColor = new Color("var(--invalid)");
-        break;
-      case AlarmQuality.WARNING:
-        foregroundColor = new Color("var(--warning)");
+        foregroundColor = "var(--invalid)";
+        borderColor = "var(--invalid)";
+        borderStyle = "solid";
+        borderWidth = "1px";
         break;
       case AlarmQuality.ALARM:
-        foregroundColor = new Color("var(--alarm)");
-        break;
+      case AlarmQuality.WARNING:
+        foregroundColor = "var(--alarm)";
+        borderColor = "var(--alarm)";
+        borderStyle = "solid";
+        borderWidth = "2px";
     }
   }
-  // Use a LabelComponent to display it.
+
+  const font = props.font?.css() ?? theme.typography;
+
+  const backgroundColor = transparent
+    ? "transparent"
+    : (props.backgroundColor?.toString() ?? theme.palette.primary.main);
+
+  let alignmentV = "center";
+  if (textAlignV === "top") {
+    alignmentV = "start";
+  } else if (textAlignV === "bottom") {
+    alignmentV = "end";
+  }
+
+  const [inputWidth, inputHeight, transform] = calculateRotationTransform(
+    rotationStep,
+    width,
+    height
+  );
+
   return (
-    <LabelComponent
-      className={className}
-      text={displayedValue}
-      transparent={transparent}
-      textAlign={textAlign}
-      textAlignV={textAlignV}
-      font={font}
-      foregroundColor={foregroundColor}
-      backgroundColor={backgroundColor}
-      border={border}
-      rotationAngle={rotationAngle}
-      visible={visible}
-      wrapWords={wrapWords}
-    ></LabelComponent>
+    <TextField
+      disabled={!enabled}
+      value={displayedValue}
+      multiline={wrapWords}
+      maxRows={"auto"}
+      variant="outlined"
+      slotProps={{
+        input: {
+          readOnly: true
+        }
+      }}
+      sx={{
+        "&.MuiFormControl-root": {
+          display: visible ? "flex" : "none",
+          // If size is given as %, rem or vh, allow element to fill parent div
+          // Otherwise, use the calculated height that accounts for rotationStep
+          height: typeof height === "string" ? "100%" : inputHeight,
+          width: typeof width === "string" ? "100%" : inputWidth,
+          transform: transform
+        },
+        "& .MuiInputBase-input": {
+          textAlign: textAlign,
+          font: font,
+          lineHeight: 1
+        },
+        "& .MuiInputBase-root": {
+          alignItems: alignmentV,
+          color: foregroundColor,
+          backgroundColor: backgroundColor
+        },
+        "& .MuiOutlinedInput-root": {
+          "& .MuiOutlinedInput-notchedOutline": {
+            outlineWidth: borderWidth,
+            outlineStyle: borderStyle,
+            outlineColor: borderColor
+          },
+          "&.Mui-focused": {
+            "& .MuiOutlinedInput-notchedOutline": {
+              outlineWidth: "2px",
+              borderWidth: "0px"
+            }
+          }
+        }
+      }}
+    />
   );
 };
 

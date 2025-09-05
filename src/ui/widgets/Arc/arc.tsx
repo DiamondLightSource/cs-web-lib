@@ -126,7 +126,7 @@ export const ArcComponent = (
     ];
 
     // Check if this is the last segment
-    if (segments.length - 1 === idx) {
+    if (segments.length - 1 === idx && fillOpt) {
       // If yes, add border edging
       border.push(
         `L ${radiusX} ${radiusY}`, // Line from end to center

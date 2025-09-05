@@ -65,8 +65,6 @@ export const ImageComponent = (
         src={imageFileName}
         alt={props.alt || undefined}
         style={{
-          width: "100%",
-          height: "100%",
           display: "block",
           transform: `rotate(${rotation}deg) scaleX(${
             flipHorizontal ? -1 : 1

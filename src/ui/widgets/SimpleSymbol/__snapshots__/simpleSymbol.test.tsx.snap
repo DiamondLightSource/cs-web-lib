@@ -5,7 +5,7 @@ exports[`<Symbol /> > matches snapshot 1`] = `
   <img
     alt="Simple symbol widget"
     src="img 1.gif"
-    style="display: block; position: absolute;"
+    style="width: 100%; height: 100%; display: block; position: absolute;"
   />
 </DocumentFragment>
 `;

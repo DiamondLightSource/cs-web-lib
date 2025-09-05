@@ -153,7 +153,7 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
         {...props}
         imageFile={imageFile}
         onClick={onClick}
-        stretchToFit={true}
+        stretchToFit={showBooleanLabel ? false : true}
         overflow={true}
       />
       {isBob ? (
@@ -175,6 +175,7 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
             <div style={{ padding: "5%" }}>
               <LabelComponent
                 {...props}
+                textAlignV="bottom"
                 backgroundColor={Color.TRANSPARENT}
                 text={props.value?.getStringValue()}
               ></LabelComponent>

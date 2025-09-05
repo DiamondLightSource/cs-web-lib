@@ -21,7 +21,7 @@ export class Color {
   public static CHANGING = new Color("var(--changing)");
   public static UNDEFINED = new Color("var(--undefined)");
 
-  public static fromRgba(r: number, g: number, b: number, a = 255): Color {
+  public static fromRgba(r: number, g: number, b: number, a = 1): Color {
     if (r < 0 || r > 255) {
       throw new Error(`r value ${r} out of range`);
     } else if (g < 0 || g > 255) {
