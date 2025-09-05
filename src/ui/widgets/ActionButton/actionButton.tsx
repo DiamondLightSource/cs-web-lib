@@ -121,10 +121,12 @@ export const ActionButtonComponent = (
       ) : (
         <span
           style={{
-            display: "block",
+            display: "flex",
             height: "100%",
             width: "100%",
             wordBreak: "break-word",
+            justifyContent: "center",
+            alignItems: "center",
             whiteSpace: "pre-wrap"
           }}
         >
