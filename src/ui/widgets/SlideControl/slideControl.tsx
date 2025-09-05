@@ -124,7 +124,6 @@ export const SlideControlComponent = (
     }
   }
 
-
   const [inputValue, setInputValue] = useState<number>(
     value?.getDoubleValue() ?? 0
   );

@@ -23,8 +23,10 @@ exports[`<ActionButton /> > it matches the snapshot 1`] = `
   <span
     style={
       {
-        "display": "block",
+        "alignItems": "center",
+        "display": "flex",
         "height": "100%",
+        "justifyContent": "center",
         "whiteSpace": "pre-wrap",
         "width": "100%",
         "wordBreak": "break-word",

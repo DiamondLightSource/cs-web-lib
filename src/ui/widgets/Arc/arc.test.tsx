@@ -113,9 +113,7 @@ describe("<ArcComponent />", (): void => {
     // Border paths of arc
     expect(pathArray.length).toEqual(1);
     // Arc
-    expect(pathArray[0].props.d).toEqual(
-      "M 41 1\nA 50 50 -100 0 0 1 59\nL 50 50\nL 41 1"
-    );
+    expect(pathArray[0].props.d).toEqual("M 41 1\nA 50 50 -100 0 0 1 59");
   });
 
   test("create arc with negative total angle, no fill (css)", (): void => {
