@@ -7,6 +7,7 @@
     "rollup": "rollup -c",
     "test": "vitest",
     "lint": "eslint 'src/**/*.{ts,tsx}' --max-warnings=0",
+    "lint:fix": "eslint 'src/**/*.{ts,tsx}' --max-warnings=0 --fix",
     "prettier-check": "prettier --check 'src/**/*.{ts,tsx}'",
     "check-types": "tsc",
     "all-checks": "npm run lint && npm run prettier-check && npm run check-types"
@@ -18,6 +19,7 @@
     "url": "https://github.com/DiamondLightSource/cs-web-lib.git"
   },
   "dependencies": {
+    "@mui/x-charts": "^8.11.1",
     "apollo-link-retry": "^2.2.16",
     "bufferutil": "^4.0.8",
     "loglevel": "^1.9.2",

@@ -27,6 +27,7 @@ export { MenuButton } from "./MenuButton/menuButton";
 export { MenuMux } from "./MenuMux/menuMux";
 export { Polygon } from "./Polygon/polygon";
 export { ProgressBar } from "./ProgressBar/progressBar";
+export { Tank } from "./Tank/tank";
 export { SimpleSymbol } from "./SimpleSymbol/simpleSymbol";
 export { SlideControl } from "./SlideControl/slideControl";
 export { Slideshow } from "./Slideshow/slideshow";

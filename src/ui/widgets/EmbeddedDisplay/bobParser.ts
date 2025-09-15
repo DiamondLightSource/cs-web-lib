@@ -54,6 +54,7 @@ const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   polyline: "line",
   progressbar: "progressbar",
   rectangle: "shape",
+  tank: "tank",
   choice: "choicebutton",
   scaledslider: "slidecontrol",
   symbol: "symbol"
@@ -81,6 +82,7 @@ export const WIDGET_DEFAULT_SIZES: { [key: string]: [number, number] } = {
   polyline: [100, 20],
   progressbar: [100, 20],
   rectangle: [100, 20],
+  tank: [200, 150],
   scaledslider: [400, 55],
   symbol: [100, 100]
 };
