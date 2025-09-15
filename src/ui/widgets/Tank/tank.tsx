@@ -44,7 +44,7 @@ export const TankComponent = (
     showLabel = false,
     font,
     horizontal = false,
-    fillColor = Color.fromRgba(60, 255, 60),
+    fillColor = Color.fromRgba(0, 0, 255, 255),
     emptyColor = Color.fromRgba(250, 250, 250, 255),
     precision = undefined,
     scaleVisible = true,
