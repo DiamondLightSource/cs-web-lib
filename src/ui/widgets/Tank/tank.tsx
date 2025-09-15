@@ -1,4 +1,6 @@
 import React from "react";
+import { BarChart } from "@mui/x-charts/BarChart";
+import { Box } from "@mui/material";
 import { Widget } from "../widget";
 import { PVInputComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
@@ -11,9 +13,7 @@ import {
   ColorPropOpt,
   BorderPropOpt
 } from "../propTypes";
-import { BarChart } from "@mui/x-charts/BarChart";
 import { Color } from "../../../types/color";
-import { Box } from "@mui/material";
 import { XAxis, YAxis } from "@mui/x-charts";
 
 export const TankProps = {
