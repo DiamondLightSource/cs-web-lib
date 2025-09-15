@@ -9,7 +9,8 @@ import {
   StringPropOpt,
   FloatPropOpt,
   FuncPropOpt,
-  MacrosPropOpt
+  MacrosPropOpt,
+  ColorPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
 
@@ -24,13 +25,15 @@ const ImageProps = {
   flipHorizontal: BoolPropOpt,
   flipVertical: BoolPropOpt,
   onClick: FuncPropOpt,
-  overflow: BoolPropOpt
+  overflow: BoolPropOpt,
+  backgroundColor: ColorPropOpt,
+  transparent: BoolPropOpt
 };
 
 export const ImageComponent = (
   props: InferWidgetProps<typeof ImageProps>
 ): JSX.Element => {
-  const { rotation = 0, flipHorizontal, flipVertical } = props;
+  const { rotation = 0, flipHorizontal, flipVertical, stretchToFit = false } = props;
 
   const onClick = (event: React.MouseEvent<HTMLDivElement>): void => {
     if (props.onClick) {
@@ -38,6 +41,7 @@ export const ImageComponent = (
     }
   };
 
+  console.log(stretchToFit)
   const overflow = props.overflow ? "visible" : "hidden";
 
   const style: CSSProperties = {
@@ -69,7 +73,7 @@ export const ImageComponent = (
           transform: `rotate(${rotation}deg) scaleX(${
             flipHorizontal ? -1 : 1
           }) scaleY(${flipVertical ? -1 : 1})`,
-          objectFit: props.stretchToFit ? "fill" : "none",
+          objectFit: stretchToFit ? "fill" : "none",
           objectPosition: "top left"
         }}
       />

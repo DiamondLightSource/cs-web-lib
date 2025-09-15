@@ -70,7 +70,7 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
     showIndex = false,
     arrayIndex = 0,
     initialIndex = 0,
-    fallbackSymbol = "https://cs-web-symbol.diamond.ac.uk/catalogue/default.svg",
+    fallbackSymbol = "https://cs-web-symbol.diamond.ac.uk/catalogue/default_symbol.png",
     transparent = true,
     backgroundColor = "white",
     showBooleanLabel = false,
@@ -151,9 +151,10 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
     <>
       <ImageComponent
         {...props}
+        transparent
         imageFile={imageFile}
         onClick={onClick}
-        stretchToFit={showBooleanLabel ? false : true}
+        stretchToFit={false}
         overflow={true}
       />
       {isBob ? (
