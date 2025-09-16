@@ -38,7 +38,9 @@ export const GroupingContainerComponent = (
 
   return (
     <MacroContext.Provider value={groupingContainerMacroContext}>
-      <div style={style}>{props.children}</div>
+      <div style={style}>
+        <>{props.children}</>
+      </div>
     </MacroContext.Provider>
   );
 };

@@ -51,7 +51,7 @@ export const DropDownComponent = (
       className={classes.Children}
       style={{ position: "relative", height: "100%", width: "100%" }}
     >
-      {props.children}
+      <>{props.children}</>
     </div>
   </details>
 );
