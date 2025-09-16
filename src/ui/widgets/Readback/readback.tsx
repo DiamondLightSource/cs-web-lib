@@ -193,7 +193,6 @@ export const ReadbackComponent = (
       disabled={!enabled}
       value={displayedValue}
       multiline={wrapWords}
-      maxRows={"auto"}
       variant="outlined"
       slotProps={{
         input: {
@@ -212,10 +211,12 @@ export const ReadbackComponent = (
         "& .MuiInputBase-input": {
           textAlign: textAlign,
           font: font,
-          lineHeight: 1
         },
         "& .MuiInputBase-root": {
+          justifyContent: alignmentV,
+          flexDirection: "column",
           alignItems: alignmentV,
+          overflow: "hidden",
           color: foregroundColor,
           backgroundColor: backgroundColor
         },
