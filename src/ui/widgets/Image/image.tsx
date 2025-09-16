@@ -33,7 +33,12 @@ const ImageProps = {
 export const ImageComponent = (
   props: InferWidgetProps<typeof ImageProps>
 ): JSX.Element => {
-  const { rotation = 0, flipHorizontal, flipVertical, stretchToFit = false } = props;
+  const {
+    rotation = 0,
+    flipHorizontal,
+    flipVertical,
+    stretchToFit = false
+  } = props;
 
   const onClick = (event: React.MouseEvent<HTMLDivElement>): void => {
     if (props.onClick) {
@@ -41,7 +46,6 @@ export const ImageComponent = (
     }
   };
 
-  console.log(stretchToFit)
   const overflow = props.overflow ? "visible" : "hidden";
 
   const style: CSSProperties = {

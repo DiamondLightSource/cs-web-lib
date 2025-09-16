@@ -210,7 +210,7 @@ export const ReadbackComponent = (
         },
         "& .MuiInputBase-input": {
           textAlign: textAlign,
-          font: font,
+          font: font
         },
         "& .MuiInputBase-root": {
           justifyContent: alignmentV,
