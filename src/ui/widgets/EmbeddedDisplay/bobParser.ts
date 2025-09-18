@@ -82,7 +82,7 @@ export const WIDGET_DEFAULT_SIZES: { [key: string]: [number, number] } = {
   polyline: [100, 20],
   progressbar: [100, 20],
   rectangle: [100, 20],
-  tank: [200, 150],
+  tank: [150, 200],
   scaledslider: [400, 55],
   symbol: [100, 100]
 };
@@ -398,7 +398,8 @@ export function parseBob(
     lineStyle: ["line_style", bobParseNumber],
     majorTickStepHint: ["major_tick_step_hint", bobParseNumber],
     maximum: ["maximum", bobParseNumber],
-    minimum: ["minimum", bobParseNumber]
+    minimum: ["minimum", bobParseNumber],
+    emptyColor: ["empty_color", opiParseColor]
   };
 
   const complexParsers = {

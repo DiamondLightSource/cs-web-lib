@@ -637,7 +637,7 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   textAlignV: ["vertical_alignment", opiParseVerticalAlignment],
   backgroundColor: ["background_color", opiParseColor],
   foregroundColor: ["foreground_color", opiParseColor],
-  emptyColor: ["empty_color", opiParseColor],
+  emptyColor: ["color_fillbackground", opiParseColor],
   onColor: ["on_color", opiParseColor],
   offColor: ["off_color", opiParseColor],
   fillColor: ["fill_color", opiParseColor],

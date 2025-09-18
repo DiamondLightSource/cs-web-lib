@@ -44,8 +44,8 @@ export const TankComponent = (
     showLabel = false,
     font,
     horizontal = false,
-    fillColor = Color.fromRgba(0, 0, 255, 255),
-    emptyColor = Color.fromRgba(250, 250, 250, 255),
+    fillColor = Color.fromRgba(0, 0, 255, 1),
+    emptyColor = Color.fromRgba(192, 192, 192, 1),
     precision = undefined,
     scaleVisible = true,
     logScale = false,
@@ -55,7 +55,7 @@ export const TankComponent = (
 
   const backgroundColor = transparent
     ? "transparent"
-    : (props.backgroundColor?.toString() ?? "rgba(250, 250, 250, 255)");
+    : (props.backgroundColor?.toString() ?? "rgba(250, 250, 250, 1)");
 
   let { minimum = 0, maximum = 100 } = props;
   if (limitsFromPv && value?.display.controlRange) {
@@ -85,15 +85,13 @@ export const TankComponent = (
     scalePosition = horizontal ? "top" : "left";
   }
 
-  const scaleAxisProps = [
-    {
-      min: minimum,
-      max: maximum,
-      data: scaleVisible ? undefined : [""],
-      position: scalePosition,
-      scaleType: logScale ? "symlog" : "linear"
-    }
-  ];
+  const scaleAxisProps = {
+    min: minimum,
+    max: maximum,
+    data: scaleVisible ? undefined : [""],
+    position: scalePosition,
+    scaleType: logScale ? "symlog" : "linear"
+  };
 
   const disabledAxisProps = [
     {
@@ -111,16 +109,22 @@ export const TankComponent = (
         skipAnimation
         borderRadius={4}
         hideLegend
+        margin={{
+          left: horizontal ? 10 : 2,
+          right: horizontal ? 10 : 2,
+          top: horizontal ? 2 : 10,
+          bottom: horizontal ? 2 : 10
+        }}
         layout={horizontal ? "horizontal" : "vertical"}
         xAxis={
           horizontal
-            ? (scaleAxisProps as ReadonlyArray<XAxis<any>>)
+            ? ([{ ...scaleAxisProps, height: 25 }] as ReadonlyArray<XAxis<any>>)
             : (disabledAxisProps as ReadonlyArray<XAxis<any>>)
         }
         yAxis={
           horizontal
             ? (disabledAxisProps as ReadonlyArray<YAxis<any>>)
-            : (scaleAxisProps as ReadonlyArray<YAxis<any>>)
+            : ([{ ...scaleAxisProps, width: 25 }] as ReadonlyArray<YAxis<any>>)
         }
         series={[
           {
