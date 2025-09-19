@@ -55,6 +55,7 @@ const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   progressbar: "progressbar",
   rectangle: "shape",
   tank: "tank",
+  thermometer: "thermometer",
   choice: "choicebutton",
   scaledslider: "slidecontrol",
   symbol: "symbol"
@@ -83,6 +84,7 @@ export const WIDGET_DEFAULT_SIZES: { [key: string]: [number, number] } = {
   progressbar: [100, 20],
   rectangle: [100, 20],
   tank: [150, 200],
+  thermometer: [40, 160],
   scaledslider: [400, 55],
   symbol: [100, 100]
 };
