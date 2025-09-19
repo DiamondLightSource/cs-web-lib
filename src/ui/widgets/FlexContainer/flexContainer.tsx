@@ -36,7 +36,7 @@ export const FlexContainerComponent = (
   };
   return (
     <div className={classes.FlexContainer} style={style}>
-      {props.children}
+      <>{props.children}</>
     </div>
   );
 };

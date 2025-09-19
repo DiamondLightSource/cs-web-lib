@@ -103,7 +103,9 @@ export const GroupBoxComponent = (
           <></>
         )}
         {styleOpt === 0 ? <legend>{name}</legend> : <></>}
-        <div style={INNER_DIV_STYLE}>{props.children}</div>
+        <div style={INNER_DIV_STYLE}>
+          <>{props.children}</>
+        </div>
       </Box>
     </div>
   );

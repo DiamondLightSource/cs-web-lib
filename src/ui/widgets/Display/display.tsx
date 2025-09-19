@@ -72,7 +72,7 @@ export const DisplayComponent = (
   return (
     <MacroContext.Provider value={displayMacroContext}>
       <div style={style} className="display">
-        {props.children}
+        <>{props.children}</>
       </div>
     </MacroContext.Provider>
   );

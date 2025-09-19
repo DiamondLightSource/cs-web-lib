@@ -71,6 +71,7 @@ const OPI_WIDGET_MAPPING: { [key: string]: any } = {
   "org.csstudio.opibuilder.widgets.symbol.multistate.MultistateMonitorWidget":
     "symbol",
   "org.csstudio.opibuilder.widgets.progressbar": "progressbar",
+  "org.csstudio.opibuilder.widgets.tank": "tank",
   "org.csstudio.opibuilder.widgets.LED": "led",
   "org.csstudio.opibuilder.widgets.Image": "image",
   "org.csstudio.opibuilder.widgets.edm.symbolwidget": "pngsymbol",
@@ -636,6 +637,7 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   textAlignV: ["vertical_alignment", opiParseVerticalAlignment],
   backgroundColor: ["background_color", opiParseColor],
   foregroundColor: ["foreground_color", opiParseColor],
+  emptyColor: ["color_fillbackground", opiParseColor],
   onColor: ["on_color", opiParseColor],
   offColor: ["off_color", opiParseColor],
   fillColor: ["fill_color", opiParseColor],
@@ -644,6 +646,7 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   precisionFromPv: ["precision_from_pv", opiParseBoolean],
   visible: ["visible", opiParseBoolean],
   showUnits: ["show_units", opiParseBoolean],
+  scaleVisible: ["scale_visible", opiParseBoolean],
   transparent: ["transparent", opiParseBoolean],
   horizontal: ["horizontal", opiParseBoolean],
   wrapWords: ["wrap_words", opiParseBoolean],

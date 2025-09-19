@@ -7,6 +7,7 @@
     "rollup": "rollup -c",
     "test": "vitest",
     "lint": "eslint 'src/**/*.{ts,tsx}' --max-warnings=0",
+    "lint:fix": "eslint 'src/**/*.{ts,tsx}' --max-warnings=0 --fix",
     "prettier-check": "prettier --check 'src/**/*.{ts,tsx}'",
     "check-types": "tsc",
     "all-checks": "npm run lint && npm run prettier-check && npm run check-types"
@@ -31,7 +32,8 @@
   "devDependencies": {
     "@apollo/client": "^3.11.8",
     "@emotion/styled": "^11.13.0",
-    "@mui/material": "^6.1.6",
+    "@mui/material": "^7.3.2",
+    "@mui/x-charts": "^8.11.2",
     "@rollup/plugin-commonjs": "^28",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-typescript": "^11.1.6",
