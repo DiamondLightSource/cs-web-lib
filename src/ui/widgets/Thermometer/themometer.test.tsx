@@ -5,7 +5,7 @@ import { render } from "@testing-library/react";
 import * as d3 from "d3";
 import {
   calculateMercuryHeight,
-  calculateThemometerDimensions,
+  calculateThermometerDimensions,
   ThermometerComponent
 } from "./thermometer";
 import { Color } from "../../../types/color";
@@ -54,8 +54,8 @@ describe("Thermometer Component", () => {
     }
   } as Partial<DType> as DType;
 
-  describe("calculateThemometerDimensions", () => {
-    it("should calculate correct dimensions for maximum themometer width", () => {
+  describe("calculateThermometerDimensions", () => {
+    it("should calculate correct dimensions for maximum thermometer width", () => {
       beforeEach(() => {
         vi.clearAllMocks();
       });
@@ -67,7 +67,7 @@ describe("Thermometer Component", () => {
       const expectedVerticalStemHeight =
         156 - expectedStemHalfWidth - expectedBulbRadius - bulbUpperHeight;
 
-      const dimensions = calculateThemometerDimensions(44, 160);
+      const dimensions = calculateThermometerDimensions(44, 160);
 
       expect(dimensions.outerWidth).toBe(44);
       expect(dimensions.outerHeight).toBe(160);
@@ -105,7 +105,7 @@ describe("Thermometer Component", () => {
       const expectedVerticalStemHeight =
         156 - expectedStemHalfWidth - expectedBulbRadius - bulbUpperHeight;
 
-      const dimensions = calculateThemometerDimensions(26, 160);
+      const dimensions = calculateThermometerDimensions(26, 160);
 
       expect(dimensions.outerWidth).toBe(26);
       expect(dimensions.outerHeight).toBe(160);
@@ -135,7 +135,7 @@ describe("Thermometer Component", () => {
       expect(dimensions.bulbRadius).toBeCloseTo(expectedBulbRadius, 3);
     });
 
-    it("should calculate correct dimensions for squat themometer", () => {
+    it("should calculate correct dimensions for squat thermometer", () => {
       const expectedStemHalfWidth = 10;
       const bulbUpperHeight = expectedStemHalfWidth / 0.80901699;
       const expectedBulbRadius = expectedStemHalfWidth / 0.587785;
@@ -143,7 +143,7 @@ describe("Thermometer Component", () => {
       const expectedVerticalStemHeight =
         36 - expectedStemHalfWidth - expectedBulbRadius - bulbUpperHeight;
 
-      const dimensions = calculateThemometerDimensions(64, 40);
+      const dimensions = calculateThermometerDimensions(64, 40);
 
       expect(dimensions.outerWidth).toBe(64);
       expect(dimensions.outerHeight).toBe(40);
@@ -254,7 +254,7 @@ describe("Thermometer Component", () => {
       expect(result.mercurySurfaceLevelY).toBe(250);
     });
 
-    it("should fix mercury level to the maxium when value above maximum", () => {
+    it("should fix mercury level to the maximum when value above maximum", () => {
       const value = mockDType(120);
 
       const result = calculateMercuryHeight(

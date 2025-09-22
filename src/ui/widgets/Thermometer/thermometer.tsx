@@ -16,7 +16,7 @@ import { DType } from "../../../types";
 
 // This is the angle between vertical and the line from the center of the bulb to the intersection of the stem and bulb
 export const bulbStemAngle = Math.PI / 5;
-export const themometerOutlineWidth = 2;
+export const thermometerOutlineWidth = 2;
 
 export const ThermometerComponentProps = {
   minimum: FloatPropOpt,
@@ -27,7 +27,7 @@ export const ThermometerComponentProps = {
   fillColor: ColorPropOpt
 };
 
-interface ThermomemterDimensions {
+interface ThermometerDimensions {
   outerWidth: number;
   outerHeight: number;
   bulbCenterX: number;
@@ -63,8 +63,8 @@ export const ThermometerComponent = (
     [fillColor]
   );
 
-  const themometerDimensions = useMemo(
-    () => calculateThemometerDimensions(width, height),
+  const thermometerDimensions = useMemo(
+    () => calculateThermometerDimensions(width, height),
     [width, height]
   );
 
@@ -76,14 +76,14 @@ export const ThermometerComponent = (
 
   useEffect(() => {
     // Build the thermometer outline.
-    const thermometerPath = drawThermometerPathOutline(themometerDimensions);
-    const mercuryBulbPath = drawMercuryBulbPath(themometerDimensions);
+    const thermometerPath = drawThermometerPathOutline(thermometerDimensions);
+    const mercuryBulbPath = drawMercuryBulbPath(thermometerDimensions);
 
     // Create SVG
     const thermometerSvgGroup = d3
       .select(svgRef.current)
-      .attr("width", themometerDimensions.outerWidth)
-      .attr("height", themometerDimensions.outerHeight);
+      .attr("width", thermometerDimensions.outerWidth)
+      .attr("height", thermometerDimensions.outerHeight);
 
     // Add the thermometer outline
     thermometerSvgGroup
@@ -91,13 +91,13 @@ export const ThermometerComponent = (
       .attr("d", thermometerPath.toString())
       .attr("fill", colors.backgroundColor.toString())
       .attr("stroke", colors.borderColor.toString())
-      .style("stroke-width", themometerOutlineWidth);
+      .style("stroke-width", thermometerOutlineWidth);
 
     thermometerSvgGroup
       .append("path")
       .attr("d", mercuryBulbPath.toString())
       .attr("fill", colors.mercuryColor.toString());
-  }, [themometerDimensions, colors]);
+  }, [thermometerDimensions, colors]);
 
   useEffect(() => {
     // Fill stem with the correct amount of mercury
@@ -109,24 +109,24 @@ export const ThermometerComponent = (
       value,
       minimum,
       maximum,
-      themometerDimensions.verticalStemHeight,
-      themometerDimensions.topOfStemY
+      thermometerDimensions.verticalStemHeight,
+      thermometerDimensions.topOfStemY
     );
 
     d3.select(svgRef.current)
       .append("rect")
       .attr(
         "x",
-        themometerDimensions.leftSideStemX + themometerOutlineWidth / 2
+        thermometerDimensions.leftSideStemX + thermometerOutlineWidth / 2
       )
       .attr("y", mercurySurfaceLevelY)
       .attr(
         "width",
-        2 * themometerDimensions.stemHalfWidth - themometerOutlineWidth
+        2 * thermometerDimensions.stemHalfWidth - thermometerOutlineWidth
       )
-      .attr("height", mercuryHeight + themometerOutlineWidth)
+      .attr("height", mercuryHeight + thermometerOutlineWidth)
       .attr("fill", colors.mercuryColor.toString());
-  }, [value, maximum, minimum, themometerDimensions, colors]);
+  }, [value, maximum, minimum, thermometerDimensions, colors]);
 
   return (
     <Box
@@ -151,43 +151,43 @@ const ThermometerWidgetProps = {
 };
 
 const drawThermometerPathOutline = (
-  themometerDimensions: ThermomemterDimensions
+  thermometerDimensions: ThermometerDimensions
 ) => {
   const thermometerPath = d3.path();
 
   // Start at the top-left of the tube
   thermometerPath.moveTo(
-    themometerDimensions.leftSideStemX,
-    themometerDimensions.topOfStemY
+    thermometerDimensions.leftSideStemX,
+    thermometerDimensions.topOfStemY
   );
 
   // Draw semi-circular top of the stem
   thermometerPath.arcTo(
-    themometerDimensions.leftSideStemX,
-    themometerDimensions.topOfStemY - themometerDimensions.stemHalfWidth,
-    themometerDimensions.bulbCenterX,
-    themometerDimensions.topOfStemY - themometerDimensions.stemHalfWidth,
-    themometerDimensions.stemHalfWidth
+    thermometerDimensions.leftSideStemX,
+    thermometerDimensions.topOfStemY - thermometerDimensions.stemHalfWidth,
+    thermometerDimensions.bulbCenterX,
+    thermometerDimensions.topOfStemY - thermometerDimensions.stemHalfWidth,
+    thermometerDimensions.stemHalfWidth
   );
   thermometerPath.arcTo(
-    themometerDimensions.rightSideStemX,
-    themometerDimensions.topOfStemY - themometerDimensions.stemHalfWidth,
-    themometerDimensions.rightSideStemX,
-    themometerDimensions.topOfStemY,
-    themometerDimensions.stemHalfWidth
+    thermometerDimensions.rightSideStemX,
+    thermometerDimensions.topOfStemY - thermometerDimensions.stemHalfWidth,
+    thermometerDimensions.rightSideStemX,
+    thermometerDimensions.topOfStemY,
+    thermometerDimensions.stemHalfWidth
   );
 
   // Draw right side of stem
   thermometerPath.lineTo(
-    themometerDimensions.rightSideStemX,
-    themometerDimensions.bottomOfStemY
+    thermometerDimensions.rightSideStemX,
+    thermometerDimensions.bottomOfStemY
   );
 
   // Draw the bulb outline. Rotate angle by pi/2, to make relative to horizontal axis, rather than vertical.
   thermometerPath.arc(
-    themometerDimensions.bulbCenterX,
-    themometerDimensions.bulbCenterY,
-    themometerDimensions.bulbRadius,
+    thermometerDimensions.bulbCenterX,
+    thermometerDimensions.bulbCenterY,
+    thermometerDimensions.bulbRadius,
     bulbStemAngle - Math.PI / 2,
     -bulbStemAngle - Math.PI / 2,
     false
@@ -197,24 +197,24 @@ const drawThermometerPathOutline = (
   return thermometerPath;
 };
 
-const drawMercuryBulbPath = (themometerDimensions: ThermomemterDimensions) => {
-  // very similar to the thermometer outline bulb, but corrected for half the width of the thermomemter outline.
+const drawMercuryBulbPath = (thermometerDimensions: ThermometerDimensions) => {
+  // very similar to the thermometer outline bulb, but corrected for half the width of the thermometer outline.
   const mercuryBulbPath = d3.path();
 
   const bulbTopRightX =
-    themometerDimensions.rightSideStemX -
-    themometerOutlineWidth * 0.5 * Math.cos(bulbStemAngle);
+    thermometerDimensions.rightSideStemX -
+    thermometerOutlineWidth * 0.5 * Math.cos(bulbStemAngle);
   const bulbTopRightY =
-    themometerDimensions.bottomOfStemY +
-    themometerOutlineWidth * 0.5 * Math.sin(bulbStemAngle);
+    thermometerDimensions.bottomOfStemY +
+    thermometerOutlineWidth * 0.5 * Math.sin(bulbStemAngle);
 
   mercuryBulbPath.moveTo(bulbTopRightX, bulbTopRightY);
 
   // Draw the bulb outline
   mercuryBulbPath.arc(
-    themometerDimensions.bulbCenterX,
-    themometerDimensions.bulbCenterY,
-    themometerDimensions.bulbRadius - themometerOutlineWidth * 0.5,
+    thermometerDimensions.bulbCenterX,
+    thermometerDimensions.bulbCenterY,
+    thermometerDimensions.bulbRadius - thermometerOutlineWidth * 0.5,
     bulbStemAngle - Math.PI / 2,
     -bulbStemAngle - Math.PI / 2,
     false
@@ -224,13 +224,13 @@ const drawMercuryBulbPath = (themometerDimensions: ThermomemterDimensions) => {
   return mercuryBulbPath;
 };
 
-export const calculateThemometerDimensions = (
+export const calculateThermometerDimensions = (
   width: number,
   height: number
-): ThermomemterDimensions => {
+): ThermometerDimensions => {
   // allow padding around the thermometer
-  const innerWidth = width - themometerOutlineWidth;
-  const innerHeight = height - themometerOutlineWidth - 2;
+  const innerWidth = width - thermometerOutlineWidth;
+  const innerHeight = height - thermometerOutlineWidth - 2;
 
   // Stem half width is minimum of 10 or a quarter of the innerWidth
   const stemHalfWidth = Math.min(10, innerWidth * 0.25);
@@ -241,7 +241,7 @@ export const calculateThemometerDimensions = (
 
   const verticalStemHeight =
     innerHeight - stemHalfWidth - bulbRadius - bulbUpperHeight;
-  const topOfStemY = stemHalfWidth + 1 + 0.5 * themometerOutlineWidth;
+  const topOfStemY = stemHalfWidth + 1 + 0.5 * thermometerOutlineWidth;
 
   return {
     outerHeight: height,
