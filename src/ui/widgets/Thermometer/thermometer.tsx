@@ -134,9 +134,6 @@ export const ThermometerComponent = (
         height: "100%",
         width: "100%",
         position: "absolute",
-        border: 1,
-        borderColor: "#D2D2D2",
-        borderRadius: "4px",
         backgroundColor: "transparent"
       }}
     >
