@@ -72,6 +72,7 @@ const OPI_WIDGET_MAPPING: { [key: string]: any } = {
     "symbol",
   "org.csstudio.opibuilder.widgets.progressbar": "progressbar",
   "org.csstudio.opibuilder.widgets.tank": "tank",
+  "org.csstudio.opibuilder.widgets.thermometer": "thermometer",
   "org.csstudio.opibuilder.widgets.LED": "led",
   "org.csstudio.opibuilder.widgets.Image": "image",
   "org.csstudio.opibuilder.widgets.edm.symbolwidget": "pngsymbol",
