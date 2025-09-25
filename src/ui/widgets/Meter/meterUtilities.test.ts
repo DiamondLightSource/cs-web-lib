@@ -31,7 +31,7 @@ describe("convertInfAndNanToUndefined", () => {
 describe("formatValue", () => {
   it("should format values with default format", () => {
     const formatter = formatValue(123.456, NumberFormatEnum.Default, 2, "V");
-    expect(formatter()).toBe("123.46");
+    expect(formatter()).toBe("123");
 
     const formatterWithUnits = formatValue(
       123.456,
@@ -40,7 +40,41 @@ describe("formatValue", () => {
       "V",
       true
     );
-    expect(formatterWithUnits()).toBe("123.46 V");
+    expect(formatterWithUnits()).toBe("123 V");
+  });
+
+  it("should format values with default format, over different orders of magnitude", () => {
+    const formatter1 = formatValue(1234.56, NumberFormatEnum.Default, 2, "V");
+    expect(formatter1()).toBe("1235");
+
+    const formatter2 = formatValue(12.3456, NumberFormatEnum.Default, 2, "V");
+    expect(formatter2()).toBe("12");
+
+    const formatter3 = formatValue(12345.6, NumberFormatEnum.Default, 2, "V");
+    expect(formatter3()).toBe("1.2e+4");
+
+    const formatter4 = formatValue(0.0123456, NumberFormatEnum.Default, 2, "V");
+    expect(formatter4()).toBe("0.012");
+
+    const formatter5 = formatValue(
+      0.000000123456,
+      NumberFormatEnum.Default,
+      2,
+      "V"
+    );
+    expect(formatter5()).toBe("1.2e-7");
+
+    const formatter9 = formatValue(-12345.6, NumberFormatEnum.Default, 2, "V");
+    expect(formatter9()).toBe("-1.2e+4");
+
+    const formatter6 = formatValue(-1234.56, NumberFormatEnum.Default, 2, "V");
+    expect(formatter6()).toBe("-1235");
+
+    const formatter7 = formatValue(-123.456, NumberFormatEnum.Default, 2, "V");
+    expect(formatter7()).toBe("-123");
+
+    const formatter8 = formatValue(-12.3456, NumberFormatEnum.Default, 2, "V");
+    expect(formatter8()).toBe("-12");
   });
 
   it("should format values with exponential format", () => {
@@ -101,7 +135,7 @@ describe("formatValue", () => {
 
   it("should use default precision when precision is -1", () => {
     const formatter = formatValue(123.456, NumberFormatEnum.Default, -1, "V");
-    expect(formatter()).toBe("123.456");
+    expect(formatter()).toBe("123");
   });
 });
 

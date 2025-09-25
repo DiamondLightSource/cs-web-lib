@@ -166,7 +166,7 @@ export const MeterComponent = (
                 } => ({
                   value: x,
                   valueConfig: {
-                    formatTextValue: formatValue(x, format, 2, "", false)
+                    formatTextValue: formatValue(x, 1, 2, "", false)
                   }
                 })
               ),

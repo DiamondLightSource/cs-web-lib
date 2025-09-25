@@ -46,9 +46,17 @@ export const formatValue =
     } else if (numberFormat === NumberFormatEnum.Engineering) {
       strVal = value.toPrecision(maxPrecision);
     } else if (numberFormat === NumberFormatEnum.Hexadecimal) {
-      strVal = `0x${Math.round(value).toString(16)}`;
+      strVal = `0x${Math.floor(value).toString(16)}`;
     } else {
-      strVal = value.toFixed(maxPrecision);
+      const absValue = Math.abs(value);
+      if (
+        (precision < 4 && absValue < Math.pow(10, precision)) ||
+        absValue > 10000
+      ) {
+        strVal = value.toPrecision(maxPrecision);
+      } else {
+        strVal = value.toPrecision(1 + Math.floor(Math.log10(absValue)));
+      }
     }
 
     return showUnits ? `${strVal} ${units}` : strVal;
