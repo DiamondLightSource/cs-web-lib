@@ -73,6 +73,7 @@ const OPI_WIDGET_MAPPING: { [key: string]: any } = {
   "org.csstudio.opibuilder.widgets.progressbar": "progressbar",
   "org.csstudio.opibuilder.widgets.tank": "tank",
   "org.csstudio.opibuilder.widgets.thermometer": "thermometer",
+  "org.csstudio.opibuilder.widgets.tmeter": "meter",
   "org.csstudio.opibuilder.widgets.LED": "led",
   "org.csstudio.opibuilder.widgets.Image": "image",
   "org.csstudio.opibuilder.widgets.edm.symbolwidget": "pngsymbol",
@@ -642,11 +643,13 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   onColor: ["on_color", opiParseColor],
   offColor: ["off_color", opiParseColor],
   fillColor: ["fill_color", opiParseColor],
+  needleColor: ["needle_color", opiParseColor],
   precision: ["precision", opiParseNumber],
   formatType: ["format_type", opiParseFormatType],
   precisionFromPv: ["precision_from_pv", opiParseBoolean],
   visible: ["visible", opiParseBoolean],
   showUnits: ["show_units", opiParseBoolean],
+  showValue: ["show_value_label", opiParseBoolean],
   scaleVisible: ["scale_visible", opiParseBoolean],
   transparent: ["transparent", opiParseBoolean],
   horizontal: ["horizontal", opiParseBoolean],
@@ -713,7 +716,9 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   selectedColor: ["selected_color", opiParseColor],
   enabled: ["enabled", opiParseBoolean],
   resize: ["resize_behaviour", opiParseResizing],
-  labelsFromPv: ["labels_from_pv", opiParseBoolean]
+  labelsFromPv: ["labels_from_pv", opiParseBoolean],
+  limitsFromPv: ["limits_from_pv", opiParseBoolean],
+  format: ["format_type", opiParseNumber]
 };
 
 /**

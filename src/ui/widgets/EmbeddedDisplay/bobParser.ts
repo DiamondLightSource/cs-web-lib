@@ -56,6 +56,7 @@ const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   rectangle: "shape",
   tank: "tank",
   thermometer: "thermometer",
+  meter: "meter",
   choice: "choicebutton",
   scaledslider: "slidecontrol",
   symbol: "symbol"
@@ -85,6 +86,7 @@ export const WIDGET_DEFAULT_SIZES: { [key: string]: [number, number] } = {
   rectangle: [100, 20],
   tank: [150, 200],
   thermometer: [40, 160],
+  meter: [240, 120],
   scaledslider: [400, 55],
   symbol: [100, 100]
 };
@@ -381,6 +383,7 @@ export function parseBob(
     symbols: ["symbols", bobParseSymbols],
     initialIndex: ["initial_index", bobParseNumber],
     showIndex: ["show_index", opiParseBoolean],
+    showValue: ["show_value", opiParseBoolean],
     fallbackSymbol: ["fallback_symbol", opiParseString],
     rotation: ["rotation", bobParseNumber],
     styleOpt: ["style", bobParseNumber],
@@ -401,7 +404,9 @@ export function parseBob(
     majorTickStepHint: ["major_tick_step_hint", bobParseNumber],
     maximum: ["maximum", bobParseNumber],
     minimum: ["minimum", bobParseNumber],
-    emptyColor: ["empty_color", opiParseColor]
+    format: ["format", bobParseNumber],
+    emptyColor: ["empty_color", opiParseColor],
+    needleColor: ["needle_color", opiParseColor]
   };
 
   const complexParsers = {

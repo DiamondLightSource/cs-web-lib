@@ -29,6 +29,7 @@ export { Polygon } from "./Polygon/polygon";
 export { ProgressBar } from "./ProgressBar/progressBar";
 export { Tank } from "./Tank/tank";
 export { Thermometer } from "./Thermometer/thermometer";
+export { Meter } from "./Meter/meter";
 export { SimpleSymbol } from "./SimpleSymbol/simpleSymbol";
 export { SlideControl } from "./SlideControl/slideControl";
 export { Slideshow } from "./Slideshow/slideshow";
