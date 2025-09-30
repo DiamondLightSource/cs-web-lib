@@ -8,24 +8,21 @@ import * as meterUtilities from "./meterUtilities";
 import { DType, Font } from "../../../types";
 
 vi.mock("react-gauge-component", () => ({
-  GaugeComponent: vi.fn(
-    ({ value, minValue, maxValue, pointer, arc, labels }) => (
+  GaugeComponent: vi.fn(({ value, minValue, maxValue, labels, style }) => (
+    <div
+      data-testid="gauge-component"
+      data-value={value}
+      data-min={minValue}
+      data-max={maxValue}
+      data-style={JSON.stringify(style)}
+    >
       <div
-        data-testid="gauge-component"
-        data-value={value}
-        data-min={minValue}
-        data-max={maxValue}
-      >
-        <div data-testid="pointer" data-color={pointer.color}></div>
-        <div data-testid="arc" data-subarcs={JSON.stringify(arc.subArcs)}></div>
-        <div
-          data-testid="value-label"
-          data-hide={labels.valueLabel.hide}
-          data-fontFamily={labels.valueLabel.style.fontFamily}
-        ></div>
-      </div>
-    )
-  )
+        data-testid="value-label"
+        data-hide={labels.valueLabel.hide}
+        data-font-family={labels.valueLabel.style.fontFamily}
+      ></div>
+    </div>
+  ))
 }));
 
 vi.mock("./meterUtilities", async () => {
@@ -161,15 +158,33 @@ describe("MeterComponent", () => {
   it("scales width correctly based on height/width ratio", () => {
     render(<MeterComponent {...defaultProps} height={100} width={300} />);
 
-    const box = screen.getByTestId("gauge-component").parentElement;
-    expect(box).toHaveStyle("width: 190px"); // 1.9 * height
+    const gauge = screen.getByTestId("gauge-component");
+    expect(JSON.parse(gauge.getAttribute("data-style") ?? "{}").width).toBe(
+      190
+    ); // scaled width
   });
 
-  it("uses default width when width/height ratio is less than 1.9", () => {
+  it("uses 100% parent box width when width/height ratio is greater than 1.9", () => {
+    render(<MeterComponent {...defaultProps} height={100} width={300} />);
+
+    const box = screen.getByTestId("gauge-component").parentElement;
+    expect(box).toHaveStyle("width: 100%");
+  });
+
+  it("uses width when width/height ratio is less than 1.9", () => {
+    render(<MeterComponent {...defaultProps} height={100} width={150} />);
+
+    const gauge = screen.getByTestId("gauge-component");
+    expect(JSON.parse(gauge.getAttribute("data-style") ?? "{}").width).toBe(
+      150
+    ); // specified width
+  });
+
+  it("uses 100% parent box width when width/height ratio is less than 1.9", () => {
     render(<MeterComponent {...defaultProps} height={100} width={150} />);
 
     const box = screen.getByTestId("gauge-component").parentElement;
-    expect(box).toHaveStyle("width: 150px"); // original width
+    expect(box).toHaveStyle("width: 100%");
   });
 
   it("applies font styles correctly", () => {
@@ -181,7 +196,7 @@ describe("MeterComponent", () => {
 
     const valueLabel = screen.getByTestId("value-label");
 
-    const labelStyle = valueLabel.getAttribute("data-fontFamily");
+    const labelStyle = valueLabel.getAttribute("data-font-family");
     expect(labelStyle).toBe("Arial");
   });
 });

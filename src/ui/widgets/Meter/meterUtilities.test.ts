@@ -4,8 +4,29 @@ import {
   convertInfAndNanToUndefined,
   formatValue,
   buildSubArcs,
-  createIntervals
+  createTickPositions,
+  formatTickLabels
 } from "./meterUtilities";
+
+describe("formatTickLabels", () => {
+  it("Nicely formats small set of integers", () => {
+    const ticks = [1, 2, 3, 5, 6, 7];
+    const expectedTickLabels = ["1.0", "2.0", "3.0", "5.0", "6.0", "7.0"];
+    expect(formatTickLabels(ticks)).toStrictEqual(expectedTickLabels);
+  });
+
+  it("Only formats every other tick number for long number strings ", () => {
+    const ticks = [700, 800, 900, 1000, 1100, 1200];
+    const expectedTickLabels = ["700", "", "900", "", "1100", ""];
+    expect(formatTickLabels(ticks)).toStrictEqual(expectedTickLabels);
+  });
+
+  it("Only formats every other tick number for long negative number strings ", () => {
+    const ticks = [-120, -110, -100, -90, -80];
+    const expectedTickLabels = ["-120", "", "-100", "", "-80"];
+    expect(formatTickLabels(ticks)).toStrictEqual(expectedTickLabels);
+  });
+});
 
 describe("convertInfAndNanToUndefined", () => {
   it("should return the same value for finite numbers", () => {
@@ -248,114 +269,136 @@ describe("buildSubArcs", () => {
 
 describe("createIntervals", () => {
   it("should create intervals between min and max values", () => {
-    const intervals = createIntervals(0, 100);
+    const intervals = createTickPositions(0, 100);
     expect(intervals.length).toBe(11);
     expect(intervals.length).toBeLessThanOrEqual(16);
     expect(intervals[0]).toBe(0);
+    expect(intervals[1]).toBe(10);
     expect(intervals[intervals.length - 1]).toBe(100);
   });
 
   it("should create intervals for decimal ranges", () => {
-    const intervals = createIntervals(0.1, 0.9);
-    expect(intervals.length).toBe(9);
+    const intervals = createTickPositions(0.1, 0.9);
+    expect(intervals.length).toBe(10);
     expect(intervals.length).toBeLessThanOrEqual(16);
     expect(intervals[0]).toBe(0.1);
+    expect(intervals[1]).toBe(0.2);
     expect(intervals[intervals.length - 1]).toBe(0.9);
   });
 
   it("should create intervals for negative ranges", () => {
-    const intervals = createIntervals(-100, -10);
+    const intervals = createTickPositions(-100, -10);
     expect(intervals.length).toBe(10);
     expect(intervals.length).toBeLessThanOrEqual(16);
     expect(intervals[0]).toBe(-100);
+    expect(intervals[1]).toBe(-90);
     expect(intervals[intervals.length - 1]).toBe(-10);
   });
 
-  it("should create intervals for mixed ranges", () => {
-    const intervals = createIntervals(-50, 50);
+  it("should create intervals for mixed positive/negative limits", () => {
+    const intervals = createTickPositions(-50, 50);
     expect(intervals.length).toBe(11);
     expect(intervals.length).toBeLessThanOrEqual(16);
     expect(intervals[0]).toBe(-50);
+    expect(intervals[1]).toBe(-40);
     expect(intervals[intervals.length - 1]).toBe(50);
   });
 
   it("should handle very small ranges", () => {
-    const intervals = createIntervals(1, 1.0001);
+    const intervals = createTickPositions(1, 1.0001);
     expect(intervals.length).toBe(11);
     expect(intervals[0]).toBe(1);
+    expect(intervals[1]).toBe(1.00001);
     expect(intervals[intervals.length - 1]).toBe(1.0001);
   });
 
   it("should throw error when min is greater than or equal to max", () => {
-    expect(() => createIntervals(10, 5)).toThrow(
+    expect(() => createTickPositions(10, 5)).toThrow(
       "Minimum value must be less than maximum value"
     );
-    expect(() => createIntervals(5, 5)).toThrow(
+    expect(() => createTickPositions(5, 5)).toThrow(
       "Minimum value must be less than maximum value"
     );
   });
 
   it("should handle very large ranges", () => {
-    const intervals = createIntervals(0, 1000000);
+    const intervals = createTickPositions(0, 1000000);
     expect(intervals.length).toBe(11);
     expect(intervals.length).toBeLessThanOrEqual(16);
     expect(intervals[0]).toBe(0);
+    expect(intervals[1]).toBe(100000);
     expect(intervals[intervals.length - 1]).toBe(1000000);
   });
 
-  it("should handle very small exponential ranges", () => {
-    const intervals = createIntervals(1.0e-12, 1.0e9);
+  it("should handle very large exponential ranges", () => {
+    const intervals = createTickPositions(1.0e-12, 1.0e9);
     expect(intervals.length).toBe(11);
     expect(intervals[0]).toBe(0); // note non-log scale
+    expect(intervals[1]).toBe(1.0e8);
     expect(intervals[intervals.length - 1]).toBe(1.0e9);
   });
 
   it("should create intervals of spacing 0.5, when the range is 6", () => {
-    const intervals = createIntervals(20, 26);
+    const intervals = createTickPositions(20, 26);
     expect(intervals.length).toBe(13);
     expect(intervals[0]).toBe(20);
+    expect(intervals[1]).toBe(20.5);
     expect(intervals[intervals.length - 1]).toBe(26);
   });
 
   it("should create intervals of spacing 1, when the range is 7", () => {
-    const intervals = createIntervals(20, 27);
+    const intervals = createTickPositions(20, 27);
     expect(intervals.length).toBe(8);
     expect(intervals[0]).toBe(20);
+    expect(intervals[1]).toBe(21);
     expect(intervals[intervals.length - 1]).toBe(27);
   });
 
   it("should create intervals of spacing 2 when the range is 16", () => {
-    const intervals = createIntervals(10, 26);
+    const intervals = createTickPositions(10, 26);
     expect(intervals.length).toBe(9);
     expect(intervals[0]).toBe(10);
+    expect(intervals[1]).toBe(12);
     expect(intervals[intervals.length - 1]).toBe(26);
   });
 
   it("should create intervals of spacing 2.5 when the range is 25", () => {
-    const intervals = createIntervals(10, 35);
+    const intervals = createTickPositions(10, 35);
     expect(intervals.length).toBe(11);
     expect(intervals[0]).toBe(10);
+    expect(intervals[1]).toBe(12.5);
     expect(intervals[intervals.length - 1]).toBe(35);
   });
 
   it("should create intervals of spacing 5 when the range is 45", () => {
-    const intervals = createIntervals(10, 55);
+    const intervals = createTickPositions(10, 55);
     expect(intervals.length).toBe(10);
     expect(intervals[0]).toBe(10);
+    expect(intervals[1]).toBe(15);
     expect(intervals[intervals.length - 1]).toBe(55);
   });
 
   it("should create intervals of spacing 10 when the range is 90", () => {
-    const intervals = createIntervals(10, 100);
+    const intervals = createTickPositions(10, 100);
     expect(intervals.length).toBe(10);
     expect(intervals[0]).toBe(10);
+    expect(intervals[1]).toBe(20);
     expect(intervals[intervals.length - 1]).toBe(100);
   });
 
   it("should create intervals of spacing 20 when the range is 160", () => {
-    const intervals = createIntervals(10, 170);
-    expect(intervals.length).toBe(10);
+    const intervals = createTickPositions(10, 190);
+    expect(intervals.length).toBe(11);
     expect(intervals[0]).toBe(10);
-    expect(intervals[intervals.length - 1]).toBe(170);
+    expect(intervals[1]).toBe(20);
+    expect(intervals[intervals.length - 1]).toBe(190);
+  });
+
+  it("should create intervals of when range is small fraction of the number magnitude", () => {
+    const intervals = createTickPositions(10.0121, 10.0129);
+    expect(intervals.length).toBe(10);
+    expect(intervals[0]).toBe(10.0121);
+    expect(intervals[1]).toBe(10.0122);
+    expect(intervals[intervals.length - 1]).toBe(10.0129);
   });
 });

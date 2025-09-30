@@ -6,6 +6,26 @@ export enum NumberFormatEnum {
 }
 
 /**
+ * Given a series of numerical tick positions, returns an array of string tick positions.
+ * If the length of a string is greater than 4, returns every other value as a string
+ * @param tickPositions The numerical values of the tick locations
+ * @returns An array of tick positions as strings
+ */
+export const formatTickLabels = (tickPositions: number[]) => {
+  let tickLabels = tickPositions.map((value: number) =>
+    formatValue(value, 1, 2, "", false)()
+  );
+
+  if (tickLabels.find((str: string) => str.length > 3)) {
+    // If any of the numerical stings are longer than 3 characters, show every other tick label.
+    tickLabels = tickLabels.map((value, index) =>
+      index % 2 === 0 ? value : ""
+    );
+  }
+  return tickLabels;
+};
+
+/**
  * Convert inf and NaN Number values to undefined
  * @param value The value
  * @returns The value or undefined if the original value was undefined, null, inf, or NaN
@@ -137,13 +157,13 @@ export const buildSubArcs = (
 };
 
 /**
- * Creates interval boundaries between min and max values
+ * Calculates meter tick positions between min and max values
  *
  * @param min The minimum value of the range
  * @param max The maximum value of the range
- * @returns An array of interval boundary values
+ * @returns An array of tick values
  */
-export const createIntervals = (min: number, max: number): number[] => {
+export const createTickPositions = (min: number, max: number): number[] => {
   if (min >= max) {
     throw new Error("Minimum value must be less than maximum value");
   }
@@ -156,41 +176,30 @@ export const createIntervals = (min: number, max: number): number[] => {
   }
 
   // Determine the scale factor based on the range
-  let scale = 1;
-  let decimalPlaces = 1;
+  const decimalPlaces = Math.ceil(Math.abs(Math.log10(range)));
 
-  if (range < 1) {
-    // For decimal ranges, find how many decimal places we need
-    decimalPlaces = Math.ceil(Math.abs(Math.log10(range)));
-    scale = Math.pow(10, decimalPlaces);
-  }
-
-  // Scale up the values to work with integers
-  const scaledMin = min * scale;
-  const scaledMax = max * scale;
-  const scaledRange = scaledMax - scaledMin;
-
-  // Find the appropriate "nice" step size
-  const candidateSteps = findNiceStepSizes(scaledRange);
+  const candidateSteps = calculateCandidateStepSizes(range);
 
   let bestScore = Number.NEGATIVE_INFINITY;
-  let bestIntervals: number[] = [];
+  let bestStep = 1;
 
   for (const step of candidateSteps) {
-    const intervals = generateIntervals(scaledMin, scaledMax, step);
-
-    const score = scoreIntervals(intervals.length);
+    const numberOfSteps = Math.floor(range / step) + 1;
+    const score = scoreStepSizes(numberOfSteps);
 
     if (score > bestScore) {
       bestScore = score;
-      bestIntervals = intervals;
+      bestStep = step;
     }
   }
 
-  return bestIntervals.map(val => Number((val / scale).toFixed(decimalPlaces)));
+  const bestTickPositions = generateIntervals(min, max, bestStep);
+
+  // Scale back to the correct magnitude, round and return
+  return bestTickPositions.map(val => Number(val.toFixed(decimalPlaces)));
 };
 
-const findNiceStepSizes = (range: number): number[] => {
+const calculateCandidateStepSizes = (range: number): number[] => {
   const targetIntervals = 10;
   const roughStepSize = range / targetIntervals;
 
@@ -221,7 +230,6 @@ const generateIntervals = (
     current += step;
   }
 
-  // Add points at step intervals
   while (current < max && intervals.length < 20) {
     intervals.push(current);
     current += step;
@@ -234,17 +242,14 @@ const generateIntervals = (
   return intervals;
 };
 
-const scoreIntervals = (count: number): number => {
-  // Ideal
+const scoreStepSizes = (count: number): number => {
   if (count >= 8 && count <= 16) {
     return 100 - Math.abs(10 - count);
   }
 
-  // Acceptable
   if (count >= 5 && count <= 21) {
     return 90 - Math.abs(10 - count);
   }
 
-  // too many or too few intervals
   return 80 - Math.abs(10 - count);
 };

@@ -16,7 +16,8 @@ import { GaugeComponent } from "react-gauge-component";
 import {
   buildSubArcs,
   convertInfAndNanToUndefined,
-  createIntervals,
+  createTickPositions,
+  formatTickLabels,
   formatValue,
   NumberFormatEnum
 } from "./meterUtilities";
@@ -90,6 +91,10 @@ export const MeterComponent = (
   // For a semi semicircle height / width is 2, but allow extra height for some padding
   const scaledWidth = width / height > 1.9 ? 1.9 * height : width;
 
+  // Calculate the tick positions and the string labels
+  const tickPositions = createTickPositions(minimum, maximum);
+  const tickLabels = formatTickLabels(tickPositions);
+
   return (
     <Box
       alignItems="center"
@@ -104,87 +109,85 @@ export const MeterComponent = (
         position: "absolute"
       }}
     >
-      <Box
-        sx={{
-          display: "flex",
+      <GaugeComponent
+        style={{
           height: "100%",
           width: scaledWidth,
+          display: "flex",
           position: "absolute",
           backgroundColor: "transparent"
         }}
-      >
-        <GaugeComponent
-          value={numValue}
-          minValue={minimum}
-          maxValue={maximum}
-          type="semicircle"
-          marginInPercent={{
-            top: 0.005,
-            bottom: 0.02,
-            left: 0.09,
-            right: 0.09
-          }}
-          pointer={{
-            color: needleColor.toString(),
-            elastic: false,
-            animate: false,
-            length: 0.95
-          }}
-          arc={{
-            padding: 0,
-            cornerRadius: 0,
-            subArcs: buildSubArcs(
-              foregroundColor.toString(),
-              minimum,
-              maximum,
-              alarmRangeMin,
-              warningRangeMin,
-              warningRangeMax,
-              alarmRangeMax
-            ),
-            width: 0.03
-          }}
-          labels={{
-            valueLabel: {
-              style: {
-                fontFamily: font?.css().fontFamily,
-                fill: foregroundColor.toString(),
-                textShadow: "none"
-              },
-              formatTextValue: getFormattedValue,
-              matchColorWithArc: true,
-              hide: !showValue
+        value={numValue}
+        minValue={minimum}
+        maxValue={maximum}
+        type="semicircle"
+        marginInPercent={{
+          top: 0.005,
+          bottom: 0.02,
+          left: 0.09,
+          right: 0.09
+        }}
+        pointer={{
+          color: needleColor.toString(),
+          elastic: false,
+          animate: false,
+          length: 0.95
+        }}
+        arc={{
+          padding: 0,
+          cornerRadius: 0,
+          subArcs: buildSubArcs(
+            foregroundColor.toString(),
+            minimum,
+            maximum,
+            alarmRangeMin,
+            warningRangeMin,
+            warningRangeMax,
+            alarmRangeMax
+          ),
+          width: 0.03
+        }}
+        labels={{
+          valueLabel: {
+            style: {
+              fontFamily: font?.css().fontFamily,
+              fill: foregroundColor.toString(),
+              textShadow: "none"
             },
-            tickLabels: {
-              type: "inner",
-              ticks: createIntervals(minimum, maximum).map(
-                (
-                  x: number
-                ): {
-                  value: number;
-                  valueConfig: { formatTextValue: () => string };
-                } => ({
-                  value: x,
-                  valueConfig: {
-                    formatTextValue: formatValue(x, 1, 2, "", false)
-                  }
-                })
-              ),
-              defaultTickValueConfig: {
-                style: {
-                  fill: foregroundColor.toString(),
-                  fontSize: `${scaledWidth * 0.04}px`,
-                  textShadow: "none",
-                  fontFamily: font?.css().fontFamily
+            formatTextValue: getFormattedValue,
+            matchColorWithArc: true,
+            hide: !showValue
+          },
+          tickLabels: {
+            type: "inner",
+            ticks: tickPositions.map(
+              (
+                value: number,
+                index: number
+              ): {
+                value: number;
+                valueConfig: { formatTextValue: () => string };
+              } => ({
+                value: value,
+                valueConfig: {
+                  formatTextValue: () => tickLabels[index]
                 }
-              },
-              defaultTickLineConfig: {
-                color: foregroundColor.toString()
+              })
+            ),
+            defaultTickValueConfig: {
+              style: {
+                fill: foregroundColor.toString(),
+                fontSize: `${scaledWidth * 0.04}px`,
+                textShadow: "none",
+                fontFamily: font?.css().fontFamily
               }
+            },
+            defaultTickLineConfig: {
+              color: foregroundColor.toString()
             }
-          }}
-        />
-      </Box>
+          }
+        }}
+      />
     </Box>
   );
 };
