@@ -59,6 +59,7 @@
     "jsdom": "^25.0.1",
     "loglevel": "^1.9.2",
     "prettier": "^3.3.3",
+    "react-gauge-component": "^1.2.64",
     "react-id-generator": "^3.0.2",
     "react-test-renderer": "^18.3.1",
     "react-tiny-popover": "^8.1.2",
