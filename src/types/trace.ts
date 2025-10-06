@@ -18,7 +18,7 @@ export class Trace {
     axis = 0,
     lineWidth = 0,
     lineStyle = 0,
-    traceType = 0,
+    traceType = 2,
     color = Color.fromRgba(0, 0, 255),
     pointType = 0,
     pointSize = 1,

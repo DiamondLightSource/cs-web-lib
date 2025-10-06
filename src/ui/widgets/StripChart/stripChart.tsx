@@ -13,7 +13,7 @@ import {
 } from "../propTypes";
 import { registerWidget } from "../register";
 import { Box, Typography } from "@mui/material";
-import { LineChart, XAxis, YAxis } from "@mui/x-charts";
+import { CurveType, LineChart, XAxis, YAxis } from "@mui/x-charts";
 import { Color, Font } from "../../../types";
 import { convertStringTimePeriod } from "../utils";
 
@@ -150,7 +150,8 @@ export const StripChartComponent = (
       shape: MARKER_STYLES[item.pointType!],
       line: {
         strokeWidth: item.lineWidth
-      }
+      },
+      curve: item.traceType === 2 ? "stepAfter" as CurveType: "linear"
     };
     return trace;
   });
