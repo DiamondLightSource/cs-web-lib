@@ -87,14 +87,14 @@ export const StripChartComponent = (
       const minimum = new Date(new Date().getTime() - timePeriod);
       // Check if first data point in array is outside minimum, if so remove
       const xData = [...data.x];
-      const yData = [...data.x];
+      const yData = [...data.y];
       if (data.x.length > 0 && data.x[0].getTime() < minimum.getTime()) {
         xData.shift();
         yData.shift();
       }
       setData({
         x: [...xData, value.getTime()?.datetime],
-        y: [...data.y, value.getDoubleValue()],
+        y: [...yData, value.getDoubleValue()],
         min: minimum,
         max: new Date()
       });
@@ -107,7 +107,10 @@ export const StripChartComponent = (
       label: item.title,
       labelStyle: {
         font: item.titleFont!.css(),
-        color: item.color?.toString()
+        color: item.color?.toString(),
+        sx: {
+            transform: "translateX(10px)"
+        }
       },
       tickLabelStyle: {
         font: item.scaleFont!.css(),
@@ -158,29 +161,33 @@ export const StripChartComponent = (
 
   return (
     <Box sx={{ width: "100%", height: "100%" }}>
-      <Typography
-        sx={{
-          font: titleFont.css(),
-          width: "100%",
-          height: "5%",
-          textAlign: "center",
-          backgroundColor: backgroundColor.toString(),
-          color: foregroundColor.toString()
-        }}
-      >
-        {title}
-      </Typography>
-      <LineChart
-        grid={{ vertical: yAxes[0].showGrid, horizontal: showGrid }}
-        sx={{
-          width: "100%",
-          height: "95%",
-          backgroundColor: backgroundColor.toString()
-        }}
-        xAxis={xAxis}
-        yAxis={axes}
-        series={series}
-      />
+        <Typography
+            sx={{
+                font: titleFont.css(),
+                width: "100%",
+                height: "5%",
+                textAlign: "center",
+                backgroundColor: backgroundColor.toString(),
+                color: foregroundColor.toString()
+            }}
+        >
+            {title}
+        </Typography>
+        <LineChart
+            grid={{ vertical: yAxes[0].showGrid, horizontal: showGrid }}
+            sx={{
+                width: "100%",
+                height: "95%",
+                backgroundColor: backgroundColor.toString(),
+                ".MuiChartsAxis-directionX": {
+                    font: scaleFont.css(),
+                    color: foregroundColor.toString()
+                }
+            }}
+            xAxis={xAxis}
+            yAxis={axes}
+            series={series}
+        />
     </Box>
   );
 };

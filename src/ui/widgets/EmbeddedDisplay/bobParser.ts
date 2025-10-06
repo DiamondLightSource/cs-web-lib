@@ -463,7 +463,9 @@ const BOB_SIMPLE_PARSERS: ParserDict = {
   traceType: ["trace_type", bobParseNumber],
   onRight: ["on_right", opiParseBoolean],
   titleFont: ["title_font", opiParseFont],
-  scaleFont: ["scale_font", opiParseFont]
+  scaleFont: ["scale_font", opiParseFont],
+  start: ["start", opiParseString],
+  end: ["end", opiParseString],
 };
 
 const BOB_COMPLEX_PARSERS: ComplexParserDict = {
