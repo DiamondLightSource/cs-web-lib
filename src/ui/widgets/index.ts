@@ -33,6 +33,7 @@ export { Meter } from "./Meter/meter";
 export { SimpleSymbol } from "./SimpleSymbol/simpleSymbol";
 export { SlideControl } from "./SlideControl/slideControl";
 export { Slideshow } from "./Slideshow/slideshow";
+export { StripChart } from "./StripChart/stripChart";
 export { Symbol } from "./Symbol/symbol";
 export { TabBar } from "./Tabs/tabs";
 export { TabContainer } from "./Tabs/tabContainer";

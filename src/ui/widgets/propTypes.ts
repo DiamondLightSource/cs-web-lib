@@ -5,8 +5,8 @@ import { Border } from "../../types/border";
 import { RelativePosition, AbsolutePosition } from "../../types/position";
 import { PV } from "../../types/pv";
 import { FileDescription } from "../../misc/fileContext";
-import { Traces } from "../../types/traces";
-import { Axes } from "../../types/axes";
+import { Trace } from "../../types/trace";
+import { Axis } from "../../types/axis";
 import { Points } from "../../types/points";
 
 export type ExcludeNulls<T> = {
@@ -47,11 +47,17 @@ export const FontPropOpt = PropTypes.instanceOf(Font);
 export const BorderProp = PropTypes.instanceOf(Border).isRequired;
 export const BorderPropOpt = PropTypes.instanceOf(Border);
 
-export const TracesProp = PropTypes.instanceOf(Traces).isRequired;
-export const TracesPropOpt = PropTypes.instanceOf(Traces);
+export const TraceProp = PropTypes.instanceOf(Trace).isRequired;
+export const TracePropOpt = PropTypes.instanceOf(Trace);
 
-export const AxesProp = PropTypes.instanceOf(Axes).isRequired;
-export const AxesPropOpt = PropTypes.instanceOf(Axes);
+export const AxisProp = PropTypes.instanceOf(Axis).isRequired;
+export const AxisPropOpt = PropTypes.instanceOf(Axis);
+
+export const TracesProp = PropTypes.arrayOf(TraceProp).isRequired;
+export const TracesPropOpt = PropTypes.arrayOf(TracePropOpt);
+
+export const AxesProp = PropTypes.arrayOf(AxisProp).isRequired;
+export const AxesPropOpt = PropTypes.arrayOf(AxisPropOpt);
 
 export const FuncPropOpt = PropTypes.instanceOf(Function);
 export const FuncProp = FuncPropOpt.isRequired;

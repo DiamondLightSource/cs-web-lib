@@ -10,7 +10,8 @@ import {
   opiParseColor,
   opiParseString,
   opiParseMacros,
-  opiParseBoolean
+  opiParseBoolean,
+  opiParseFont
 } from "./opiParser";
 import { xml2js, ElementCompact } from "xml-js";
 import log from "loglevel";
@@ -33,6 +34,9 @@ import { Border, BorderStyle } from "../../../types/border";
 import { Color } from "../../../types/color";
 import { WidgetDescription } from "../createComponent";
 import { Point, Points } from "../../../types/points";
+import { Axis } from "../../../types/axis";
+import { Trace } from "../../../types/trace";
+import { snakeCaseToCamelCase } from "../utils";
 
 const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   action_button: "actionbutton",
@@ -59,7 +63,9 @@ const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   meter: "meter",
   choice: "choicebutton",
   scaledslider: "slidecontrol",
-  symbol: "symbol"
+  stripchart: "stripchart",
+  symbol: "symbol",
+  xyplot: "xyplot"
 };
 
 // Default width and height of widgets in Phoebus
@@ -88,7 +94,9 @@ export const WIDGET_DEFAULT_SIZES: { [key: string]: [number, number] } = {
   thermometer: [40, 160],
   meter: [240, 120],
   scaledslider: [400, 55],
-  symbol: [100, 100]
+  stripchart: [400, 300],
+  symbol: [100, 100],
+  xyplot: [400, 300]
 };
 
 function bobParseType(props: any): string {
@@ -237,6 +245,75 @@ function bobParseSymbols(jsonProp: ElementCompact): string[] {
   });
   return symbols;
 }
+
+/**
+ * Parses props from an array of traces
+ * @param props list of props for this element
+ * @returns a array of Trace objects
+ */
+function bobParseTraces(props: any): Trace[] {
+  const traces: Trace[] = [];
+  let parsedProps = {};
+  // If only once trace, we are passed an object instead
+  // of an array
+  if (props.trace.length > 1) {
+    props.trace.forEach((trace: any) => {
+      parsedProps = bobParseChildProps(trace);
+      traces.push(new Trace(parsedProps));
+    });
+  } else {
+    parsedProps = bobParseChildProps(props.trace);
+    traces.push(new Trace(parsedProps));
+  }
+  return traces;
+}
+
+/**
+ * Parses props from an array of Y axes
+ * @param props
+ * @returns an array of Axis.
+ */
+function bobParseYAxes(props: any): Axis[] {
+  const axes: Axis[] = [];
+  let parsedProps = {};
+  // If only once axis, we are passed an object instead
+  // of an array
+  if (props.y_axis.length > 1) {
+    props.y_axis.forEach((axis: any) => {
+      parsedProps = bobParseChildProps(axis);
+      axes.push(new Axis(parsedProps));
+    });
+  } else {
+    parsedProps = bobParseChildProps(props.y_axis);
+    axes.push(new Axis(parsedProps));
+  }
+  return axes;
+}
+
+/**
+ * Parses the props from a single X axis.
+ * @param props
+ * @returns an Axis object.
+ */
+function bobParseXAxis(props: any): Axis {
+  const parsedProps = bobParseChildProps(props.x_axis);
+  return new Axis({ xAxis: true, ...parsedProps });
+}
+
+function bobParseChildProps(props: any): any {
+  const obj: { [key: string]: any } = {}; // Object to assign props to
+  Object.entries(props).forEach((entry: any) => {
+    const [key, value] = entry;
+    // For each prop, convert the name and parse
+    const newName = snakeCaseToCamelCase(key);
+    if (newName && BOB_SIMPLE_PARSERS.hasOwnProperty(newName)) {
+      const [opiPropName, propParser] = BOB_SIMPLE_PARSERS[newName];
+      obj[newName] = propParser(value);
+    }
+  });
+  return obj;
+}
+
 /**
  * Creates a WidgetActions object from the actions tied to the json object
  * @param jsonProp
@@ -339,13 +416,64 @@ function bobGetTargetWidget(props: any): React.FC {
   return targetWidget;
 }
 
+const BOB_SIMPLE_PARSERS: ParserDict = {
+  ...OPI_SIMPLE_PARSERS,
+  font: ["font", bobParseFont],
+  items: ["items", bobParseItems],
+  imageFile: ["file", opiParseString],
+  points: ["points", bobParsePoints],
+  resize: ["resize", bobParseResizing],
+  squareLed: ["square", opiParseBoolean],
+  formatType: ["format", bobParseFormatType],
+  stretchToFit: ["stretch_image", opiParseBoolean],
+  macros: ["macros", opiParseMacros],
+  symbols: ["symbols", bobParseSymbols],
+  initialIndex: ["initial_index", bobParseNumber],
+  showIndex: ["show_index", opiParseBoolean],
+  showValue: ["show_value", opiParseBoolean],
+  fallbackSymbol: ["fallback_symbol", opiParseString],
+  rotation: ["rotation", bobParseNumber],
+  styleOpt: ["style", bobParseNumber],
+  lineColor: ["line_color", opiParseColor],
+  rotationStep: ["rotation_step", bobParseNumber],
+  levelHihi: ["level_hihi", bobParseNumber],
+  levelHigh: ["level_high", bobParseNumber],
+  levelLolo: ["level_lolo", bobParseNumber],
+  levelLow: ["level_low", bobParseNumber],
+  showScale: ["show_scale", opiParseBoolean],
+  showHihi: ["show_hihi", opiParseBoolean],
+  showHigh: ["show_high", opiParseBoolean],
+  showLolo: ["show_lolo", opiParseBoolean],
+  showLow: ["show_low", opiParseBoolean],
+  increment: ["increment", bobParseNumber],
+  multiLine: ["multi_line", opiParseBoolean],
+  lineStyle: ["line_style", bobParseNumber],
+  majorTickStepHint: ["major_tick_step_hint", bobParseNumber],
+  maximum: ["maximum", bobParseNumber],
+  minimum: ["minimum", bobParseNumber],
+  format: ["format", bobParseNumber],
+  emptyColor: ["empty_color", opiParseColor],
+  needleColor: ["needle_color", opiParseColor],
+  xPv: ["xPv", opiParseString],
+  yPv: ["yPv", opiParseString],
+  axis: ["axis", bobParseNumber],
+  pointType: ["point_type", bobParseNumber],
+  pointStyle: ["point_style", bobParseNumber],
+  color: ["color", opiParseColor],
+  traceType: ["trace_type", bobParseNumber],
+  onRight: ["on_right", opiParseBoolean],
+  titleFont: ["title_font", opiParseFont],
+  scaleFont: ["scale_font", opiParseFont]
+};
+
 const BOB_COMPLEX_PARSERS: ComplexParserDict = {
   ...OPI_COMPLEX_PARSERS,
   type: bobParseType,
   position: bobParsePosition,
   border: bobParseBorder,
   alarmSensitive: bobParseAlarmSensitive,
-  file: bobParseFile
+  file: bobParseFile,
+  xAxis: bobParseXAxis
 };
 
 export function parseBob(
@@ -361,58 +489,24 @@ export function parseBob(
   log.debug(compactJSON);
 
   const simpleParsers: ParserDict = {
-    ...OPI_SIMPLE_PARSERS,
+    ...BOB_SIMPLE_PARSERS,
     pvName: [
       "pv_name",
       (pvName: ElementCompact): PV => opiParsePvName(pvName, defaultProtocol)
     ],
-    font: ["font", bobParseFont],
     actions: [
       "actions",
       (actions: ElementCompact): WidgetActions =>
         bobParseActions(actions, defaultProtocol)
-    ],
-    items: ["items", bobParseItems],
-    imageFile: ["file", opiParseString],
-    points: ["points", bobParsePoints],
-    resize: ["resize", bobParseResizing],
-    squareLed: ["square", opiParseBoolean],
-    formatType: ["format", bobParseFormatType],
-    stretchToFit: ["stretch_image", opiParseBoolean],
-    macros: ["macros", opiParseMacros],
-    symbols: ["symbols", bobParseSymbols],
-    initialIndex: ["initial_index", bobParseNumber],
-    showIndex: ["show_index", opiParseBoolean],
-    showValue: ["show_value", opiParseBoolean],
-    fallbackSymbol: ["fallback_symbol", opiParseString],
-    rotation: ["rotation", bobParseNumber],
-    styleOpt: ["style", bobParseNumber],
-    lineColor: ["line_color", opiParseColor],
-    rotationStep: ["rotation_step", bobParseNumber],
-    levelHihi: ["level_hihi", bobParseNumber],
-    levelHigh: ["level_high", bobParseNumber],
-    levelLolo: ["level_lolo", bobParseNumber],
-    levelLow: ["level_low", bobParseNumber],
-    showScale: ["show_scale", opiParseBoolean],
-    showHihi: ["show_hihi", opiParseBoolean],
-    showHigh: ["show_high", opiParseBoolean],
-    showLolo: ["show_lolo", opiParseBoolean],
-    showLow: ["show_low", opiParseBoolean],
-    increment: ["increment", bobParseNumber],
-    multiLine: ["multi_line", opiParseBoolean],
-    lineStyle: ["line_style", bobParseNumber],
-    majorTickStepHint: ["major_tick_step_hint", bobParseNumber],
-    maximum: ["maximum", bobParseNumber],
-    minimum: ["minimum", bobParseNumber],
-    format: ["format", bobParseNumber],
-    emptyColor: ["empty_color", opiParseColor],
-    needleColor: ["needle_color", opiParseColor]
+    ]
   };
 
   const complexParsers = {
     ...BOB_COMPLEX_PARSERS,
     rules: (rules: Rule[]): Rule[] =>
-      opiParseRules(rules, defaultProtocol, false)
+      opiParseRules(rules, defaultProtocol, false),
+    traces: (props: ElementCompact) => bobParseTraces(props["traces"]),
+    yAxes: (props: ElementCompact) => bobParseYAxes(props["y_axes"])
   };
 
   const displayWidget = parseWidget(

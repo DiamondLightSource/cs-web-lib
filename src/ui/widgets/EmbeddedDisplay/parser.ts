@@ -16,6 +16,7 @@ import { GenericProp } from "../../../types/props";
 import { WidgetDescription } from "../createComponent";
 import { StringProp, PositionProp } from "../propTypes";
 import { ElementCompact } from "xml-js";
+import { PV } from "../../../types";
 
 // Specific widgets we should allow empty string parsing for
 const PARSE_EMPTY_STRINGS = ["text", "label", "on_label", "off_label", "title"];
@@ -104,12 +105,11 @@ export function genericParser(
       newProps[prop] = widget[prop];
     }
   }
-  // TO DO - a way of parsing nested macros for PVs needs to be properly implemented.
-  // Currently nested macros are not parsed, which means a PV connection cannot be made.
-  // This is a hack to get it to work for XYPlot, but this will fail for multiple PVs
-  // on a single widget, and is not an ideal way of implementing.
+  // TO DO - temporary method of using the top level trace PV for
+  // plot widgets as the PV. This is a placeholder until support for
+  // multiple PVs per widget is implemented
   if (newProps.hasOwnProperty("traces")) {
-    newProps.pvName.name = newProps.traces.pvName;
+    newProps.pvName = PV.parse(newProps.traces[0].yPv);
   }
 
   return newProps;
