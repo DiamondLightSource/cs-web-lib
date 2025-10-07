@@ -1,17 +1,17 @@
 import { Color } from "./color";
 
 export class Trace {
-  public name?: string;
-  public axis?: number;
-  public lineWidth?: number;
-  public lineStyle?: number;
-  public traceType?: number;
-  public color?: Color;
-  public pointType?: number;
-  public pointSize?: number;
-  public visible?: boolean;
+  public name: string;
+  public axis: number;
+  public lineWidth: number;
+  public lineStyle: number;
+  public traceType: number;
+  public color: Color;
+  public pointType: number;
+  public pointSize: number;
+  public visible: boolean;
+  public yPv: string;
   public xPv?: string | null;
-  public yPv?: string;
 
   public constructor({
     name = "",

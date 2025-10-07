@@ -127,20 +127,21 @@ export function calculateRotationTransform(
 export function convertStringTimePeriod(period: string): number {
   // Array of all time period strings
   const times = [
-    {unit: "second", value: 1}, 
-    {unit: "minute", value: 60}, 
-    {unit: "hour", value: 3600},
-    {unit: "day", value: 3600 * 24}, 
-    {unit: "week", value: 3600 * 24 * 7}, 
-    {unit: "month", value: 3600 * 7 * 28}, 
-    {unit: "year", value: 3600 * 24 * 365}
+    { unit: "second", value: 1 },
+    { unit: "minute", value: 60 },
+    { unit: "hour", value: 3600 },
+    { unit: "day", value: 86400 },
+    { unit: "week", value: 604800 },
+    { unit: "month", value: 705600 },
+    { unit: "year", value: 31536000 }
   ];
-  let match: any = times[1];
-  match = times.find((item) => {if (period.includes(item.unit)) return item});
+  let match = times.find(item => period.includes(item.unit));
+  if (match === undefined) match = times[1];
   // Find number of time period
-  const multiplier = parseInt(period.replace(match.unit, "").trim());
+  const multiplier = match
+    ? parseInt(period.replace(match.unit, "").trim())
+    : 1;
   // If multiplier can't be parsed, default again to 1 minute, and calculate time
-  const time =
-    (isNaN(multiplier) ? 1 : multiplier) * match.value * 1000;
+  const time = (isNaN(multiplier) ? 1 : multiplier) * match.value * 1000;
   return time;
 }

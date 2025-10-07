@@ -49,8 +49,6 @@ export type StripChartComponentProps = InferWidgetProps<
 > &
   PVComponent;
 
-const sample = [1, 10, 30, 50, 70, 90, 100];
-
 export const StripChartComponent = (
   props: StripChartComponentProps
 ): JSX.Element => {
@@ -99,26 +97,26 @@ export const StripChartComponent = (
         max: new Date()
       });
     }
-  }, [value]);
+  }, [value, timePeriod]);
 
   const axes: ReadonlyArray<YAxis<any>> = yAxes.map(item => {
     const axis = {
-        width: 45,
-        id: item.title,
-        label: item.title,
-        color: item.color?.toString(),
-        labelStyle: {
-            font: item.titleFont!.css(),
-            fill: item.color?.toString(),
-        },
-        tickLabelStyle: {
-            font: item.scaleFont!.css(),
-            fill: item.color?.toString(),
-        },
-        scaleType: item.logScale ? "symlog" : "linear",
-        position: "left",
-        min: item.autoscale ? undefined : item.minimum,
-        max: item.autoscale ? undefined : item.maximum
+      width: 45,
+      id: item.title,
+      label: item.title,
+      color: item.color?.toString(),
+      labelStyle: {
+        font: item.titleFont.css(),
+        fill: item.color.toString()
+      },
+      tickLabelStyle: {
+        font: item.scaleFont.css(),
+        fill: item.color.toString()
+      },
+      scaleType: item.logScale ? "symlog" : "linear",
+      position: "left",
+      min: item.autoscale ? undefined : item.minimum,
+      max: item.autoscale ? undefined : item.maximum
     };
     return axis;
   });
@@ -126,6 +124,7 @@ export const StripChartComponent = (
   const xAxis: ReadonlyArray<XAxis<any>> = [
     {
       data: data.x,
+      color: foregroundColor.toString(),
       dataKey: "datetime",
       min: data.min,
       max: data.max,
@@ -136,63 +135,68 @@ export const StripChartComponent = (
   const series = traces.map(item => {
     const trace = {
       // If axis is set higher than number of axes, default to zero
-      id: item.axis! <= axes.length - 1 ? axes[item.axis!].id : 0,
+      id: item.axis <= axes.length - 1 ? axes[item.axis].id : 0,
       data: data.y,
       label: item.name,
-      color: visible ? item.color?.toString() : "transparent",
+      color: visible ? item.color.toString() : "transparent",
       showMark: item.pointType === 0 ? false : true,
-      shape: MARKER_STYLES[item.pointType!],
+      shape: MARKER_STYLES[item.pointType],
       line: {
         strokeWidth: item.lineWidth
       },
       area: item.traceType === 5 ? true : false,
       connectNulls: false,
-      curve: item.traceType === 2 ? "stepAfter" as CurveType: "linear"
+      curve: item.traceType === 2 ? ("stepAfter" as CurveType) : "linear"
     };
     return trace;
   });
 
   // TO DO
   // Add error bars option
-  // Condense
+  // Apply showToolbar
+  // Use end value - this doesn't seem to do anything in Phoebus?
 
   return (
     <Box sx={{ width: "100%", height: "100%" }}>
-        <Typography
-            sx={{
-                font: titleFont.css(),
-                width: "100%",
-                height: "5%",
-                textAlign: "center",
-                backgroundColor: backgroundColor.toString(),
-                color: foregroundColor.toString()
-            }}
-        >
-            {title}
-        </Typography>
-        <LineChart
-            grid={{ vertical: yAxes[0].showGrid, horizontal: showGrid }}
-            sx={{
-                width: "100%",
-                height: "95%",
-                backgroundColor: backgroundColor.toString(),
-                ".MuiChartsAxis-directionX": {
-                    ".MuiChartsAxis-line": {
-                        stroke: foregroundColor.toString(),
-                    },
-                    ".MuiChartsAxis-tickLabel": {
-                        fill: foregroundColor.toString(),
-                        font: scaleFont.css(),
-                    },
-                    ".MuiChartsAxis-tick": {
-                        stroke: foregroundColor.toString(),
-                    } 
-                }
-            }}
-            xAxis={xAxis}
-            yAxis={axes}
-            series={series}
-        />
+      <Typography
+        sx={{
+          font: titleFont.css(),
+          width: "100%",
+          height: "5%",
+          textAlign: "center",
+          backgroundColor: backgroundColor.toString(),
+          color: foregroundColor.toString()
+        }}
+      >
+        {title}
+      </Typography>
+      <LineChart
+        hideLegend={showLegend}
+        grid={{ vertical: yAxes[0].showGrid, horizontal: showGrid }}
+        sx={{
+          width: "100%",
+          height: "95%",
+          backgroundColor: backgroundColor.toString(),
+          ".MuiChartsAxis-directionX": {
+            ".MuiChartsAxis-line": {
+              stroke: foregroundColor.toString()
+            },
+            ".MuiChartsAxis-label": {
+              font: labelFont.css()
+            },
+            ".MuiChartsAxis-tickLabel": {
+              fill: foregroundColor.toString(),
+              font: scaleFont.css()
+            },
+            ".MuiChartsAxis-tick": {
+              stroke: foregroundColor.toString()
+            }
+          }
+        }}
+        xAxis={xAxis}
+        yAxis={axes}
+        series={series}
+      />
     </Box>
   );
 };

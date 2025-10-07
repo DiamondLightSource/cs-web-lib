@@ -2,17 +2,17 @@ import { Color } from "./color";
 import { Font, FontStyle } from "./font";
 
 export class Axis {
-  public color?: Color;
-  public title?: string;
-  public showGrid?: boolean;
-  public visible?: boolean;
-  public logScale?: boolean;
-  public autoscale?: boolean;
-  public maximum?: number;
-  public minimum?: number;
-  public titleFont?: Font;
-  public scaleFont?: Font;
-  public onRight?: boolean;
+  public color: Color;
+  public title: string;
+  public showGrid: boolean;
+  public visible: boolean;
+  public logScale: boolean;
+  public autoscale: boolean;
+  public maximum: number;
+  public minimum: number;
+  public titleFont: Font;
+  public scaleFont: Font;
+  public onRight: boolean;
 
   /**
    * Set default values for properties not yet
