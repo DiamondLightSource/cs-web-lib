@@ -103,23 +103,22 @@ export const StripChartComponent = (
 
   const axes: ReadonlyArray<YAxis<any>> = yAxes.map(item => {
     const axis = {
-      id: item.title,
-      label: item.title,
-      labelStyle: {
-        font: item.titleFont!.css(),
+        width: 45,
+        id: item.title,
+        label: item.title,
         color: item.color?.toString(),
-        sx: {
-            transform: "translateX(10px)"
-        }
-      },
-      tickLabelStyle: {
-        font: item.scaleFont!.css(),
-        color: item.color?.toString()
-      },
-      scaleType: item.logScale ? "symlog" : "linear",
-      position: "left",
-      min: item.minimum,
-      max: item.maximum
+        labelStyle: {
+            font: item.titleFont!.css(),
+            fill: item.color?.toString(),
+        },
+        tickLabelStyle: {
+            font: item.scaleFont!.css(),
+            fill: item.color?.toString(),
+        },
+        scaleType: item.logScale ? "symlog" : "linear",
+        position: "left",
+        min: item.autoscale ? undefined : item.minimum,
+        max: item.autoscale ? undefined : item.maximum
     };
     return axis;
   });
@@ -130,11 +129,6 @@ export const StripChartComponent = (
       dataKey: "datetime",
       min: data.min,
       max: data.max,
-      color: foregroundColor.toString(),
-      tickLabelStyle: {
-        font: scaleFont.css(),
-        color: foregroundColor.toString()
-      },
       scaleType: "time"
     }
   ];
@@ -151,14 +145,16 @@ export const StripChartComponent = (
       line: {
         strokeWidth: item.lineWidth
       },
+      area: item.traceType === 5 ? true : false,
+      connectNulls: false,
       curve: item.traceType === 2 ? "stepAfter" as CurveType: "linear"
     };
     return trace;
   });
 
   // TO DO
-  // use traceType to set different types of plot
-  // condense y axes slightly more
+  // Add error bars option
+  // Condense
 
   return (
     <Box sx={{ width: "100%", height: "100%" }}>
@@ -181,8 +177,16 @@ export const StripChartComponent = (
                 height: "95%",
                 backgroundColor: backgroundColor.toString(),
                 ".MuiChartsAxis-directionX": {
-                    font: scaleFont.css(),
-                    color: foregroundColor.toString()
+                    ".MuiChartsAxis-line": {
+                        stroke: foregroundColor.toString(),
+                    },
+                    ".MuiChartsAxis-tickLabel": {
+                        fill: foregroundColor.toString(),
+                        font: scaleFont.css(),
+                    },
+                    ".MuiChartsAxis-tick": {
+                        stroke: foregroundColor.toString(),
+                    } 
                 }
             }}
             xAxis={xAxis}
