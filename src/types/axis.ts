@@ -2,6 +2,7 @@ import { Color } from "./color";
 import { Font, FontStyle } from "./font";
 
 export class Axis {
+  public xAxis: boolean;
   public color: Color;
   public title: string;
   public showGrid: boolean;
@@ -31,8 +32,10 @@ export class Axis {
     maximum = 100,
     titleFont = new Font(FontStyle.Bold),
     scaleFont = new Font(),
-    onRight = false
+    onRight = false,
+    fromOpi = false
   } = {}) {
+    this.xAxis = xAxis;
     this.color = color;
     this.title = title || (xAxis ? "X" : "Y");
     this.showGrid = showGrid;
@@ -43,7 +46,7 @@ export class Axis {
     this.maximum = maximum;
     this.titleFont = titleFont;
     this.scaleFont = scaleFont;
-    this.onRight = onRight;
+    this.onRight = fromOpi ? !onRight : onRight;
   }
 }
 

@@ -5,10 +5,10 @@ import {
   ColorPropOpt,
   StringPropOpt,
   FontPropOpt,
-  TracesPropOpt,
-  AxesPropOpt,
+  AxesProp,
   BoolPropOpt,
-  FloatPropOpt
+  FloatPropOpt,
+  TracesProp
 } from "../propTypes";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
@@ -22,6 +22,8 @@ import {
 } from "./xyPlotOptions";
 import { Color } from "../../../types/color";
 import { trimFromString } from "../utils";
+import { Trace } from "../../../types/trace";
+import { Axis } from "../../../types/axis";
 
 export const XYPlotProps = {
   height: FloatPropOpt,
@@ -32,8 +34,8 @@ export const XYPlotProps = {
   showLegend: BoolPropOpt,
   showPlotBorder: BoolPropOpt,
   showToolbar: BoolPropOpt,
-  traces: TracesPropOpt,
-  axes: AxesPropOpt
+  traces: TracesProp,
+  axes: AxesProp
 };
 
 // Create plot component from minimal Plotly package
@@ -55,8 +57,8 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
     showLegend = true,
     showPlotBorder,
     // showToolbar, // TO DO - do we want a toolbar as well?
-    traces,
-    axes
+    traces = [new Trace()],
+    axes = [new Axis({ xAxis: true }), new Axis({ xAxis: false })]
   } = props;
   // TO DO - having all these checks is not ideal
   if (
@@ -80,9 +82,9 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
     if (typeof font.fontSize === "string")
       font.fontSize = trimFromString(font.fontSize);
 
-    const newAxisOptions = createAxes(axes.axisOptions, font);
+    const newAxisOptions = createAxes(axes, font);
     newAxisOptions.forEach((newAxis: NewAxisSettings, index: number) => {
-      newAxis = calculateAxisLimits(axes.axisOptions[index], newAxis, dataSet);
+      newAxis = calculateAxisLimits(axes[index], newAxis, dataSet);
     });
     // Set up plot appearance
     const plotLayout: any = {
@@ -132,7 +134,7 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
       }}
     >
       XYPlot could not be displayed. Please check the .opi file and connection
-      to PV {traces?.pvName}.
+      to PV {traces[0].yPv}.
     </div>
   );
 };

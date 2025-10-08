@@ -16,6 +16,8 @@ import { Box, Typography } from "@mui/material";
 import { CurveType, LineChart, XAxis, YAxis } from "@mui/x-charts";
 import { Color, Font } from "../../../types";
 import { convertStringTimePeriod } from "../utils";
+import { Trace } from "../../../types/trace";
+import { Axis } from "../../../types/axis";
 
 const MARKER_STYLES: any[] = [
   undefined,
@@ -28,7 +30,7 @@ const MARKER_STYLES: any[] = [
 
 const StripChartProps = {
   traces: TracesProp,
-  yAxes: AxesProp,
+  axes: AxesProp,
   start: StringPropOpt,
   end: StringPropOpt,
   foregroundColor: ColorPropOpt,
@@ -53,8 +55,8 @@ export const StripChartComponent = (
   props: StripChartComponentProps
 ): JSX.Element => {
   const {
-    traces,
-    yAxes,
+    traces = [new Trace()],
+    axes = [new Axis({ xAxis: false })],
     value,
     title,
     titleFont = new Font(),
@@ -99,7 +101,7 @@ export const StripChartComponent = (
     }
   }, [value, timePeriod]);
 
-  const axes: ReadonlyArray<YAxis<any>> = yAxes.map(item => {
+  const yAxes: ReadonlyArray<YAxis<any>> = axes.map(item => {
     const axis = {
       width: 45,
       id: item.title,
@@ -135,7 +137,7 @@ export const StripChartComponent = (
   const series = traces.map(item => {
     const trace = {
       // If axis is set higher than number of axes, default to zero
-      id: item.axis <= axes.length - 1 ? axes[item.axis].id : 0,
+      id: item.axis <= axes.length - 1 ? yAxes[item.axis].id : 0,
       data: data.y,
       label: item.name,
       color: visible ? item.color.toString() : "transparent",
@@ -194,7 +196,7 @@ export const StripChartComponent = (
           }
         }}
         xAxis={xAxis}
-        yAxis={axes}
+        yAxis={yAxes}
         series={series}
       />
     </Box>

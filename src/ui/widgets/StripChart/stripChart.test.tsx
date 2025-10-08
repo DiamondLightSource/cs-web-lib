@@ -45,7 +45,7 @@ describe("StripChartComponent", () => {
     readonly: true,
     pvName: "TEST:PV",
     traces: [new Trace()],
-    yAxes: [new Axis()]
+    axes: [new Axis()]
   };
 
   beforeEach(() => {
@@ -70,7 +70,7 @@ describe("StripChartComponent", () => {
         new Axis({ color: Color.RED }),
         new Axis({ color: Color.BLUE })
       ];
-      render(<StripChartComponent {...defaultProps} yAxes={axes} />);
+      render(<StripChartComponent {...defaultProps} axes={axes} />);
 
       const lineChart = screen.getByTestId("line-chart");
       const yAxisData = JSON.parse(lineChart.getAttribute("data-yaxis") ?? "");
@@ -162,7 +162,7 @@ describe("StripChartComponent", () => {
 
     test("applies log scale to y axis", () => {
       const axes = [new Axis({ logScale: true })];
-      render(<StripChartComponent {...defaultProps} yAxes={axes} />);
+      render(<StripChartComponent {...defaultProps} axes={axes} />);
 
       const lineChart = screen.getByTestId("line-chart");
       const yAxisData = JSON.parse(lineChart.getAttribute("data-yaxis") ?? "");

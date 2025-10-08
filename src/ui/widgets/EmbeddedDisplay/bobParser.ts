@@ -254,16 +254,18 @@ function bobParseSymbols(jsonProp: ElementCompact): string[] {
 function bobParseTraces(props: any): Trace[] {
   const traces: Trace[] = [];
   let parsedProps = {};
-  // If only once trace, we are passed an object instead
-  // of an array
-  if (props.trace.length > 1) {
-    props.trace.forEach((trace: any) => {
-      parsedProps = bobParseChildProps(trace);
+  if (props) {
+    // If only once trace, we are passed an object instead
+    // of an array
+    if (props.trace.length > 1) {
+      props.trace.forEach((trace: any) => {
+        parsedProps = bobParseChildProps(trace);
+        traces.push(new Trace(parsedProps));
+      });
+    } else {
+      parsedProps = bobParseChildProps(props.trace);
       traces.push(new Trace(parsedProps));
-    });
-  } else {
-    parsedProps = bobParseChildProps(props.trace);
-    traces.push(new Trace(parsedProps));
+    }
   }
   return traces;
 }
@@ -276,16 +278,18 @@ function bobParseTraces(props: any): Trace[] {
 function bobParseYAxes(props: any): Axis[] {
   const axes: Axis[] = [];
   let parsedProps = {};
-  // If only once axis, we are passed an object instead
-  // of an array
-  if (props.y_axis.length > 1) {
-    props.y_axis.forEach((axis: any) => {
-      parsedProps = bobParseChildProps(axis);
+  if (props) {
+    // If only once axis, we are passed an object instead
+    // of an array
+    if (props.y_axis.length > 1) {
+      props.y_axis.forEach((axis: any) => {
+        parsedProps = bobParseChildProps(axis);
+        axes.push(new Axis(parsedProps));
+      });
+    } else {
+      parsedProps = bobParseChildProps(props.y_axis);
       axes.push(new Axis(parsedProps));
-    });
-  } else {
-    parsedProps = bobParseChildProps(props.y_axis);
-    axes.push(new Axis(parsedProps));
+    }
   }
   return axes;
 }
@@ -508,7 +512,7 @@ export function parseBob(
     rules: (rules: Rule[]): Rule[] =>
       opiParseRules(rules, defaultProtocol, false),
     traces: (props: ElementCompact) => bobParseTraces(props["traces"]),
-    yAxes: (props: ElementCompact) => bobParseYAxes(props["y_axes"])
+    axes: (props: ElementCompact) => bobParseYAxes(props["y_axes"])
   };
 
   const displayWidget = parseWidget(

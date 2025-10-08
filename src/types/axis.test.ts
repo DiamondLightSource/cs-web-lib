@@ -15,9 +15,10 @@ describe("Axis", () => {
       visible: false,
       scaleFont: new Font(20, FontStyle.Italic),
       titleFont: new Font(40),
-      onRight: true
+      onRight: true,
+      xAxis: true
     };
-    const axis = new Axis({ xAxis: true, ...testValues });
+    const axis = new Axis(testValues);
 
     expect(axis).toEqual(testValues);
     expect(axis).toBeInstanceOf(Axis);
@@ -37,7 +38,8 @@ describe("Axis", () => {
       maximum: 100,
       scaleFont: new Font(),
       titleFont: new Font(FontStyle.Bold),
-      onRight: false
+      onRight: false,
+      xAxis: false
     });
     expect(axis).toBeInstanceOf(Axis);
   });

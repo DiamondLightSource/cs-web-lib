@@ -12,6 +12,12 @@ export class Trace {
   public visible: boolean;
   public yPv: string;
   public xPv?: string | null;
+  public bufferSize?: number;
+  public plotMode?: number;
+  public antiAlias?: boolean;
+  public concatenateData?: boolean;
+  public updateDelay?: number;
+  public updateMode?: number;
 
   public constructor({
     name = "",
@@ -24,7 +30,14 @@ export class Trace {
     pointSize = 1,
     visible = true,
     xPv = "",
-    yPv = ""
+    yPv = "",
+    fromOpi = false,
+    antiAlias = true,
+    bufferSize = 100,
+    concatenateData = true,
+    updateDelay = 100,
+    updateMode = 0,
+    plotMode = 0
   } = {}) {
     // xPV property only exists on XYPlot
     if (xPv) this.xPv = xPv;
@@ -38,5 +51,13 @@ export class Trace {
     this.pointType = pointType;
     this.pointSize = pointSize;
     this.visible = visible;
+    if (fromOpi) {
+      this.antiAlias = antiAlias;
+      this.bufferSize = bufferSize;
+      this.concatenateData = concatenateData;
+      this.updateDelay = updateDelay;
+      this.updateMode = updateMode;
+      this.plotMode = plotMode;
+    }
   }
 }
