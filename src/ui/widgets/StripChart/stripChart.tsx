@@ -63,12 +63,10 @@ export const StripChartComponent = (
     scaleFont = new Font(),
     labelFont = new Font(),
     showGrid = false,
-    showToolbar = true,
     showLegend = false,
     foregroundColor = Color.fromRgba(0, 0, 0, 1),
     backgroundColor = Color.fromRgba(255, 255, 255, 1),
     start = "1 minute",
-    end,
     visible = true
   } = props;
 
@@ -86,17 +84,19 @@ export const StripChartComponent = (
       // rRemove data outside min and max bounds
       const minimum = new Date(new Date().getTime() - timePeriod);
       // Check if first data point in array is outside minimum, if so remove
-      const xData = [...data.x];
-      const yData = [...data.y];
-      if (data.x.length > 0 && data.x[0].getTime() < minimum.getTime()) {
-        xData.shift();
-        yData.shift();
-      }
-      setData({
-        x: [...xData, value.getTime()?.datetime],
-        y: [...yData, value.getDoubleValue()],
-        min: minimum,
-        max: new Date()
+      setData(currentData => {
+        const xData = currentData.x;
+        const yData = currentData.y;
+        if (xData.length > 0 && xData[0].getTime() < minimum.getTime()) {
+          xData.shift();
+          yData.shift();
+        }
+        return {
+          x: [...xData, value.getTime()?.datetime],
+          y: [...yData, value.getDoubleValue()],
+          min: minimum,
+          max: new Date()
+        };
       });
     }
   }, [value, timePeriod]);

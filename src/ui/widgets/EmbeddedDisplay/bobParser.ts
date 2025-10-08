@@ -311,7 +311,7 @@ function bobParseChildProps(props: any): any {
     // For each prop, convert the name and parse
     const newName = snakeCaseToCamelCase(key);
     if (newName && BOB_SIMPLE_PARSERS.hasOwnProperty(newName)) {
-      const [opiPropName, propParser] = BOB_SIMPLE_PARSERS[newName];
+      const [, propParser] = BOB_SIMPLE_PARSERS[newName];
       obj[newName] = propParser(value);
     }
   });
