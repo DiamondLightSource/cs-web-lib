@@ -55,8 +55,8 @@ export const StripChartComponent = (
   props: StripChartComponentProps
 ): JSX.Element => {
   const {
-    traces = [new Trace()],
-    axes = [new Axis({ xAxis: false })],
+    traces,
+    axes,
     value,
     title,
     titleFont = new Font(),
@@ -69,6 +69,9 @@ export const StripChartComponent = (
     start = "1 minute",
     visible = true
   } = props;
+  // If we're passed an empty array fill in defaults
+  if (traces.length < 1) traces.push(new Trace());
+  if (axes.length < 1) axes.push(new Axis({ xAxis: false }));
 
   // Convert start time into milliseconds period
   const timePeriod = useMemo(() => convertStringTimePeriod(start), [start]);
