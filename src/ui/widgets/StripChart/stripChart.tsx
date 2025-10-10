@@ -101,10 +101,14 @@ export const StripChartComponent = (
     }
   }, [value, timePeriod]);
 
-  const yAxes: ReadonlyArray<YAxis<any>> = axes.map(item => {
+  // For some reason the below styling doesn't change axis line and tick
+  // colour so we set it using sx in the Line Chart below by passing this in
+  const yAxesStyle: any = {};
+
+  const yAxes: ReadonlyArray<YAxis<any>> = axes.map((item, idx) => {
     const axis = {
       width: 45,
-      id: item.title,
+      id: idx,
       label: item.title,
       color: item.color?.toString(),
       labelStyle: {
@@ -119,6 +123,14 @@ export const StripChartComponent = (
       position: "left",
       min: item.autoscale ? undefined : item.minimum,
       max: item.autoscale ? undefined : item.maximum
+    };
+    yAxesStyle[`.MuiChartsAxis-id-${idx}`] = {
+      ".MuiChartsAxis-line": {
+        stroke: item.color.toString()
+      },
+      ".MuiChartsAxis-tick": {
+        stroke: item.color.toString()
+      }
     };
     return axis;
   });
@@ -137,7 +149,7 @@ export const StripChartComponent = (
   const series = traces.map(item => {
     const trace = {
       // If axis is set higher than number of axes, default to zero
-      id: item.axis <= axes.length - 1 ? yAxes[item.axis].id : 0,
+      id: item.axis <= axes.length - 1 ? item.axis : 0,
       data: data.y,
       label: item.name,
       color: visible ? item.color.toString() : "transparent",
@@ -174,7 +186,7 @@ export const StripChartComponent = (
       </Typography>
       <LineChart
         hideLegend={showLegend}
-        grid={{ vertical: yAxes[0].showGrid, horizontal: showGrid }}
+        grid={{ vertical: axes[0].showGrid, horizontal: showGrid }}
         sx={{
           width: "100%",
           height: "95%",
@@ -193,7 +205,8 @@ export const StripChartComponent = (
             ".MuiChartsAxis-tick": {
               stroke: foregroundColor.toString()
             }
-          }
+          },
+          ...yAxesStyle
         }}
         xAxis={xAxis}
         yAxis={yAxes}
