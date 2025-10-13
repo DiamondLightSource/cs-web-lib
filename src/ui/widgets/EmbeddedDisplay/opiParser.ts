@@ -12,8 +12,8 @@ import {
   AbsolutePosition,
   RelativePosition
 } from "../../../types/position";
-import { Traces, Trace } from "../../../types/traces";
-import { Axes, Axis } from "../../../types/axes";
+import { Trace } from "../../../types/trace";
+import { Axis } from "../../../types/axis";
 import {
   ComplexParserDict,
   ParserDict,
@@ -484,7 +484,7 @@ function opiParseLabelPosition(props: any): string {
  * @param props list of props for this element
  * @returns a Traces object
  */
-function opiParseTraces(props: any): Traces {
+function opiParseTraces(props: any): Trace[] {
   // Find PV value if it's one of the trace properties
   let pvName = opiParseString(props.pv_name);
   if (pvName.includes("trace_")) {
@@ -494,10 +494,13 @@ function opiParseTraces(props: any): Traces {
   const traces: Trace[] = [];
   // Parse all of the 'trace' properties
   for (let i = 0; i < count; i++) {
-    const trace = parseMultipleNamedProps("trace", props, new Trace(i));
+    const trace = new Trace({
+      fromOpi: true,
+      ...parseMultipleNamedProps(`trace_${i}`, props)
+    });
     traces.push(trace);
   }
-  return new Traces(count, pvName, traces);
+  return traces;
 }
 
 /**
@@ -506,15 +509,18 @@ function opiParseTraces(props: any): Traces {
  * @param props
  * @returns an Axes object.
  */
-function opiParseAxes(props: any): Axes {
+function opiParseAxes(props: any): Axis[] {
   const count = opiParseNumber(props.axis_count);
   const axes: Axis[] = [];
   // Parse all of the 'axis' properties
   for (let i = 0; i < count; i++) {
-    const axis = parseMultipleNamedProps("axis", props, new Axis(i));
+    const axis = new Axis({
+      fromOpi: true,
+      ...parseMultipleNamedProps(`axis_${i}`, props)
+    });
     axes.push(axis);
   }
-  return new Axes(count, axes);
+  return axes;
 }
 
 /**
@@ -526,28 +532,24 @@ function opiParseAxes(props: any): Axes {
  * @param idx number to search for in prop names
  * @returns object containing parsed props
  */
-function parseMultipleNamedProps(name: string, props: any, obj: any) {
+function parseMultipleNamedProps(name: string, props: any) {
+  const obj: { [key: string]: any } = {};
   // Create keyword string and search for matches
-  const num = `${name}_${obj.index}_`;
+  const num = `${name}_`;
   const names = Object.getOwnPropertyNames(props);
   const newProps = names.filter(s => s.includes(num));
   newProps.forEach(item => {
     // For each match, convert the name and parse
-    const newName = snakeCaseToCamelCase(item, num.length, undefined);
+    const newName = snakeCaseToCamelCase(item, num.length, item.length);
     try {
-      if (newName) {
-        // Get the type of the property
-        const match = obj[newName];
-        if (typeof match === "boolean") {
-          obj[newName] = opiParseBoolean(props[item]);
-        } else if (typeof match === "number") {
-          obj[newName] = opiParseNumber(props[item]);
-        } else if (typeof match === "string") {
-          obj[newName] = opiParseString(props[item]);
-        } else if (match instanceof Color) {
-          obj[newName] = opiParseColor(props[item]);
-        } else if (match instanceof Font) {
-          obj[newName] = opiParseFont(props[item]);
+      if (newName && OPI_SIMPLE_PARSERS.hasOwnProperty(newName)) {
+        const [opiPropName, propParser] = OPI_SIMPLE_PARSERS[newName];
+        obj[newName] = propParser(props[item]);
+        // Some properties should be passed to more generic names
+        if (newName === "traceColor" || newName === "axisColor") {
+          obj.color = opiParseColor(props[opiPropName]);
+        } else if (newName === "axisTitle") {
+          obj.title = opiParseString(props[item]);
         }
       }
     } catch {
@@ -718,7 +720,19 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   resize: ["resize_behaviour", opiParseResizing],
   labelsFromPv: ["labels_from_pv", opiParseBoolean],
   limitsFromPv: ["limits_from_pv", opiParseBoolean],
-  format: ["format_type", opiParseNumber]
+  format: ["format_type", opiParseNumber],
+  antiAlias: ["anti_alias", opiParseBoolean],
+  concatenateData: ["concatenate_data", opiParseBoolean],
+  bufferSize: ["buffer_size", opiParseNumber],
+  onRight: ["left_bottom_side", opiParseBoolean],
+  updateMode: ["update_mode", opiParseNumber],
+  updateDelay: ["update_delay", opiParseNumber],
+  scaleFormat: ["scale_format", opiParseNumber],
+  scakeFont: ["scale_font", opiParseFont],
+  showGrid: ["show_grid", opiParseBoolean],
+  scaleFont: ["scale_font", opiParseFont],
+  minimum: ["minimum", opiParseNumber],
+  maximum: ["maximum", opiParseNumber]
 };
 
 /**

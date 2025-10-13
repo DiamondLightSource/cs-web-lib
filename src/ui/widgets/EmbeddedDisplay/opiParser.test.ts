@@ -404,9 +404,9 @@ $(trace_0_y_pv_value)</tooltip>
   it("parses xygraph widget", (): void => {
     const widget = parseOpi(xygraphString, "ca", PREFIX)
       .children?.[0] as WidgetDescription;
-    expect(widget.traces.count).toEqual(1);
-    expect(widget.axes.count).toEqual(3);
-    expect(widget.traces.traceOptions[0].bufferSize).toEqual(65536);
-    expect(widget.axes.axisOptions[2].leftBottomSide).toEqual(false);
+    expect(widget.traces.length).toEqual(1);
+    expect(widget.axes.length).toEqual(3);
+    expect(widget.traces[0].bufferSize).toEqual(65536);
+    expect(widget.axes[2].onRight).toEqual(true);
   });
 });

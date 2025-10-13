@@ -1,8 +1,8 @@
-import { Axis } from "../../../types/axes";
+import { Axis } from "../../../types/axis";
 import { Color } from "../../../types/color";
 import { DType } from "../../../types/dtypes";
 import { Font, FontStyle } from "../../../types/font";
-import { Traces } from "../../../types/traces";
+import { Trace } from "../../../types/trace";
 import { roundValue } from "../utils";
 import { calculateAxisLimits, createAxes, createTraces } from "./xyPlotOptions";
 
@@ -61,24 +61,6 @@ describe("calculate axis limits", (): void => {
     expect(newAxisOpts.range).toEqual([1, 10]);
   });
 
-  test("Use set limits if autoscale threshold not exceeded", (): void => {
-    const oldAxisOpts: any = { autoScale: true, autoScaleThreshold: 0.99 };
-    let newAxisOpts: any = { range: [1, 10] };
-    const data: any[] = [{ x: [0, 3, 4] }, { x: [5, 4, 1] }];
-    newAxisOpts = calculateAxisLimits(oldAxisOpts, newAxisOpts, data);
-
-    expect(newAxisOpts.range).toEqual([1, 10]);
-  });
-
-  test("Use autoscale if autoscale threshold exceeded", (): void => {
-    const oldAxisOpts: any = { autoScale: true, autoScaleThreshold: 0.01 };
-    let newAxisOpts: any = { range: [1, 10] };
-    const data: any[] = [{ x: [0, 3, 4] }, { x: [5, 4, 1] }];
-    newAxisOpts = calculateAxisLimits(oldAxisOpts, newAxisOpts, data);
-
-    expect(newAxisOpts.range).toEqual([0, 5]);
-  });
-
   test("Set axis limits for x", (): void => {
     const oldAxisOpts: any = {
       autoScale: true,
@@ -116,7 +98,7 @@ describe("calculate axis limits", (): void => {
 
 describe("Create trace options object", (): void => {
   test("Return empty array if no data", (): void => {
-    const traces: Traces = { count: 0, pvName: "test", traceOptions: [] };
+    const traces: Trace[] = [];
     const val = new DType({ stringValue: "3.141", arrayValue: undefined });
     const bytesPerElement = 4;
     const traceOptions = createTraces(traces, val, bytesPerElement);
@@ -125,19 +107,14 @@ describe("Create trace options object", (): void => {
   });
 
   test("Create bar chart trace", (): void => {
-    const traces: Traces = {
-      count: 1,
-      pvName: "test",
-      traceOptions: [
-        {
-          index: 0,
-          traceColor: new Color("rgb(255, 0, 0)"),
-          pointStyle: 0,
-          pointSize: 2,
-          traceType: 3
-        }
-      ]
-    };
+    const traces: Trace[] = [
+      new Trace({
+        color: new Color("rgb(255, 0, 0)"),
+        pointType: 0,
+        pointSize: 2,
+        traceType: 3
+      })
+    ];
     const bytesPerElement = 4;
     const traceOptions = createTraces(traces, ARRAY_DATA, bytesPerElement);
 
@@ -156,20 +133,15 @@ describe("Create trace options object", (): void => {
   });
 
   test("Create line plot trace", (): void => {
-    const traces: Traces = {
-      count: 1,
-      pvName: "test",
-      traceOptions: [
-        {
-          index: 0,
-          traceColor: new Color("rgb(250, 0, 0)"),
-          lineWidth: 2,
-          pointStyle: 3,
-          pointSize: 6,
-          traceType: 2
-        }
-      ]
-    };
+    const traces: Trace[] = [
+      new Trace({
+        color: new Color("rgb(250, 0, 0)"),
+        lineWidth: 2,
+        pointType: 3,
+        pointSize: 6,
+        traceType: 2
+      })
+    ];
     const bytesPerElement = 4;
     const traceOptions = createTraces(traces, ARRAY_DATA, bytesPerElement);
 
@@ -193,20 +165,15 @@ describe("Create trace options object", (): void => {
   });
 
   test("Create area plot trace", (): void => {
-    const traces: Traces = {
-      count: 1,
-      pvName: "test",
-      traceOptions: [
-        {
-          index: 0,
-          traceColor: new Color("rgb(250, 0, 0)"),
-          lineWidth: 2,
-          pointStyle: 6,
-          pointSize: 6,
-          traceType: 4
-        }
-      ]
-    };
+    const traces: Trace[] = [
+      new Trace({
+        color: new Color("rgb(250, 0, 0)"),
+        lineWidth: 2,
+        pointType: 6,
+        pointSize: 6,
+        traceType: 4
+      })
+    ];
     const bytesPerElement = 4;
     const traceOptions = createTraces(traces, ARRAY_DATA, bytesPerElement);
 
@@ -231,28 +198,18 @@ describe("Create trace options object", (): void => {
     ]);
   });
 
-  /*
-  test("Concatenate new data onto old", (): void => {
-    // TO DO - when concatenation works, add test
-  });*/
-
   test("Cut data down to buffer size, last n points", (): void => {
-    const traces: Traces = {
-      count: 1,
-      pvName: "test",
-      traceOptions: [
-        {
-          index: 0,
-          traceColor: new Color("rgb(250, 0, 0)"),
-          lineWidth: 2,
-          pointStyle: 3,
-          pointSize: 6,
-          traceType: 2,
-          bufferSize: 12,
-          plotMode: 0
-        }
-      ]
-    };
+    const traces: Trace[] = [
+      new Trace({
+        fromOpi: true,
+        color: new Color("rgb(250, 0, 0)"),
+        lineWidth: 2,
+        pointSize: 6,
+        traceType: 2,
+        bufferSize: 12,
+        plotMode: 0
+      })
+    ];
     const bytesPerElement = 4;
     const traceOptions = createTraces(traces, ARRAY_DATA, bytesPerElement);
 
@@ -265,7 +222,7 @@ describe("Create trace options object", (): void => {
         marker: {
           color: "rgb(250, 0, 0)",
           size: 6,
-          symbol: "triangle-up"
+          symbol: "none"
         },
         mode: "markers",
         type: "scatter",
@@ -276,22 +233,18 @@ describe("Create trace options object", (): void => {
   });
 
   test("Cut data down to buffer size, first n points", (): void => {
-    const traces: Traces = {
-      count: 1,
-      pvName: "test",
-      traceOptions: [
-        {
-          index: 0,
-          traceColor: new Color("rgb(250, 0, 0)"),
-          lineWidth: 2,
-          pointStyle: 3,
-          pointSize: 6,
-          traceType: 2,
-          bufferSize: 12,
-          plotMode: 1
-        }
-      ]
-    };
+    const traces: Trace[] = [
+      new Trace({
+        fromOpi: true,
+        color: new Color("rgb(250, 0, 0)"),
+        lineWidth: 2,
+        pointType: 3,
+        pointSize: 6,
+        traceType: 2,
+        bufferSize: 12,
+        plotMode: 1
+      })
+    ];
     const bytesPerElement = 4;
     const traceOptions = createTraces(traces, ARRAY_DATA, bytesPerElement);
 
@@ -316,55 +269,16 @@ describe("Create trace options object", (): void => {
 });
 
 describe("Create axis options object", (): void => {
-  test("Create axis without title label", (): void => {
-    const axes: Axis[] = [
-      {
-        index: 0,
-        axisTitle: "",
-        visible: true,
-        showGrid: true,
-        dashGridLine: false,
-        axisColor: new Color("rgb(255, 255, 255"),
-        minimum: 1,
-        maximum: 10,
-        scaleFormat: "0.0"
-      }
-    ];
-    const font = new Font(10, FontStyle.Regular, "sans");
-    const axisOptions = createAxes(axes, font.css());
-
-    expect(axisOptions).toEqual([
-      {
-        automargin: true,
-        autorange: false,
-        gridcolor: "rgb(255, 255, 255",
-        griddash: false,
-        gridwidth: 0.5,
-        minor: { ticks: "outside" },
-        range: [1, 10],
-        showgrid: true,
-        showline: true,
-        tickcolor: "rgb(255, 255, 255",
-        visible: true,
-        zeroline: false,
-        tickformat: "0.0"
-      }
-    ]);
-  });
-
   test("Create axis with title label", (): void => {
     const axes: Axis[] = [
-      {
-        index: 0,
-        axisTitle: "Test Plot",
+      new Axis({
+        title: "Test Plot",
         visible: true,
         showGrid: true,
-        dashGridLine: false,
-        axisColor: new Color("rgb(255, 255, 255"),
+        color: new Color("rgb(255, 255, 255"),
         minimum: 1,
-        maximum: 10,
-        scaleFormat: "0.00"
-      }
+        maximum: 10
+      })
     ];
     const font = new Font(10, FontStyle.Regular, "sans");
     const axisOptions = createAxes(axes, font.css());
@@ -381,7 +295,6 @@ describe("Create axis options object", (): void => {
         showgrid: true,
         showline: true,
         tickcolor: "rgb(255, 255, 255",
-        tickformat: "0.00",
         title: {
           standoff: 0,
           text: "Test Plot"
@@ -398,27 +311,20 @@ describe("Create axis options object", (): void => {
 
   test("Shift axis if additional y axis", (): void => {
     const axis = {
-      index: 1,
-      axisTitle: "Test Plot",
+      title: "Test Plot",
       visible: true,
       showGrid: true,
-      dashGridLine: false,
-      axisColor: new Color("rgb(255, 255, 255"),
+      color: new Color("rgb(255, 255, 255"),
       minimum: 1,
       maximum: 10,
-      leftBottomSide: true,
-      yAxis: false,
-      scaleFormat: ""
+      onRight: false,
+      xAxis: true
     };
-    const axis1 = { ...axis };
-    axis1.index = 1;
-    axis1.minimum = -5;
-    axis1.yAxis = true;
-    const axis2 = { ...axis };
-    axis2.index = 2;
-    axis2.maximum = 50;
-    axis2.yAxis = true;
-    const axes: Axis[] = [axis, axis1, axis2];
+    const axes: Axis[] = [
+      new Axis(axis),
+      new Axis({ ...axis, ...{ minimum: -5, xAxis: false } }),
+      new Axis({ ...axis, ...{ maximum: 50, xAxis: false } })
+    ];
     const font = new Font(10, FontStyle.Regular, "sans");
     const axisOptions = createAxes(axes, font.css());
 
@@ -438,7 +344,6 @@ describe("Create axis options object", (): void => {
       showline: true,
       side: "left",
       tickcolor: "rgb(255, 255, 255",
-      tickformat: "",
       title: {
         standoff: 0,
         text: "Test Plot"
@@ -454,27 +359,21 @@ describe("Create axis options object", (): void => {
 
   test("Don't shift axis if additional x axis on opposite side", (): void => {
     const axis = {
-      index: 0,
-      axisTitle: "Test Plot",
+      title: "Test Plot",
       visible: true,
       showGrid: true,
-      dashGridLine: false,
-      axisColor: new Color("rgb(255, 255, 255"),
+      color: new Color("rgb(255, 255, 255"),
       minimum: 1,
       maximum: 10,
-      yAxis: false,
-      leftBottomSide: true,
-      scaleFormat: ""
+      xAxis: true,
+      onRight: false
     };
-    const axis1 = { ...axis };
-    axis1.index = 1;
-    axis1.minimum = -5;
-    axis1.yAxis = true;
-    const axis2 = { ...axis };
-    axis2.index = 2;
-    axis2.leftBottomSide = false;
-    axis2.maximum = 50;
-    const axes: Axis[] = [axis, axis1, axis2];
+
+    const axes: Axis[] = [
+      new Axis(axis),
+      new Axis({ ...axis, ...{ minimum: -5, xAxis: false } }),
+      new Axis({ ...axis, ...{ maximum: 50, onRight: true } })
+    ];
     const font = new Font(10, FontStyle.Regular, "sans");
     const axisOptions = createAxes(axes, font.css());
 
@@ -494,7 +393,6 @@ describe("Create axis options object", (): void => {
       showline: true,
       side: "right",
       tickcolor: "rgb(255, 255, 255",
-      tickformat: "",
       title: {
         standoff: 0,
         text: "Test Plot"

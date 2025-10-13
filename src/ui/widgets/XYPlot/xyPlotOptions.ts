@@ -1,6 +1,6 @@
-import { Axis } from "../../../types/axes";
+import { Axis } from "../../../types/axis";
 import { PlotData } from "plotly.js";
-import { Traces } from "../../../types/traces";
+import { Trace } from "../../../types/trace";
 import type { DType } from "../../../types/dtypes";
 import React from "react";
 import { roundValue } from "../utils";
@@ -45,7 +45,7 @@ const POINT_STYLE: { [key: number]: string } = {
  * @returns a list of PlotData traces
  */
 export function createTraces(
-  traces: Traces,
+  traces: Trace[],
   value: DType,
   bytesPerElement: number
 ): Partial<PlotData>[] {
@@ -53,32 +53,28 @@ export function createTraces(
   // TO DO - can format this better once I figure out confusing types
   if (!arrayValue) return [];
   const dataSet: Partial<PlotData>[] = [];
-  traces.traceOptions.forEach(options => {
-    const traceStyle = options.traceType
-      ? TRACE_STYLE[options.traceType]
-      : TRACE_STYLE[0];
+  traces.forEach(options => {
+    const traceStyle = TRACE_STYLE[options.traceType];
     // Create a dataset for each trace, starting with style
     const data: Partial<PlotData> = {
       ...traceStyle
     };
     data.marker = {
-      color: options.traceColor?.toString(),
-      symbol: options.pointStyle
-        ? POINT_STYLE[options.pointStyle]
-        : POINT_STYLE[0],
+      color: options.color.toString(),
+      symbol: POINT_STYLE[options.pointType],
       size: options.pointSize
     };
     // Line, scatter and area plots are similar in format options
     if (traceStyle.type === "scatter") {
       // different trace layout for bar and line
       data.line = {
-        color: options.traceColor?.toString(),
+        color: options.color.toString(),
         width: options.lineWidth
       };
       // if area plot, fill in with same colour as line
       if (traceStyle.fill) {
         data.fill = traceStyle.fill;
-        data.fillcolor = options.traceColor?.toString();
+        data.fillcolor = options.color.toString();
       }
     }
 
@@ -136,21 +132,20 @@ export function createAxes(
       showline: true,
       visible: axis.visible,
       showgrid: axis.showGrid,
-      griddash: axis.dashGridLine,
+      griddash: false,
       gridwidth: 0.5,
-      gridcolor: axis.axisColor?.toString(),
-      tickcolor: axis.axisColor?.toString(),
+      gridcolor: axis.color.toString(),
+      tickcolor: axis.color.toString(),
       zeroline: false,
       automargin: true,
       minor: {
         ticks: "outside"
-      },
-      tickformat: axis.scaleFormat
+      }
     };
     // Only add title labels if they exist
-    if (axis.axisTitle !== "") {
+    if (axis.title !== "") {
       _newAxis.title = {
-        text: axis.axisTitle,
+        text: axis.title,
         standoff: 0
       };
       _newAxis.titlefont = {
@@ -165,8 +160,8 @@ export function createAxes(
 
     // More than 2 axes, determine position and location of axes
     if (idx > 1) {
-      _newAxis.side = axis.leftBottomSide ? "left" : "right";
-      _newAxis.overlaying = axis.yAxis ? "y" : "x";
+      _newAxis.side = axis.onRight ? "right" : "left";
+      _newAxis.overlaying = axis.xAxis ? "x" : "y";
       _newAxis.position = 0;
       _newAxis.anchor = "free";
       // Only shift to add space for 2nd y-axis if it is overlapping and visible
@@ -196,12 +191,10 @@ export function calculateAxisLimits(
   dataSet: any[]
 ): NewAxisSettings {
   // If autoscale not enabled, do not rescale axes
-  if (!oldAxis.autoScale) return newAxis;
-  // Find axis limits
-  const [axMin, axMax]: [number, number] = newAxis.range;
+  if (!oldAxis.autoscale) return newAxis;
   // Determine if we are using x or y data
   let dataType = "x";
-  if (oldAxis.index > 0 && oldAxis.yAxis) dataType = "y";
+  if (!oldAxis.xAxis) dataType = "y";
   // Find max and minimum value from all the traces and round to 1sf
   let actualMin = Math.min(...dataSet[0][dataType]);
   let actualMax = Math.max(...dataSet[0][dataType]);
@@ -212,18 +205,8 @@ export function calculateAxisLimits(
     if (actualMin > nextMin) actualMin = nextMin;
     if (actualMax < nextMax) actualMax = nextMax;
   });
-  let min = roundValue(actualMin, 0);
-  let max = roundValue(actualMax, 1);
-  // If number is within autoscale threshold, just use axis limits
-  const threshold = 1 - (max - min) / (axMax - axMin);
-  if (
-    oldAxis.autoScaleThreshold &&
-    -oldAxis.autoScaleThreshold < threshold &&
-    threshold < oldAxis.autoScaleThreshold
-  ) {
-    min = axMin;
-    max = axMax;
-  }
+  const min = roundValue(actualMin, 0);
+  const max = roundValue(actualMax, 1);
   newAxis.range = [min, max];
   return newAxis;
 }

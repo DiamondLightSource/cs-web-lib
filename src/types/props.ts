@@ -5,8 +5,8 @@ import { WidgetActions } from "../ui/widgets/widgetActions";
 import { Border } from "./border";
 import { Position } from "./position";
 import { PV } from "./pv";
-import { Traces } from "./traces";
-import { Axes } from "./axes";
+import { Trace } from "./trace";
+import { Axes, Axis } from "./axis";
 import { Points } from "./points";
 
 export type GenericProp =
@@ -23,8 +23,9 @@ export type GenericProp =
   | MacroMap
   | WidgetActions
   | OpiFile
-  | Traces
+  | Trace[]
   | Axes
+  | Axis
   | Points;
 
 export interface Expression {

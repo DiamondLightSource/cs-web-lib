@@ -8,11 +8,11 @@
  */
 export function snakeCaseToCamelCase(
   text: string,
-  start: number | undefined,
-  end: number | undefined
+  start?: number | undefined,
+  end?: number | undefined
 ): string | undefined {
   // Remove unneeded characters then split string by underscore
-  const stringArray = text.slice(start, end).split("_");
+  const stringArray = (start && end ? text.slice(start, end) : text).split("_");
   // Remove first element, this shouldn't be uppercase
   let newName = stringArray.shift();
   // Loop over and capitalise first character of each string
@@ -116,4 +116,32 @@ export function calculateRotationTransform(
     return "";
   })();
   return [outputWidth, outputHeight, transform];
+}
+
+/**
+ * Function that converts strings containing a time interval
+ * into time in milliseconds
+ * @param period string datetime
+ * @returns period of time in milliseconds
+ */
+export function convertStringTimePeriod(period: string): number {
+  // Array of all time period strings
+  const times = [
+    { unit: "second", value: 1 },
+    { unit: "minute", value: 60 },
+    { unit: "hour", value: 3600 },
+    { unit: "day", value: 86400 },
+    { unit: "week", value: 604800 },
+    { unit: "month", value: 705600 },
+    { unit: "year", value: 31536000 }
+  ];
+  let match = times.find(item => period.includes(item.unit));
+  if (match === undefined) match = times[1];
+  // Find number of time period
+  const multiplier = match
+    ? parseInt(period.replace(match.unit, "").trim())
+    : 1;
+  // If multiplier can't be parsed, default again to 1 minute, and calculate time
+  const time = (isNaN(multiplier) ? 1 : multiplier) * match.value * 1000;
+  return time;
 }
