@@ -14,8 +14,14 @@ import {
 import { GenericProp } from "../../types/props";
 import { DType } from "../../types/dtypes";
 
-export const WidgetPropType = {
-  position: PositionProp,
+// Internal prop types object for properties which are not in a standard widget
+const PVBasicType = {
+  pvName: PvPropOpt,
+  pvType: PvTypePropOpt,
+  alarmBorder: BoolPropOpt
+};
+
+const BasicPropsType = {
   rules: RulesPropOpt,
   actions: ActionsPropType,
   tooltip: StringPropOpt,
@@ -23,39 +29,50 @@ export const WidgetPropType = {
   visible: BoolPropOpt
 };
 
-type WidgetProps = InferWidgetProps<typeof WidgetPropType>;
-
-// Internal type for creating widgets
-export type WidgetComponent = WidgetProps & {
-  baseWidget: React.FC<any>;
+const PositionPropsType = {
+  position: PositionProp
 };
 
-// Internal prop types object for properties which are not in a standard widget
-const PVExtras = {
-  pvName: PvPropOpt,
-  pvType: PvTypePropOpt,
-  alarmBorder: BoolPropOpt
+export const WidgetPropType = {
+  ...PositionPropsType,
+  ...BasicPropsType
 };
+
 // PropTypes object for a PV widget which can be expanded
 export const PVWidgetPropType = {
-  ...PVExtras,
+  ...PVBasicType,
   ...WidgetPropType
 };
-export type PVWidgetProps = WidgetProps & InferWidgetProps<typeof PVExtras>;
-export type PVWidgetComponent = PVWidgetProps & { baseWidget: React.FC<any> };
-export type AnyProps = PVWidgetComponent & {
+
+type BasicProps = InferWidgetProps<typeof BasicPropsType>;
+type PositionProps = InferWidgetProps<typeof PositionPropsType>;
+
+type PVBasicProps = InferWidgetProps<typeof PVBasicType>;
+type PVExtendedProps = {
   id: string;
   connected?: boolean;
   readonly?: boolean;
   value?: DType;
-} & {
+};
+
+type AnyOtherProps = {
   // All other props with valid types.
   [x: string]: GenericProp;
 };
 
-export interface Component {
-  style?: Record<string, string>;
-}
+type BaseWidgetProps = { baseWidget: React.FC<any> };
 
-export type PVComponent = Component & PvState;
+type ComponentProps = {
+  style?: Record<string, string>;
+};
+
+export type ConnectingComponentWidgetProps = BasicProps &
+  PVBasicProps &
+  PVExtendedProps &
+  AnyOtherProps;
+export type WidgetComponent = BasicProps & PositionProps & BaseWidgetProps;
+export type PVWidgetComponent = WidgetComponent & PVBasicProps;
+export type AnyProps = PVWidgetComponent & PVExtendedProps & AnyOtherProps;
+
+export type PVComponent = ComponentProps & PvState;
 export type PVInputComponent = PVComponent & { pvName: string };

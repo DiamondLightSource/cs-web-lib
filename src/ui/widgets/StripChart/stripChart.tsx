@@ -149,10 +149,10 @@ export const StripChartComponent = (
     }
   ];
 
-  const series = traces.map(item => {
+  const series = traces.map((item, index) => {
     const trace = {
       // If axis is set higher than number of axes, default to zero
-      id: item.axis <= axes.length - 1 ? item.axis : 0,
+      id: index, // item.axis <= axes.length - 1 ? item.axis : 0,
       data: data.y,
       label: item.name,
       color: visible ? item.color.toString() : "transparent",

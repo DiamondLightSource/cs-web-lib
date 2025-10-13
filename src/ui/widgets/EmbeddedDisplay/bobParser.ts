@@ -255,7 +255,7 @@ function bobParseTraces(props: any): Trace[] {
   const traces: Trace[] = [];
   let parsedProps = {};
   if (props) {
-    // If only once trace, we are passed an object instead
+    // If only one trace, we are passed an object instead
     // of an array
     if (props.trace.length > 1) {
       props.trace.forEach((trace: any) => {

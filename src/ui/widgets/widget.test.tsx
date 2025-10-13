@@ -58,6 +58,6 @@ describe("<Widget />", (): void => {
     // simulate middle click
     fireEvent.mouseDown(label, { button: 1 });
     expect(getByText(/.*hi.*/)).toBeInTheDocument();
-    expect(copyToClipboard).toHaveBeenCalledWith(pv);
+    expect(copyToClipboard).toHaveBeenCalledWith(pv.toString());
   });
 });
