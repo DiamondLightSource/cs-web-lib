@@ -15,6 +15,7 @@ export type GenericProp =
   | boolean
   | number
   | PV
+  | { pvName: PV }[]
   | Color
   | Font
   | Border

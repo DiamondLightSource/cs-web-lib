@@ -6,13 +6,12 @@ import { ContextMenu } from "../components/ContextMenu/contextMenu";
 import ctxtClasses from "../components/ContextMenu/contextMenu.module.css";
 import tooltipClasses from "./tooltip.module.css";
 import { useMacros } from "../hooks/useMacros";
-import { useConnection } from "../hooks/useConnection";
+import { useConnection, useConnectionMultiplePv } from "../hooks/useConnection";
 import { useId } from "react-id-generator";
 import { useRules } from "../hooks/useRules";
 import {
   ConnectingComponentWidgetProps,
-  PVWidgetComponent,
-  WidgetComponent
+  PVWidgetComponent
 } from "./widgetProps";
 import { Border, BorderStyle } from "../../types/border";
 import { Color } from "../../types/color";
@@ -23,7 +22,25 @@ import { ExitFileContext, FileContext } from "../../misc/fileContext";
 import { executeAction, WidgetAction, WidgetActions } from "./widgetActions";
 import { Popover } from "react-tiny-popover";
 import { resolveTooltip } from "./tooltip";
-import { SubscriptionType } from "../../connection";
+import { PVValue, PVValueCollection } from "../../redux/csState";
+
+const ALARM_SEVERITY_MAP = {
+  [AlarmQuality.ALARM]: 1,
+  [AlarmQuality.WARNING]: 2,
+  [AlarmQuality.INVALID]: 3,
+  [AlarmQuality.UNDEFINED]: 4,
+  [AlarmQuality.CHANGING]: 5,
+  [AlarmQuality.VALID]: 6
+};
+
+const AlarmColorsMap = {
+  [AlarmQuality.VALID]: Color.BLACK,
+  [AlarmQuality.WARNING]: Color.WARNING,
+  [AlarmQuality.ALARM]: Color.ALARM,
+  [AlarmQuality.INVALID]: Color.INVALID,
+  [AlarmQuality.UNDEFINED]: Color.UNDEFINED,
+  [AlarmQuality.CHANGING]: Color.CHANGING
+};
 
 /**
  * Return a CSSProperties object for props that multiple widgets may have.
@@ -70,7 +87,20 @@ export const ConnectingComponent = (props: {
   onContextMenu?: (e: React.MouseEvent) => void;
 }): JSX.Element => {
   const Component = props.component;
-  const { id, alarmBorder = false, pvName } = props.widgetProps;
+  const {
+    id,
+    alarmBorder = false,
+    pvMetadataList,
+  } = props.widgetProps;
+
+  const pvName =
+    pvMetadataList && pvMetadataList?.length > 0
+      ? pvMetadataList[0]?.pvName
+      : undefined;
+ 
+  const pvNames = pvMetadataList
+    ? pvMetadataList.map(metadata => metadata?.pvName).filter(pv => !!pv)
+    : [];
 
   // Popover logic, used for middle-click tooltip.
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -88,6 +118,7 @@ export const ConnectingComponent = (props: {
       e.stopPropagation();
     }
   };
+
   const mouseUp = (e: React.MouseEvent): void => {
     if (e.button === 1 && e.currentTarget) {
       setPopoverOpen(false);
@@ -98,38 +129,41 @@ export const ConnectingComponent = (props: {
     }
   };
 
-  const [effectivePvName, connected, readonly, latestValue] = useConnection(
+  const pvData = useConnectionMultiplePv(
     id,
-    pvName?.qualifiedName()
+    pvNames.map(x => x.qualifiedName())
   );
 
-  // Always indicate with border if PV is disconnected.
   let border = props.widgetProps.border;
-  if (props.widgetProps.pvName && connected === false) {
-    border = new Border(BorderStyle.Dotted, Color.DISCONNECTED, 3);
-  } else if (alarmBorder) {
-    // Implement alarm border for all widgets if configured.
-    const severity = latestValue?.getAlarm()?.quality || AlarmQuality.VALID;
-    const colors: { [key in AlarmQuality]: Color } = {
-      [AlarmQuality.VALID]: Color.BLACK,
-      [AlarmQuality.WARNING]: Color.WARNING,
-      [AlarmQuality.ALARM]: Color.ALARM,
-      [AlarmQuality.INVALID]: Color.INVALID,
-      [AlarmQuality.UNDEFINED]: Color.UNDEFINED,
-      [AlarmQuality.CHANGING]: Color.CHANGING
-    };
-    if (severity !== AlarmQuality.VALID) {
-      border = new Border(BorderStyle.Line, colors[severity], 2);
+  if (pvNames) {
+    let alarmSeverity = AlarmQuality.VALID;
+
+    if (alarmBorder && pvData) {
+      alarmSeverity = pvData
+        .map(x => x.value?.getAlarm()?.quality ?? AlarmQuality.VALID)
+        .reduce(
+          (mostSevereSoFar, currentItem) =>
+            ALARM_SEVERITY_MAP[mostSevereSoFar] < ALARM_SEVERITY_MAP[currentItem]
+              ? mostSevereSoFar
+              : currentItem,
+          alarmSeverity
+      );
+    }
+
+    if (alarmSeverity !== AlarmQuality.VALID) {
+      border = new Border(BorderStyle.Line, AlarmColorsMap[alarmSeverity], 2);
+    } else if (pvData && !pvData.every(x => x.connected)) {
+      border = new Border(BorderStyle.Dotted, Color.DISCONNECTED, 3);
     }
   }
 
   const widgetTooltipProps = {
     ...props.widgetProps,
     tooltip: props.widgetProps.tooltip ?? "",
-    pvName: effectivePvName,
-    value: latestValue,
-    connected,
-    readonly,
+    pvName: pvData ? pvData[0]?.effectivePvName : undefined,
+    value: pvData ? pvData[0]?.value : undefined,
+    connected: pvData ? pvData[0]?.connected : false,
+    readonly: pvData ? pvData[0]?.readonly : false,
     border
   };
 
@@ -185,9 +219,7 @@ const DEFAULT_TOOLTIP = "${pvName}\n${pvValue}";
  * @param props
  * @returns JSX Element to render
  */
-export const Widget = (
-  props: PVWidgetComponent | WidgetComponent
-): JSX.Element => {
+export const Widget = (props: PVWidgetComponent): JSX.Element => {
   const [id] = useId();
 
   const files = useContext(FileContext);

@@ -1,7 +1,7 @@
 import React from "react";
 import { useSubscription } from "./useSubscription";
 import { useSelector } from "react-redux";
-import { CsState } from "../../redux/csState";
+import { CsState, PVValueCollection } from "../../redux/csState";
 import { pvStateSelector, PvArrayResults, pvStateComparator } from "./utils";
 import { SubscriptionType } from "../../connection/plugin";
 import { DType } from "../../types/dtypes";
@@ -27,6 +27,7 @@ export function useConnection(
   let readonly = false;
   let value = undefined;
   let effectivePvName = "undefined";
+
   if (pvName !== undefined) {
     const [pvState, effPvName] = pvResults[pvName];
     effectivePvName = effPvName;
@@ -36,5 +37,38 @@ export function useConnection(
       value = pvState.value;
     }
   }
+
   return [effectivePvName, connected, readonly, value];
 }
+
+export const useConnectionMultiplePv = (
+  id: string,
+  pvNames: string[],
+  type?: SubscriptionType
+): PVValueCollection | undefined=> {
+  if (!pvNames || pvNames.length < 1) {
+    return undefined;
+  }
+
+  const pvNameArray = pvNames.filter(x => !!x);
+  const typeArray = !type ? [] : [type];
+
+  useSubscription(id, pvNameArray, typeArray);
+
+  const pvResults = useSelector(
+    (state: CsState): PvArrayResults => pvStateSelector(pvNameArray, state),
+    pvStateComparator
+  );
+
+  return pvNameArray.map(pvName => {
+    const [pvState, effPvName] = pvResults[pvName];
+
+    return {
+      pvName,
+      connected: pvState?.connected ?? false,
+      readonly: pvState?.readonly ?? false,
+      value: pvState?.value,
+      effectivePvName: effPvName
+    }
+  });
+};

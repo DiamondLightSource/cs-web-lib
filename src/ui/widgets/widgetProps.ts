@@ -7,20 +7,14 @@ import {
   PositionProp,
   ActionsPropType,
   RulesPropOpt,
-  PvPropOpt,
-  PvTypePropOpt
+  PvTypePropOpt,
+  PVMetadataType
 } from "./propTypes";
 
 import { GenericProp } from "../../types/props";
-import { DType } from "../../types/dtypes";
+import PropTypes from "prop-types";
 
 // Internal prop types object for properties which are not in a standard widget
-const PVBasicType = {
-  pvName: PvPropOpt,
-  pvType: PvTypePropOpt,
-  alarmBorder: BoolPropOpt
-};
-
 const BasicPropsType = {
   rules: RulesPropOpt,
   actions: ActionsPropType,
@@ -38,25 +32,28 @@ export const WidgetPropType = {
   ...BasicPropsType
 };
 
+const PvPropsAndMetdataType = {
+  alarmBorder: BoolPropOpt,
+  pvType: PvTypePropOpt,
+  pvMetadataList: PropTypes.arrayOf(PVMetadataType)
+};
+
 // PropTypes object for a PV widget which can be expanded
 export const PVWidgetPropType = {
-  ...PVBasicType,
-  ...WidgetPropType
+  ...WidgetPropType,
+  ...PvPropsAndMetdataType
 };
 
 type BasicProps = InferWidgetProps<typeof BasicPropsType>;
 type PositionProps = InferWidgetProps<typeof PositionPropsType>;
 
-type PVBasicProps = InferWidgetProps<typeof PVBasicType>;
-type PVExtendedProps = {
-  id: string;
-  connected?: boolean;
-  readonly?: boolean;
-  value?: DType;
-};
+type PvPropsAndMetdataProps = InferWidgetProps<typeof PvPropsAndMetdataType>;
+
+type PVdatum = PvState;
 
 type AnyOtherProps = {
   // All other props with valid types.
+  id: string;
   [x: string]: GenericProp;
 };
 
@@ -66,13 +63,21 @@ type ComponentProps = {
   style?: Record<string, string>;
 };
 
+// Props used by the ConnectingComponentWidget wrapper
 export type ConnectingComponentWidgetProps = BasicProps &
-  PVBasicProps &
-  PVExtendedProps &
+  PvPropsAndMetdataProps &
+  PVdatum &
   AnyOtherProps;
-export type WidgetComponent = BasicProps & PositionProps & BaseWidgetProps;
-export type PVWidgetComponent = WidgetComponent & PVBasicProps;
-export type AnyProps = PVWidgetComponent & PVExtendedProps & AnyOtherProps;
 
-export type PVComponent = ComponentProps & PvState;
+// Props for the Widget wrapper component
+export type PVWidgetComponent = BasicProps &
+  PositionProps &
+  BaseWidgetProps &
+  PvPropsAndMetdataProps;
+
+// type used by useMacros and useRules (not really props)
+export type AnyProps = PVWidgetComponent & PVdatum & AnyOtherProps;
+
+// Types usd by widget component implementations that display a value.
+export type PVComponent = ComponentProps & PVdatum;
 export type PVInputComponent = PVComponent & { pvName: string };

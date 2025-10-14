@@ -27,6 +27,13 @@ export interface PvState {
   readonly: boolean;
 }
 
+export type PVValue = PvState & {
+  pvName: string;
+  effectivePvName?: string;
+};
+
+export type PVValueCollection = PVValue[];
+
 export interface FullPvState extends PvState {
   initializingPvName: string;
 }

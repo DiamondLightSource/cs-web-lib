@@ -11,10 +11,12 @@ import {
   InferWidgetProps,
   FontPropOpt,
   ColorPropOpt,
-  BorderPropOpt
+  BorderPropOpt,
+  PVMetadataType
 } from "../propTypes";
 import { Color } from "../../../types/color";
 import { XAxis, YAxis } from "@mui/x-charts";
+import PropTypes from "prop-types";
 
 export const TankProps = {
   minimum: FloatPropOpt,
@@ -31,7 +33,8 @@ export const TankProps = {
   border: BorderPropOpt,
   transparent: BoolPropOpt,
   scaleVisible: BoolPropOpt,
-  showUnits: BoolPropOpt
+  showUnits: BoolPropOpt,
+  pvMetadataList: PropTypes.arrayOf(PVMetadataType)
 };
 
 export const TankComponent = (
@@ -39,7 +42,7 @@ export const TankComponent = (
 ): JSX.Element => {
   const {
     value,
-    pvName,
+    pvMetadataList,
     limitsFromPv = false,
     showLabel = false,
     font,
@@ -52,6 +55,10 @@ export const TankComponent = (
     showUnits = true,
     transparent = false // This property only exists in CSStudio, so default to false
   } = props;
+  const pvName =
+    pvMetadataList && pvMetadataList.length > 0
+      ? pvMetadataList[0]?.pvName
+      : undefined;
 
   const backgroundColor = transparent
     ? "transparent"
@@ -131,7 +138,7 @@ export const TankComponent = (
             data: [numValue],
             stack: "total",
             color: fillColor.toString(),
-            label: pvName,
+            label: pvName?.toString(),
             type: "bar",
             valueFormatter: val => {
               return showUnits && units && val
