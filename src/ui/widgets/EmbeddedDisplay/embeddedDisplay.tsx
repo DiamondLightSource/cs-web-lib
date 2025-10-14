@@ -177,7 +177,7 @@ export const EmbeddedDisplay = (
       type: "display",
       position: props.position,
       backgroundColor:
-        description.backgroundColor ?? new Color("rgb(200,200,200"),
+        description.backgroundColor ?? new Color("rgb(255,255,255"),
       border:
         props.border ?? new Border(BorderStyle.Line, new Color("white"), 0),
       overflow: overflow,
