@@ -9,7 +9,8 @@ import {
   ColorPropOpt,
   StringPropOpt,
   TracesProp,
-  AxesProp
+  AxesProp,
+  ArchivedDataPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
 import { Box, Typography } from "@mui/material";
@@ -42,7 +43,8 @@ const StripChartProps = {
   scaleFont: FontPropOpt,
   showLegend: BoolPropOpt,
   showToolbar: BoolPropOpt,
-  visible: BoolPropOpt
+  visible: BoolPropOpt,
+  archivedData: ArchivedDataPropOpt
 };
 
 // Needs to be exported for testing
@@ -67,7 +69,8 @@ export const StripChartComponent = (
     foregroundColor = Color.fromRgba(0, 0, 0, 1),
     backgroundColor = Color.fromRgba(255, 255, 255, 1),
     start = "1 minute",
-    visible = true
+    visible = true,
+    archivedData = { x: [], y: [], min: undefined, max: undefined }
   } = props;
   // If we're passed an empty array fill in defaults
   if (traces.length < 1) traces.push(new Trace());
@@ -75,19 +78,14 @@ export const StripChartComponent = (
 
   // Convert start time into milliseconds period
   const timePeriod = useMemo(() => convertStringTimePeriod(start), [start]);
-  const [data, setData] = useState<{
-    x: any[];
-    y: any[];
-    min?: Date;
-    max?: Date;
-  }>({ x: [], y: [] });
+  const [data, setData] = useState(archivedData);
 
   useEffect(() => {
     if (value) {
       // rRemove data outside min and max bounds
       const minimum = new Date(new Date().getTime() - timePeriod);
       // Check if first data point in array is outside minimum, if so remove
-      setData(currentData => {
+      setData((currentData: any) => {
         const xData = currentData.x;
         const yData = currentData.y;
         if (xData.length > 0 && xData[0].getTime() < minimum.getTime()) {
@@ -102,7 +100,7 @@ export const StripChartComponent = (
         };
       });
     }
-  }, [value, timePeriod]);
+  }, [value, timePeriod, data]);
 
   // For some reason the below styling doesn't change axis line and tick
   // colour so we set it using sx in the Line Chart below by passing this in
@@ -123,7 +121,7 @@ export const StripChartComponent = (
         fill: item.color.toString()
       },
       scaleType: item.logScale ? "symlog" : "linear",
-      position: "left",
+      position: item.onRight ? "right" : "left",
       min: item.autoscale ? undefined : item.minimum,
       max: item.autoscale ? undefined : item.maximum
     };
@@ -149,10 +147,11 @@ export const StripChartComponent = (
     }
   ];
 
-  const series = traces.map(item => {
+  const series = traces.map((item, idx) => {
     const trace = {
       // If axis is set higher than number of axes, default to zero
-      id: item.axis <= axes.length - 1 ? item.axis : 0,
+      id: idx,
+      axisId: item.axis <= axes.length - 1 ? item.axis : 0,
       data: data.y,
       label: item.name,
       color: visible ? item.color.toString() : "transparent",

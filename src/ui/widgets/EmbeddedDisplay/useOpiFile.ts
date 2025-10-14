@@ -46,13 +46,13 @@ async function fetchAndConvert(
       // Convert the contents to widget description style object
       switch (fileExt) {
         case "bob":
-          description = parseBob(contents, protocol, parentDir);
+          description = await parseBob(contents, protocol, parentDir);
           break;
         case "json":
           description = parseJson(contents, protocol, parentDir);
           break;
         case "opi":
-          description = parseOpi(contents, protocol, parentDir);
+          description = await parseOpi(contents, protocol, parentDir);
           break;
       }
     }

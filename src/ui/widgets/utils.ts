@@ -125,23 +125,37 @@ export function calculateRotationTransform(
  * @returns period of time in milliseconds
  */
 export function convertStringTimePeriod(period: string): number {
-  // Array of all time period strings
-  const times = [
-    { unit: "second", value: 1 },
-    { unit: "minute", value: 60 },
-    { unit: "hour", value: 3600 },
-    { unit: "day", value: 86400 },
-    { unit: "week", value: 604800 },
-    { unit: "month", value: 705600 },
-    { unit: "year", value: 31536000 }
-  ];
-  let match = times.find(item => period.includes(item.unit));
-  if (match === undefined) match = times[1];
-  // Find number of time period
-  const multiplier = match
-    ? parseInt(period.replace(match.unit, "").trim())
-    : 1;
-  // If multiplier can't be parsed, default again to 1 minute, and calculate time
-  const time = (isNaN(multiplier) ? 1 : multiplier) * match.value * 1000;
-  return time;
+  if (!period) return 60;
+  if (period === "now") return 0;
+  // Check if this is a date
+  const date = new Date(period).getTime();
+  if (isNaN(date)) {
+    // Check if period is negative
+    const isNegative = period.charAt(0) === "-" ? true : false;
+    // Array of all time period strings
+    const times = [
+      { unit: "sec", value: 1 },
+      { unit: "min", value: 60 },
+      { unit: "hour", value: 3600 },
+      { unit: "day", value: 86400 },
+      { unit: "week", value: 604800 },
+      { unit: "month", value: 705600 },
+      { unit: "year", value: 31536000 }
+    ];
+    let match = times.find(item => period.includes(item.unit));
+    if (match === undefined) match = times[1];
+    // Find number of time period
+    const multiplier = match
+      ? parseFloat(period.replace(match.unit, "").trim())
+      : 1;
+    // If multiplier can't be parsed, default again to 1 minute, and calculate time
+    const time =
+      (isNaN(multiplier) ? 1 : multiplier) *
+      match.value *
+      (isNegative ? -1000 : 1000);
+    return time;
+  } else {
+    // Date worked
+    return date;
+  }
 }

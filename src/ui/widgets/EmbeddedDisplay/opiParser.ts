@@ -857,11 +857,11 @@ export const OPI_PATCHERS: PatchFunction[] = [
   opiPatchActions
 ];
 
-export function parseOpi(
+export async function parseOpi(
   xmlString: string,
   defaultProtocol: string,
   filepath: string
-): WidgetDescription {
+): Promise<WidgetDescription> {
   // Convert it to a "compact format"
   const compactJSON = xml2js(xmlString, {
     compact: true
@@ -893,7 +893,7 @@ export function parseOpi(
 
   log.debug(compactJSON.display);
 
-  const displayWidget = parseWidget(
+  const displayWidget = await parseWidget(
     compactJSON.display,
     opiGetTargetWidget,
     "widget",
