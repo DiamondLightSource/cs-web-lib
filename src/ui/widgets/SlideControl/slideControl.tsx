@@ -3,7 +3,7 @@ import log from "loglevel";
 
 import { writePv } from "../../hooks/useSubscription";
 import { Widget } from "../widget";
-import { PVInputComponent, PVWidgetPropType } from "../widgetProps";
+import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import {
   BoolPropOpt,
   BorderPropOpt,
@@ -17,6 +17,7 @@ import { registerWidget } from "../register";
 import { DType } from "../../../types/dtypes";
 import { Slider, useTheme } from "@mui/material";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
+import { getPvValueAndName } from "../utils";
 
 export const SliderControlProps = {
   minimum: FloatPropOpt,
@@ -48,12 +49,11 @@ export const SliderControlProps = {
 };
 
 export const SlideControlComponent = (
-  props: InferWidgetProps<typeof SliderControlProps> & PVInputComponent
+  props: InferWidgetProps<typeof SliderControlProps> & PVComponent
 ): JSX.Element => {
   const theme = useTheme();
   const {
-    pvName,
-    value = null,
+    pvData,
     enabled = true,
     horizontal = true,
     limitsFromPv = false,
@@ -74,6 +74,7 @@ export const SlideControlComponent = (
     height = WIDGET_DEFAULT_SIZES["scaledslider"][1]
   } = props;
   let { minimum = 0, maximum = 100 } = props;
+  const { value, pvName } = getPvValueAndName(pvData);
 
   const font = props.font?.css() ?? theme.typography;
 

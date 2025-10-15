@@ -1,7 +1,7 @@
 import React from "react";
 import { useSubscription } from "./useSubscription";
 import { useSelector } from "react-redux";
-import { CsState, PVValueCollection } from "../../redux/csState";
+import { CsState, PvDataCollection } from "../../redux/csState";
 import { pvStateSelector, PvArrayResults, pvStateComparator } from "./utils";
 import { SubscriptionType } from "../../connection/plugin";
 import { DType } from "../../types/dtypes";
@@ -45,11 +45,7 @@ export const useConnectionMultiplePv = (
   id: string,
   pvNames: string[],
   type?: SubscriptionType
-): PVValueCollection | undefined=> {
-  if (!pvNames || pvNames.length < 1) {
-    return undefined;
-  }
-
+): PvDataCollection => {
   const pvNameArray = pvNames.filter(x => !!x);
   const typeArray = !type ? [] : [type];
 
@@ -60,15 +56,16 @@ export const useConnectionMultiplePv = (
     pvStateComparator
   );
 
-  return pvNameArray.map(pvName => {
-    const [pvState, effPvName] = pvResults[pvName];
+  return {
+    pvData: pvNameArray.map(pvName => {
+      const [pvState, effPvName] = pvResults[pvName];
 
-    return {
-      pvName,
-      connected: pvState?.connected ?? false,
-      readonly: pvState?.readonly ?? false,
-      value: pvState?.value,
-      effectivePvName: effPvName
-    }
-  });
+      return {
+        pvName: effPvName,
+        connected: pvState?.connected ?? false,
+        readonly: pvState?.readonly ?? false,
+        value: pvState?.value
+      };
+    })
+  };
 };

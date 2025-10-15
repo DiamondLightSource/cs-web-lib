@@ -17,6 +17,7 @@ import { writePv } from "../../hooks/useSubscription";
 import { DType } from "../../../types/dtypes";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { Button as MuiButton, styled, useTheme } from "@mui/material";
+import { getPvValueAndName } from "../utils";
 
 // For HTML button, these are the sizes of the buffer on
 // width and height. Must take into account when allocating
@@ -88,8 +89,7 @@ export const BoolButtonComponent = (
     height = WIDGET_DEFAULT_SIZES["bool_button"][1],
     foregroundColor = theme.palette.primary.contrastText,
     backgroundColor = theme.palette.primary.main,
-    pvName,
-    value,
+    pvData,
     onState = 1,
     offState = 0,
     onColor = Color.fromRgba(0, 255, 0),
@@ -100,6 +100,7 @@ export const BoolButtonComponent = (
     labelsFromPv = false,
     enabled = true
   } = props;
+  const { value, pvName } = getPvValueAndName(pvData);
 
   const font = props.font?.css() ?? theme.typography;
 

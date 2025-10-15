@@ -21,6 +21,7 @@ import {
   useTheme
 } from "@mui/material";
 import { Color } from "../../../types";
+import { getPvValueAndName } from "../utils";
 
 const ChoiceButtonProps = {
   pvName: StringPropOpt,
@@ -71,16 +72,17 @@ export const ChoiceButtonComponent = (
   const {
     width = 100,
     height = 43,
-    value = null,
+    pvData,
     enabled = true,
     itemsFromPv = true,
-    pvName,
     items = ["Item 1", "Item 2"],
     horizontal = true,
     foregroundColor = theme.palette.primary.contrastText,
     backgroundColor = theme.palette.primary.main,
     selectedColor = Color.fromRgba(200, 200, 200)
   } = props;
+  const { value, pvName } = getPvValueAndName(pvData);
+
   const font = props.font?.css() ?? theme.typography;
   const [selected, setSelected] = useState(value?.getDoubleValue());
 

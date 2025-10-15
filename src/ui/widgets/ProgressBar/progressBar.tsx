@@ -13,6 +13,7 @@ import {
 } from "../propTypes";
 import { LinearProgress } from "@mui/material";
 import { Color } from "../../../types/color";
+import { getPvValueAndName } from "../utils";
 
 export const ProgressBarProps = {
   min: FloatPropOpt,
@@ -33,7 +34,7 @@ export const ProgressBarComponent = (
   props: InferWidgetProps<typeof ProgressBarProps> & PVComponent
 ): JSX.Element => {
   const {
-    value,
+    pvData,
     limitsFromPv = false,
     showLabel = false,
     font,
@@ -43,6 +44,8 @@ export const ProgressBarComponent = (
     logScale = false,
     transparent = false // This property only exists in CSStudio, so default to false
   } = props;
+
+  const { value } = getPvValueAndName(pvData);
 
   const backgroundColor = transparent
     ? "transparent"

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import { writePv } from "../../hooks/useSubscription";
 import { Widget } from "../widget";
-import { PVInputComponent, PVWidgetPropType } from "../widgetProps";
+import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import {
   InferWidgetProps,
@@ -16,6 +16,7 @@ import {
 } from "../propTypes";
 import { AlarmQuality, DType } from "../../../types/dtypes";
 import { TextField as MuiTextField, styled, useTheme } from "@mui/material";
+import { getPvValueAndName } from "../utils";
 
 const InputComponentProps = {
   pvName: StringPropOpt,
@@ -72,7 +73,7 @@ const TextField = styled(MuiTextField)({
 });
 
 export const SmartInputComponent = (
-  props: PVInputComponent & InferWidgetProps<typeof InputComponentProps>
+  props: PVComponent & InferWidgetProps<typeof InputComponentProps>
 ): JSX.Element => {
   const theme = useTheme();
   const {
@@ -81,13 +82,15 @@ export const SmartInputComponent = (
     transparent = false,
     textAlign = "left",
     textAlignV = "center",
-    value = null,
+    pvData,
     multiLine = false,
     alarmSensitive = true,
     showUnits = false,
     precisionFromPv = false,
     formatType = "default"
   } = props;
+
+  const { value, pvName } = getPvValueAndName(pvData);
 
   // Decide what to display.
   const display = value?.getDisplay();
@@ -144,7 +147,7 @@ export const SmartInputComponent = (
   let borderStyle = props.border?.css().borderStyle ?? "solid";
   let borderWidth = props.border?.width ?? "0px";
 
-  const alarmQuality = props.value?.getAlarm().quality ?? AlarmQuality.VALID;
+  const alarmQuality = value?.getAlarm().quality ?? AlarmQuality.VALID;
   if (alarmSensitive) {
     switch (alarmQuality) {
       case AlarmQuality.UNDEFINED:
@@ -189,12 +192,12 @@ export const SmartInputComponent = (
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (multiLine) {
       if (event.key === "Enter" && event.ctrlKey) {
-        writePv(props.pvName, new DType({ stringValue: inputValue }));
+        writePv(pvName, new DType({ stringValue: inputValue }));
         event.currentTarget.blur();
       }
     } else {
       if (event.key === "Enter") {
-        writePv(props.pvName, new DType({ stringValue: inputValue }));
+        writePv(pvName, new DType({ stringValue: inputValue }));
         event.currentTarget.blur();
       }
     }

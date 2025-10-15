@@ -15,7 +15,7 @@ import { registerWidget } from "../register";
 import { Box, Typography } from "@mui/material";
 import { CurveType, LineChart, XAxis, YAxis } from "@mui/x-charts";
 import { Color, Font } from "../../../types";
-import { convertStringTimePeriod } from "../utils";
+import { convertStringTimePeriod, getPvValueAndName } from "../utils";
 import { Trace } from "../../../types/trace";
 import { Axis } from "../../../types/axis";
 
@@ -57,7 +57,7 @@ export const StripChartComponent = (
   const {
     traces,
     axes,
-    value,
+    pvData,
     title,
     titleFont = new Font(),
     scaleFont = new Font(),
@@ -69,6 +69,7 @@ export const StripChartComponent = (
     start = "1 minute",
     visible = true
   } = props;
+
   // If we're passed an empty array fill in defaults
   if (traces.length < 1) traces.push(new Trace());
   if (axes.length < 1) axes.push(new Axis({ xAxis: false }));
@@ -76,33 +77,40 @@ export const StripChartComponent = (
   // Convert start time into milliseconds period
   const timePeriod = useMemo(() => convertStringTimePeriod(start), [start]);
   const [data, setData] = useState<{
-    x: any[];
-    y: any[];
-    min?: Date;
-    max?: Date;
-  }>({ x: [], y: [] });
+    [pvName: string]: {
+      x: Date[];
+      y: (number | null)[];
+      min?: Date;
+      max?: Date;
+    };
+  }>({});
 
   useEffect(() => {
-    if (value) {
+    const { value, pvName } = getPvValueAndName(pvData);
+
+    if (value && pvName) {
       // rRemove data outside min and max bounds
       const minimum = new Date(new Date().getTime() - timePeriod);
       // Check if first data point in array is outside minimum, if so remove
       setData(currentData => {
-        const xData = currentData.x;
-        const yData = currentData.y;
+        const xData = currentData[pvName]?.x ?? [];
+        const yData = currentData[pvName]?.y ?? [];
+
         if (xData.length > 0 && xData[0].getTime() < minimum.getTime()) {
           xData.shift();
           yData.shift();
         }
-        return {
-          x: [...xData, value.getTime()?.datetime],
-          y: [...yData, value.getDoubleValue()],
+        currentData[pvName] = {
+          x: [...xData, value.getTime()?.datetime ?? xData[-1]],
+          y: [...yData, value.getDoubleValue() ?? null],
           min: minimum,
           max: new Date()
         };
+
+        return currentData;
       });
     }
-  }, [value, timePeriod]);
+  }, [pvData, timePeriod]);
 
   // For some reason the below styling doesn't change axis line and tick
   // colour so we set it using sx in the Line Chart below by passing this in
@@ -138,13 +146,15 @@ export const StripChartComponent = (
     return axis;
   });
 
+  const { pvName } = getPvValueAndName(pvData);
+
   const xAxis: ReadonlyArray<XAxis<any>> = [
     {
-      data: data.x,
+      data: data[pvName]?.x ?? [],
       color: foregroundColor.toString(),
       dataKey: "datetime",
-      min: data.min,
-      max: data.max,
+      min: data[pvName]?.min,
+      max: data[pvName]?.max,
       scaleType: "time"
     }
   ];
@@ -153,7 +163,7 @@ export const StripChartComponent = (
     const trace = {
       // If axis is set higher than number of axes, default to zero
       id: index, // item.axis <= axes.length - 1 ? item.axis : 0,
-      data: data.y,
+      data: data[pvName]?.y ?? [],
       label: item.name,
       color: visible ? item.color.toString() : "transparent",
       showMark: item.pointType === 0 ? false : true,

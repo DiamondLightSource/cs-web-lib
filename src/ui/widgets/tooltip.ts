@@ -1,4 +1,6 @@
+import { PvDatum } from "../../redux/csState";
 import { AlarmQuality, DType } from "../../types/dtypes";
+import { getPvValueAndName } from "./utils";
 
 function tooltipValue(connected?: boolean, value?: DType): string {
   if (value) {
@@ -30,12 +32,13 @@ function tooltipValue(connected?: boolean, value?: DType): string {
 }
 
 export function resolveTooltip(props: {
-  connected: boolean;
-  value?: DType;
+  pvData: PvDatum[];
   tooltip: string;
 }): string | undefined {
   const pvValueRegex = /\${pvValue}|\${pv_value}/g;
-  const { connected, value, tooltip } = props;
+  const { pvData, tooltip } = props;
+
+  const { value, connected } = getPvValueAndName(pvData);
 
   if (tooltip.match(pvValueRegex)) {
     const ttval = tooltipValue(connected, value);

@@ -23,6 +23,7 @@ import { MacroContext } from "../../../types/macros";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 import { DType } from "../../../types/dtypes";
 import classes from "./symbol.module.css";
+import { getPvValueAndName } from "../utils";
 
 const SymbolProps = {
   imageFile: StringPropOpt,
@@ -74,21 +75,24 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
     transparent = true,
     backgroundColor = "white",
     showBooleanLabel = false,
-    enabled = true
+    enabled = true,
+    pvData
   } = props;
+  const { value } = getPvValueAndName(pvData);
+
   const style = commonCss(props as any);
   // If symbols and not imagefile, we're in a bob file
   const isBob = props.symbols ? true : false;
   const symbols = props.symbols ? props.symbols : [];
 
   // Convert our value to an index, or use the initialIndex
-  const index = convertValueToIndex(props.value, initialIndex, arrayIndex);
+  const index = convertValueToIndex(value, initialIndex, arrayIndex);
 
   const regex = / [0-9]\./;
   let imageFile = isBob ? symbols[index] : props.imageFile;
   // If no provided image file
   if (!imageFile) imageFile = fallbackSymbol;
-  const intValue = DType.coerceDouble(props.value);
+  const intValue = DType.coerceDouble(value);
   if (!isNaN(intValue) && !isBob) {
     imageFile = imageFile.replace(regex, ` ${intValue.toFixed(0)}.`);
   }
@@ -177,7 +181,7 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
                 {...props}
                 textAlignV="bottom"
                 backgroundColor={Color.TRANSPARENT}
-                text={props.value?.getStringValue()}
+                text={value?.getStringValue()}
               ></LabelComponent>
             </div>
           </div>

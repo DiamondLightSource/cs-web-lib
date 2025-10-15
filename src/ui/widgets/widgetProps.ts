@@ -1,4 +1,4 @@
-import { PvState } from "../../redux/csState";
+import { PvDataCollection } from "../../redux/csState";
 import {
   StringPropOpt,
   BoolPropOpt,
@@ -49,8 +49,6 @@ type PositionProps = InferWidgetProps<typeof PositionPropsType>;
 
 type PvPropsAndMetdataProps = InferWidgetProps<typeof PvPropsAndMetdataType>;
 
-type PVdatum = PvState;
-
 type AnyOtherProps = {
   // All other props with valid types.
   id: string;
@@ -66,7 +64,7 @@ type ComponentProps = {
 // Props used by the ConnectingComponentWidget wrapper
 export type ConnectingComponentWidgetProps = BasicProps &
   PvPropsAndMetdataProps &
-  PVdatum &
+  PvDataCollection &
   AnyOtherProps;
 
 // Props for the Widget wrapper component
@@ -76,8 +74,7 @@ export type PVWidgetComponent = BasicProps &
   PvPropsAndMetdataProps;
 
 // type used by useMacros and useRules (not really props)
-export type AnyProps = PVWidgetComponent & PVdatum & AnyOtherProps;
+export type AnyProps = PVWidgetComponent & PvDataCollection & AnyOtherProps;
 
-// Types usd by widget component implementations that display a value.
-export type PVComponent = ComponentProps & PVdatum;
-export type PVInputComponent = PVComponent & { pvName: string };
+// Types used by widget components implementations that display a value.
+export type PVComponent = ComponentProps & PvDataCollection;

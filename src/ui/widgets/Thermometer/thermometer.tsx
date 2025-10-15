@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef } from "react";
 import * as d3 from "d3";
 
 import { Widget } from "../widget";
-import { PVInputComponent, PVWidgetPropType } from "../widgetProps";
+import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import {
   FloatPropOpt,
@@ -13,6 +13,7 @@ import {
 import { Color } from "../../../types/color";
 import { Box } from "@mui/material";
 import { DType } from "../../../types";
+import { getPvValueAndName } from "../utils";
 
 // This is the angle between vertical and the line from the center of the bulb to the intersection of the stem and bulb
 export const bulbStemAngle = Math.PI / 5;
@@ -42,17 +43,18 @@ interface ThermometerDimensions {
 }
 
 export const ThermometerComponent = (
-  props: InferWidgetProps<typeof ThermometerComponentProps> & PVInputComponent
+  props: InferWidgetProps<typeof ThermometerComponentProps> & PVComponent
 ): JSX.Element => {
   const svgRef = useRef<SVGSVGElement>(null);
 
   const {
-    value,
+    pvData,
     limitsFromPv = false,
     height = 160,
     width = 40,
     fillColor = Color.fromRgba(60, 255, 60, 1)
   } = props;
+  const { value } = getPvValueAndName(pvData);
 
   const colors = useMemo(
     () => ({

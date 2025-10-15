@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import { writePv } from "../../hooks/useSubscription";
 import { DType } from "../../../types";
+import { getPvValueAndName } from "../utils";
 
 export const CheckboxProps = {
   label: StringPropOpt,
@@ -65,7 +66,8 @@ export const CheckboxComponent = (
   props: CheckboxComponentProps
 ): JSX.Element => {
   const theme = useTheme();
-  const { enabled = true, label = "Label", value, pvName } = props;
+  const { enabled = true, label = "Label", pvData } = props;
+  const { value, pvName } = getPvValueAndName(pvData);
   const checked = Boolean(value?.getDoubleValue());
 
   const handleChange = (event: any): void => {

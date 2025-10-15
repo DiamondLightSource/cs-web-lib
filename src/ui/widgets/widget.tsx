@@ -6,7 +6,7 @@ import { ContextMenu } from "../components/ContextMenu/contextMenu";
 import ctxtClasses from "../components/ContextMenu/contextMenu.module.css";
 import tooltipClasses from "./tooltip.module.css";
 import { useMacros } from "../hooks/useMacros";
-import { useConnection, useConnectionMultiplePv } from "../hooks/useConnection";
+import { useConnectionMultiplePv } from "../hooks/useConnection";
 import { useId } from "react-id-generator";
 import { useRules } from "../hooks/useRules";
 import {
@@ -22,7 +22,6 @@ import { ExitFileContext, FileContext } from "../../misc/fileContext";
 import { executeAction, WidgetAction, WidgetActions } from "./widgetActions";
 import { Popover } from "react-tiny-popover";
 import { resolveTooltip } from "./tooltip";
-import { PVValue, PVValueCollection } from "../../redux/csState";
 
 const ALARM_SEVERITY_MAP = {
   [AlarmQuality.ALARM]: 1,
@@ -87,17 +86,13 @@ export const ConnectingComponent = (props: {
   onContextMenu?: (e: React.MouseEvent) => void;
 }): JSX.Element => {
   const Component = props.component;
-  const {
-    id,
-    alarmBorder = false,
-    pvMetadataList,
-  } = props.widgetProps;
+  const { id, alarmBorder = false, pvMetadataList } = props.widgetProps;
 
   const pvName =
     pvMetadataList && pvMetadataList?.length > 0
       ? pvMetadataList[0]?.pvName
       : undefined;
- 
+
   const pvNames = pvMetadataList
     ? pvMetadataList.map(metadata => metadata?.pvName).filter(pv => !!pv)
     : [];
@@ -129,7 +124,7 @@ export const ConnectingComponent = (props: {
     }
   };
 
-  const pvData = useConnectionMultiplePv(
+  const { pvData } = useConnectionMultiplePv(
     id,
     pvNames.map(x => x.qualifiedName())
   );
@@ -143,11 +138,12 @@ export const ConnectingComponent = (props: {
         .map(x => x.value?.getAlarm()?.quality ?? AlarmQuality.VALID)
         .reduce(
           (mostSevereSoFar, currentItem) =>
-            ALARM_SEVERITY_MAP[mostSevereSoFar] < ALARM_SEVERITY_MAP[currentItem]
+            ALARM_SEVERITY_MAP[mostSevereSoFar] <
+            ALARM_SEVERITY_MAP[currentItem]
               ? mostSevereSoFar
               : currentItem,
           alarmSeverity
-      );
+        );
     }
 
     if (alarmSeverity !== AlarmQuality.VALID) {
@@ -160,10 +156,7 @@ export const ConnectingComponent = (props: {
   const widgetTooltipProps = {
     ...props.widgetProps,
     tooltip: props.widgetProps.tooltip ?? "",
-    pvName: pvData ? pvData[0]?.effectivePvName : undefined,
-    value: pvData ? pvData[0]?.value : undefined,
-    connected: pvData ? pvData[0]?.connected : false,
-    readonly: pvData ? pvData[0]?.readonly : false,
+    pvData,
     border
   };
 
@@ -179,6 +172,7 @@ export const ConnectingComponent = (props: {
       <Component {...widgetTooltipProps} />
     </div>
   );
+
   if (widgetTooltipProps.tooltip) {
     const resolvedTooltip = resolveTooltip(widgetTooltipProps);
     const popoverContent = (): JSX.Element => {

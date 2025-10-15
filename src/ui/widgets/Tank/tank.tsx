@@ -2,7 +2,7 @@ import React from "react";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { Box } from "@mui/material";
 import { Widget } from "../widget";
-import { PVInputComponent, PVWidgetPropType } from "../widgetProps";
+import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import {
   FloatPropOpt,
@@ -11,12 +11,11 @@ import {
   InferWidgetProps,
   FontPropOpt,
   ColorPropOpt,
-  BorderPropOpt,
-  PVMetadataType
+  BorderPropOpt
 } from "../propTypes";
 import { Color } from "../../../types/color";
 import { XAxis, YAxis } from "@mui/x-charts";
-import PropTypes from "prop-types";
+import { getPvValueAndName } from "../utils";
 
 export const TankProps = {
   minimum: FloatPropOpt,
@@ -33,16 +32,14 @@ export const TankProps = {
   border: BorderPropOpt,
   transparent: BoolPropOpt,
   scaleVisible: BoolPropOpt,
-  showUnits: BoolPropOpt,
-  pvMetadataList: PropTypes.arrayOf(PVMetadataType)
+  showUnits: BoolPropOpt
 };
 
 export const TankComponent = (
-  props: InferWidgetProps<typeof TankProps> & PVInputComponent
+  props: InferWidgetProps<typeof TankProps> & PVComponent
 ): JSX.Element => {
   const {
-    value,
-    pvMetadataList,
+    pvData,
     limitsFromPv = false,
     showLabel = false,
     font,
@@ -55,10 +52,8 @@ export const TankComponent = (
     showUnits = true,
     transparent = false // This property only exists in CSStudio, so default to false
   } = props;
-  const pvName =
-    pvMetadataList && pvMetadataList.length > 0
-      ? pvMetadataList[0]?.pvName
-      : undefined;
+
+  const { value, pvName } = getPvValueAndName(pvData);
 
   const backgroundColor = transparent
     ? "transparent"

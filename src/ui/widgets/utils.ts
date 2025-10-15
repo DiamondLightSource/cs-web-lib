@@ -1,3 +1,5 @@
+import { PvDatum } from "../../redux/csState";
+
 /**
  * Converts string from snake case to camel
  * case.
@@ -145,3 +147,12 @@ export function convertStringTimePeriod(period: string): number {
   const time = (isNaN(multiplier) ? 1 : multiplier) * match.value * 1000;
   return time;
 }
+
+export const getPvValueAndName = (pvDataCollection: PvDatum[], index = 0) => {
+  const pvData = pvDataCollection ?? [];
+  const value = pvData[index]?.value;
+  const pvName = pvData[index]?.pvName;
+  const connected = pvData[index]?.connected;
+
+  return { value, pvName, connected };
+};
