@@ -44,7 +44,7 @@ export class Trace {
     updateDelay = 100,
     updateMode = 0,
     plotMode = 0,
-    archive = undefined
+    archive = { name: "", url: "" }
   } = {}) {
     // xPV property only exists on XYPlot
     if (xPv) this.xPv = xPv;

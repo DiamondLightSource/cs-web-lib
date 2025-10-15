@@ -311,7 +311,7 @@ export const opiParseRules = (
  * Creates a Number object from a json properties object
  * @param jsonProp
  */
-function opiParseNumber(jsonProp: ElementCompact): number {
+export function opiParseNumber(jsonProp: ElementCompact): number {
   return Number(jsonProp._text);
 }
 

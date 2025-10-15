@@ -40,43 +40,42 @@ export const DataBrowserComponent = (
   useEffect(() => {
     // Runs whenever pvlist updated and fetches archiver data
     const fetchArchivedPVData = async () => {
-      {
-        // TO DO - use when multiple PVs enabled
-        // plt.pvlist.forEach((trace) => {
-        //     //Make call to getPvsData for multiple pvs
-        // })
-        try {
-          // Fetch archiver data for period
-          const startTime = convertStringTimePeriod(plt.start);
-          const endTime = convertStringTimePeriod(plt.end);
-          const min = new Date(new Date().getTime() - startTime);
-          const max = new Date(new Date().getTime() - endTime);
-          const archiverCall = `${plt.pvlist[0].archive?.url}/data/getData.json?pv=${plt.pvlist[0].yPv}&from=${min.toISOString()}&to=${max.toISOString()}`;
-          const resp = await fetch(archiverCall);
-          const json = await resp.json();
+      // TO DO - use when multiple PVs enabled
+      // plt.pvlist.forEach((trace) => {
+      //     //Make call to getPvsData for multiple pvs
+      // })
+      try {
+        // Fetch archiver data for period
+        const startTime = convertStringTimePeriod(plt.start);
+        const endTime = convertStringTimePeriod(plt.end);
+        const min = new Date(new Date().getTime() - startTime);
+        const max = new Date(new Date().getTime() - endTime);
+        const archiverCall = `${plt.pvlist[0].archive?.url}/data/getData.json?pv=${plt.pvlist[0].yPv}&from=${min.toISOString()}&to=${max.toISOString()}`;
+        const resp = await fetch(archiverCall);
+        const json = await resp.json();
 
-          setData({
-            x: json[0].data.map((item: any) => {
-              return new Date(item.secs * 1000);
-            }),
-            y: json[0].data.map((item: any) => {
-              return item.val;
-            }),
-            min: min,
-            max: max
-          });
-          setArchiveDataLoaded(true);
-        } catch (e) {
-          log.error(
-            `Failed to fetch archiver data for PV ${plt.pvlist[0].yPv} from ${plt.pvlist[0].archive?.url}.`
-          );
-        }
+        setData({
+          x: json[0].data.map((item: any) => {
+            return new Date(item.secs * 1000);
+          }),
+          y: json[0].data.map((item: any) => {
+            return item.val;
+          }),
+          min: min,
+          max: max
+        });
+        setArchiveDataLoaded(true);
+      } catch (e) {
+        log.error(
+          `Failed to fetch archiver data for PV ${plt.pvlist[0].yPv} from ${plt.pvlist[0].archive?.url}.`
+        );
       }
     };
-    fetchArchivedPVData();
-  }, []);
+    // Only fetch onces
+    if (!archiveDataLoaded) fetchArchivedPVData();
+  }, [archiveDataLoaded, plt.start, plt.end, plt.pvlist]);
 
-  return archiveDataLoaded ? (
+  return (
     <StripChartComponent
       {...plt}
       traces={plt.pvlist}
@@ -85,8 +84,6 @@ export const DataBrowserComponent = (
       connected={props.connected}
       archivedData={data}
     />
-  ) : (
-    <></>
   );
 };
 

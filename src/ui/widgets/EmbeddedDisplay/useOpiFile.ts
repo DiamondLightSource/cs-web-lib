@@ -49,7 +49,7 @@ async function fetchAndConvert(
           description = await parseBob(contents, protocol, parentDir);
           break;
         case "json":
-          description = parseJson(contents, protocol, parentDir);
+          description = await parseJson(contents, protocol, parentDir);
           break;
         case "opi":
           description = await parseOpi(contents, protocol, parentDir);

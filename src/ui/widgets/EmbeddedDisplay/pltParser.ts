@@ -1,8 +1,12 @@
 import { xml2js, ElementCompact } from "xml-js";
 import { Color, Font, FontStyle } from "../../../types";
-import { XmlDescription, opiParseBoolean, opiParseString } from "./opiParser";
+import {
+  XmlDescription,
+  opiParseBoolean,
+  opiParseString,
+  opiParseNumber
+} from "./opiParser";
 import { parseChildProps, ParserDict } from "./parser";
-import { bobParseNumber } from "./bobParser";
 import { Axis } from "../../../types/axis";
 import { Archiver, Trace } from "../../../types/trace";
 import { Plt } from "../../../types/plt";
@@ -12,8 +16,8 @@ const PLT_PARSERS: ParserDict = {
   end: ["end", opiParseString],
   grid: ["grid", opiParseBoolean],
   scroll: ["scroll", opiParseBoolean],
-  scrollStep: ["scroll_step", bobParseNumber],
-  updatePeriod: ["update_period", bobParseNumber],
+  scrollStep: ["scroll_step", opiParseNumber],
+  updatePeriod: ["update_period", opiParseNumber],
   background: ["background", pltParseColor],
   foreground: ["foreground", pltParseColor],
   color: ["color", pltParseColor],
@@ -22,21 +26,21 @@ const PLT_PARSERS: ParserDict = {
   useTraceNames: ["use_trace_names", opiParseBoolean],
   right: ["right", opiParseBoolean],
   displayName: ["display_name", opiParseString],
-  waveformIndex: ["waveform_index", bobParseNumber],
-  period: ["period", bobParseNumber],
-  linewidth: ["linewidth", bobParseNumber],
+  waveformIndex: ["waveform_index", opiParseNumber],
+  period: ["period", opiParseNumber],
+  linewidth: ["linewidth", opiParseNumber],
   pointType: ["point_type", pltParsePointType],
   name: ["name", opiParseString],
-  ringSize: ["ring_size", bobParseNumber],
+  ringSize: ["ring_size", opiParseNumber],
   request: ["request", opiParseString],
   archive: ["archive", pltParseArchiver],
   titleFont: ["title_font", pltParseFont],
   scaleFont: ["scale_font", pltParseFont],
   labelFont: ["label_font", pltParseFont],
   legendFont: ["legend_font", pltParseFont],
-  min: ["min", bobParseNumber],
-  max: ["max", bobParseNumber],
-  axis: ["axis", bobParseNumber]
+  min: ["min", opiParseNumber],
+  max: ["max", opiParseNumber],
+  axis: ["axis", opiParseNumber]
 };
 
 /**

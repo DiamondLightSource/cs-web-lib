@@ -1,4 +1,4 @@
-import { Axes } from "./axis";
+import { Axes, Axis } from "./axis";
 import { Color } from "./color";
 import { Font } from "./font";
 import { Trace } from "./trace";
@@ -26,8 +26,8 @@ export class Plt {
    */
   public constructor({
     title = "",
-    axes = [],
-    pvlist = [],
+    axes = [new Axis()],
+    pvlist = [new Trace()],
     background = Color.WHITE,
     foreground = Color.BLACK,
     scroll = true,

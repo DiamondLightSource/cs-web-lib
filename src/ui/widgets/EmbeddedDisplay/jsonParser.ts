@@ -139,11 +139,11 @@ function jsonGetTargetWidget(props: any): React.FC {
  * @param jsonString objects in the correct format.
  * @param defaultProtocol default protocol to use for PVs.
  */
-export function parseObject(
+export async function parseObject(
   object: any, // eslint-disable-line @typescript-eslint/explicit-module-boundary-types
   defaultProtocol: string,
   path?: string
-): WidgetDescription {
+): Promise<WidgetDescription> {
   const simpleParsers: ParserDict = {
     ...SIMPLE_PARSERS,
     pvName: [
@@ -155,7 +155,7 @@ export function parseObject(
       (rules: Rule[]): Rule[] => jsonParseRules(rules, defaultProtocol)
     ]
   };
-  return parseWidget(
+  return await parseWidget(
     object,
     jsonGetTargetWidget,
     "children",
@@ -172,10 +172,10 @@ export function parseObject(
  * @param jsonString JSON string in the correct format.
  * @param defaultProtocol default protocol to use for PVs.
  */
-export function parseJson(
+export async function parseJson(
   jsonString: string,
   defaultProtocol: string,
   path: string
-): WidgetDescription {
-  return parseObject(JSON.parse(jsonString), defaultProtocol, path);
+): Promise<WidgetDescription> {
+  return await parseObject(JSON.parse(jsonString), defaultProtocol, path);
 }
