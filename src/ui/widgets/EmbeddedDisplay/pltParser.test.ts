@@ -1,6 +1,5 @@
 import { vi } from "vitest";
 import { Color } from "../../../types";
-import { RelativePosition } from "../../../types/position";
 import { parsePlt } from "./pltParser";
 
 declare global {

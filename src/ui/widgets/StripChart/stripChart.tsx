@@ -100,7 +100,7 @@ export const StripChartComponent = (
         };
       });
     }
-  }, [value, timePeriod, data]);
+  }, [value, timePeriod]);
 
   // For some reason the below styling doesn't change axis line and tick
   // colour so we set it using sx in the Line Chart below by passing this in
@@ -109,17 +109,30 @@ export const StripChartComponent = (
   const yAxes: ReadonlyArray<YAxis<any>> = axes.map((item, idx) => {
     const axis = {
       width: 45,
-      id: idx,
+      id: `${idx}`,
       label: item.title,
       color: item.color?.toString(),
       labelStyle: {
-        font: item.titleFont.css(),
+        fontSize: item.titleFont.css().fontSize,
+        fontStyle: item.titleFont.css().fontStyle,
+        fontFamily: item.titleFont.css().fontFamily,
+        fontWeight: item.titleFont.css().fontWeight,
         fill: item.color.toString()
       },
       tickLabelStyle: {
-        font: item.scaleFont.css(),
-        fill: item.color.toString()
+        fontSize: item.scaleFont.css().fontSize,
+        fontStyle: item.scaleFont.css().fontStyle,
+        fontFamily: item.scaleFont.css().fontFamily,
+        fontWeight: item.scaleFont.css().fontWeight,
+        fill: item.color.toString(),
+        angle: -90
       },
+      valueFormatter: (value: any, context: any) =>
+        context.location === "tooltip"
+          ? `${value}`
+          : value.length > 4
+            ? `${value.toExponential(3)}`
+            : value,
       scaleType: item.logScale ? "symlog" : "linear",
       position: item.onRight ? "right" : "left",
       min: item.autoscale ? undefined : item.minimum,
@@ -151,7 +164,7 @@ export const StripChartComponent = (
     const trace = {
       // If axis is set higher than number of axes, default to zero
       id: idx,
-      axisId: item.axis <= axes.length - 1 ? item.axis : 0,
+      axisId: `${item.axis <= axes.length - 1 ? item.axis : 0}`,
       data: data.y,
       label: item.name,
       color: visible ? item.color.toString() : "transparent",

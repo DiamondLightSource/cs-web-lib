@@ -80,7 +80,6 @@ describe("DataBrowserComponent", () => {
       val: 60
     }
   ]);
-  console.log(mockSuccessResponse);
   const mockJsonPromise = Promise.resolve(
     JSON.parse(`[{"data": ${mockSuccessResponse}}]`)
   );

@@ -36,8 +36,8 @@ describe("Axis", () => {
       autoscale: false,
       minimum: 0,
       maximum: 100,
-      scaleFont: new Font(),
-      titleFont: new Font(FontStyle.Bold),
+      scaleFont: new Font(12),
+      titleFont: new Font(14, FontStyle.Bold),
       onRight: false,
       xAxis: false
     });
