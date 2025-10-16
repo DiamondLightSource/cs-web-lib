@@ -28,7 +28,7 @@ export interface PvState {
 }
 
 export type PvDatum = PvState & {
-  pvName: string;
+  effectivePvName: string;
 };
 
 export type PvDataCollection = {

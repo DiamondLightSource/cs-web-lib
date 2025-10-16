@@ -90,7 +90,7 @@ export const SmartInputComponent = (
     formatType = "default"
   } = props;
 
-  const { value, pvName } = getPvValueAndName(pvData);
+  const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
 
   // Decide what to display.
   const display = value?.getDisplay();

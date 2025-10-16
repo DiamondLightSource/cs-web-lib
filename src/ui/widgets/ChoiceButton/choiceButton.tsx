@@ -81,7 +81,7 @@ export const ChoiceButtonComponent = (
     backgroundColor = theme.palette.primary.main,
     selectedColor = Color.fromRgba(200, 200, 200)
   } = props;
-  const { value, pvName } = getPvValueAndName(pvData);
+  const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
 
   const font = props.font?.css() ?? theme.typography;
   const [selected, setSelected] = useState(value?.getDoubleValue());

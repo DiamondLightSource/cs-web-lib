@@ -15,7 +15,7 @@ import { registerWidget } from "../register";
 import { Box, Typography } from "@mui/material";
 import { CurveType, LineChart, XAxis, YAxis } from "@mui/x-charts";
 import { Color, Font } from "../../../types";
-import { convertStringTimePeriod, getPvValueAndName } from "../utils";
+import { convertStringTimePeriod } from "../utils";
 import { Trace } from "../../../types/trace";
 import { Axis } from "../../../types/axis";
 
@@ -51,6 +51,11 @@ export type StripChartComponentProps = InferWidgetProps<
 > &
   PVComponent;
 
+interface TimeSeriesPoint {
+  dateTime: Date;
+  [key: string]: Date | number | null;
+}
+
 export const StripChartComponent = (
   props: StripChartComponentProps
 ): JSX.Element => {
@@ -76,41 +81,61 @@ export const StripChartComponent = (
 
   // Convert start time into milliseconds period
   const timePeriod = useMemo(() => convertStringTimePeriod(start), [start]);
-  const [data, setData] = useState<{
-    [pvName: string]: {
-      x: Date[];
-      y: (number | null)[];
-      min?: Date;
-      max?: Date;
-    };
-  }>({});
+  const [minX, setMinX] = useState<Date>(
+    new Date(new Date().getTime() - timePeriod)
+  );
+  const [maxX, setMaxX] = useState<Date>(new Date());
+  const [data, setData] = useState<TimeSeriesPoint[]>([]);
 
   useEffect(() => {
-    const { value, pvName } = getPvValueAndName(pvData);
+    setData(currentData => {
+      // Remove outdated data points
+      let i = 0;
+      while (i < currentData.length && currentData[i].dateTime < minX) {
+        i++;
+      }
 
-    if (value && pvName) {
-      // rRemove data outside min and max bounds
-      const minimum = new Date(new Date().getTime() - timePeriod);
-      // Check if first data point in array is outside minimum, if so remove
-      setData(currentData => {
-        const xData = currentData[pvName]?.x ?? [];
-        const yData = currentData[pvName]?.y ?? [];
+      return i - 1 > 0 ? currentData.slice(i - 1) : currentData;
+    });
+  }, [minX]);
 
-        if (xData.length > 0 && xData[0].getTime() < minimum.getTime()) {
-          xData.shift();
-          yData.shift();
+  useEffect(() => {
+    const updateDataMap = (timeSeries: TimeSeriesPoint[]) => {
+      if (pvData) {
+        const allDates = Object.values(pvData)
+          .map(pvItem => pvItem?.value?.getTime()?.datetime)
+          .filter(date => !!date);
+        if (allDates.length < 1) {
+          // we have no useful date for the timeseries point
+          return timeSeries;
         }
-        currentData[pvName] = {
-          x: [...xData, value.getTime()?.datetime ?? xData[-1]],
-          y: [...yData, value.getDoubleValue() ?? null],
-          min: minimum,
-          max: new Date()
-        };
 
-        return currentData;
-      });
-    }
-  }, [pvData, timePeriod]);
+        const mostRecentDate = allDates.reduce(
+          (a, b) => (a > b ? a : b),
+          allDates[0]
+        );
+
+        let newTimeseriesPoint: TimeSeriesPoint = { dateTime: mostRecentDate };
+
+        pvData.forEach(pvItem => {
+          const { effectivePvName, value } = pvItem;
+          newTimeseriesPoint = {
+            ...newTimeseriesPoint,
+            [effectivePvName]: value?.getDoubleValue() ?? null
+          };
+        });
+
+        return [...timeSeries, newTimeseriesPoint];
+      }
+
+      return timeSeries;
+    };
+
+    setMinX(new Date(new Date().getTime() - timePeriod));
+    setMaxX(new Date());
+
+    setData(currentData => updateDataMap(currentData));
+  }, [timePeriod, pvData]);
 
   // For some reason the below styling doesn't change axis line and tick
   // colour so we set it using sx in the Line Chart below by passing this in
@@ -146,37 +171,42 @@ export const StripChartComponent = (
     return axis;
   });
 
-  const { pvName } = getPvValueAndName(pvData);
-
   const xAxis: ReadonlyArray<XAxis<any>> = [
     {
-      data: data[pvName]?.x ?? [],
       color: foregroundColor.toString(),
-      dataKey: "datetime",
-      min: data[pvName]?.min,
-      max: data[pvName]?.max,
+      dataKey: "dateTime",
+      min: minX,
+      max: maxX,
       scaleType: "time"
     }
   ];
 
-  const series = traces.map((item, index) => {
-    const trace = {
-      // If axis is set higher than number of axes, default to zero
-      id: index, // item.axis <= axes.length - 1 ? item.axis : 0,
-      data: data[pvName]?.y ?? [],
-      label: item.name,
-      color: visible ? item.color.toString() : "transparent",
-      showMark: item.pointType === 0 ? false : true,
-      shape: MARKER_STYLES[item.pointType],
-      line: {
-        strokeWidth: item.lineWidth
-      },
-      area: item.traceType === 5 ? true : false,
-      connectNulls: false,
-      curve: item.traceType === 2 ? ("stepAfter" as CurveType) : "linear"
-    };
-    return trace;
-  });
+  const series = traces
+    ?.map((item, index) => {
+      const pvName = item.yPv;
+      const effectivePvName = pvData
+        .map(pvItem => pvItem.effectivePvName)
+        .find(effectivePvName => effectivePvName.endsWith(pvName));
+      if (!effectivePvName) {
+        return null;
+      }
+
+      return {
+        id: index, // item.axis <= axes.length - 1 ? item.axis : 0,
+        dataKey: effectivePvName,
+        label: item.name,
+        color: visible ? item.color.toString() : "transparent",
+        showMark: item.pointType === 0 ? false : true,
+        shape: MARKER_STYLES[item.pointType],
+        line: {
+          strokeWidth: item.lineWidth
+        },
+        area: item.traceType === 5 ? true : false,
+        connectNulls: false,
+        curve: item.traceType === 2 ? ("stepAfter" as CurveType) : "linear"
+      };
+    })
+    .filter(x => !!x);
 
   // TO DO
   // Add error bars option
@@ -200,6 +230,7 @@ export const StripChartComponent = (
       <LineChart
         hideLegend={showLegend}
         grid={{ vertical: axes[0].showGrid, horizontal: showGrid }}
+        dataset={data}
         sx={{
           width: "100%",
           height: "95%",

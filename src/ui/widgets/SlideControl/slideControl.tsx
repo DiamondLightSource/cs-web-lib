@@ -74,7 +74,7 @@ export const SlideControlComponent = (
     height = WIDGET_DEFAULT_SIZES["scaledslider"][1]
   } = props;
   let { minimum = 0, maximum = 100 } = props;
-  const { value, pvName } = getPvValueAndName(pvData);
+  const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
 
   const font = props.font?.css() ?? theme.typography;
 

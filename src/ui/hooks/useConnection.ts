@@ -61,7 +61,7 @@ export const useConnectionMultiplePv = (
       const [pvState, effPvName] = pvResults[pvName];
 
       return {
-        pvName: effPvName,
+        effectivePvName: effPvName,
         connected: pvState?.connected ?? false,
         readonly: pvState?.readonly ?? false,
         value: pvState?.value

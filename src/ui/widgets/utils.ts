@@ -151,8 +151,8 @@ export function convertStringTimePeriod(period: string): number {
 export const getPvValueAndName = (pvDataCollection: PvDatum[], index = 0) => {
   const pvData = pvDataCollection ?? [];
   const value = pvData[index]?.value;
-  const pvName = pvData[index]?.pvName;
+  const effectivePvName = pvData[index]?.effectivePvName;
   const connected = pvData[index]?.connected;
 
-  return { value, pvName, connected };
+  return { value, effectivePvName, connected };
 };

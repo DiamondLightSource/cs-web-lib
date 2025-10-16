@@ -53,7 +53,7 @@ export const TankComponent = (
     transparent = false // This property only exists in CSStudio, so default to false
   } = props;
 
-  const { value, pvName } = getPvValueAndName(pvData);
+  const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
 
   const backgroundColor = transparent
     ? "transparent"

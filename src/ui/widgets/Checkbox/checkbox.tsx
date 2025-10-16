@@ -67,7 +67,7 @@ export const CheckboxComponent = (
 ): JSX.Element => {
   const theme = useTheme();
   const { enabled = true, label = "Label", pvData } = props;
-  const { value, pvName } = getPvValueAndName(pvData);
+  const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
   const checked = Boolean(value?.getDoubleValue());
 
   const handleChange = (event: any): void => {

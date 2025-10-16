@@ -100,7 +100,7 @@ export const BoolButtonComponent = (
     labelsFromPv = false,
     enabled = true
   } = props;
-  const { value, pvName } = getPvValueAndName(pvData);
+  const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
 
   const font = props.font?.css() ?? theme.typography;
 
