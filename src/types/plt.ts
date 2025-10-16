@@ -12,6 +12,7 @@ export class Plt {
   public scroll: boolean;
   public scrollStep: number;
   public updatePeriod: number;
+  public bufferSize: number;
   public start: string;
   public end: string;
   public showGrid: boolean;
@@ -33,7 +34,8 @@ export class Plt {
     scroll = true,
     grid = false,
     scrollStep = 5,
-    updatePeriod = 1,
+    updatePeriod = 0,
+    bufferSize = 5000,
     titleFont = new Font(),
     labelFont = new Font(),
     legendFont = new Font(),
@@ -49,6 +51,7 @@ export class Plt {
     this.axes = axes;
     this.pvlist = pvlist;
     this.updatePeriod = updatePeriod;
+    this.bufferSize = bufferSize;
     this.showGrid = grid;
     this.start = start;
     this.end = end;

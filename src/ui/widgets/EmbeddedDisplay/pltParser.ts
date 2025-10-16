@@ -18,6 +18,7 @@ const PLT_PARSERS: ParserDict = {
   scroll: ["scroll", opiParseBoolean],
   scrollStep: ["scroll_step", opiParseNumber],
   updatePeriod: ["update_period", opiParseNumber],
+  bufferSize: ["buffer_size", opiParseNumber],
   background: ["background", pltParseColor],
   foreground: ["foreground", pltParseColor],
   color: ["color", pltParseColor],

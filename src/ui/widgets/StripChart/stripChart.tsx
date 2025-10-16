@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Widget } from "../widget";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 
@@ -44,7 +44,8 @@ const StripChartProps = {
   showLegend: BoolPropOpt,
   showToolbar: BoolPropOpt,
   visible: BoolPropOpt,
-  archivedData: ArchivedDataPropOpt
+  archivedData: ArchivedDataPropOpt,
+  archivedDataLoaded: BoolPropOpt
 };
 
 // Needs to be exported for testing
@@ -70,7 +71,8 @@ export const StripChartComponent = (
     backgroundColor = Color.fromRgba(255, 255, 255, 1),
     start = "1 minute",
     visible = true,
-    archivedData = { x: [], y: [], min: undefined, max: undefined }
+    archivedData = { x: [], y: [], min: undefined, max: undefined },
+    archivedDataLoaded = false
   } = props;
   // If we're passed an empty array fill in defaults
   if (traces.length < 1) traces.push(new Trace());
@@ -78,29 +80,47 @@ export const StripChartComponent = (
 
   // Convert start time into milliseconds period
   const timePeriod = useMemo(() => convertStringTimePeriod(start), [start]);
-  const [data, setData] = useState(archivedData);
+  // Use useRef so rerender isn't triggered (overwriting the archivedData) when data updated
+  const data = useRef<{
+    x: Date[];
+    y: any[];
+    dataLoaded?: boolean,
+    min?: Date;
+    max?: Date;
+  }>({x: [], y: []});
 
   useEffect(() => {
+    // Only update data once the archiveData has loaded
     if (value) {
-      // rRemove data outside min and max bounds
+      // Remove data outside min and max bounds
       const minimum = new Date(new Date().getTime() - timePeriod);
       // Check if first data point in array is outside minimum, if so remove
-      setData((currentData: any) => {
-        const xData = currentData.x;
-        const yData = currentData.y;
-        if (xData.length > 0 && xData[0].getTime() < minimum.getTime()) {
-          xData.shift();
-          yData.shift();
-        }
-        return {
-          x: [...xData, value.getTime()?.datetime],
+      const xData = data.current.x;
+      const yData = data.current.y;
+      if (xData.length > 0 && xData[0].getTime() < minimum.getTime()) {
+        xData.shift();
+        yData.shift();
+      }
+        data.current = {
+          x: [...xData, value.getTime()!.datetime],
           y: [...yData, value.getDoubleValue()],
           min: minimum,
-          max: new Date()
-        };
-      });
+          max: new Date(),
+        }
     }
   }, [value, timePeriod]);
+
+    useEffect(() => {
+    // Only update data once the archiveData has loaded
+    if (archivedDataLoaded) {
+      const xData = data.current.x;
+      const yData = data.current.y;
+      if (!data.current.dataLoaded) {
+          data.current.x = xData.concat(archivedData.x!)
+          data.current.y = yData.concat(archivedData.y)
+      }
+    }
+  }, [archivedData, archivedDataLoaded]);
 
   // For some reason the below styling doesn't change axis line and tick
   // colour so we set it using sx in the Line Chart below by passing this in
@@ -125,7 +145,7 @@ export const StripChartComponent = (
         fontFamily: item.scaleFont.css().fontFamily,
         fontWeight: item.scaleFont.css().fontWeight,
         fill: item.color.toString(),
-        angle: -90
+        angle: item.onRight ? 90 : -90
       },
       valueFormatter: (value: any, context: any) =>
         context.location === "tooltip"
@@ -151,11 +171,11 @@ export const StripChartComponent = (
 
   const xAxis: ReadonlyArray<XAxis<any>> = [
     {
-      data: data.x,
+      data: data.current.x,
       color: foregroundColor.toString(),
       dataKey: "datetime",
-      min: data.min,
-      max: data.max,
+      min: data.current.min,
+      max: data.current.max,
       scaleType: "time"
     }
   ];
@@ -165,7 +185,7 @@ export const StripChartComponent = (
       // If axis is set higher than number of axes, default to zero
       id: idx,
       axisId: `${item.axis <= axes.length - 1 ? item.axis : 0}`,
-      data: data.y,
+      data: data.current.y,
       label: item.name,
       color: visible ? item.color.toString() : "transparent",
       showMark: item.pointType === 0 ? false : true,

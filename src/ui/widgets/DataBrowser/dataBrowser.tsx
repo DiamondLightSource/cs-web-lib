@@ -10,7 +10,7 @@ import {
 } from "../propTypes";
 import { registerWidget } from "../register";
 import { StripChartComponent } from "../StripChart/stripChart";
-import { convertStringTimePeriod } from "../utils";
+import { convertStringTimePeriod, trimArchiveData } from "../utils";
 
 const DataBrowserProps = {
   plt: PltProp,
@@ -32,9 +32,7 @@ export const DataBrowserComponent = (
   const [data, setData] = useState<{
     x: Date[];
     y: any[];
-    min?: Date;
-    max?: Date;
-  }>({ x: [], y: [] });
+  }>();
   const [archiveDataLoaded, setArchiveDataLoaded] = useState(false);
 
   useEffect(() => {
@@ -48,21 +46,23 @@ export const DataBrowserComponent = (
         // Fetch archiver data for period
         const startTime = convertStringTimePeriod(plt.start);
         const endTime = convertStringTimePeriod(plt.end);
-        const min = new Date(new Date().getTime() - startTime);
+        // Add extra minute as buffer
+        const min = new Date(new Date().getTime() - startTime - 60000);
         const max = new Date(new Date().getTime() - endTime);
-        const archiverCall = `${plt.pvlist[0].archive?.url}/data/getData.json?pv=${plt.pvlist[0].yPv}&from=${min.toISOString()}&to=${max.toISOString()}`;
+        // TO DO - optimise request based on plt.request
+        const archiverCall = `${plt.pvlist[0].archive?.url}/data/getData.json?pv=mean_${plt.updatePeriod}(${plt.pvlist[0].yPv})&from=${min.toISOString()}&to=${max.toISOString()}`;
         const resp = await fetch(archiverCall);
         const json = await resp.json();
 
+        // Filter data down by update period and buffer size
+        const trimmedData = trimArchiveData(plt.updatePeriod, plt.bufferSize, json[0].data)
         setData({
-          x: json[0].data.map((item: any) => {
+          x: trimmedData.map((item: any) => {
             return new Date(item.secs * 1000);
           }),
-          y: json[0].data.map((item: any) => {
+          y: trimmedData.map((item: any) => {
             return item.val;
           }),
-          min: min,
-          max: max
         });
         setArchiveDataLoaded(true);
       } catch (e) {
@@ -83,6 +83,7 @@ export const DataBrowserComponent = (
       readonly={props.readonly}
       connected={props.connected}
       archivedData={data}
+      archivedDataLoaded={archiveDataLoaded}
     />
   );
 };
