@@ -95,6 +95,7 @@ export const StripChartComponent = (
         const allDates = Object.values(pvData)
           .map(pvItem => pvItem?.value?.getTime()?.datetime)
           .filter(date => !!date);
+
         if (allDates.length < 1) {
           // we have no useful date for the timeseries point
           return timeSeries;
@@ -196,7 +197,7 @@ export const StripChartComponent = (
 
   const series = useMemo(
     () =>
-      (traces?.length > 1 ? traces : [new Trace()])
+      (traces?.length > 0 ? traces : [new Trace()])
         ?.map((item, index) => {
           const pvName = item?.yPv;
           const effectivePvName = pvData
@@ -231,7 +232,6 @@ export const StripChartComponent = (
   // Add error bars option
   // Apply showToolbar
   // Use end value - this doesn't seem to do anything in Phoebus?
-
   return (
     <Box sx={{ width: "100%", height: "100%" }}>
       <Typography
