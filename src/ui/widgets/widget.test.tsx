@@ -45,7 +45,7 @@ describe("<Widget />", (): void => {
 
     const { getByText } = contextRender(
       <Widget
-        pvName={pv}
+        pvMetadataList={[{ pvName: pv }]}
         baseWidget={TestLabel}
         position={new RelativePosition()}
         tooltip="hi there"

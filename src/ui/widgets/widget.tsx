@@ -101,6 +101,9 @@ export const ConnectingComponent = (props: {
   const [popoverOpen, setPopoverOpen] = useState(false);
   const mouseDown = (e: React.MouseEvent): void => {
     if (e.button === 1) {
+      console.log("Firing button click");
+      console.log(pvName);
+      console.log(pvMetadataList);
       setPopoverOpen(true);
       if (pvName && e.currentTarget) {
         (e.currentTarget as HTMLDivElement).classList.add(
@@ -259,7 +262,11 @@ export const Widget = (props: PVWidgetComponent): JSX.Element => {
 
   let tooltip = props.tooltip;
   // Set default tooltip only for PV-enabled widgets.
-  if ("pvName" in props && !props.tooltip) {
+  if (
+    props?.pvMetadataList &&
+    props.pvMetadataList.length > 0 &&
+    !props.tooltip
+  ) {
     tooltip = DEFAULT_TOOLTIP;
   }
   const idProps = { ...props, id: id, tooltip: tooltip };

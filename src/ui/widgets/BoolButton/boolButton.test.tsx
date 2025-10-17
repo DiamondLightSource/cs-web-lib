@@ -5,6 +5,7 @@ import { DType } from "../../../types/dtypes";
 import { Color } from "../../../types";
 import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
+import { PvDatum } from "../../../redux/csState";
 
 const BoolButtonRenderer = (boolButtonProps: any): JSX.Element => {
   return (
@@ -14,8 +15,15 @@ const BoolButtonRenderer = (boolButtonProps: any): JSX.Element => {
   );
 };
 
+const TEST_PVDATUM = {
+  effectivePvName: "TEST:PV",
+  connected: true,
+  readonly: true,
+  value: new DType({ doubleValue: 1 })
+} as Partial<PvDatum> as PvDatum;
+
 const TEST_PROPS = {
-  value: new DType({ doubleValue: 1 }),
+  pvData: [TEST_PVDATUM],
   width: 45,
   height: 20,
   onColor: Color.fromRgba(0, 235, 10),
@@ -116,7 +124,7 @@ describe("<BoolButton />", (): void => {
   test("on click change led colour if no text ", async (): Promise<void> => {
     const boolButtonProps = {
       ...TEST_PROPS,
-      value: new DType({ doubleValue: 0 }),
+      pvData: [{ ...TEST_PVDATUM, value: new DType({ doubleValue: 0 }) }],
       onLabel: "",
       offLabel: "",
       showLed: true

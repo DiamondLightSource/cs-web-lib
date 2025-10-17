@@ -6,10 +6,14 @@ import { SlideControlComponent } from "./slideControl";
 test("slideControl", () => {
   const { container } = render(
     <SlideControlComponent
-      value={ddouble(5)}
-      connected={true}
-      readonly={false}
-      pvName="pv"
+      pvData={[
+        {
+          value: ddouble(5),
+          connected: true,
+          readonly: false,
+          effectivePvName: "pv"
+        }
+      ]}
       maximum={10}
       minimum={0}
     ></SlideControlComponent>

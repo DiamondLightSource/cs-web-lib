@@ -7,6 +7,7 @@ import {
 import { Color } from "../../../types";
 import renderer, { ReactTestRendererJSON } from "react-test-renderer";
 import { DType } from "../../../types/dtypes";
+import { PvDatum } from "../../../redux/csState";
 
 const ByteMonitorRenderer = (byteMonitorProps: any): ReactTestRendererJSON => {
   return renderer
@@ -17,7 +18,14 @@ const ByteMonitorRenderer = (byteMonitorProps: any): ReactTestRendererJSON => {
 describe("<ByteMonitorComponent />", (): void => {
   test("default properties are added to bytemonitor component", (): void => {
     const byteMonitorProps = {
-      value: new DType({ doubleValue: 15 }),
+      pvData: [
+        {
+          effectivePvName: "TEST:PV",
+          connected: true,
+          readonly: true,
+          value: new DType({ doubleValue: 15 })
+        } as Partial<PvDatum> as PvDatum
+      ],
       height: 40,
       width: 40
     };
@@ -33,7 +41,14 @@ describe("<ByteMonitorComponent />", (): void => {
   });
   test("overwrite bytemonitor default values", (): void => {
     const byteMonitorProps = {
-      value: new DType({ doubleValue: 2 }),
+      pvData: [
+        {
+          effectivePvName: "TEST:PV",
+          connected: true,
+          readonly: true,
+          value: new DType({ doubleValue: 2 })
+        } as Partial<PvDatum> as PvDatum
+      ],
       height: 50,
       width: 50,
       startBit: 8,

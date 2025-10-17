@@ -23,7 +23,14 @@ describe("<Symbol /> from .opi file", (): void => {
     const symbolProps = {
       showBooleanLabel: true,
       imageFile: "img 1.gif",
-      value: fakeValue
+      pvData: [
+        {
+          value: fakeValue,
+          connected: true,
+          readonly: false,
+          effectivePvName: "pv"
+        }
+      ]
     };
     render(<SymbolComponent {...(symbolProps as any)} />);
 
@@ -75,7 +82,14 @@ describe("<Symbol /> from .bob file", (): void => {
     const symbolProps = {
       showIndex: true,
       symbols: ["img 1.gif", "img 2.png"],
-      value: stringValue
+      pvData: [
+        {
+          value: stringValue,
+          connected: true,
+          readonly: false,
+          effectivePvName: "pv"
+        }
+      ]
     };
     render(<SymbolComponent {...(symbolProps as any)} />);
 
@@ -87,7 +101,14 @@ describe("<Symbol /> from .bob file", (): void => {
       showIndex: true,
       initialIndex: 2,
       symbols: ["img 1.gif", "img 2.png", "img 3.svg"],
-      value: undefined
+      pvData: [
+        {
+          value: undefined,
+          connected: true,
+          readonly: false,
+          effectivePvName: "pv"
+        }
+      ]
     };
 
     render(<SymbolComponent {...(symbolProps as any)} />);
@@ -100,7 +121,14 @@ describe("<Symbol /> from .bob file", (): void => {
       arrayIndex: 0,
       showIndex: true,
       symbols: ["img 1.gif", "img 2.png", "img 3.svg"],
-      value: arrayValue
+      pvData: [
+        {
+          value: arrayValue,
+          connected: true,
+          readonly: false,
+          effectivePvName: "pv"
+        }
+      ]
     };
     render(<SymbolComponent {...(symbolProps as any)} />);
 

@@ -6,6 +6,7 @@ import { StripChartComponent } from "./stripChart";
 import { Trace } from "../../../types/trace";
 import { Axis } from "../../../types/axis";
 import { convertStringTimePeriod } from "../utils";
+import { PvDatum } from "../../../redux/csState";
 
 // Mock the MUI X-Charts components
 vi.mock("@mui/x-charts", () => ({
@@ -35,15 +36,19 @@ vi.mock("@mui/material", () => ({
 describe("StripChartComponent", () => {
   // Basic test setup
   const defaultProps = {
-    value: {
-      getDoubleValue: () => 50,
-      getTime: () => {
-        new Date(Date.now());
-      }
-    } as Partial<DType> as DType,
-    connected: true,
-    readonly: true,
-    pvName: "TEST:PV",
+    pvData: [
+      {
+        effectivePvName: "TEST:PV",
+        connected: true,
+        readonly: true,
+        value: {
+          getDoubleValue: () => 50,
+          getTime: () => {
+            new Date(Date.now());
+          }
+        } as Partial<DType> as DType
+      } as Partial<PvDatum> as PvDatum
+    ],
     traces: [new Trace()],
     axes: [new Axis()]
   };
@@ -94,8 +99,8 @@ describe("StripChartComponent", () => {
 
     test("renders with 2 traces", () => {
       const traces = [
-        new Trace({ color: Color.ORANGE }),
-        new Trace({ color: Color.PINK })
+        new Trace({ color: Color.ORANGE, yPv: "TEST:PV" }),
+        new Trace({ color: Color.PINK, yPv: "TEST:PV" })
       ];
       render(<StripChartComponent {...defaultProps} traces={traces} />);
       const lineChart = screen.getByTestId("line-chart");
@@ -116,7 +121,7 @@ describe("StripChartComponent", () => {
 
   describe("Styling", () => {
     test("applies tracetype to trace", () => {
-      const traces = [new Trace({ traceType: 5 })];
+      const traces = [new Trace({ traceType: 5, yPv: "TEST:PV" })];
 
       render(<StripChartComponent {...defaultProps} traces={traces} />);
 
@@ -148,7 +153,7 @@ describe("StripChartComponent", () => {
     });
 
     test("applies diamond markers to trace", () => {
-      const traces = [new Trace({ pointType: 3 })];
+      const traces = [new Trace({ pointType: 3, yPv: "TEST:PV" })];
       render(<StripChartComponent {...defaultProps} traces={traces} />);
 
       const lineChart = screen.getByTestId("line-chart");

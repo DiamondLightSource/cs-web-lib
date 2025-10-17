@@ -6,6 +6,7 @@ import { Color } from "../../../types/color";
 import { NumberFormatEnum } from "./meterUtilities";
 import * as meterUtilities from "./meterUtilities";
 import { DType, Font } from "../../../types";
+import { PvDatum } from "../../../redux/csState";
 
 vi.mock("react-gauge-component", () => ({
   GaugeComponent: vi.fn(({ value, minValue, maxValue, labels, style }) => (
@@ -40,18 +41,22 @@ vi.mock("./meterUtilities", async () => {
 
 describe("MeterComponent", () => {
   const defaultProps = {
-    connected: false,
-    readonly: true,
-    pvName: "PV:Test",
-    value: {
-      getDoubleValue: () => 50,
-      display: {
-        units: "kW",
-        controlRange: { min: 0, max: 100 },
-        alarmRange: { min: 80, max: 100 },
-        warningRange: { min: 60, max: 80 }
-      }
-    } as Partial<DType> as DType,
+    pvData: [
+      {
+        effectivePvName: "TEST:PV",
+        connected: true,
+        readonly: true,
+        value: {
+          getDoubleValue: () => 50,
+          display: {
+            units: "kW",
+            controlRange: { min: 0, max: 100 },
+            alarmRange: { min: 80, max: 100 },
+            warningRange: { min: 60, max: 80 }
+          }
+        } as Partial<DType> as DType
+      } as Partial<PvDatum> as PvDatum
+    ],
     foregroundColor: Color.fromRgba(0, 0, 0, 1),
     needleColor: Color.fromRgba(255, 5, 7, 1),
     backgroundColor: Color.fromRgba(250, 250, 250, 1)
@@ -149,7 +154,7 @@ describe("MeterComponent", () => {
   });
 
   it("handles missing PV value gracefully", () => {
-    render(<MeterComponent {...defaultProps} value={undefined} />);
+    render(<MeterComponent {...defaultProps} pvData={[]} />);
 
     const gaugeComponent = screen.getByTestId("gauge-component");
     expect(gaugeComponent.getAttribute("data-value")).toBe("0");

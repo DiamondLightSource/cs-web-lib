@@ -183,10 +183,10 @@ export const StripChartComponent = (
 
   const series = traces
     ?.map((item, index) => {
-      const pvName = item.yPv;
+      const pvName = item?.yPv;
       const effectivePvName = pvData
-        .map(pvItem => pvItem.effectivePvName)
-        .find(effectivePvName => effectivePvName.endsWith(pvName));
+        ?.map(pvItem => pvItem.effectivePvName)
+        ?.find(effectivePvName => pvName && effectivePvName?.endsWith(pvName));
       if (!effectivePvName) {
         return null;
       }

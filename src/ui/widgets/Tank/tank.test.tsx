@@ -4,6 +4,7 @@ import { describe, test, expect, beforeEach, vi } from "vitest";
 import { TankComponent } from "./tank";
 import { Font } from "../../../types/font";
 import { Color, DType } from "../../../types";
+import { PvDatum } from "../../../redux/csState";
 
 // Mock the MUI X-Charts components
 vi.mock("@mui/x-charts/BarChart", () => ({
@@ -36,13 +37,17 @@ const mockFontCss = vi.fn().mockReturnValue({
 describe("TankComponent", () => {
   // Basic test setup
   const defaultProps = {
-    value: {
-      getDoubleValue: () => 50,
-      display: {
-        units: "mm",
-        controlRange: { min: 0, max: 100 }
-      }
-    } as Partial<DType> as DType,
+    pvData: [
+      {
+        value: {
+          getDoubleValue: () => 50,
+          display: {
+            units: "mm",
+            controlRange: { min: 0, max: 100 }
+          }
+        } as Partial<DType> as DType
+      } as Partial<PvDatum> as PvDatum
+    ],
     connected: true,
     readonly: true,
     pvName: "TEST:PV",
@@ -126,7 +131,11 @@ describe("TankComponent", () => {
     test("handles undefined PV value gracefully", () => {
       const props = {
         ...defaultProps,
-        value: undefined
+        pvData: [
+          {
+            value: undefined
+          } as Partial<PvDatum> as PvDatum
+        ]
       };
 
       render(<TankComponent {...props} />);
@@ -140,13 +149,17 @@ describe("TankComponent", () => {
     test("handles edge case with value equal to maximum", () => {
       const props = {
         ...defaultProps,
-        value: {
-          getDoubleValue: () => 100,
-          display: {
-            units: "mm",
-            controlRange: { min: 0, max: 100 }
-          }
-        } as Partial<DType> as DType
+        pvData: [
+          {
+            value: {
+              getDoubleValue: () => 100,
+              display: {
+                units: "mm",
+                controlRange: { min: 0, max: 100 }
+              }
+            } as Partial<DType> as DType
+          } as Partial<PvDatum> as PvDatum
+        ]
       };
 
       render(<TankComponent {...props} />);
@@ -161,13 +174,17 @@ describe("TankComponent", () => {
     test("handles edge case with value below minimum", () => {
       const props = {
         ...defaultProps,
-        value: {
-          getDoubleValue: () => -10,
-          display: {
-            units: "mm",
-            controlRange: { min: 0, max: 100 }
-          }
-        } as Partial<DType> as DType
+        pvData: [
+          {
+            value: {
+              getDoubleValue: () => -10,
+              display: {
+                units: "mm",
+                controlRange: { min: 0, max: 100 }
+              }
+            } as Partial<DType> as DType
+          } as Partial<PvDatum> as PvDatum
+        ]
       };
 
       render(<TankComponent {...props} />);
