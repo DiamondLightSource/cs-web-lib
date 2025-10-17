@@ -148,7 +148,7 @@ export const StripChartComponent = (
     const yAxesStyle: any = {};
 
     localAxes.forEach((item, idx) => {
-      yAxesStyle[`.MuiChartsAxisId${idx}`] = {
+      yAxesStyle[`.MuiChartsAxis-id-${idx}`] = {
         ".MuiChartsAxis-line": {
           stroke: item.color.toString()
         },
@@ -189,7 +189,8 @@ export const StripChartComponent = (
         dataKey: "dateTime",
         min: dateRange.minX,
         max: dateRange.maxX,
-        scaleType: "time"
+        scaleType: "time",
+        id: "xaxis"
       }
     ],
     [dateRange, foregroundColor]
@@ -254,7 +255,7 @@ export const StripChartComponent = (
           width: "100%",
           height: "95%",
           backgroundColor: backgroundColor.toString(),
-          ".MuiChartsAxisDirectionX": {
+          ".MuiChartsAxis-id-xaxis": {
             ".MuiChartsAxis-line": {
               stroke: foregroundColor.toString()
             },
