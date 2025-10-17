@@ -275,6 +275,7 @@ export const StripChartComponent = (
         xAxis={xAxis}
         yAxis={yAxes}
         series={series}
+        slotProps={{ legend: { sx: { color: foregroundColor.toString() } } }}
       />
     </Box>
   );
