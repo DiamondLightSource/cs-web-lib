@@ -76,28 +76,18 @@ export const StripChartComponent = (
   } = props;
 
   // If we're passed an empty array fill in defaults
-  if (traces.length < 1) traces.push(new Trace());
-  if (axes.length < 1) axes.push(new Axis({ xAxis: false }));
+  const localAxes = useMemo(
+    () => (axes.length > 0 ? [...axes] : [new Axis({ xAxis: false })]),
+    [axes]
+  );
 
   // Convert start time into milliseconds period
   const timePeriod = useMemo(() => convertStringTimePeriod(start), [start]);
-  const [minX, setMinX] = useState<Date>(
-    new Date(new Date().getTime() - timePeriod)
-  );
-  const [maxX, setMaxX] = useState<Date>(new Date());
+  const [dateRange, setDateRange] = useState<{ minX: Date; maxX: Date }>({
+    minX: new Date(new Date().getTime() - timePeriod),
+    maxX: new Date()
+  });
   const [data, setData] = useState<TimeSeriesPoint[]>([]);
-
-  useEffect(() => {
-    setData(currentData => {
-      // Remove outdated data points
-      let i = 0;
-      while (i < currentData.length && currentData[i].dateTime < minX) {
-        i++;
-      }
-
-      return i - 1 > 0 ? currentData.slice(i - 1) : currentData;
-    });
-  }, [minX]);
 
   useEffect(() => {
     const updateDataMap = (timeSeries: TimeSeriesPoint[]) => {
@@ -115,6 +105,19 @@ export const StripChartComponent = (
           allDates[0]
         );
 
+        // Remove outdated data points
+        let i = 0;
+        while (
+          i < timeSeries.length &&
+          timeSeries[i].dateTime <
+            new Date(mostRecentDate.getTime() - timePeriod)
+        ) {
+          i++;
+        }
+        const truncatedTimeSeries =
+          i - 1 > 0 ? timeSeries.slice(i - 1) : timeSeries;
+
+        // create new data point
         let newTimeseriesPoint: TimeSeriesPoint = { dateTime: mostRecentDate };
 
         pvData.forEach(pvItem => {
@@ -125,88 +128,104 @@ export const StripChartComponent = (
           };
         });
 
-        return [...timeSeries, newTimeseriesPoint];
+        return [...truncatedTimeSeries, newTimeseriesPoint];
       }
 
       return timeSeries;
     };
 
-    setMinX(new Date(new Date().getTime() - timePeriod));
-    setMaxX(new Date());
-
+    setDateRange({
+      minX: new Date(new Date().getTime() - timePeriod),
+      maxX: new Date()
+    });
     setData(currentData => updateDataMap(currentData));
   }, [timePeriod, pvData]);
 
-  // For some reason the below styling doesn't change axis line and tick
-  // colour so we set it using sx in the Line Chart below by passing this in
-  const yAxesStyle: any = {};
+  const { yAxes, yAxesStyle } = useMemo(() => {
+    // For some reason the below styling doesn't change axis line and tick
+    // colour so we set it using sx in the Line Chart below by passing this in
+    const yAxesStyle: any = {};
 
-  const yAxes: ReadonlyArray<YAxis<any>> = axes.map((item, idx) => {
-    const axis = {
-      width: 45,
-      id: idx,
-      label: item.title,
-      color: item.color?.toString(),
-      labelStyle: {
-        font: item.titleFont.css(),
-        fill: item.color.toString()
-      },
-      tickLabelStyle: {
-        font: item.scaleFont.css(),
-        fill: item.color.toString()
-      },
-      scaleType: item.logScale ? "symlog" : "linear",
-      position: "left",
-      min: item.autoscale ? undefined : item.minimum,
-      max: item.autoscale ? undefined : item.maximum
-    };
-    yAxesStyle[`.MuiChartsAxisId${idx}`] = {
-      ".MuiChartsAxis-line": {
-        stroke: item.color.toString()
-      },
-      ".MuiChartsAxis-tick": {
-        stroke: item.color.toString()
-      }
-    };
-    return axis;
-  });
-
-  const xAxis: ReadonlyArray<XAxis<any>> = [
-    {
-      color: foregroundColor.toString(),
-      dataKey: "dateTime",
-      min: minX,
-      max: maxX,
-      scaleType: "time"
-    }
-  ];
-
-  const series = traces
-    ?.map((item, index) => {
-      const pvName = item?.yPv;
-      const effectivePvName = pvData
-        ?.map(pvItem => pvItem.effectivePvName)
-        ?.find(effectivePvName => pvName && effectivePvName?.endsWith(pvName));
-      if (!effectivePvName) {
-        return null;
-      }
-
-      return {
-        id: index, // item.axis <= axes.length - 1 ? item.axis : 0,
-        dataKey: effectivePvName,
-        label: item.name,
-        color: visible ? item.color.toString() : "transparent",
-        showMark: item.pointType === 0 ? false : true,
-        shape: MARKER_STYLES[item.pointType],
-        line: {
-          strokeWidth: item.lineWidth
+    localAxes.forEach((item, idx) => {
+      yAxesStyle[`.MuiChartsAxisId${idx}`] = {
+        ".MuiChartsAxis-line": {
+          stroke: item.color.toString()
         },
-        area: item.traceType === 5 ? true : false,
-        connectNulls: false,
-        curve: item.traceType === 2 ? ("stepAfter" as CurveType) : "linear"
+        ".MuiChartsAxis-tick": {
+          stroke: item.color.toString()
+        }
       };
-    })
-    .filter(x => !!x);
+    });
+
+    const yAxes: ReadonlyArray<YAxis<any>> = localAxes.map(
+      (item, idx): YAxis<any> => ({
+        width: 45,
+        id: idx,
+        label: item.title,
+        color: item.color?.toString(),
+        labelStyle: {
+          font: item.titleFont.css(),
+          fill: item.color.toString()
+        },
+        tickLabelStyle: {
+          font: item.scaleFont.css(),
+          fill: item.color.toString()
+        },
+        scaleType: item.logScale ? "symlog" : "linear",
+        position: "left",
+        min: item.autoscale ? undefined : item.minimum,
+        max: item.autoscale ? undefined : item.maximum
+      })
+    );
+
+    return { yAxes, yAxesStyle };
+  }, [localAxes]);
+
+  const xAxis: ReadonlyArray<XAxis<any>> = useMemo(
+    () => [
+      {
+        color: foregroundColor.toString(),
+        dataKey: "dateTime",
+        min: dateRange.minX,
+        max: dateRange.maxX,
+        scaleType: "time"
+      }
+    ],
+    [dateRange, foregroundColor]
+  );
+
+  const series = useMemo(
+    () =>
+      (traces?.length > 1 ? traces : [new Trace()])
+        ?.map((item, index) => {
+          const pvName = item?.yPv;
+          const effectivePvName = pvData
+            ?.map(pvItem => pvItem.effectivePvName)
+            ?.find(
+              effectivePvName => pvName && effectivePvName?.endsWith(pvName)
+            );
+          if (!effectivePvName) {
+            return null;
+          }
+
+          return {
+            id: index,
+            dataKey: effectivePvName,
+            label: item.name,
+            color: visible ? item.color.toString() : "transparent",
+            showMark: item.pointType === 0 ? false : true,
+            shape: MARKER_STYLES[item.pointType],
+            line: {
+              strokeWidth: item.lineWidth
+            },
+            area: item.traceType === 5 ? true : false,
+            connectNulls: false,
+            curve: item.traceType === 2 ? ("stepAfter" as CurveType) : "linear"
+          };
+        })
+        .filter(x => !!x),
+    [traces, pvData, visible]
+  );
 
   // TO DO
   // Add error bars option
@@ -229,7 +248,7 @@ export const StripChartComponent = (
       </Typography>
       <LineChart
         hideLegend={showLegend}
-        grid={{ vertical: axes[0].showGrid, horizontal: showGrid }}
+        grid={{ vertical: localAxes[0].showGrid, horizontal: showGrid }}
         dataset={data}
         sx={{
           width: "100%",
