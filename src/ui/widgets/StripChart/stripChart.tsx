@@ -160,7 +160,7 @@ export const StripChartComponent = (
       min: item.autoscale ? undefined : item.minimum,
       max: item.autoscale ? undefined : item.maximum
     };
-    yAxesStyle[`.MuiChartsAxis-id-${idx}`] = {
+    yAxesStyle[`.MuiChartsAxisId${idx}`] = {
       ".MuiChartsAxis-line": {
         stroke: item.color.toString()
       },
@@ -235,7 +235,7 @@ export const StripChartComponent = (
           width: "100%",
           height: "95%",
           backgroundColor: backgroundColor.toString(),
-          ".MuiChartsAxis-directionX": {
+          ".MuiChartsAxisDirectionX": {
             ".MuiChartsAxis-line": {
               stroke: foregroundColor.toString()
             },

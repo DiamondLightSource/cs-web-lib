@@ -3,15 +3,20 @@ import { SmartInputComponent } from "./input";
 import { render } from "@testing-library/react";
 import { DAlarm } from "../../../types/dtypes";
 import { dstring } from "../../../testResources";
+import { PvDatum } from "../../../redux/csState";
 
 let input: JSX.Element;
 beforeEach((): void => {
   input = (
     <SmartInputComponent
-      pvName="pv"
-      value={dstring("hello", DAlarm.MINOR)}
-      connected={true}
-      readonly={true}
+      pvData={[
+        {
+          effectivePvName: "TEST:PV",
+          connected: true,
+          readonly: true,
+          value: dstring("hello", DAlarm.MINOR)
+        } as Partial<PvDatum> as PvDatum
+      ]}
       alarmSensitive={true}
     />
   );

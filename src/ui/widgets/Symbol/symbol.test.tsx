@@ -2,6 +2,7 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import { SymbolComponent } from "./symbol";
 import { DType } from "../../../types/dtypes";
+import { PvDatum } from "../../../redux/csState";
 
 const fakeValue = new DType({ stringValue: "Fake value" });
 const stringValue = new DType({ stringValue: "1.54" });
@@ -41,7 +42,14 @@ describe("<Symbol /> from .opi file", (): void => {
     const symbolProps = {
       showBooleanLabel: true,
       imageFile: "img 1.gif",
-      value: fakeValue
+      pvData: [
+        {
+          effectivePvName: "TEST:PV",
+          connected: true,
+          readonly: true,
+          value: fakeValue
+        } as Partial<PvDatum> as PvDatum
+      ]
     };
     const { asFragment } = render(
       <SymbolComponent {...(symbolProps as any)} />
@@ -138,7 +146,14 @@ describe("<Symbol /> from .bob file", (): void => {
   test("matches snapshot (without index)", (): void => {
     const symbolProps = {
       symbols: ["img 1.gif"],
-      value: new DType({ stringValue: "0" })
+      pvData: [
+        {
+          effectivePvName: "TEST:PV",
+          connected: true,
+          readonly: true,
+          value: new DType({ stringValue: "0" })
+        } as Partial<PvDatum> as PvDatum
+      ]
     };
 
     const { asFragment } = render(
@@ -151,7 +166,14 @@ describe("<Symbol /> from .bob file", (): void => {
   test("matches snapshot (with index)", (): void => {
     const symbolProps = {
       symbols: ["img 1.gif", "img 2.png", "img 3.svg"],
-      value: new DType({ stringValue: "2" })
+      pvData: [
+        {
+          effectivePvName: "TEST:PV",
+          connected: true,
+          readonly: true,
+          value: new DType({ stringValue: "2" })
+        } as Partial<PvDatum> as PvDatum
+      ]
     };
 
     const { asFragment } = render(
@@ -164,7 +186,14 @@ describe("<Symbol /> from .bob file", (): void => {
   test("matches snapshot (using fallback symbol)", (): void => {
     const symbolProps = {
       symbols: ["img 1.gif"],
-      value: new DType({ doubleValue: 1 })
+      pvData: [
+        {
+          effectivePvName: "TEST:PV",
+          connected: true,
+          readonly: true,
+          value: new DType({ doubleValue: 1 })
+        } as Partial<PvDatum> as PvDatum
+      ]
     };
     const { asFragment } = render(
       <SymbolComponent {...(symbolProps as any)} />
