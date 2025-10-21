@@ -11,6 +11,7 @@ import { registerWidget } from "../register";
 import classes from "./byteMonitor.module.css";
 import { Color } from "../../../types/color";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
+import { getPvValueAndName } from "../utils";
 
 export const ByteMonitorProps = {
   width: IntPropOpt,
@@ -41,7 +42,7 @@ export const ByteMonitorComponent = (
   props: ByteMonitorComponentProps
 ): JSX.Element => {
   const {
-    value,
+    pvData,
     startBit = 0,
     horizontal = true,
     bitReverse = false,
@@ -54,6 +55,7 @@ export const ByteMonitorComponent = (
     width = WIDGET_DEFAULT_SIZES["byte_monitor"][0],
     height = WIDGET_DEFAULT_SIZES["byte_monitor"][1]
   } = props;
+  const { value } = getPvValueAndName(pvData);
 
   // Check for a value, otherwise set to 0
   const doubleValue = value?.getDoubleValue() || 0;

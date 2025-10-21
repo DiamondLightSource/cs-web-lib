@@ -5,6 +5,7 @@ import { DDisplay, DType } from "../../../types/dtypes";
 import { Color, Font } from "../../../types";
 import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
+import { PvDatum } from "../../../redux/csState";
 
 const ChoiceButtonRenderer = (choiceButtonProps: any): JSX.Element => {
   return (
@@ -17,7 +18,14 @@ const ChoiceButtonRenderer = (choiceButtonProps: any): JSX.Element => {
 describe("<ChoiceButton />", (): void => {
   test("it renders ChoiceButton with default props", (): void => {
     const choiceButtonProps = {
-      value: null
+      pvData: [
+        {
+          effectivePvName: "TEST:PV",
+          connected: true,
+          readonly: true,
+          value: undefined
+        } as Partial<PvDatum> as PvDatum
+      ]
     };
     const { getAllByRole } = render(ChoiceButtonRenderer(choiceButtonProps));
     const buttons = getAllByRole("button") as Array<HTMLButtonElement>;
@@ -37,7 +45,14 @@ describe("<ChoiceButton />", (): void => {
 
   test("pass props to widget", (): void => {
     const choiceButtonProps = {
-      value: new DType({ doubleValue: 0 }),
+      pvData: [
+        {
+          effectivePvName: "TEST:PV",
+          connected: true,
+          readonly: true,
+          value: new DType({ doubleValue: 0 })
+        } as Partial<PvDatum> as PvDatum
+      ],
       width: 60,
       height: 140,
       font: new Font(12),
@@ -68,12 +83,19 @@ describe("<ChoiceButton />", (): void => {
 
   test("pass props to widget, using itemsFromPv", (): void => {
     const choiceButtonProps = {
-      value: new DType(
-        { doubleValue: 0 },
-        undefined,
-        undefined,
-        new DDisplay({ choices: ["hi", "Hello"] })
-      ),
+      pvData: [
+        {
+          effectivePvName: "TEST:PV",
+          connected: true,
+          readonly: true,
+          value: new DType(
+            { doubleValue: 0 },
+            undefined,
+            undefined,
+            new DDisplay({ choices: ["hi", "Hello"] })
+          )
+        } as Partial<PvDatum> as PvDatum
+      ],
       items: ["one", "two", "three"],
       horizontal: false,
       itemsFromPv: true,
@@ -90,7 +112,7 @@ describe("<ChoiceButton />", (): void => {
 
   test("selecting a button", (): void => {
     const choiceButtonProps = {
-      value: null
+      pvData: []
     };
     const { getAllByRole } = render(ChoiceButtonRenderer(choiceButtonProps));
     const buttons = getAllByRole("button") as Array<HTMLButtonElement>;

@@ -6,15 +6,18 @@ import { StripChartComponent } from "./stripChart";
 import { Trace } from "../../../types/trace";
 import { Axis } from "../../../types/axis";
 import { convertStringTimePeriod } from "../utils";
+import { PvDatum } from "../../../redux/csState";
+import { DTime } from "../../../types/dtypes";
 
 // Mock the MUI X-Charts components
 vi.mock("@mui/x-charts", () => ({
-  LineChart: vi.fn(({ series, xAxis, yAxis, sx }) => (
+  LineChart: vi.fn(({ dataset, series, xAxis, yAxis, sx }) => (
     <div
       data-testid="line-chart"
       data-series={JSON.stringify(series)}
       data-xaxis={JSON.stringify(xAxis)}
       data-yaxis={JSON.stringify(yAxis)}
+      data-dataset={JSON.stringify(dataset)}
       style={sx}
     />
   ))
@@ -34,16 +37,24 @@ vi.mock("@mui/material", () => ({
 
 describe("StripChartComponent", () => {
   // Basic test setup
+  const buildPvDatum = (
+    pvName: string,
+    value: number,
+    date: Date = new Date()
+  ) => {
+    return {
+      effectivePvName: pvName,
+      connected: true,
+      readonly: true,
+      value: {
+        getDoubleValue: () => value,
+        getTime: () => new DTime(date)
+      } as Partial<DType> as DType
+    } as Partial<PvDatum> as PvDatum;
+  };
+
   const defaultProps = {
-    value: {
-      getDoubleValue: () => 50,
-      getTime: () => {
-        new Date(Date.now());
-      }
-    } as Partial<DType> as DType,
-    connected: true,
-    readonly: true,
-    pvName: "TEST:PV",
+    pvData: [buildPvDatum("TEST:PV", 50)],
     traces: [new Trace()],
     axes: [new Axis()]
   };
@@ -54,15 +65,33 @@ describe("StripChartComponent", () => {
 
   describe("Rendering", () => {
     test("renders with default props", () => {
-      render(<StripChartComponent {...defaultProps} />);
+      const renderedObject = render(<StripChartComponent {...defaultProps} />);
 
       const lineChart = screen.getByTestId("line-chart");
       expect(lineChart).toBeDefined();
 
       const yAxisData = JSON.parse(lineChart.getAttribute("data-yaxis") ?? "");
       const xAxisData = JSON.parse(lineChart.getAttribute("data-xaxis") ?? "");
+
       expect(yAxisData[0].position).toBe("left");
       expect(xAxisData[0].scaleType).toBe("time");
+
+      let dataset = JSON.parse(lineChart.getAttribute("data-dataset") ?? "");
+      expect(dataset.length).toBe(1);
+      expect(dataset[0]["TEST:PV"]).toBe(50);
+
+      // Render again to check that new data values are added
+      renderedObject.rerender(
+        <StripChartComponent
+          {...defaultProps}
+          pvData={[buildPvDatum("TEST:PV", 60)]}
+        />
+      );
+
+      dataset = JSON.parse(lineChart.getAttribute("data-dataset") ?? "");
+      expect(dataset.length).toBe(2);
+      expect(dataset[0]["TEST:PV"]).toBe(50);
+      expect(dataset[1]["TEST:PV"]).toBe(60);
     });
 
     test("renders with 2 y axes", () => {
@@ -94,8 +123,8 @@ describe("StripChartComponent", () => {
 
     test("renders with 2 traces", () => {
       const traces = [
-        new Trace({ color: Color.ORANGE }),
-        new Trace({ color: Color.PINK })
+        new Trace({ color: Color.ORANGE, yPv: "TEST:PV" }),
+        new Trace({ color: Color.PINK, yPv: "TEST:PV" })
       ];
       render(<StripChartComponent {...defaultProps} traces={traces} />);
       const lineChart = screen.getByTestId("line-chart");
@@ -112,11 +141,159 @@ describe("StripChartComponent", () => {
 
       expect(screen.getByText("Testing Plot")).toBeDefined();
     });
+
+    test("renders multiple PVs with multiple traces, with rerender to add second set of PV data", () => {
+      const traces = [
+        new Trace({ color: Color.ORANGE, yPv: "PV1" }),
+        new Trace({ color: Color.PINK, yPv: "PV2" }),
+        new Trace({ color: Color.BLUE, yPv: "PV3" })
+      ];
+
+      const renderedObject = render(
+        <StripChartComponent
+          {...defaultProps}
+          traces={traces}
+          pvData={[
+            buildPvDatum("TEST:PV1", 2),
+            buildPvDatum("TEST:PV2", 30),
+            buildPvDatum("TEST:PV3", 400)
+          ]}
+        />
+      );
+
+      const lineChart = screen.getByTestId("line-chart");
+      expect(lineChart).toBeDefined();
+
+      const yAxisData = JSON.parse(lineChart.getAttribute("data-yaxis") ?? "");
+      const xAxisData = JSON.parse(lineChart.getAttribute("data-xaxis") ?? "");
+
+      expect(yAxisData[0].position).toBe("left");
+      expect(xAxisData[0].scaleType).toBe("time");
+
+      let dataset = JSON.parse(lineChart.getAttribute("data-dataset") ?? "");
+      expect(dataset.length).toBe(1);
+      expect(dataset[0]["TEST:PV1"]).toBe(2);
+      expect(dataset[0]["TEST:PV2"]).toBe(30);
+      expect(dataset[0]["TEST:PV3"]).toBe(400);
+
+      const seriesData = JSON.parse(
+        lineChart.getAttribute("data-series") ?? ""
+      );
+
+      expect(seriesData[0].color).toBe(Color.ORANGE.toString());
+      expect(seriesData[0].dataKey).toBe("TEST:PV1");
+      expect(seriesData[1].color).toBe(Color.PINK.toString());
+      expect(seriesData[1].dataKey).toBe("TEST:PV2");
+      expect(seriesData[2].color).toBe(Color.BLUE.toString());
+      expect(seriesData[2].dataKey).toBe("TEST:PV3");
+
+      // Render again to check that new data values are added
+      renderedObject.rerender(
+        <StripChartComponent
+          {...defaultProps}
+          traces={traces}
+          pvData={[
+            buildPvDatum("TEST:PV1", 3),
+            buildPvDatum("TEST:PV2", 40),
+            buildPvDatum("TEST:PV3", 500)
+          ]}
+        />
+      );
+
+      dataset = JSON.parse(lineChart.getAttribute("data-dataset") ?? "");
+      expect(dataset.length).toBe(2);
+      expect(dataset[0]["TEST:PV1"]).toBe(2);
+      expect(dataset[1]["TEST:PV1"]).toBe(3);
+      expect(dataset[0]["TEST:PV2"]).toBe(30);
+      expect(dataset[1]["TEST:PV2"]).toBe(40);
+      expect(dataset[0]["TEST:PV3"]).toBe(400);
+      expect(dataset[1]["TEST:PV3"]).toBe(500);
+    });
+
+    test("renders multiple data points and removes old data values", () => {
+      const intialDate = new Date(new Date().getTime() - 600000);
+      const renderedObject = render(
+        <StripChartComponent
+          {...defaultProps}
+          pvData={[buildPvDatum("TEST:PV", 10, intialDate)]}
+        />
+      );
+
+      const lineChart = screen.getByTestId("line-chart");
+      expect(lineChart).toBeDefined();
+
+      let dataset = JSON.parse(lineChart.getAttribute("data-dataset") ?? "");
+      expect(dataset.length).toBe(1);
+      expect(dataset[0]["TEST:PV"]).toBe(10);
+
+      renderedObject.rerender(
+        <StripChartComponent
+          {...defaultProps}
+          pvData={[
+            buildPvDatum("TEST:PV", 20, new Date(intialDate.getTime() + 20000))
+          ]}
+        />
+      );
+
+      renderedObject.rerender(
+        <StripChartComponent
+          {...defaultProps}
+          pvData={[
+            buildPvDatum("TEST:PV", 30, new Date(intialDate.getTime() + 40000))
+          ]}
+        />
+      );
+
+      renderedObject.rerender(
+        <StripChartComponent
+          {...defaultProps}
+          pvData={[
+            buildPvDatum("TEST:PV", 40, new Date(intialDate.getTime() + 70000))
+          ]}
+        />
+      );
+
+      renderedObject.rerender(
+        <StripChartComponent
+          {...defaultProps}
+          pvData={[
+            buildPvDatum("TEST:PV", 50, new Date(intialDate.getTime() + 80000))
+          ]}
+        />
+      );
+
+      // Now have 80 seconds of data, this should all still be avaliable, until we add the next data point
+      dataset = JSON.parse(lineChart.getAttribute("data-dataset") ?? "");
+      expect(dataset.length).toBe(5);
+      expect(dataset[0]["TEST:PV"]).toBe(10);
+      expect(dataset[1]["TEST:PV"]).toBe(20);
+      expect(dataset[2]["TEST:PV"]).toBe(30);
+      expect(dataset[3]["TEST:PV"]).toBe(40);
+      expect(dataset[4]["TEST:PV"]).toBe(50);
+
+      renderedObject.rerender(
+        <StripChartComponent
+          {...defaultProps}
+          pvData={[
+            buildPvDatum("TEST:PV", 60, new Date(intialDate.getTime() + 90000))
+          ]}
+        />
+      );
+
+      // Now have 90 seconds of data, first data point should be dropped
+      dataset = JSON.parse(lineChart.getAttribute("data-dataset") ?? "");
+      expect(dataset.length).toBe(5);
+      expect(dataset[0]["TEST:PV"]).toBe(20);
+      expect(dataset[1]["TEST:PV"]).toBe(30);
+      expect(dataset[2]["TEST:PV"]).toBe(40);
+      expect(dataset[3]["TEST:PV"]).toBe(50);
+      expect(dataset[4]["TEST:PV"]).toBe(60);
+    });
   });
 
   describe("Styling", () => {
     test("applies tracetype to trace", () => {
-      const traces = [new Trace({ traceType: 5 })];
+      const traces = [new Trace({ traceType: 5, yPv: "TEST:PV" })];
 
       render(<StripChartComponent {...defaultProps} traces={traces} />);
 
@@ -148,7 +325,7 @@ describe("StripChartComponent", () => {
     });
 
     test("applies diamond markers to trace", () => {
-      const traces = [new Trace({ pointType: 3 })];
+      const traces = [new Trace({ pointType: 3, yPv: "TEST:PV" })];
       render(<StripChartComponent {...defaultProps} traces={traces} />);
 
       const lineChart = screen.getByTestId("line-chart");

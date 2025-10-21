@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { Box } from "@mui/material";
 import { Widget } from "../widget";
-import { PVInputComponent, PVWidgetPropType } from "../widgetProps";
+import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import {
   FloatPropOpt,
@@ -21,6 +21,7 @@ import {
   formatValue,
   NumberFormatEnum
 } from "./meterUtilities";
+import { getPvValueAndName } from "../utils";
 
 export const MeterProps = {
   minimum: FloatPropOpt,
@@ -40,10 +41,10 @@ export const MeterProps = {
 };
 
 export const MeterComponent = (
-  props: InferWidgetProps<typeof MeterProps> & PVInputComponent
+  props: InferWidgetProps<typeof MeterProps> & PVComponent
 ): JSX.Element => {
   const {
-    value,
+    pvData,
     format = NumberFormatEnum.Default,
     height = 120,
     width = 240,
@@ -56,6 +57,8 @@ export const MeterComponent = (
     showValue = true,
     transparent = false
   } = props;
+  const { value } = getPvValueAndName(pvData);
+
   const units = value?.display.units ?? "";
   const numValue = value?.getDoubleValue() ?? 0;
 

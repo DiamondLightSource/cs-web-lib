@@ -32,6 +32,10 @@ export const BoolPropOpt = PropTypes.bool;
 export const PvProp = PropTypes.instanceOf(PV).isRequired;
 export const PvPropOpt = PropTypes.instanceOf(PV);
 
+export const PVMetadataType = PropTypes.shape({
+  pvName: PvPropOpt
+});
+
 export const ChildrenProp = PropTypes.node.isRequired;
 export const ChildrenPropOpt = PropTypes.node;
 

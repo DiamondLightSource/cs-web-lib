@@ -109,7 +109,9 @@ export function genericParser(
   // plot widgets as the PV. This is a placeholder until support for
   // multiple PVs per widget is implemented
   if (newProps.hasOwnProperty("traces")) {
-    newProps.pvName = PV.parse(newProps.traces[0].yPv);
+    newProps.pvMetadataList = newProps.traces?.map((trace: any) => ({
+      pvName: PV.parse(trace.yPv)
+    }));
   }
 
   return newProps;

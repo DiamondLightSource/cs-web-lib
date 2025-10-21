@@ -51,13 +51,18 @@ export type StripChartComponentProps = InferWidgetProps<
 > &
   PVComponent;
 
+interface TimeSeriesPoint {
+  dateTime: Date;
+  [key: string]: Date | number | null;
+}
+
 export const StripChartComponent = (
   props: StripChartComponentProps
 ): JSX.Element => {
   const {
     traces,
     axes,
-    value,
+    pvData,
     title,
     titleFont = new Font(),
     scaleFont = new Font(),
@@ -69,110 +74,165 @@ export const StripChartComponent = (
     start = "1 minute",
     visible = true
   } = props;
+
   // If we're passed an empty array fill in defaults
-  if (traces.length < 1) traces.push(new Trace());
-  if (axes.length < 1) axes.push(new Axis({ xAxis: false }));
+  const localAxes = useMemo(
+    () => (axes.length > 0 ? [...axes] : [new Axis({ xAxis: false })]),
+    [axes]
+  );
 
   // Convert start time into milliseconds period
   const timePeriod = useMemo(() => convertStringTimePeriod(start), [start]);
-  const [data, setData] = useState<{
-    x: any[];
-    y: any[];
-    min?: Date;
-    max?: Date;
-  }>({ x: [], y: [] });
+  const [dateRange, setDateRange] = useState<{ minX: Date; maxX: Date }>({
+    minX: new Date(new Date().getTime() - timePeriod),
+    maxX: new Date()
+  });
+  const [data, setData] = useState<TimeSeriesPoint[]>([]);
 
   useEffect(() => {
-    if (value) {
-      // rRemove data outside min and max bounds
-      const minimum = new Date(new Date().getTime() - timePeriod);
-      // Check if first data point in array is outside minimum, if so remove
-      setData(currentData => {
-        const xData = currentData.x;
-        const yData = currentData.y;
-        if (xData.length > 0 && xData[0].getTime() < minimum.getTime()) {
-          xData.shift();
-          yData.shift();
+    const updateDataMap = (timeSeries: TimeSeriesPoint[]) => {
+      if (pvData) {
+        const allDates = Object.values(pvData)
+          .map(pvItem => pvItem?.value?.getTime()?.datetime)
+          .filter(date => !!date);
+
+        if (allDates.length < 1) {
+          // we have no useful date for the timeseries point
+          return timeSeries;
         }
-        return {
-          x: [...xData, value.getTime()?.datetime],
-          y: [...yData, value.getDoubleValue()],
-          min: minimum,
-          max: new Date()
-        };
-      });
-    }
-  }, [value, timePeriod]);
 
-  // For some reason the below styling doesn't change axis line and tick
-  // colour so we set it using sx in the Line Chart below by passing this in
-  const yAxesStyle: any = {};
+        const mostRecentDate = allDates.reduce(
+          (a, b) => (a > b ? a : b),
+          allDates[0]
+        );
 
-  const yAxes: ReadonlyArray<YAxis<any>> = axes.map((item, idx) => {
-    const axis = {
-      width: 45,
-      id: idx,
-      label: item.title,
-      color: item.color?.toString(),
-      labelStyle: {
-        font: item.titleFont.css(),
-        fill: item.color.toString()
-      },
-      tickLabelStyle: {
-        font: item.scaleFont.css(),
-        fill: item.color.toString()
-      },
-      scaleType: item.logScale ? "symlog" : "linear",
-      position: "left",
-      min: item.autoscale ? undefined : item.minimum,
-      max: item.autoscale ? undefined : item.maximum
-    };
-    yAxesStyle[`.MuiChartsAxis-id-${idx}`] = {
-      ".MuiChartsAxis-line": {
-        stroke: item.color.toString()
-      },
-      ".MuiChartsAxis-tick": {
-        stroke: item.color.toString()
+        // Remove outdated data points
+        let i = 0;
+        while (
+          i < timeSeries.length &&
+          timeSeries[i].dateTime <
+            new Date(mostRecentDate.getTime() - timePeriod)
+        ) {
+          i++;
+        }
+        const truncatedTimeSeries =
+          i - 1 > 0 ? timeSeries.slice(i - 1) : timeSeries;
+
+        // create new data point
+        let newTimeseriesPoint: TimeSeriesPoint = { dateTime: mostRecentDate };
+
+        pvData.forEach(pvItem => {
+          const { effectivePvName, value } = pvItem;
+          newTimeseriesPoint = {
+            ...newTimeseriesPoint,
+            [effectivePvName]: value?.getDoubleValue() ?? null
+          };
+        });
+
+        return [...truncatedTimeSeries, newTimeseriesPoint];
       }
-    };
-    return axis;
-  });
 
-  const xAxis: ReadonlyArray<XAxis<any>> = [
-    {
-      data: data.x,
-      color: foregroundColor.toString(),
-      dataKey: "datetime",
-      min: data.min,
-      max: data.max,
-      scaleType: "time"
-    }
-  ];
-
-  const series = traces.map(item => {
-    const trace = {
-      // If axis is set higher than number of axes, default to zero
-      id: item.axis <= axes.length - 1 ? item.axis : 0,
-      data: data.y,
-      label: item.name,
-      color: visible ? item.color.toString() : "transparent",
-      showMark: item.pointType === 0 ? false : true,
-      shape: MARKER_STYLES[item.pointType],
-      line: {
-        strokeWidth: item.lineWidth
-      },
-      area: item.traceType === 5 ? true : false,
-      connectNulls: false,
-      curve: item.traceType === 2 ? ("stepAfter" as CurveType) : "linear"
+      return timeSeries;
     };
-    return trace;
-  });
+
+    setDateRange({
+      minX: new Date(new Date().getTime() - timePeriod),
+      maxX: new Date()
+    });
+    setData(currentData => updateDataMap(currentData));
+  }, [timePeriod, pvData]);
+
+  const { yAxes, yAxesStyle } = useMemo(() => {
+    // For some reason the below styling doesn't change axis line and tick
+    // colour so we set it using sx in the Line Chart below by passing this in
+    const yAxesStyle: any = {};
+
+    localAxes.forEach((item, idx) => {
+      yAxesStyle[`.MuiChartsAxis-id-${idx}`] = {
+        ".MuiChartsAxis-line": {
+          stroke: item.color.toString()
+        },
+        ".MuiChartsAxis-tick": {
+          stroke: item.color.toString()
+        }
+      };
+    });
+
+    const yAxes: ReadonlyArray<YAxis<any>> = localAxes.map(
+      (item, idx): YAxis<any> => ({
+        width: 45,
+        id: idx,
+        label: item.title,
+        color: item.color?.toString(),
+        labelStyle: {
+          font: item.titleFont.css(),
+          fill: item.color.toString()
+        },
+        tickLabelStyle: {
+          font: item.scaleFont.css(),
+          fill: item.color.toString()
+        },
+        scaleType: item.logScale ? "symlog" : "linear",
+        position: "left",
+        min: item.autoscale ? undefined : item.minimum,
+        max: item.autoscale ? undefined : item.maximum
+      })
+    );
+
+    return { yAxes, yAxesStyle };
+  }, [localAxes]);
+
+  const xAxis: ReadonlyArray<XAxis<any>> = useMemo(
+    () => [
+      {
+        color: foregroundColor.toString(),
+        dataKey: "dateTime",
+        min: dateRange.minX,
+        max: dateRange.maxX,
+        scaleType: "time",
+        id: "xaxis"
+      }
+    ],
+    [dateRange, foregroundColor]
+  );
+
+  const series = useMemo(
+    () =>
+      (traces?.length > 0 ? traces : [new Trace()])
+        ?.map((item, index) => {
+          const pvName = item?.yPv;
+          const effectivePvName = pvData
+            ?.map(pvItem => pvItem.effectivePvName)
+            ?.find(
+              effectivePvName => pvName && effectivePvName?.endsWith(pvName)
+            );
+          if (!effectivePvName) {
+            return null;
+          }
+
+          return {
+            id: index,
+            dataKey: effectivePvName,
+            label: item.name,
+            color: visible ? item.color.toString() : "transparent",
+            showMark: item.pointType === 0 ? false : true,
+            shape: MARKER_STYLES[item.pointType],
+            line: {
+              strokeWidth: item.lineWidth
+            },
+            area: item.traceType === 5 ? true : false,
+            connectNulls: false,
+            curve: item.traceType === 2 ? ("stepAfter" as CurveType) : "linear"
+          };
+        })
+        .filter(x => !!x),
+    [traces, pvData, visible]
+  );
 
   // TO DO
   // Add error bars option
   // Apply showToolbar
   // Use end value - this doesn't seem to do anything in Phoebus?
-
   return (
     <Box sx={{ width: "100%", height: "100%" }}>
       <Typography
@@ -189,12 +249,13 @@ export const StripChartComponent = (
       </Typography>
       <LineChart
         hideLegend={showLegend}
-        grid={{ vertical: axes[0].showGrid, horizontal: showGrid }}
+        grid={{ vertical: localAxes[0].showGrid, horizontal: showGrid }}
+        dataset={data}
         sx={{
           width: "100%",
           height: "95%",
           backgroundColor: backgroundColor.toString(),
-          ".MuiChartsAxis-directionX": {
+          ".MuiChartsAxis-id-xaxis": {
             ".MuiChartsAxis-line": {
               stroke: foregroundColor.toString()
             },
@@ -214,6 +275,7 @@ export const StripChartComponent = (
         xAxis={xAxis}
         yAxis={yAxes}
         series={series}
+        slotProps={{ legend: { sx: { color: foregroundColor.toString() } } }}
       />
     </Box>
   );

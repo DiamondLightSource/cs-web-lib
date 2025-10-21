@@ -1,4 +1,4 @@
-import React, { CSSProperties, useContext, useState } from "react";
+import React, { CSSProperties, useCallback, useContext, useState } from "react";
 import log from "loglevel";
 import copyToClipboard from "clipboard-copy";
 
@@ -6,10 +6,13 @@ import { ContextMenu } from "../components/ContextMenu/contextMenu";
 import ctxtClasses from "../components/ContextMenu/contextMenu.module.css";
 import tooltipClasses from "./tooltip.module.css";
 import { useMacros } from "../hooks/useMacros";
-import { useConnection } from "../hooks/useConnection";
+import { useConnectionMultiplePv } from "../hooks/useConnection";
 import { useId } from "react-id-generator";
 import { useRules } from "../hooks/useRules";
-import { PVWidgetComponent, WidgetComponent } from "./widgetProps";
+import {
+  ConnectingComponentWidgetProps,
+  PVWidgetComponent
+} from "./widgetProps";
 import { Border, BorderStyle } from "../../types/border";
 import { Color } from "../../types/color";
 import { AlarmQuality } from "../../types/dtypes";
@@ -19,6 +22,24 @@ import { ExitFileContext, FileContext } from "../../misc/fileContext";
 import { executeAction, WidgetAction, WidgetActions } from "./widgetActions";
 import { Popover } from "react-tiny-popover";
 import { resolveTooltip } from "./tooltip";
+
+const ALARM_SEVERITY_MAP = {
+  [AlarmQuality.ALARM]: 1,
+  [AlarmQuality.WARNING]: 2,
+  [AlarmQuality.INVALID]: 3,
+  [AlarmQuality.UNDEFINED]: 4,
+  [AlarmQuality.CHANGING]: 5,
+  [AlarmQuality.VALID]: 6
+};
+
+const AlarmColorsMap = {
+  [AlarmQuality.VALID]: Color.BLACK,
+  [AlarmQuality.WARNING]: Color.WARNING,
+  [AlarmQuality.ALARM]: Color.ALARM,
+  [AlarmQuality.INVALID]: Color.INVALID,
+  [AlarmQuality.UNDEFINED]: Color.UNDEFINED,
+  [AlarmQuality.CHANGING]: Color.CHANGING
+};
 
 /**
  * Return a CSSProperties object for props that multiple widgets may have.
@@ -60,12 +81,21 @@ export function commonCss(props: {
  */
 export const ConnectingComponent = (props: {
   component: React.FC<any>;
-  widgetProps: any;
+  widgetProps: ConnectingComponentWidgetProps;
   containerStyle: CSSProperties;
   onContextMenu?: (e: React.MouseEvent) => void;
 }): JSX.Element => {
   const Component = props.component;
-  const { id, alarmBorder = false, pvName, type } = props.widgetProps;
+  const { id, alarmBorder = false, pvMetadataList } = props.widgetProps;
+
+  const pvName =
+    pvMetadataList && pvMetadataList?.length > 0
+      ? pvMetadataList[0]?.pvName
+      : undefined;
+
+  const pvNames = pvMetadataList
+    ? pvMetadataList.map(metadata => metadata?.pvName).filter(pv => !!pv)
+    : [];
 
   // Popover logic, used for middle-click tooltip.
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -76,13 +106,14 @@ export const ConnectingComponent = (props: {
         (e.currentTarget as HTMLDivElement).classList.add(
           tooltipClasses.Copying
         );
-        copyToClipboard(pvName);
+        copyToClipboard(pvName.toString());
       }
       // Stop regular middle-click behaviour if showing tooltip.
       e.preventDefault();
       e.stopPropagation();
     }
   };
+
   const mouseUp = (e: React.MouseEvent): void => {
     if (e.button === 1 && e.currentTarget) {
       setPopoverOpen(false);
@@ -93,38 +124,39 @@ export const ConnectingComponent = (props: {
     }
   };
 
-  const [effectivePvName, connected, readonly, latestValue] = useConnection(
+  const { pvData } = useConnectionMultiplePv(
     id,
-    pvName?.qualifiedName(),
-    type
+    pvNames.map(x => x.qualifiedName())
   );
 
-  // Always indicate with border if PV is disconnected.
   let border = props.widgetProps.border;
-  if (props.widgetProps.pvName && connected === false) {
-    border = new Border(BorderStyle.Dotted, Color.DISCONNECTED, 3);
-  } else if (alarmBorder) {
-    // Implement alarm border for all widgets if configured.
-    const severity = latestValue?.getAlarm()?.quality || AlarmQuality.VALID;
-    const colors: { [key in AlarmQuality]: Color } = {
-      [AlarmQuality.VALID]: Color.BLACK,
-      [AlarmQuality.WARNING]: Color.WARNING,
-      [AlarmQuality.ALARM]: Color.ALARM,
-      [AlarmQuality.INVALID]: Color.INVALID,
-      [AlarmQuality.UNDEFINED]: Color.UNDEFINED,
-      [AlarmQuality.CHANGING]: Color.CHANGING
-    };
-    if (severity !== AlarmQuality.VALID) {
-      border = new Border(BorderStyle.Line, colors[severity], 2);
+  if (pvNames) {
+    let alarmSeverity = AlarmQuality.VALID;
+
+    if (alarmBorder && pvData) {
+      alarmSeverity = pvData
+        .map(x => x.value?.getAlarm()?.quality ?? AlarmQuality.VALID)
+        .reduce(
+          (mostSevereSoFar, currentItem) =>
+            ALARM_SEVERITY_MAP[mostSevereSoFar] <
+            ALARM_SEVERITY_MAP[currentItem]
+              ? mostSevereSoFar
+              : currentItem,
+          alarmSeverity
+        );
+    }
+
+    if (alarmSeverity !== AlarmQuality.VALID) {
+      border = new Border(BorderStyle.Line, AlarmColorsMap[alarmSeverity], 2);
+    } else if (pvData && !pvData.every(x => x.connected)) {
+      border = new Border(BorderStyle.Dotted, Color.DISCONNECTED, 3);
     }
   }
 
-  const widgetProps = {
+  const widgetTooltipProps = {
     ...props.widgetProps,
-    pvName: effectivePvName,
-    value: latestValue,
-    connected,
-    readonly,
+    tooltip: props.widgetProps.tooltip ?? "",
+    pvData,
     border
   };
 
@@ -137,11 +169,12 @@ export const ConnectingComponent = (props: {
       onMouseUp={mouseUp}
       style={props.containerStyle}
     >
-      <Component {...widgetProps} />
+      <Component {...widgetTooltipProps} />
     </div>
   );
-  if (widgetProps.tooltip) {
-    const resolvedTooltip = resolveTooltip(widgetProps);
+
+  if (widgetTooltipProps.tooltip) {
+    const resolvedTooltip = resolveTooltip(widgetTooltipProps);
     const popoverContent = (): JSX.Element => {
       return <div className={tooltipClasses.Tooltip}>{resolvedTooltip}</div>;
     };
@@ -180,15 +213,21 @@ const DEFAULT_TOOLTIP = "${pvName}\n${pvValue}";
  * @param props
  * @returns JSX Element to render
  */
-export const Widget = (
-  props: PVWidgetComponent | WidgetComponent
-): JSX.Element => {
+export const Widget = (props: PVWidgetComponent): JSX.Element => {
   const [id] = useId();
+
   const files = useContext(FileContext);
   const exitContext = useContext(ExitFileContext);
-
-  // Logic for context menu.
   const [contextOpen, setContextOpen] = useState(false);
+
+  const contextMenuTriggerCallback = useCallback(
+    (action: WidgetAction): void => {
+      executeAction(action, files, exitContext);
+      setContextOpen(false);
+    },
+    [files, exitContext, setContextOpen]
+  );
+
   const [coords, setCoords] = useState<[number, number]>([0, 0]);
   let onContextMenu: ((e: React.MouseEvent) => void) | undefined = undefined;
   const actionsPresent = props.actions && props.actions.actions.length > 0;
@@ -218,13 +257,13 @@ export const Widget = (
     );
   }
 
-  function triggerCallback(action: WidgetAction): void {
-    executeAction(action, files, exitContext);
-    setContextOpen(false);
-  }
   let tooltip = props.tooltip;
   // Set default tooltip only for PV-enabled widgets.
-  if ("pvName" in props && !props.tooltip) {
+  if (
+    props?.pvMetadataList &&
+    props.pvMetadataList.length > 0 &&
+    !props.tooltip
+  ) {
     tooltip = DEFAULT_TOOLTIP;
   }
   const idProps = { ...props, id: id, tooltip: tooltip };
@@ -233,7 +272,7 @@ export const Widget = (
   log.debug(`Widget id ${id}`);
   const macroProps = useMacros(idProps);
   // Then rules
-  const ruleProps = useRules(macroProps) as PVWidgetComponent & { id: string };
+  const ruleProps = useRules(macroProps);
   log.debug(`ruleProps ${ruleProps}`);
   log.debug(ruleProps);
 
@@ -254,7 +293,7 @@ export const Widget = (
         <ContextMenu
           actions={ruleProps.actions as WidgetActions}
           coordinates={coords}
-          triggerCallback={triggerCallback}
+          triggerCallback={contextMenuTriggerCallback}
         />
       )}
       <ConnectingComponent

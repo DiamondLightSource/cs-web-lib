@@ -83,7 +83,7 @@ describe("bob widget parser", (): void => {
   it("parses a readback widget", (): void => {
     const widget = parseBob(readbackString, "xxx", PREFIX)
       .children?.[0] as WidgetDescription;
-    expect(widget.pvName).toEqual(PV.parse("xxx://abc"));
+    expect(widget.pvMetadataList[0].pvName).toEqual(PV.parse("xxx://abc"));
   });
 
   const noXString = `
