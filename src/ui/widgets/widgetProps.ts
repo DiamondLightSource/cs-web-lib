@@ -1,4 +1,4 @@
-import { PvState } from "../../redux/csState";
+import { PvDataCollection } from "../../redux/csState";
 import {
   StringPropOpt,
   BoolPropOpt,
@@ -7,15 +7,15 @@ import {
   PositionProp,
   ActionsPropType,
   RulesPropOpt,
-  PvPropOpt,
-  PvTypePropOpt
+  PvTypePropOpt,
+  PVMetadataType
 } from "./propTypes";
 
 import { GenericProp } from "../../types/props";
-import { DType } from "../../types/dtypes";
+import PropTypes from "prop-types";
 
-export const WidgetPropType = {
-  position: PositionProp,
+// Internal prop types object for properties which are not in a standard widget
+const BasicPropsType = {
   rules: RulesPropOpt,
   actions: ActionsPropType,
   tooltip: StringPropOpt,
@@ -23,39 +23,58 @@ export const WidgetPropType = {
   visible: BoolPropOpt
 };
 
-type WidgetProps = InferWidgetProps<typeof WidgetPropType>;
-
-// Internal type for creating widgets
-export type WidgetComponent = WidgetProps & {
-  baseWidget: React.FC<any>;
+const PositionPropsType = {
+  position: PositionProp
 };
 
-// Internal prop types object for properties which are not in a standard widget
-const PVExtras = {
-  pvName: PvPropOpt,
+export const WidgetPropType = {
+  ...PositionPropsType,
+  ...BasicPropsType
+};
+
+const PvPropsAndMetdataType = {
+  alarmBorder: BoolPropOpt,
   pvType: PvTypePropOpt,
-  alarmBorder: BoolPropOpt
+  pvMetadataList: PropTypes.arrayOf(PVMetadataType)
 };
+
 // PropTypes object for a PV widget which can be expanded
 export const PVWidgetPropType = {
-  ...PVExtras,
-  ...WidgetPropType
+  ...WidgetPropType,
+  ...PvPropsAndMetdataType
 };
-export type PVWidgetProps = WidgetProps & InferWidgetProps<typeof PVExtras>;
-export type PVWidgetComponent = PVWidgetProps & { baseWidget: React.FC<any> };
-export type AnyProps = PVWidgetComponent & {
-  id: string;
-  connected?: boolean;
-  readonly?: boolean;
-  value?: DType;
-} & {
+
+type BasicProps = InferWidgetProps<typeof BasicPropsType>;
+type PositionProps = InferWidgetProps<typeof PositionPropsType>;
+
+type PvPropsAndMetdataProps = InferWidgetProps<typeof PvPropsAndMetdataType>;
+
+type AnyOtherProps = {
   // All other props with valid types.
+  id: string;
   [x: string]: GenericProp;
 };
 
-export interface Component {
-  style?: Record<string, string>;
-}
+type BaseWidgetProps = { baseWidget: React.FC<any> };
 
-export type PVComponent = Component & PvState;
-export type PVInputComponent = PVComponent & { pvName: string };
+type ComponentProps = {
+  style?: Record<string, string>;
+};
+
+// Props used by the ConnectingComponentWidget wrapper
+export type ConnectingComponentWidgetProps = BasicProps &
+  PvPropsAndMetdataProps &
+  PvDataCollection &
+  AnyOtherProps;
+
+// Props for the Widget wrapper component
+export type PVWidgetComponent = BasicProps &
+  PositionProps &
+  BaseWidgetProps &
+  PvPropsAndMetdataProps;
+
+// type used by useMacros and useRules (not really props)
+export type AnyProps = PVWidgetComponent & PvDataCollection & AnyOtherProps;
+
+// Types used by widget components implementations that display a value.
+export type PVComponent = ComponentProps & PvDataCollection;

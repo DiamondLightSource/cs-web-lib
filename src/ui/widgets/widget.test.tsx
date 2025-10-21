@@ -45,7 +45,7 @@ describe("<Widget />", (): void => {
 
     const { getByText } = contextRender(
       <Widget
-        pvName={pv}
+        pvMetadataList={[{ pvName: pv }]}
         baseWidget={TestLabel}
         position={new RelativePosition()}
         tooltip="hi there"
@@ -58,6 +58,6 @@ describe("<Widget />", (): void => {
     // simulate middle click
     fireEvent.mouseDown(label, { button: 1 });
     expect(getByText(/.*hi.*/)).toBeInTheDocument();
-    expect(copyToClipboard).toHaveBeenCalledWith(pv);
+    expect(copyToClipboard).toHaveBeenCalledWith(pv.toString());
   });
 });

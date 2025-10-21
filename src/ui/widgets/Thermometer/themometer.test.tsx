@@ -10,6 +10,7 @@ import {
 } from "./thermometer";
 import { Color } from "../../../types/color";
 import { DType } from "../../../types";
+import { PvDatum } from "../../../redux/csState";
 
 // Mock d3 functionality
 vi.mock("d3", () => {
@@ -38,10 +39,15 @@ vi.mock("d3", () => {
 });
 
 describe("Thermometer Component", () => {
-  const mandatoryProps = {
-    connected: false,
+  const pvDatum = {
+    effectivePvName: "PV:Test",
+    connected: true,
     readonly: true,
-    pvName: "PV:Test"
+    value: new DType({ stringValue: "1234" })
+  } as Partial<PvDatum> as PvDatum;
+
+  const mandatoryProps = {
+    pvData: [pvDatum]
   };
 
   const mockValue = {
@@ -332,13 +338,12 @@ describe("Thermometer Component", () => {
     it("should render with custom props", () => {
       render(
         <ThermometerComponent
-          value={mockValue}
           minimum={10}
           maximum={90}
           height={200}
           width={50}
           fillColor={Color.fromRgba(255, 0, 0, 1)}
-          {...mandatoryProps}
+          pvData={[{ ...pvDatum, value: mockValue }]}
         />
       );
 

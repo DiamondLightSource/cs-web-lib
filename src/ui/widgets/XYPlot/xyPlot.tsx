@@ -21,7 +21,7 @@ import {
   NewAxisSettings
 } from "./xyPlotOptions";
 import { Color } from "../../../types/color";
-import { trimFromString } from "../utils";
+import { getPvValueAndName, trimFromString } from "../utils";
 import { Trace } from "../../../types/trace";
 import { Axis } from "../../../types/axis";
 
@@ -50,7 +50,7 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
   const {
     height = 250,
     width = 400,
-    value,
+    pvData,
     plotBackgroundColor = Color.fromRgba(255, 255, 255),
     title = "",
     titleFont,
@@ -60,6 +60,8 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
     traces = [new Trace()],
     axes = [new Axis({ xAxis: true }), new Axis({ xAxis: false })]
   } = props;
+  const { value } = getPvValueAndName(pvData);
+
   // TO DO - having all these checks is not ideal
   if (
     value?.value.arrayValue &&

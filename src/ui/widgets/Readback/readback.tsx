@@ -18,7 +18,7 @@ import {
 import { registerWidget } from "../register";
 import { AlarmQuality, DType } from "../../../types/dtypes";
 import { TextField as MuiTextField, styled, useTheme } from "@mui/material";
-import { calculateRotationTransform } from "../utils";
+import { calculateRotationTransform, getPvValueAndName } from "../utils";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const ReadbackProps = {
@@ -80,7 +80,7 @@ export const ReadbackComponent = (
   const theme = useTheme();
   const {
     enabled = true,
-    value,
+    pvData,
     precision,
     formatType = "default",
     alarmSensitive = true,
@@ -96,6 +96,8 @@ export const ReadbackComponent = (
     height = WIDGET_DEFAULT_SIZES["textupdate"][1],
     width = WIDGET_DEFAULT_SIZES["textupdate"][0]
   } = props;
+
+  const { value } = getPvValueAndName(pvData);
 
   // Decide what to display.
   const display = value?.getDisplay();
@@ -149,7 +151,7 @@ export const ReadbackComponent = (
   let borderStyle = props.border?.css().borderStyle ?? "solid";
   let borderWidth = props.border?.width ?? "0px";
 
-  const alarmQuality = props.value?.getAlarm().quality ?? AlarmQuality.VALID;
+  const alarmQuality = value?.getAlarm().quality ?? AlarmQuality.VALID;
   if (alarmSensitive) {
     switch (alarmQuality) {
       case AlarmQuality.UNDEFINED:

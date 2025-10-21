@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Widget } from "../widget";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 
@@ -57,13 +57,18 @@ export type StripChartComponentProps = InferWidgetProps<
 > &
   PVComponent;
 
+interface TimeSeriesPoint {
+  dateTime: Date;
+  [key: string]: Date | number | null;
+}
+
 export const StripChartComponent = (
   props: StripChartComponentProps
 ): JSX.Element => {
   const {
     traces,
     axes,
-    value,
+    pvData,
     title,
     titleFont = new Font(),
     scaleFont = new Font(),
@@ -74,182 +79,242 @@ export const StripChartComponent = (
     backgroundColor = Color.fromRgba(255, 255, 255, 1),
     start = "1 minute",
     visible = true,
-    archivedData = { x: [], y: [], min: undefined, max: undefined },
+    archivedData = { x: [], y: []},
     archivedDataLoaded = false,
     updatePeriod = 0,
     bufferSize = 10000
   } = props;
+
   // If we're passed an empty array fill in defaults
-  if (traces.length < 1) traces.push(new Trace());
-  if (axes.length < 1) axes.push(new Axis({ xAxis: false }));
-
-  // Convert start time into milliseconds period
+  const localAxes = useMemo(
+    () => (axes.length > 0 ? [...axes] : [new Axis({ xAxis: false })]),
+    [axes]
+  );
+   // Convert start time into milliseconds period
   const timePeriod = useMemo(() => convertStringTimePeriod(start), [start]);
+
+  const [dateRange, setDateRange] = useState<{ minX: Date; maxX: Date }>({
+    minX: new Date(new Date().getTime() - timePeriod),
+    maxX: new Date()
+  });
   // Use useRef so rerender isn't triggered (overwriting the archivedData) when data updated
-  const data = useRef<{
-    x: Date[];
-    y: any[];
-    dataLoaded?: boolean;
-    min?: Date;
-    max?: Date;
-  }>({ x: [], y: [] });
+  const data = useRef<TimeSeriesPoint[]>([]);
+
+  // useEffect(() => {
+  //   // Only update data once the archiveData has loaded
+  //   const time = value?.getTime();
+  //   const val = value?.getDoubleValue();
+  //   if (time && val) {
+  //     // Remove data outside min and max bounds
+  //     const minimum = new Date(new Date().getTime() - timePeriod);
+  //     // Check if first data point in array is outside minimum, if so remove
+  //     const xData = data.current.x;
+  //     const yData = data.current.y;
+  //     if (xData.length === 0) {
+  //       // xData.push(value.getTime()!.datetime);
+  //       // yData.push(value.getDoubleValue());
+  //       data.current = {
+  //         ...data.current,
+  //         x: [...xData, time.datetime],
+  //         y: [...yData, val],
+  //         min: minimum,
+  //         max: new Date()
+  //       };
+  //     } else {
+  //       // If first data point is outside bounds, is out of time series or data larger than buffer, remove
+  //       if (
+  //         xData[0].getTime() < minimum.getTime() ||
+  //         xData.length > bufferSize
+  //       ) {
+  //         xData.shift();
+  //         yData.shift();
+  //       }
+  //       // If value time after update period, update
+  //       if (
+  //         time.datetime.getTime() - xData[xData.length - 1].getTime() >=
+  //         updatePeriod
+  //       ) {
+  //         // xData.push(value.getTime()!.datetime)
+  //         // yData.push(value.getDoubleValue())
+  //         data.current = {
+  //           ...data.current,
+  //           x: [...xData, time.datetime],
+  //           y: [...yData, val],
+  //           min: minimum,
+  //           max: new Date()
+  //         };
+  //       } else {
+  //         data.current = {
+  //           ...data.current,
+  //           x: [...xData],
+  //           y: [...yData],
+  //           min: minimum,
+  //           max: new Date()
+  //         };
+  //       }
+  //     }
+  //   }
+  // }, [value, timePeriod, bufferSize, updatePeriod]);
+
+  // useEffect(() => {
+  //   // Only update data once the archiveData has loaded
+  //   // This is never triggered for base striptool, but works for
+  //   // databrowser
+  //   if (archivedDataLoaded) {
+  //     const xData = data.current.x;
+  //     const yData = data.current.y;
+  //     if (!data.current.dataLoaded && archivedData.x) {
+  //       data.current = {
+  //         x: xData.concat(archivedData.x),
+  //         y: yData.concat(archivedData.y),
+  //         dataLoaded: true
+  //       };
+  //     }
+  //   }
+  // }, [archivedData, archivedDataLoaded]);
 
   useEffect(() => {
-    // Only update data once the archiveData has loaded
-    const time = value?.getTime();
-    const val = value?.getDoubleValue();
-    if (time && val) {
-      // Remove data outside min and max bounds
-      const minimum = new Date(new Date().getTime() - timePeriod);
-      // Check if first data point in array is outside minimum, if so remove
-      const xData = data.current.x;
-      const yData = data.current.y;
-      if (xData.length === 0) {
-        // xData.push(value.getTime()!.datetime);
-        // yData.push(value.getDoubleValue());
-        data.current = {
-          ...data.current,
-          x: [...xData, time.datetime],
-          y: [...yData, val],
-          min: minimum,
-          max: new Date()
-        };
-      } else {
-        // If first data point is outside bounds, is out of time series or data larger than buffer, remove
-        if (
-          xData[0].getTime() < minimum.getTime() ||
-          xData.length > bufferSize
-        ) {
-          xData.shift();
-          yData.shift();
+    const updateDataMap = (timeSeries: TimeSeriesPoint[]) => {
+      if (pvData) {
+        const allDates = Object.values(pvData)
+          .map(pvItem => pvItem?.value?.getTime()?.datetime)
+          .filter(date => !!date);
+
+        if (allDates.length < 1) {
+          // we have no useful date for the timeseries point
+          return timeSeries;
         }
-        // If value time after update period, update
-        if (
-          time.datetime.getTime() - xData[xData.length - 1].getTime() >=
-          updatePeriod
+
+        const mostRecentDate = allDates.reduce(
+          (a, b) => (a > b ? a : b),
+          allDates[0]
+        );
+        // Remove outdated data points
+        let i = 0;
+        while (
+          i < timeSeries.length &&
+          timeSeries[i].dateTime <
+            new Date(mostRecentDate.getTime() - timePeriod)
         ) {
-          // xData.push(value.getTime()!.datetime)
-          // yData.push(value.getDoubleValue())
-          data.current = {
-            ...data.current,
-            x: [...xData, time.datetime],
-            y: [...yData, val],
-            min: minimum,
-            max: new Date()
-          };
-        } else {
-          data.current = {
-            ...data.current,
-            x: [...xData],
-            y: [...yData],
-            min: minimum,
-            max: new Date()
-          };
+          i++;
         }
+        const truncatedTimeSeries =
+          i - 1 > 0 ? timeSeries.slice(i - 1) : timeSeries;
+
+        // create new data point
+        let newTimeseriesPoint: TimeSeriesPoint = { dateTime: mostRecentDate };
+
+        pvData.forEach(pvItem => {
+          const { effectivePvName, value } = pvItem;
+          newTimeseriesPoint = {
+            ...newTimeseriesPoint,
+            [effectivePvName]: value?.getDoubleValue() ?? null
+          };
+        });
+
+        return [...truncatedTimeSeries, newTimeseriesPoint];
       }
-    }
-  }, [value, timePeriod, bufferSize, updatePeriod]);
+        return timeSeries;
+    };
 
-  useEffect(() => {
-    // Only update data once the archiveData has loaded
-    // This is never triggered for base striptool, but works for
-    // databrowser
-    if (archivedDataLoaded) {
-      const xData = data.current.x;
-      const yData = data.current.y;
-      if (!data.current.dataLoaded && archivedData.x) {
-        data.current = {
-          x: xData.concat(archivedData.x),
-          y: yData.concat(archivedData.y),
-          dataLoaded: true
-        };
+    setDateRange({
+      minX: new Date(new Date().getTime() - timePeriod),
+      maxX: new Date()
+    });
+    data.current = updateDataMap(data.current);
+  }, [timePeriod, pvData]); 
+
+  const { yAxes, yAxesStyle } = useMemo(() => {
+    // For some reason the below styling doesn't change axis line and tick
+    // colour so we set it using sx in the Line Chart below by passing this in
+    const yAxesStyle: any = {};
+
+    localAxes.forEach((item, idx) => {
+      yAxesStyle[`.MuiChartsAxis-id-${idx}`] = {
+        ".MuiChartsAxis-line": {
+          stroke: item.color.toString()
+        },
+        ".MuiChartsAxis-tick": {
+          stroke: item.color.toString()
+        }
+      };
+    });
+
+    const yAxes: ReadonlyArray<YAxis<any>> = localAxes.map(
+      (item, idx): YAxis<any> => ({
+        width: 45,
+        id: idx,
+        label: item.title,
+        color: item.color?.toString(),
+        labelStyle: {
+          font: item.titleFont.css(),
+          fill: item.color.toString()
+        },
+        tickLabelStyle: {
+          font: item.scaleFont.css(),
+          fill: item.color.toString()
+        },
+        scaleType: item.logScale ? "symlog" : "linear",
+        position: "left",
+        min: item.autoscale ? undefined : item.minimum,
+        max: item.autoscale ? undefined : item.maximum
+      })
+    );
+
+    return { yAxes, yAxesStyle };
+  }, [localAxes]);
+
+  const xAxis: ReadonlyArray<XAxis<any>> = useMemo(
+    () => [
+      {
+        color: foregroundColor.toString(),
+        dataKey: "dateTime",
+        min: dateRange.minX,
+        max: dateRange.maxX,
+        scaleType: "time",
+        id: "xaxis"
       }
-    }
-  }, [archivedData, archivedDataLoaded]);
+    ],
+    [dateRange, foregroundColor]
+  );
 
-  // For some reason the below styling doesn't change axis line and tick
-  // colour so we set it using sx in the Line Chart below by passing this in
-  const yAxesStyle: any = {};
+  const series = useMemo(
+    () =>
+      (traces?.length > 0 ? traces : [new Trace()])
+        ?.map((item, index) => {
+          const pvName = item?.yPv;
+          const effectivePvName = pvData
+            ?.map(pvItem => pvItem.effectivePvName)
+            ?.find(
+              effectivePvName => pvName && effectivePvName?.endsWith(pvName)
+            );
+          if (!effectivePvName) {
+            return null;
+          }
 
-  const yAxes: ReadonlyArray<YAxis<any>> = axes.map((item, idx) => {
-    const axis = {
-      width: 55,
-      id: `${idx}`,
-      label: item.title,
-      color: item.color?.toString(),
-      labelStyle: {
-        fontSize: item.titleFont.css().fontSize,
-        fontStyle: item.titleFont.css().fontStyle,
-        fontFamily: item.titleFont.css().fontFamily,
-        fontWeight: item.titleFont.css().fontWeight,
-        fill: item.color.toString()
-      },
-      tickLabelStyle: {
-        fontSize: item.scaleFont.css().fontSize,
-        fontStyle: item.scaleFont.css().fontStyle,
-        fontFamily: item.scaleFont.css().fontFamily,
-        fontWeight: item.scaleFont.css().fontWeight,
-        fill: item.color.toString(),
-        angle: item.onRight ? 90 : -90
-      },
-      valueFormatter: (value: any, context: any) =>
-        context.location === "tooltip"
-          ? `${value}`
-          : value.length > 4
-            ? `${value.toExponential(3)}`
-            : value,
-      scaleType: item.logScale ? "symlog" : "linear",
-      position: item.onRight ? "right" : "left",
-      min: item.autoscale ? Math.min(...data.current.y) : item.minimum,
-      max: item.autoscale ? Math.max(...data.current.y) : item.maximum
-    };
-    yAxesStyle[`.MuiChartsAxis-id-${idx}`] = {
-      ".MuiChartsAxis-line": {
-        stroke: item.color.toString()
-      },
-      ".MuiChartsAxis-tick": {
-        stroke: item.color.toString()
-      }
-    };
-    return axis;
-  });
-
-  const xAxis: ReadonlyArray<XAxis<any>> = [
-    {
-      data: data.current.x,
-      color: foregroundColor.toString(),
-      dataKey: "datetime",
-      min: data.current.min,
-      max: data.current.max,
-      scaleType: "time"
-    }
-  ];
-
-  const series = traces.map((item, idx) => {
-    const trace = {
-      // If axis is set higher than number of axes, default to zero
-      id: idx,
-      axisId: `${item.axis <= axes.length - 1 ? item.axis : 0}`,
-      data: data.current.y,
-      label: item.name,
-      color: visible ? item.color.toString() : "transparent",
-      showMark: item.pointType === 0 ? false : true,
-      shape: MARKER_STYLES[item.pointType],
-      line: {
-        strokeWidth: item.lineWidth
-      },
-      area: item.traceType === 5 ? true : false,
-      connectNulls: false,
-      curve: item.traceType === 2 ? ("stepAfter" as CurveType) : "linear"
-    };
-    return trace;
-  });
+          return {
+            id: index,
+            dataKey: effectivePvName,
+            label: item.name,
+            color: visible ? item.color.toString() : "transparent",
+            showMark: item.pointType === 0 ? false : true,
+            shape: MARKER_STYLES[item.pointType],
+            line: {
+              strokeWidth: item.lineWidth
+            },
+            area: item.traceType === 5 ? true : false,
+            connectNulls: false,
+            curve: item.traceType === 2 ? ("stepAfter" as CurveType) : "linear"
+          };
+        })
+        .filter(x => !!x),
+    [traces, pvData, visible]
+  );
 
   // TO DO
   // Add error bars option
   // Apply showToolbar
   // Use end value - this doesn't seem to do anything in Phoebus?
-
   return (
     <Box sx={{ width: "100%", height: "100%" }}>
       <Typography
@@ -266,12 +331,13 @@ export const StripChartComponent = (
       </Typography>
       <LineChart
         hideLegend={showLegend}
-        grid={{ vertical: axes[0].showGrid, horizontal: showGrid }}
+        grid={{ vertical: localAxes[0].showGrid, horizontal: showGrid }}
+        dataset={data.current}
         sx={{
           width: "100%",
           height: "95%",
           backgroundColor: backgroundColor.toString(),
-          ".MuiChartsAxis-directionX": {
+          ".MuiChartsAxis-id-xaxis": {
             ".MuiChartsAxis-line": {
               stroke: foregroundColor.toString()
             },
@@ -291,6 +357,7 @@ export const StripChartComponent = (
         xAxis={xAxis}
         yAxis={yAxes}
         series={series}
+        slotProps={{ legend: { sx: { color: foregroundColor.toString() } } }}
       />
     </Box>
   );

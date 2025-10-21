@@ -1,3 +1,5 @@
+import { PvDatum } from "../../redux/csState";
+
 /**
  * Converts string from snake case to camel
  * case.
@@ -188,3 +190,12 @@ export function trimArchiveData(
   if (sizeDiff > 0) filteredData.splice(0, sizeDiff);
   return filteredData;
 }
+
+export const getPvValueAndName = (pvDataCollection: PvDatum[], index = 0) => {
+  const pvData = pvDataCollection ?? [];
+  const value = pvData[index]?.value;
+  const effectivePvName = pvData[index]?.effectivePvName;
+  const connected = pvData[index]?.connected;
+
+  return { value, effectivePvName, connected };
+};

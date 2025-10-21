@@ -13,6 +13,7 @@ import classes from "./led.module.css";
 import { DAlarm } from "../../../types/dtypes";
 import { Color } from "../../../types";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
+import { getPvValueAndName } from "../utils";
 
 /**
  * width: the diameter of the LED
@@ -37,7 +38,7 @@ export type LedComponentProps = InferWidgetProps<typeof LedProps> & PVComponent;
  */
 export const LedComponent = (props: LedComponentProps): JSX.Element => {
   const {
-    value,
+    pvData,
     onColor = Color.fromRgba(0, 255, 0),
     offColor = Color.fromRgba(60, 100, 60),
     lineColor = Color.fromRgba(50, 50, 50, 178),
@@ -46,6 +47,8 @@ export const LedComponent = (props: LedComponentProps): JSX.Element => {
     alarmSensitive = false,
     bit = -1
   } = props;
+
+  const { value } = getPvValueAndName(pvData);
 
   const style: CSSProperties = {};
 

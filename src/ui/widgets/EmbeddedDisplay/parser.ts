@@ -106,13 +106,16 @@ export async function genericParser(
       newProps[prop] = widget[prop];
     }
   }
-  // TO DO - temporary method of using the top level trace PV for
-  // plot widgets as the PV. This is a placeholder until support for
-  // multiple PVs per widget is implemented
-  if (newProps.hasOwnProperty("traces") && newProps.traces.length > 0) {
-    newProps.pvName = PV.parse(newProps.traces[0].yPv);
-  } else if (newProps.hasOwnProperty("plt") && newProps.plt.pvlist.length > 0) {
-    newProps.pvName = PV.parse(newProps.plt.pvlist[0].yPv);
+ 
+  // Parse PV names out of traces for plots into pv property
+  if (newProps.hasOwnProperty("traces")) {
+    newProps.pvMetadataList = newProps.traces?.map((trace: any) => ({
+      pvName: PV.parse(trace.yPv)
+    }));
+  } else if (newProps.hasOwnProperty("plt")) {
+    newProps.pvMetadataList = newProps.plt.pvlist.map((trace: any) => ({
+      pvName: PV.parse(trace.yPv)
+    }));
   }
 
   return newProps;

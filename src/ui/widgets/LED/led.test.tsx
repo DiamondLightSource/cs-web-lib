@@ -4,24 +4,29 @@ import { DAlarm, DType, AlarmQuality } from "../../../types/dtypes";
 import renderer, { ReactTestRendererJSON } from "react-test-renderer";
 import { Color } from "../../../types/color";
 import { ddouble } from "../../../testResources";
+import { PvDatum } from "../../../redux/csState";
 
 const createValue = (alarmType: AlarmQuality): DType => {
   return new DType({ stringValue: "3.141" }, new DAlarm(alarmType, ""));
 };
 
 const UNUSED_VALUE = createValue(AlarmQuality.ALARM);
+const BASE_PV = {
+  effectivePvName: "TEST:PV",
+  connected: true,
+  readonly: true,
+  value: UNUSED_VALUE
+} as Partial<PvDatum> as PvDatum;
 
 const DEFAULT_PROPS = {
-  value: UNUSED_VALUE,
-  connected: true,
-  readonly: false,
+  pvData: [BASE_PV],
   offColor: Color.RED,
   onColor: Color.GREEN
 };
 
 const renderLed = (ledProps: LedComponentProps): ReactTestRendererJSON => {
   return renderer
-    .create(<LedComponent {...ledProps} readonly={true} />)
+    .create(<LedComponent {...ledProps} />)
     .toJSON() as ReactTestRendererJSON;
 };
 
@@ -38,7 +43,7 @@ describe("led changes Css properties based on alarm", (): void => {
 
     const ledProps = {
       ...DEFAULT_PROPS,
-      value,
+      pvData: [{ ...BASE_PV, value }],
       alarmSensitive: true
     };
 
@@ -52,7 +57,7 @@ describe("background color changes depending on value", (): void => {
   it("off color is applied if value zero", (): void => {
     const ledProps = {
       ...DEFAULT_PROPS,
-      value: ddouble(0)
+      pvData: [{ ...BASE_PV, value: ddouble(0) }]
     };
 
     const renderedLed = renderLed(ledProps);
@@ -63,7 +68,7 @@ describe("background color changes depending on value", (): void => {
   it("on color is applied if value not zero", (): void => {
     const ledProps = {
       ...DEFAULT_PROPS,
-      value: ddouble(1)
+      pvData: [{ ...BASE_PV, value: ddouble(1) }]
     };
 
     const renderedLed = renderLed(ledProps);
