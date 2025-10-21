@@ -108,22 +108,18 @@ function pltParseArchiver(jsonProp: ElementCompact) {
 function pltParsePvlist(props: ElementCompact) {
   const traces: Trace[] = [];
   let parsedProps: any = {};
+  // Create object to store PV names and their associated axes
+  const pvAxes: any = {};
   if (props) {
     // If only one trace, we are passed an object instead
     // of an array
-    if (props.pv.length > 1) {
-      props.pv.forEach((trace: any) => {
-        parsedProps = parseChildProps(trace, PLT_PARSERS);
-        traces.push(
-          new Trace({
-            ...parsedProps,
-            yPv: parsedProps.name,
-            lineWidth: parsedProps.linewidth
-          })
-        );
-      });
-    } else {
-      parsedProps = parseChildProps(props.pv, PLT_PARSERS);
+    const propsPvList = props.pv.length > 1 ? props.pv : [props.pv];
+    propsPvList.forEach((trace: any) => {
+      parsedProps = parseChildProps(trace, PLT_PARSERS);
+      // If another trace on same axis, add to list
+      pvAxes.hasOwnProperty(parsedProps.axis)
+        ? pvAxes[parsedProps.axis].push(parsedProps.name)
+        : (pvAxes[parsedProps.axis] = [parsedProps.name]);
       traces.push(
         new Trace({
           ...parsedProps,
@@ -131,53 +127,40 @@ function pltParsePvlist(props: ElementCompact) {
           lineWidth: parsedProps.linewidth
         })
       );
-    }
+    });
   }
-  return traces;
+  return [traces, pvAxes];
 }
 
 /**
- * Parses axes from plt
+ * Parses axes from plt, using the PV name associated with that axis as a title if needed
  * @param props
  * @returns list of Axis objects
  */
-function pltParseAxes(props: ElementCompact) {
+function pltParseAxes(props: ElementCompact, pvAxes: any) {
   const axes: Axis[] = [];
   let parsedProps: any = {};
   if (props) {
     // If only once axis, we are passed an object instead
     // of an array
-    if (props.axis.length > 1) {
-      props.axis.forEach((axis: any) => {
-        parsedProps = parseChildProps(axis, PLT_PARSERS);
-        axes.push(
-          new Axis({
-            ...parsedProps,
-            fromOpi: false,
-            showGrid: parsedProps.grid,
-            onRight: parsedProps.right,
-            title: parsedProps.useAxisName ? parsedProps.name : "",
-            titleFont: parsedProps.labelFont,
-            minimum: parsedProps.min,
-            maximum: parsedProps.max
-          })
-        );
-      });
-    } else {
-      parsedProps = parseChildProps(props.axis, PLT_PARSERS);
+    const propAxes = props.axis.length > 1 ? props.axis : [props.axis];
+    propAxes.forEach((axis: any, idx: number) => {
+      parsedProps = parseChildProps(axis, PLT_PARSERS);
       axes.push(
         new Axis({
           ...parsedProps,
           fromOpi: false,
           showGrid: parsedProps.grid,
           onRight: parsedProps.right,
-          title: parsedProps.useAxisName ? parsedProps.name : "",
+          title: parsedProps.useAxisName
+            ? parsedProps.name
+            : pvAxes[idx].join("\n"),
           titleFont: parsedProps.labelFont,
           minimum: parsedProps.min,
           maximum: parsedProps.max
         })
       );
-    }
+    });
   }
   return axes;
 }
@@ -211,8 +194,8 @@ export async function parsePlt(
   if (widgetType === "databrowser" && typeof file._text === "string") {
     const databrowser: XmlDescription = await fetchPltFile(file._text);
     // Parse the simple props
-    const pvlist = pltParsePvlist(databrowser["pvlist"]);
-    const axes = pltParseAxes(databrowser["axes"]);
+    const [pvlist, pvAxes] = pltParsePvlist(databrowser["pvlist"]);
+    const axes = pltParseAxes(databrowser["axes"], pvAxes);
     props = new Plt({
       ...parseChildProps(databrowser, PLT_PARSERS),
       pvlist: pvlist,

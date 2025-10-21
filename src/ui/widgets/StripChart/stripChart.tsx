@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { Widget } from "../widget";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 
@@ -10,7 +10,8 @@ import {
   StringPropOpt,
   TracesProp,
   AxesProp,
-  ArchivedDataPropOpt
+  ArchivedDataPropOpt,
+  IntPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
 import { Box, Typography } from "@mui/material";
@@ -45,7 +46,9 @@ const StripChartProps = {
   showToolbar: BoolPropOpt,
   visible: BoolPropOpt,
   archivedData: ArchivedDataPropOpt,
-  archivedDataLoaded: BoolPropOpt
+  archivedDataLoaded: BoolPropOpt,
+  bufferSize: IntPropOpt,
+  updatePeriod: IntPropOpt
 };
 
 // Needs to be exported for testing
@@ -72,7 +75,9 @@ export const StripChartComponent = (
     start = "1 minute",
     visible = true,
     archivedData = { x: [], y: [], min: undefined, max: undefined },
-    archivedDataLoaded = false
+    archivedDataLoaded = false,
+    updatePeriod = 0,
+    bufferSize = 10000
   } = props;
   // If we're passed an empty array fill in defaults
   if (traces.length < 1) traces.push(new Trace());
@@ -84,40 +89,80 @@ export const StripChartComponent = (
   const data = useRef<{
     x: Date[];
     y: any[];
-    dataLoaded?: boolean,
+    dataLoaded?: boolean;
     min?: Date;
     max?: Date;
-  }>({x: [], y: []});
+  }>({ x: [], y: [] });
 
   useEffect(() => {
     // Only update data once the archiveData has loaded
-    if (value) {
+    const time = value?.getTime();
+    const val = value?.getDoubleValue();
+    if (time && val) {
       // Remove data outside min and max bounds
       const minimum = new Date(new Date().getTime() - timePeriod);
       // Check if first data point in array is outside minimum, if so remove
       const xData = data.current.x;
       const yData = data.current.y;
-      if (xData.length > 0 && xData[0].getTime() < minimum.getTime()) {
-        xData.shift();
-        yData.shift();
-      }
+      if (xData.length === 0) {
+        // xData.push(value.getTime()!.datetime);
+        // yData.push(value.getDoubleValue());
         data.current = {
-          x: [...xData, value.getTime()!.datetime],
-          y: [...yData, value.getDoubleValue()],
+          ...data.current,
+          x: [...xData, time.datetime],
+          y: [...yData, val],
           min: minimum,
-          max: new Date(),
+          max: new Date()
+        };
+      } else {
+        // If first data point is outside bounds, is out of time series or data larger than buffer, remove
+        if (
+          xData[0].getTime() < minimum.getTime() ||
+          xData.length > bufferSize
+        ) {
+          xData.shift();
+          yData.shift();
         }
+        // If value time after update period, update
+        if (
+          time.datetime.getTime() - xData[xData.length - 1].getTime() >=
+          updatePeriod
+        ) {
+          // xData.push(value.getTime()!.datetime)
+          // yData.push(value.getDoubleValue())
+          data.current = {
+            ...data.current,
+            x: [...xData, time.datetime],
+            y: [...yData, val],
+            min: minimum,
+            max: new Date()
+          };
+        } else {
+          data.current = {
+            ...data.current,
+            x: [...xData],
+            y: [...yData],
+            min: minimum,
+            max: new Date()
+          };
+        }
+      }
     }
-  }, [value, timePeriod]);
+  }, [value, timePeriod, bufferSize, updatePeriod]);
 
-    useEffect(() => {
+  useEffect(() => {
     // Only update data once the archiveData has loaded
+    // This is never triggered for base striptool, but works for
+    // databrowser
     if (archivedDataLoaded) {
       const xData = data.current.x;
       const yData = data.current.y;
-      if (!data.current.dataLoaded) {
-          data.current.x = xData.concat(archivedData.x!)
-          data.current.y = yData.concat(archivedData.y)
+      if (!data.current.dataLoaded && archivedData.x) {
+        data.current = {
+          x: xData.concat(archivedData.x),
+          y: yData.concat(archivedData.y),
+          dataLoaded: true
+        };
       }
     }
   }, [archivedData, archivedDataLoaded]);
@@ -128,7 +173,7 @@ export const StripChartComponent = (
 
   const yAxes: ReadonlyArray<YAxis<any>> = axes.map((item, idx) => {
     const axis = {
-      width: 45,
+      width: 55,
       id: `${idx}`,
       label: item.title,
       color: item.color?.toString(),
@@ -155,8 +200,8 @@ export const StripChartComponent = (
             : value,
       scaleType: item.logScale ? "symlog" : "linear",
       position: item.onRight ? "right" : "left",
-      min: item.autoscale ? undefined : item.minimum,
-      max: item.autoscale ? undefined : item.maximum
+      min: item.autoscale ? Math.min(...data.current.y) : item.minimum,
+      max: item.autoscale ? Math.max(...data.current.y) : item.maximum
     };
     yAxesStyle[`.MuiChartsAxis-id-${idx}`] = {
       ".MuiChartsAxis-line": {

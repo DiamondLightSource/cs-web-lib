@@ -46,7 +46,7 @@ describe("DataBrowserComponent", () => {
     value: {
       getDoubleValue: () => 50,
       getTime: () => {
-        new Date(Date.now());
+        return { datetime: new Date(Date.now()) };
       }
     } as Partial<DType> as DType,
     connected: true,
@@ -68,15 +68,15 @@ describe("DataBrowserComponent", () => {
 
   const mockSuccessResponse: any = JSON.stringify([
     {
-      secs: new Date().getTime() - 250000,
+      secs: (new Date().getTime() - 250000) / 1000,
       val: 52
     },
     {
-      secs: new Date().getTime() - 200000,
+      secs: (new Date().getTime() - 200000) / 1000,
       val: 45
     },
     {
-      secs: new Date().getTime() - 70000,
+      secs: (new Date().getTime() - 70000) / 1000,
       val: 60
     }
   ]);
@@ -125,13 +125,14 @@ describe("DataBrowserComponent", () => {
       expect(yAxisData[1].position).toBe("right");
     });
 
-    test("renders with 5 minute archived data", () => {
+    test("renders with 5 minute archived data", async () => {
       const newProps = {
         ...defaultProps,
         plt: new Plt({ start: "5 min", end: "now" })
       };
-      act(() => {
-        render(<DataBrowserComponent {...newProps} />);
+
+      const { rerender } = await act(async () => {
+        return render(<DataBrowserComponent {...newProps} />);
       });
       const lineChart = screen.getByTestId("line-chart");
       const xAxisData = JSON.parse(lineChart.getAttribute("data-xaxis") ?? "");
@@ -141,12 +142,17 @@ describe("DataBrowserComponent", () => {
         new Date(xAxisData[0].max).getTime() -
         new Date(xAxisData[0].min).getTime();
 
+      expect(actualDiff).toBe(expectedDiff);
+
+      await act(async () => {
+        rerender(<DataBrowserComponent {...newProps} />);
+      });
+      const newLineChart = screen.getByTestId("line-chart");
       const seriesData = JSON.parse(
-        lineChart.getAttribute("data-series") ?? ""
+        newLineChart.getAttribute("data-series") ?? ""
       );
 
-      expect(actualDiff).toBe(expectedDiff);
-      //expect(seriesData[0].data).toBe([52, 45, 60, 50]);
+      expect(seriesData[0].data).toEqual([50, 52, 45, 60]);
     });
   });
 });

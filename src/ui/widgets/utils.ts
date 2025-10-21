@@ -161,25 +161,30 @@ export function convertStringTimePeriod(period: string): number {
 }
 
 /**
- * Trims down data collected from the archiver to reflect the 
+ * Trims down data collected from the archiver to reflect the
  * requested period between updates and maximum dataset size
  * @param updatePeriod seconds between value updates
  * @param bufferSize max number of data points
  * @param data data to trim down
  */
-export function trimArchiveData(updatePeriod: number, bufferSize: number, data: any[]) {
-    // Cut data down by updatePeriod
-    let lastValueIndex = 0;
-    let filteredData = data.filter((item: any, idx) => {
-      // returns the first value
-      if (!idx) return true
-      if (item.secs - updatePeriod > data[lastValueIndex].secs) {
-        lastValueIndex = idx;
-        return true;
-      }
-    })
-    // If dataset is still over buffersize, remove first difference
-    const sizeDiff = filteredData.length - bufferSize;
-    if (sizeDiff > 0) filteredData.splice(0, sizeDiff);
-    return filteredData;
+export function trimArchiveData(
+  updatePeriod: number,
+  bufferSize: number,
+  data: any[]
+) {
+  // Cut data down by updatePeriod
+  let lastValueIndex = 0;
+  const filteredData = data.filter((item: any, idx) => {
+    // returns the first value
+    if (!idx) return true;
+    if (item.secs - updatePeriod > data[lastValueIndex].secs) {
+      lastValueIndex = idx;
+      return true;
+    }
+    return false;
+  });
+  // If dataset is still over buffersize, remove first difference
+  const sizeDiff = filteredData.length - bufferSize;
+  if (sizeDiff > 0) filteredData.splice(0, sizeDiff);
+  return filteredData;
 }

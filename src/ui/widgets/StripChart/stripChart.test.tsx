@@ -6,6 +6,7 @@ import { StripChartComponent } from "./stripChart";
 import { Trace } from "../../../types/trace";
 import { Axis } from "../../../types/axis";
 import { convertStringTimePeriod } from "../utils";
+import { dtimeNow } from "../../../types/dtypes";
 
 // Mock the MUI X-Charts components
 vi.mock("@mui/x-charts", () => ({
@@ -37,9 +38,7 @@ describe("StripChartComponent", () => {
   const defaultProps = {
     value: {
       getDoubleValue: () => 50,
-      getTime: () => {
-        new Date(Date.now());
-      }
+      getTime: () => dtimeNow()
     } as Partial<DType> as DType,
     connected: true,
     readonly: true,
@@ -81,10 +80,12 @@ describe("StripChartComponent", () => {
 
     test("renders with 5 minute x axis period", () => {
       const expectedDiff = 300000; // 5 * 60 * 1000
-      render(<StripChartComponent {...defaultProps} start={"5 minutes"} />);
+      const { rerender } = render(
+        <StripChartComponent {...defaultProps} start={"5 minutes"} />
+      );
+      rerender(<StripChartComponent {...defaultProps} start={"5 minutes"} />);
       const lineChart = screen.getByTestId("line-chart");
       const xAxisData = JSON.parse(lineChart.getAttribute("data-xaxis") ?? "");
-
       const actualDiff =
         new Date(xAxisData[0].max).getTime() -
         new Date(xAxisData[0].min).getTime();
