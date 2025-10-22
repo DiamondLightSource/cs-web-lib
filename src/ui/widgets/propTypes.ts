@@ -196,9 +196,9 @@ export const ActionsPropType = PropTypes.shape({
   actions: PropTypes.arrayOf(ActionPropType).isRequired
 });
 
-export const ArchivedDataPropOpt = PropTypes.shape({
-  x: PropTypes.arrayOf(PropTypes.instanceOf(Date).isRequired),
-  y: PropTypes.arrayOf(FloatProp).isRequired,
-  min: PropTypes.instanceOf(Date),
-  max: PropTypes.instanceOf(Date)
+export const TimeSeriesPointPropType = PropTypes.shape({
+  dateTime: PropTypes.instanceOf(Date),
+  pv: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.number])
 });
+
+export const ArchivedDataPropOpt = PropTypes.arrayOf(TimeSeriesPointPropType);

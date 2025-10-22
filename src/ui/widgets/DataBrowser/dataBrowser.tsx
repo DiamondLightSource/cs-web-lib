@@ -9,8 +9,9 @@ import {
   PvPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
-import { StripChartComponent } from "../StripChart/stripChart";
+import { StripChartComponent, TimeSeriesPoint } from "../StripChart/stripChart";
 import { convertStringTimePeriod, trimArchiveData } from "../utils";
+import { PV } from "../../../types";
 
 const DataBrowserProps = {
   plt: PltProp,
@@ -29,52 +30,63 @@ export const DataBrowserComponent = (
   props: DataBrowserComponentProps
 ): JSX.Element => {
   const { plt } = props;
-  const [data, setData] = useState<{
-    x: Date[];
-    y: any[];
-  }>();
+  const [data, setData] = useState<TimeSeriesPoint[]>([]);
   const [archiveDataLoaded, setArchiveDataLoaded] = useState(false);
 
   useEffect(() => {
     // Runs whenever pvlist updated and fetches archiver data
     const fetchArchivedPVData = async () => {
-      // TO DO - use when multiple PVs enabled
-      // plt.pvlist.forEach((trace) => {
-      //     //Make call to getPvsData for multiple pvs
-      // })
-      try {
-        // Fetch archiver data for period
-        const startTime = convertStringTimePeriod(plt.start);
-        const endTime = convertStringTimePeriod(plt.end);
-        const min = new Date(new Date().getTime() - startTime);
-        const max = new Date(new Date().getTime() - endTime);
-        // TO DO - optimise request based on plt.request. Currently we optimise all requests
-        const archiverCall = `${plt.pvlist[0].archive?.url}/data/getData.json?pv=mean_${plt.updatePeriod}(${plt.pvlist[0].yPv})&from=${min.toISOString()}&to=${max.toISOString()}`;
-        const resp = await fetch(archiverCall);
-        const json = await resp.json();
-
-        // Filter data down by update period and buffer size
-        const trimmedData = trimArchiveData(
-          plt.updatePeriod,
-          plt.bufferSize,
-          json[0].data
-        );
-        setData({
-          x: trimmedData.map((item: any) => {
-            return new Date(item.secs * 1000);
-          }),
-          y: trimmedData.map((item: any) => {
-            return item.val;
-          })
-        });
-        setArchiveDataLoaded(true);
-      } catch (e) {
-        log.error(
-          `Failed to fetch archiver data for PV ${plt.pvlist[0].yPv} from ${plt.pvlist[0].archive?.url}.`
-        );
+      // Fetch archiver data for period
+      const startTime = convertStringTimePeriod(plt.start);
+      const endTime = convertStringTimePeriod(plt.end);
+      const min = new Date(new Date().getTime() - startTime);
+      const max = new Date(new Date().getTime() - endTime);
+      const archivers: { [key: string]: string } = {};
+      plt.pvlist.forEach(trace => {
+        //compile all pvs at same archiver
+        if (trace.archive?.url) {
+          if (!Object.keys(archivers).includes(trace.archive.url)) {
+            archivers[trace.archive.url] =
+              `${trace.archive.url}/data/getDataForPVs.json?pv=mean_${plt.updatePeriod}(${trace.yPv})`;
+          } else {
+            archivers[trace.archive.url] +=
+              `&pv=mean_${plt.updatePeriod}(${trace.yPv})`;
+          }
+        }
+      });
+      let fetchedData: TimeSeriesPoint[] = [];
+      for (const url in Object.values(archivers)) {
+        try {
+          const resp = await fetch(
+            `${url}&from=${min.toISOString()}&to=${max.toISOString()}`
+          );
+          const json = await resp.json();
+          json.forEach((data: any, idx: number) => {
+            // Trim each dataset down and push into fetchedData
+            const pvName = new PV(data.meta.name).qualifiedName();
+            const trimmedData = trimArchiveData(
+              plt.updatePeriod,
+              plt.bufferSize,
+              data.data
+            );
+            fetchedData = trimmedData.map((item: any, idx: number) => {
+              return {
+                ...fetchedData[idx],
+                dateTime: new Date(item.secs * 1000),
+                [pvName]: item.val
+              };
+            });
+          });
+        } catch (e: any) {
+          log.error(
+            `Failed to fetch archiver data for PVs from address ${url}: ${e.error}.`
+          );
+        }
       }
+      setArchiveDataLoaded(true);
+      setData(fetchedData);
     };
-    // Only fetch onces
+    // Only fetch once
     if (!archiveDataLoaded) fetchArchivedPVData();
   }, [archiveDataLoaded, plt]);
 
@@ -82,9 +94,7 @@ export const DataBrowserComponent = (
     <StripChartComponent
       {...plt}
       traces={plt.pvlist}
-      value={props.value}
-      readonly={props.readonly}
-      connected={props.connected}
+      pvData={props.pvData}
       archivedData={data}
       archivedDataLoaded={archiveDataLoaded}
       updatePeriod={plt.updatePeriod}

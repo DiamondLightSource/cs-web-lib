@@ -106,7 +106,7 @@ export async function genericParser(
       newProps[prop] = widget[prop];
     }
   }
- 
+
   // Parse PV names out of traces for plots into pv property
   if (newProps.hasOwnProperty("traces")) {
     newProps.pvMetadataList = newProps.traces?.map((trace: any) => ({

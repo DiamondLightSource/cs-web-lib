@@ -57,7 +57,7 @@ export type StripChartComponentProps = InferWidgetProps<
 > &
   PVComponent;
 
-interface TimeSeriesPoint {
+export interface TimeSeriesPoint {
   dateTime: Date;
   [key: string]: Date | number | null;
 }
@@ -79,7 +79,7 @@ export const StripChartComponent = (
     backgroundColor = Color.fromRgba(255, 255, 255, 1),
     start = "1 minute",
     visible = true,
-    archivedData = { x: [], y: []},
+    archivedData,
     archivedDataLoaded = false,
     updatePeriod = 0,
     bufferSize = 10000
@@ -90,7 +90,7 @@ export const StripChartComponent = (
     () => (axes.length > 0 ? [...axes] : [new Axis({ xAxis: false })]),
     [axes]
   );
-   // Convert start time into milliseconds period
+  // Convert start time into milliseconds period
   const timePeriod = useMemo(() => convertStringTimePeriod(start), [start]);
 
   const [dateRange, setDateRange] = useState<{ minX: Date; maxX: Date }>({
@@ -99,82 +99,20 @@ export const StripChartComponent = (
   });
   // Use useRef so rerender isn't triggered (overwriting the archivedData) when data updated
   const data = useRef<TimeSeriesPoint[]>([]);
-
-  // useEffect(() => {
-  //   // Only update data once the archiveData has loaded
-  //   const time = value?.getTime();
-  //   const val = value?.getDoubleValue();
-  //   if (time && val) {
-  //     // Remove data outside min and max bounds
-  //     const minimum = new Date(new Date().getTime() - timePeriod);
-  //     // Check if first data point in array is outside minimum, if so remove
-  //     const xData = data.current.x;
-  //     const yData = data.current.y;
-  //     if (xData.length === 0) {
-  //       // xData.push(value.getTime()!.datetime);
-  //       // yData.push(value.getDoubleValue());
-  //       data.current = {
-  //         ...data.current,
-  //         x: [...xData, time.datetime],
-  //         y: [...yData, val],
-  //         min: minimum,
-  //         max: new Date()
-  //       };
-  //     } else {
-  //       // If first data point is outside bounds, is out of time series or data larger than buffer, remove
-  //       if (
-  //         xData[0].getTime() < minimum.getTime() ||
-  //         xData.length > bufferSize
-  //       ) {
-  //         xData.shift();
-  //         yData.shift();
-  //       }
-  //       // If value time after update period, update
-  //       if (
-  //         time.datetime.getTime() - xData[xData.length - 1].getTime() >=
-  //         updatePeriod
-  //       ) {
-  //         // xData.push(value.getTime()!.datetime)
-  //         // yData.push(value.getDoubleValue())
-  //         data.current = {
-  //           ...data.current,
-  //           x: [...xData, time.datetime],
-  //           y: [...yData, val],
-  //           min: minimum,
-  //           max: new Date()
-  //         };
-  //       } else {
-  //         data.current = {
-  //           ...data.current,
-  //           x: [...xData],
-  //           y: [...yData],
-  //           min: minimum,
-  //           max: new Date()
-  //         };
-  //       }
-  //     }
-  //   }
-  // }, [value, timePeriod, bufferSize, updatePeriod]);
-
-  // useEffect(() => {
-  //   // Only update data once the archiveData has loaded
-  //   // This is never triggered for base striptool, but works for
-  //   // databrowser
-  //   if (archivedDataLoaded) {
-  //     const xData = data.current.x;
-  //     const yData = data.current.y;
-  //     if (!data.current.dataLoaded && archivedData.x) {
-  //       data.current = {
-  //         x: xData.concat(archivedData.x),
-  //         y: yData.concat(archivedData.y),
-  //         dataLoaded: true
-  //       };
-  //     }
-  //   }
-  // }, [archivedData, archivedDataLoaded]);
+  const dataLoaded = useRef(false);
 
   useEffect(() => {
+    // Only update data once the archiveData has loaded
+    // This is never triggered for base striptool, but works for
+    // databrowser
+    if (archivedDataLoaded && !dataLoaded.current) {
+      data.current = archivedData as TimeSeriesPoint[];
+      dataLoaded.current = true;
+    }
+  }, [archivedData, archivedDataLoaded]);
+  useEffect(() => {
     const updateDataMap = (timeSeries: TimeSeriesPoint[]) => {
+      // Add check for update period here
       if (pvData) {
         const allDates = Object.values(pvData)
           .map(pvItem => pvItem?.value?.getTime()?.datetime)
@@ -189,6 +127,16 @@ export const StripChartComponent = (
           (a, b) => (a > b ? a : b),
           allDates[0]
         );
+
+        // Don't update if update period hasn't passed
+        if (
+          timeSeries.length > 0 &&
+          mostRecentDate.getTime() - timeSeries[0].dateTime.getTime() <=
+            updatePeriod * 1000
+        ) {
+          return timeSeries;
+        }
+
         // Remove outdated data points
         let i = 0;
         while (
@@ -198,8 +146,15 @@ export const StripChartComponent = (
         ) {
           i++;
         }
-        const truncatedTimeSeries =
+        let truncatedTimeSeries =
           i - 1 > 0 ? timeSeries.slice(i - 1) : timeSeries;
+        truncatedTimeSeries =
+          truncatedTimeSeries.length >= bufferSize
+            ? truncatedTimeSeries.slice(
+                truncatedTimeSeries.length + 1 - bufferSize
+              )
+            : truncatedTimeSeries;
+        // If buffer size exceeded, remove old data
 
         // create new data point
         let newTimeseriesPoint: TimeSeriesPoint = { dateTime: mostRecentDate };
@@ -214,7 +169,7 @@ export const StripChartComponent = (
 
         return [...truncatedTimeSeries, newTimeseriesPoint];
       }
-        return timeSeries;
+      return timeSeries;
     };
 
     setDateRange({
@@ -222,7 +177,7 @@ export const StripChartComponent = (
       maxX: new Date()
     });
     data.current = updateDataMap(data.current);
-  }, [timePeriod, pvData]); 
+  }, [timePeriod, pvData, bufferSize, updatePeriod]);
 
   const { yAxes, yAxesStyle } = useMemo(() => {
     // For some reason the below styling doesn't change axis line and tick
@@ -242,20 +197,33 @@ export const StripChartComponent = (
 
     const yAxes: ReadonlyArray<YAxis<any>> = localAxes.map(
       (item, idx): YAxis<any> => ({
-        width: 45,
+        width: 55,
         id: idx,
         label: item.title,
         color: item.color?.toString(),
         labelStyle: {
-          font: item.titleFont.css(),
+          fontSize: item.titleFont.css().fontSize,
+          fontStyle: item.titleFont.css().fontStyle,
+          fontFamily: item.titleFont.css().fontFamily,
+          fontWeight: item.titleFont.css().fontWeight,
           fill: item.color.toString()
         },
         tickLabelStyle: {
-          font: item.scaleFont.css(),
-          fill: item.color.toString()
+          fontSize: item.scaleFont.css().fontSize,
+          fontStyle: item.scaleFont.css().fontStyle,
+          fontFamily: item.scaleFont.css().fontFamily,
+          fontWeight: item.scaleFont.css().fontWeight,
+          fill: item.color.toString(),
+          angle: item.onRight ? 90 : -90
         },
+        valueFormatter: (value: any, context: any) =>
+          context.location === "tooltip"
+            ? `${value}`
+            : value.length > 4
+              ? `${value.toExponential(3)}`
+              : value,
         scaleType: item.logScale ? "symlog" : "linear",
-        position: "left",
+        position: item.onRight ? "right" : "left",
         min: item.autoscale ? undefined : item.minimum,
         max: item.autoscale ? undefined : item.maximum
       })

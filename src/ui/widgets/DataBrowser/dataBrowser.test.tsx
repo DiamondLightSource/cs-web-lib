@@ -6,6 +6,8 @@ import { DataBrowserComponent } from "./dataBrowser";
 import { Trace } from "../../../types/trace";
 import { Axis } from "../../../types/axis";
 import { Plt } from "../../../types/plt";
+import { PvDatum } from "../../../redux/csState";
+import { DTime } from "../../../types/dtypes";
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -22,12 +24,13 @@ const globalWithFetch = global as GlobalFetch;
 
 // Mock the MUI X-Charts components
 vi.mock("@mui/x-charts", () => ({
-  LineChart: vi.fn(({ series, xAxis, yAxis, sx }) => (
+  LineChart: vi.fn(({ series, xAxis, yAxis, dataset, sx }) => (
     <div
       data-testid="line-chart"
       data-series={JSON.stringify(series)}
       data-xaxis={JSON.stringify(xAxis)}
       data-yaxis={JSON.stringify(yAxis)}
+      data-dataset={JSON.stringify(dataset)}
       style={sx}
     />
   ))
@@ -42,16 +45,24 @@ vi.mock("@mui/material", () => ({
 
 describe("DataBrowserComponent", () => {
   // Basic test setup
+  const buildPvDatum = (
+    pvName: string,
+    value: number,
+    date: Date = new Date()
+  ) => {
+    return {
+      effectivePvName: pvName,
+      connected: true,
+      readonly: true,
+      value: {
+        getDoubleValue: () => value,
+        getTime: () => new DTime(date)
+      } as Partial<DType> as DType
+    } as Partial<PvDatum> as PvDatum;
+  };
+
   const defaultProps = {
-    value: {
-      getDoubleValue: () => 50,
-      getTime: () => {
-        return { datetime: new Date(Date.now()) };
-      }
-    } as Partial<DType> as DType,
-    connected: true,
-    readonly: true,
-    pvName: "TEST:PV",
+    pvData: [buildPvDatum("TEST:PV", 50)],
     plt: new Plt({
       pvlist: [
         new Trace({
@@ -65,6 +76,10 @@ describe("DataBrowserComponent", () => {
       axes: [new Axis()]
     })
   };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   const mockSuccessResponse: any = JSON.stringify([
     {
@@ -81,7 +96,9 @@ describe("DataBrowserComponent", () => {
     }
   ]);
   const mockJsonPromise = Promise.resolve(
-    JSON.parse(`[{"data": ${mockSuccessResponse}}]`)
+    JSON.parse(
+      `[{"data": ${mockSuccessResponse}, "meta": { "name": "TEST:PV" }}]`
+    )
   );
   const mockFetchPromise = Promise.resolve({
     json: (): Promise<unknown> => mockJsonPromise
@@ -135,6 +152,7 @@ describe("DataBrowserComponent", () => {
         return render(<DataBrowserComponent {...newProps} />);
       });
       const lineChart = screen.getByTestId("line-chart");
+      expect(lineChart).toBeDefined();
       const xAxisData = JSON.parse(lineChart.getAttribute("data-xaxis") ?? "");
 
       const expectedDiff = 300000; // 5 * 60 * 1000
@@ -143,14 +161,24 @@ describe("DataBrowserComponent", () => {
         new Date(xAxisData[0].min).getTime();
 
       expect(actualDiff).toBe(expectedDiff);
+      const series = JSON.parse(lineChart.getAttribute("data-series") ?? "");
 
       await act(async () => {
         rerender(<DataBrowserComponent {...newProps} />);
       });
       const newLineChart = screen.getByTestId("line-chart");
+      expect(newLineChart).toBeDefined();
       const seriesData = JSON.parse(
         newLineChart.getAttribute("data-series") ?? ""
       );
+
+      const dataset = JSON.parse(
+        newLineChart.getAttribute("data-dataset") ?? ""
+      );
+      expect(dataset.length).toBe(1);
+      expect(dataset[0]["TEST:PV"]).toBe(2);
+      expect(seriesData[0].color).toBe(Color.ORANGE.toString());
+      expect(seriesData[0].dataKey).toBe("TEST:PV");
 
       expect(seriesData[0].data).toEqual([50, 52, 45, 60]);
     });
