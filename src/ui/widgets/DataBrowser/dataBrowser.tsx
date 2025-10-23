@@ -56,7 +56,7 @@ export const DataBrowserComponent = (
       });
       let fetchedData: TimeSeriesPoint[] = [];
       for (const url of Object.values(archivers)) {
-        let tmpData: any[] = [];
+        let tmpData: any[] = fetchedData;
         try {
           const resp = await fetch(
             `${url}&from=${min.toISOString()}&to=${max.toISOString()}`
