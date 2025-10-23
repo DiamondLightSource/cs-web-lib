@@ -79,7 +79,7 @@ export const StripChartComponent = (
     backgroundColor = Color.fromRgba(255, 255, 255, 1),
     start = "1 minute",
     visible = true,
-    archivedData,
+    archivedData = [],
     archivedDataLoaded = false,
     updatePeriod = 0,
     bufferSize = 10000
@@ -110,6 +110,7 @@ export const StripChartComponent = (
       dataLoaded.current = true;
     }
   }, [archivedData, archivedDataLoaded]);
+
   useEffect(() => {
     const updateDataMap = (timeSeries: TimeSeriesPoint[]) => {
       // Add check for update period here

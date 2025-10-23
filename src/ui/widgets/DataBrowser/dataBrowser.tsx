@@ -56,6 +56,7 @@ export const DataBrowserComponent = (
       });
       let fetchedData: TimeSeriesPoint[] = [];
       for (const url of Object.values(archivers)) {
+        let tmpData: any[] = [];
         try {
           const resp = await fetch(
             `${url}&from=${min.toISOString()}&to=${max.toISOString()}`
@@ -69,14 +70,15 @@ export const DataBrowserComponent = (
               plt.bufferSize,
               data.data
             );
-            fetchedData = trimmedData.map((item: any, idx: number) => {
+            tmpData = trimmedData.map((item: any, idx: number) => {
               return {
-                ...fetchedData[idx],
+                ...tmpData[idx],
                 dateTime: new Date(item.secs * 1000),
                 [pvName]: item.val
               };
             });
           });
+          fetchedData = tmpData;
         } catch (e: any) {
           log.error(
             `Failed to fetch archiver data for PVs from address ${url}: ${e.error}.`

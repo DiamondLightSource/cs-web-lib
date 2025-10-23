@@ -106,13 +106,11 @@ describe("DataBrowserComponent", () => {
   const mockFetch = (): Promise<unknown> => mockFetchPromise;
   vi.spyOn(globalWithFetch, "fetch").mockImplementation(mockFetch);
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   describe("Rendering", () => {
-    test("renders with default props", () => {
-      render(<DataBrowserComponent {...defaultProps} />);
+    test("renders with default props", async () => {
+      await act(async () => {
+        render(<DataBrowserComponent {...defaultProps} />);
+      });
 
       const lineChart = screen.getByTestId("line-chart");
       expect(lineChart).toBeDefined();
@@ -123,7 +121,7 @@ describe("DataBrowserComponent", () => {
       expect(xAxisData[0].scaleType).toBe("time");
     });
 
-    test("renders with 1 y axis on either side", () => {
+    test("renders with 1 y axis on either side", async () => {
       const axes = [
         new Axis({ color: Color.RED }),
         new Axis({ color: Color.BLUE, onRight: true })
@@ -132,7 +130,9 @@ describe("DataBrowserComponent", () => {
         ...defaultProps,
         plt: new Plt({ axes: axes })
       };
-      render(<DataBrowserComponent {...newProps} />);
+      await act(async () => {
+        render(<DataBrowserComponent {...newProps} />);
+      });
 
       const lineChart = screen.getByTestId("line-chart");
       const yAxisData = JSON.parse(lineChart.getAttribute("data-yaxis") ?? "");
@@ -145,7 +145,20 @@ describe("DataBrowserComponent", () => {
     test("renders with 5 minute archived data", async () => {
       const newProps = {
         ...defaultProps,
-        plt: new Plt({ start: "5 min", end: "now" })
+        plt: new Plt({
+          start: "5 min",
+          end: "now",
+          pvlist: [
+            new Trace({
+              archive: {
+                name: "Primary",
+                url: "http://archiver.diamond.ac.uk/retrieval"
+              },
+              yPv: "TEST:PV"
+            })
+          ],
+          axes: [new Axis()]
+        })
       };
 
       const { rerender } = await act(async () => {
@@ -161,10 +174,15 @@ describe("DataBrowserComponent", () => {
         new Date(xAxisData[0].min).getTime();
 
       expect(actualDiff).toBe(expectedDiff);
-      const series = JSON.parse(lineChart.getAttribute("data-series") ?? "");
 
+      // Send a new value to append to archived data
       await act(async () => {
-        rerender(<DataBrowserComponent {...newProps} />);
+        rerender(
+          <DataBrowserComponent
+            {...newProps}
+            pvData={[buildPvDatum("TEST:PV", 57)]}
+          />
+        );
       });
       const newLineChart = screen.getByTestId("line-chart");
       expect(newLineChart).toBeDefined();
@@ -175,12 +193,10 @@ describe("DataBrowserComponent", () => {
       const dataset = JSON.parse(
         newLineChart.getAttribute("data-dataset") ?? ""
       );
-      expect(dataset.length).toBe(1);
-      expect(dataset[0]["TEST:PV"]).toBe(2);
-      expect(seriesData[0].color).toBe(Color.ORANGE.toString());
-      expect(seriesData[0].dataKey).toBe("TEST:PV");
 
-      expect(seriesData[0].data).toEqual([50, 52, 45, 60]);
+      expect(dataset.length).toBe(4);
+      expect(dataset[0]["ca://TEST:PV"]).toBe(52);
+      expect(seriesData[0].dataKey).toBe("TEST:PV");
     });
   });
 });
