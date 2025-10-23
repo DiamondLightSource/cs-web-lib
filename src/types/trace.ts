@@ -1,5 +1,10 @@
 import { Color } from "./color";
 
+export interface Archiver {
+  name: string;
+  url: string;
+}
+
 export class Trace {
   public name: string;
   public axis: number;
@@ -18,6 +23,7 @@ export class Trace {
   public concatenateData?: boolean;
   public updateDelay?: number;
   public updateMode?: number;
+  public archive?: Archiver | undefined;
 
   public constructor({
     name = "",
@@ -37,7 +43,8 @@ export class Trace {
     concatenateData = true,
     updateDelay = 100,
     updateMode = 0,
-    plotMode = 0
+    plotMode = 0,
+    archive = { name: "", url: "" }
   } = {}) {
     // xPV property only exists on XYPlot
     if (xPv) this.xPv = xPv;
@@ -51,6 +58,7 @@ export class Trace {
     this.pointType = pointType;
     this.pointSize = pointSize;
     this.visible = visible;
+    if (archive) this.archive = archive;
     if (fromOpi) {
       this.antiAlias = antiAlias;
       this.bufferSize = bufferSize;

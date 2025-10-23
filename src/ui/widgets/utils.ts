@@ -127,25 +127,68 @@ export function calculateRotationTransform(
  * @returns period of time in milliseconds
  */
 export function convertStringTimePeriod(period: string): number {
-  // Array of all time period strings
-  const times = [
-    { unit: "second", value: 1 },
-    { unit: "minute", value: 60 },
-    { unit: "hour", value: 3600 },
-    { unit: "day", value: 86400 },
-    { unit: "week", value: 604800 },
-    { unit: "month", value: 705600 },
-    { unit: "year", value: 31536000 }
-  ];
-  let match = times.find(item => period.includes(item.unit));
-  if (match === undefined) match = times[1];
-  // Find number of time period
-  const multiplier = match
-    ? parseInt(period.replace(match.unit, "").trim())
-    : 1;
-  // If multiplier can't be parsed, default again to 1 minute, and calculate time
-  const time = (isNaN(multiplier) ? 1 : multiplier) * match.value * 1000;
-  return time;
+  if (!period) return 60;
+  if (period === "now") return 0;
+  // Check if this is a date
+  const date = new Date(period).getTime();
+  if (isNaN(date)) {
+    // Check if period is negative
+    const isNegative = period.charAt(0) === "-" ? true : false;
+    // Array of all time period strings
+    const times = [
+      { unit: "sec", value: 1 },
+      { unit: "min", value: 60 },
+      { unit: "hour", value: 3600 },
+      { unit: "day", value: 86400 },
+      { unit: "week", value: 604800 },
+      { unit: "month", value: 705600 },
+      { unit: "year", value: 31536000 }
+    ];
+    let match = times.find(item => period.includes(item.unit));
+    if (match === undefined) match = times[1];
+    // Find number of time period
+    const multiplier = match
+      ? parseFloat(period.replace(match.unit, "").trim())
+      : 1;
+    // If multiplier can't be parsed, default again to 1 minute, and calculate time
+    const time =
+      (isNaN(multiplier) ? 1 : multiplier) *
+      match.value *
+      (isNegative ? -1000 : 1000);
+    return time;
+  } else {
+    // Date worked
+    return date;
+  }
+}
+
+/**
+ * Trims down data collected from the archiver to reflect the
+ * requested period between updates and maximum dataset size
+ * @param updatePeriod seconds between value updates
+ * @param bufferSize max number of data points
+ * @param data data to trim down
+ */
+export function trimArchiveData(
+  updatePeriod: number,
+  bufferSize: number,
+  data: any[]
+) {
+  // Cut data down by updatePeriod
+  let lastValueIndex = 0;
+  const filteredData = data.filter((item: any, idx) => {
+    // returns the first value
+    if (!idx) return true;
+    if (item.secs - updatePeriod > data[lastValueIndex].secs) {
+      lastValueIndex = idx;
+      return true;
+    }
+    return false;
+  });
+  // If dataset is still over buffersize, remove first difference
+  const sizeDiff = filteredData.length - bufferSize;
+  if (sizeDiff > 0) filteredData.splice(0, sizeDiff);
+  return filteredData;
 }
 
 export const getPvValueAndName = (pvDataCollection: PvDatum[], index = 0) => {

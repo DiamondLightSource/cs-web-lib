@@ -30,8 +30,8 @@ export class Axis {
     autoscale = false,
     minimum = 0,
     maximum = 100,
-    titleFont = new Font(FontStyle.Bold),
-    scaleFont = new Font(),
+    titleFont = new Font(14, FontStyle.Bold),
+    scaleFont = new Font(12, FontStyle.Regular),
     onRight = false,
     fromOpi = false
   } = {}) {

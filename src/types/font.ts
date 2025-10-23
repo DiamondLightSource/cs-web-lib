@@ -25,7 +25,7 @@ export class Font {
   ) {
     this.typeface = typeface ?? "Liberation sans";
     this.style = style ?? FontStyle.Regular;
-    this.size = size;
+    this.size = size ?? 14;
     this.name = name;
   }
 

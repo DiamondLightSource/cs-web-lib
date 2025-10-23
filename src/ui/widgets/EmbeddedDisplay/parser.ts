@@ -17,6 +17,7 @@ import { WidgetDescription } from "../createComponent";
 import { StringProp, PositionProp } from "../propTypes";
 import { ElementCompact } from "xml-js";
 import { PV } from "../../../types";
+import { snakeCaseToCamelCase } from "../utils";
 
 // Specific widgets we should allow empty string parsing for
 const PARSE_EMPTY_STRINGS = ["text", "label", "on_label", "off_label", "title"];
@@ -42,13 +43,13 @@ export type ParserDict = {
 };
 
 export type ComplexParserDict = {
-  [key: string]: (value: any) => GenericProp;
+  [key: string]: (value: any) => GenericProp | Promise<GenericProp>;
 };
 
 export type PatchFunction = (props: WidgetDescription, path?: string) => void;
 
 /* Take an object representing a widget and return our widget description. */
-export function genericParser(
+export async function genericParser(
   widget: any, // eslint-disable-line @typescript-eslint/explicit-module-boundary-types
   targetWidget: React.FC,
   simpleParsers: ParserDict,
@@ -56,7 +57,7 @@ export function genericParser(
   // Whether props with no registered function should be passed through
   // with no parsing.
   passThrough: boolean
-): WidgetDescription {
+): Promise<WidgetDescription> {
   const newProps: any = { type: targetWidget };
   const allProps = {
     type: StringProp,
@@ -74,7 +75,7 @@ export function genericParser(
       try {
         if (widget.hasOwnProperty(opiPropName)) {
           if (!isEmpty(widget[opiPropName])) {
-            newProps[prop] = propParser(widget[opiPropName]);
+            newProps[prop] = await propParser(widget[opiPropName]);
             log.debug(`result ${newProps[prop]}`);
             // For certain simple string props we want to accept an empty value e.g. text
           } else if (
@@ -95,7 +96,7 @@ export function genericParser(
       log.debug(`complex parser for ${prop}`);
       const propParser = complexParsers[prop];
       try {
-        newProps[prop] = propParser(widget);
+        newProps[prop] = await propParser(widget);
         log.debug(`result ${newProps[prop]}`);
       } catch (e) {
         log.warn(`Could not convert complex prop ${prop}:`);
@@ -105,11 +106,14 @@ export function genericParser(
       newProps[prop] = widget[prop];
     }
   }
-  // TO DO - temporary method of using the top level trace PV for
-  // plot widgets as the PV. This is a placeholder until support for
-  // multiple PVs per widget is implemented
+
+  // Parse PV names out of traces for plots into pv property
   if (newProps.hasOwnProperty("traces")) {
     newProps.pvMetadataList = newProps.traces?.map((trace: any) => ({
+      pvName: PV.parse(trace.yPv)
+    }));
+  } else if (newProps.hasOwnProperty("plt")) {
+    newProps.pvMetadataList = newProps.plt.pvlist.map((trace: any) => ({
       pvName: PV.parse(trace.yPv)
     }));
   }
@@ -117,7 +121,28 @@ export function genericParser(
   return newProps;
 }
 
-export function parseWidget(
+export function parseChildProps(
+  props: ElementCompact,
+  parser: ParserDict
+): any {
+  const obj: { [key: string]: any } = {}; // Object to assign props to
+  Object.entries(props).forEach((entry: any) => {
+    const [key, value] = entry;
+    // For each prop, convert the name and parse
+    const newName = snakeCaseToCamelCase(key);
+    if (newName && parser.hasOwnProperty(newName)) {
+      if (isEmpty(props[key]) && PARSE_EMPTY_STRINGS.includes(key)) {
+        obj[newName] = "";
+      } else {
+        const [, propParser] = parser[newName];
+        obj[newName] = propParser(value);
+      }
+    }
+  });
+  return obj;
+}
+
+export async function parseWidget(
   props: any, // eslint-disable-line @typescript-eslint/explicit-module-boundary-types
   getTargetWidget: (props: any) => React.FC,
   childrenName: string,
@@ -126,9 +151,9 @@ export function parseWidget(
   passThrough: boolean,
   patchFunctions: PatchFunction[],
   filepath?: string
-): WidgetDescription {
+): Promise<WidgetDescription> {
   const targetWidget = getTargetWidget(props);
-  const widgetDescription = genericParser(
+  const widgetDescription = await genericParser(
     props,
     targetWidget,
     simpleParsers,
@@ -141,18 +166,20 @@ export function parseWidget(
   }
   /* Child widgets */
   const childWidgets = toArray(props[childrenName]);
-  widgetDescription.children = childWidgets.map((child: any) => {
-    return parseWidget(
-      child,
-      getTargetWidget,
-      childrenName,
-      simpleParsers,
-      complexParsers,
-      passThrough,
-      patchFunctions,
-      filepath
-    );
-  });
+  widgetDescription.children = await Promise.all(
+    childWidgets.map(async (child: any) => {
+      return await parseWidget(
+        child,
+        getTargetWidget,
+        childrenName,
+        simpleParsers,
+        complexParsers,
+        passThrough,
+        patchFunctions,
+        filepath
+      );
+    })
+  );
 
   // Default to true if precision is not defined.
   // Applicable to BOB files.

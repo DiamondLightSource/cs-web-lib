@@ -18,8 +18,8 @@ describe("opi widget parser", (): void => {
     <width>30</width>
     <height>40</height>
   </display>`;
-  it("parses a display widget", (): void => {
-    const displayWidget = parseOpi(displayString, "ca", PREFIX);
+  it("parses a display widget", async (): Promise<void> => {
+    const displayWidget = await parseOpi(displayString, "ca", PREFIX);
     expect(displayWidget.position).toEqual(
       new RelativePosition("0px", "0px", "30px", "40px")
     );
@@ -72,8 +72,8 @@ describe("opi widget parser", (): void => {
     </widget>
   </display>`;
 
-  it("parses a label widget", (): void => {
-    const widget = parseOpi(labelString, "ca", PREFIX)
+  it("parses a label widget", async (): Promise<void> => {
+    const widget = (await parseOpi(labelString, "ca", PREFIX))
       .children?.[0] as WidgetDescription;
     expect(widget.type).toEqual("label");
     // Boolean type
@@ -121,8 +121,8 @@ describe("opi widget parser", (): void => {
     </widget>
   </display>`;
 
-  it("parses a widget with a rule", (): void => {
-    const widget = parseOpi(ruleString, "ca", PREFIX)
+  it("parses a widget with a rule", async (): Promise<void> => {
+    const widget = (await parseOpi(ruleString, "ca", PREFIX))
       .children?.[0] as WidgetDescription;
     expect(widget.rules.length).toEqual(1);
     const rule: Rule = widget.rules[0];
@@ -156,8 +156,8 @@ describe("opi widget parser", (): void => {
     </widget>
   </display>`;
 
-  it("parses a widget with a child widget", (): void => {
-    const widget = parseOpi(childString, "ca", PREFIX)
+  it("parses a widget with a child widget", async (): Promise<void> => {
+    const widget = (await parseOpi(childString, "ca", PREFIX))
       .children?.[0] as WidgetDescription;
     expect(widget.children?.length).toEqual(1);
   });
@@ -184,8 +184,8 @@ describe("opi widget parser", (): void => {
     </widget>
   </display>`;
 
-  it("parses a widget with an action", (): void => {
-    const widget = parseOpi(actionString, "ca", PREFIX)
+  it("parses a widget with an action", async (): Promise<void> => {
+    const widget = (await parseOpi(actionString, "ca", PREFIX))
       .children?.[0] as WidgetDescription;
     expect(widget.actions.actions.length).toEqual(1);
     const action = widget.actions.actions[0];
@@ -237,8 +237,8 @@ describe("opi widget parser", (): void => {
     </widget>
   </display>`;
 
-  it("parses an input widget", (): void => {
-    const widget = parseOpi(inputString, "ca", PREFIX)
+  it("parses an input widget", async (): Promise<void> => {
+    const widget = (await parseOpi(inputString, "ca", PREFIX))
       .children?.[0] as WidgetDescription;
     expect(widget.textAlign).toEqual("right");
     // Adds ca:// prefix.
@@ -255,10 +255,10 @@ describe("opi widget parser", (): void => {
       <text />
     </widget>
   </display>`;
-  it("doesn't parse an invalid string", (): void => {
+  it("doesn't parse an invalid string", async (): Promise<void> => {
     // Reduce logging when expecting error.
     log.setLevel("error");
-    const widget = parseOpi(invalidString, "ca", PREFIX)
+    const widget = (await parseOpi(invalidString, "ca", PREFIX))
       .children?.[0] as WidgetDescription;
     expect(widget.text).toBeUndefined();
     log.setLevel("info");
@@ -274,10 +274,10 @@ describe("opi widget parser", (): void => {
       <enabled>not-a-bool</enabled>
     </widget>
   </display>`;
-  it("doesn't parse an invalid bool", (): void => {
+  it("doesn't parse an invalid bool", async (): Promise<void> => {
     // Reduce logging when expecting error.
     log.setLevel("error");
-    const widget = parseOpi(invalidBool, "ca", PREFIX)
+    const widget = (await parseOpi(invalidBool, "ca", PREFIX))
       .children?.[0] as WidgetDescription;
     expect(widget.enabled).toBeUndefined();
     log.setLevel("info");
@@ -401,8 +401,8 @@ $(trace_0_y_pv_value)</tooltip>
     <y>168</y>
   </widget>
   </display>`;
-  it("parses xygraph widget", (): void => {
-    const widget = parseOpi(xygraphString, "ca", PREFIX)
+  it("parses xygraph widget", async (): Promise<void> => {
+    const widget = (await parseOpi(xygraphString, "ca", PREFIX))
       .children?.[0] as WidgetDescription;
     expect(widget.traces.length).toEqual(1);
     expect(widget.axes.length).toEqual(3);
