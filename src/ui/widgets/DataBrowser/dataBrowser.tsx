@@ -55,13 +55,13 @@ export const DataBrowserComponent = (
         }
       });
       let fetchedData: TimeSeriesPoint[] = [];
-      for (const url in Object.values(archivers)) {
+      for (const url of Object.values(archivers)) {
         try {
           const resp = await fetch(
             `${url}&from=${min.toISOString()}&to=${max.toISOString()}`
           );
           const json = await resp.json();
-          json.forEach((data: any, idx: number) => {
+          json.forEach((data: any) => {
             // Trim each dataset down and push into fetchedData
             const pvName = new PV(data.meta.name).qualifiedName();
             const trimmedData = trimArchiveData(
