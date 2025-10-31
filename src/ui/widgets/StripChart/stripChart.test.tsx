@@ -110,10 +110,12 @@ describe("StripChartComponent", () => {
 
     test("renders with 5 minute x axis period", () => {
       const expectedDiff = 300000; // 5 * 60 * 1000
-      render(<StripChartComponent {...defaultProps} start={"5 minutes"} />);
+      const { rerender } = render(
+        <StripChartComponent {...defaultProps} start={"5 minutes"} />
+      );
+      rerender(<StripChartComponent {...defaultProps} start={"5 minutes"} />);
       const lineChart = screen.getByTestId("line-chart");
       const xAxisData = JSON.parse(lineChart.getAttribute("data-xaxis") ?? "");
-
       const actualDiff =
         new Date(xAxisData[0].max).getTime() -
         new Date(xAxisData[0].min).getTime();

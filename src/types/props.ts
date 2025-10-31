@@ -5,9 +5,10 @@ import { WidgetActions } from "../ui/widgets/widgetActions";
 import { Border } from "./border";
 import { Position } from "./position";
 import { PV } from "./pv";
-import { Trace } from "./trace";
+import { Archiver, Trace } from "./trace";
 import { Axes, Axis } from "./axis";
 import { Points } from "./points";
+import { Plt } from "./plt";
 
 export type GenericProp =
   | string
@@ -27,7 +28,9 @@ export type GenericProp =
   | Trace[]
   | Axes
   | Axis
-  | Points;
+  | Points
+  | Archiver
+  | Plt;
 
 export interface Expression {
   boolExp: string;

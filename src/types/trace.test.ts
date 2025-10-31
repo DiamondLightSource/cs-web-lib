@@ -14,7 +14,11 @@ describe("Trace", () => {
       pointSize: 10,
       visible: false,
       xPv: "TEST-01:PV",
-      yPv: "TEST-02:PV"
+      yPv: "TEST-02:PV",
+      archive: {
+        name: "Test",
+        url: "Testing.diamond.ac.uk"
+      }
     };
     const trace = new Trace(testValues);
 
@@ -34,7 +38,11 @@ describe("Trace", () => {
       pointType: 0,
       pointSize: 1,
       visible: true,
-      yPv: ""
+      yPv: "",
+      archive: {
+        name: "",
+        url: ""
+      }
     });
     expect(trace).toBeInstanceOf(Trace);
   });

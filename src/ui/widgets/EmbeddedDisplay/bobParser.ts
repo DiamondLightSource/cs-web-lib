@@ -1,5 +1,11 @@
 import { REGISTERED_WIDGETS } from "../register";
-import { ComplexParserDict, parseWidget, ParserDict, toArray } from "./parser";
+import {
+  ComplexParserDict,
+  parseWidget,
+  ParserDict,
+  toArray,
+  parseChildProps
+} from "./parser";
 import {
   XmlDescription,
   OPI_COMPLEX_PARSERS,
@@ -10,8 +16,7 @@ import {
   opiParseColor,
   opiParseString,
   opiParseMacros,
-  opiParseBoolean,
-  opiParseFont
+  opiParseBoolean
 } from "./opiParser";
 import { xml2js, ElementCompact } from "xml-js";
 import log from "loglevel";
@@ -36,7 +41,7 @@ import { WidgetDescription } from "../createComponent";
 import { Point, Points } from "../../../types/points";
 import { Axis } from "../../../types/axis";
 import { Trace } from "../../../types/trace";
-import { snakeCaseToCamelCase } from "../utils";
+import { parsePlt } from "./pltParser";
 
 const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   action_button: "actionbutton",
@@ -45,6 +50,7 @@ const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   byte_monitor: "bytemonitor",
   checkbox: "checkbox",
   combo: "menubutton",
+  databrowser: "databrowser",
   display: "display",
   ellipse: "ellipse",
   embedded: "embeddedDisplay",
@@ -77,6 +83,7 @@ export const WIDGET_DEFAULT_SIZES: { [key: string]: [number, number] } = {
   checkbox: [100, 20],
   choice: [100, 43],
   combo: [100, 30],
+  databrowser: [400, 300],
   display: [800, 800],
   ellipse: [100, 50],
   embedded: [400, 300],
@@ -259,11 +266,11 @@ function bobParseTraces(props: any): Trace[] {
     // of an array
     if (props.trace.length > 1) {
       props.trace.forEach((trace: any) => {
-        parsedProps = bobParseChildProps(trace);
+        parsedProps = parseChildProps(trace, BOB_SIMPLE_PARSERS);
         traces.push(new Trace(parsedProps));
       });
     } else {
-      parsedProps = bobParseChildProps(props.trace);
+      parsedProps = parseChildProps(props.trace, BOB_SIMPLE_PARSERS);
       traces.push(new Trace(parsedProps));
     }
   }
@@ -283,11 +290,11 @@ function bobParseYAxes(props: any): Axis[] {
     // of an array
     if (props.y_axis.length > 1) {
       props.y_axis.forEach((axis: any) => {
-        parsedProps = bobParseChildProps(axis);
+        parsedProps = parseChildProps(axis, BOB_SIMPLE_PARSERS);
         axes.push(new Axis(parsedProps));
       });
     } else {
-      parsedProps = bobParseChildProps(props.y_axis);
+      parsedProps = parseChildProps(props.y_axis, BOB_SIMPLE_PARSERS);
       axes.push(new Axis(parsedProps));
     }
   }
@@ -300,22 +307,8 @@ function bobParseYAxes(props: any): Axis[] {
  * @returns an Axis object.
  */
 function bobParseXAxis(props: any): Axis {
-  const parsedProps = bobParseChildProps(props.x_axis);
+  const parsedProps = parseChildProps(props.x_axis, BOB_SIMPLE_PARSERS);
   return new Axis({ xAxis: true, ...parsedProps });
-}
-
-function bobParseChildProps(props: any): any {
-  const obj: { [key: string]: any } = {}; // Object to assign props to
-  Object.entries(props).forEach((entry: any) => {
-    const [key, value] = entry;
-    // For each prop, convert the name and parse
-    const newName = snakeCaseToCamelCase(key);
-    if (newName && BOB_SIMPLE_PARSERS.hasOwnProperty(newName)) {
-      const [, propParser] = BOB_SIMPLE_PARSERS[newName];
-      obj[newName] = propParser(value);
-    }
-  });
-  return obj;
 }
 
 /**
@@ -466,8 +459,8 @@ const BOB_SIMPLE_PARSERS: ParserDict = {
   color: ["color", opiParseColor],
   traceType: ["trace_type", bobParseNumber],
   onRight: ["on_right", opiParseBoolean],
-  titleFont: ["title_font", opiParseFont],
-  scaleFont: ["scale_font", opiParseFont],
+  titleFont: ["title_font", bobParseFont],
+  scaleFont: ["scale_font", bobParseFont],
   start: ["start", opiParseString],
   end: ["end", opiParseString]
 };
@@ -482,11 +475,11 @@ const BOB_COMPLEX_PARSERS: ComplexParserDict = {
   xAxis: bobParseXAxis
 };
 
-export function parseBob(
+export async function parseBob(
   xmlString: string,
   defaultProtocol: string,
   filepath: string
-): WidgetDescription {
+): Promise<WidgetDescription> {
   // Convert it to a "compact format"
   const compactJSON = xml2js(xmlString, {
     compact: true
@@ -514,10 +507,12 @@ export function parseBob(
     rules: (rules: Rule[]): Rule[] =>
       opiParseRules(rules, defaultProtocol, false),
     traces: (props: ElementCompact) => bobParseTraces(props["traces"]),
-    axes: (props: ElementCompact) => bobParseYAxes(props["y_axes"])
+    axes: (props: ElementCompact) => bobParseYAxes(props["y_axes"]),
+    plt: async (props: ElementCompact) =>
+      await parsePlt(props["file"], props._attributes?.type)
   };
 
-  const displayWidget = parseWidget(
+  const displayWidget = await parseWidget(
     compactJSON.display,
     bobGetTargetWidget,
     "widget",

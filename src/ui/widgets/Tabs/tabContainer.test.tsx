@@ -1,7 +1,7 @@
 import React from "react";
 import log from "loglevel";
 
-import { render, fireEvent } from "@testing-library/react";
+import { render, fireEvent, act } from "@testing-library/react";
 import { TabContainerComponent } from "./tabContainer";
 import { Provider } from "react-redux";
 import { store } from "../../../redux/store";
@@ -9,36 +9,38 @@ import { ensureWidgetsRegistered } from "..";
 ensureWidgetsRegistered();
 
 describe("<TabContainer>", (): void => {
-  it("renders one child", () => {
+  it("renders one child", async () => {
     const child = {
       type: "label",
       position: "relative",
       text: "hello"
     };
-    const { queryByText } = render(
-      <Provider store={store}>
-        <TabContainerComponent tabs={{ one: child }} />
-      </Provider>
-    );
-
-    expect(queryByText("hello")).toBeInTheDocument();
+    const { findByText } = await act(() => {
+      return render(
+        <Provider store={store}>
+          <TabContainerComponent tabs={{ one: child }} />
+        </Provider>
+      );
+    });
+    expect(await findByText("hello")).toBeInTheDocument();
   });
-  it("renders error widget for incorrect child", () => {
+  it("renders error widget for incorrect child", async () => {
     const child = {
       type: "image"
     };
     // Suppress logging for expected error.
     log.setLevel("error");
-    const { queryByText } = render(
-      <Provider store={store}>
-        <TabContainerComponent tabs={{ one: child }} />
-      </Provider>
-    );
+    const { findByText } = await act(() => {
+      return render(
+        <Provider store={store}>
+          <TabContainerComponent tabs={{ one: child }} />
+        </Provider>
+      );
+    });
     log.setLevel("info");
-
-    expect(queryByText(/Error/)).toBeInTheDocument();
+    expect(await findByText(/Error/)).toBeInTheDocument();
   });
-  it("changes tabs on click", () => {
+  it("changes tabs on click", async () => {
     const child1 = {
       type: "label",
       position: "relative",
@@ -49,14 +51,21 @@ describe("<TabContainer>", (): void => {
       position: "relative",
       text: "bye"
     };
-    const { queryByText } = render(
-      <Provider store={store}>
-        <TabContainerComponent tabs={{ one: child1, two: child2 }} />
-      </Provider>
-    );
 
-    expect(queryByText("hello")).toBeInTheDocument();
-    fireEvent.click(queryByText("two") as HTMLDivElement);
-    expect(queryByText("bye")).toBeInTheDocument();
+    const { findByText } = await act(() => {
+      return render(
+        <Provider store={store}>
+          <TabContainerComponent tabs={{ one: child1, two: child2 }} />
+        </Provider>
+      );
+    });
+
+    expect(await findByText("hello")).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click((await findByText("two")) as HTMLDivElement);
+    });
+
+    expect(await findByText("bye")).toBeInTheDocument();
   });
 });

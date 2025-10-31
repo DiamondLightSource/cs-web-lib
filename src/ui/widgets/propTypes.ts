@@ -8,6 +8,7 @@ import { FileDescription } from "../../misc/fileContext";
 import { Trace } from "../../types/trace";
 import { Axis } from "../../types/axis";
 import { Points } from "../../types/points";
+import { Plt } from "../../types/plt";
 
 export type ExcludeNulls<T> = {
   [P in keyof T]: Exclude<T[P], null>;
@@ -62,6 +63,9 @@ export const TracesPropOpt = PropTypes.arrayOf(TracePropOpt);
 
 export const AxesProp = PropTypes.arrayOf(AxisProp).isRequired;
 export const AxesPropOpt = PropTypes.arrayOf(AxisPropOpt);
+
+export const PltProp = PropTypes.instanceOf(Plt).isRequired;
+export const PltPropOpt = PropTypes.instanceOf(Plt);
 
 export const FuncPropOpt = PropTypes.instanceOf(Function);
 export const FuncProp = FuncPropOpt.isRequired;
@@ -191,3 +195,10 @@ export const ActionsPropType = PropTypes.shape({
   executeAsOne: BoolPropOpt,
   actions: PropTypes.arrayOf(ActionPropType).isRequired
 });
+
+export const TimeSeriesPointPropType = PropTypes.shape({
+  dateTime: PropTypes.instanceOf(Date),
+  pv: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.number])
+});
+
+export const ArchivedDataPropOpt = PropTypes.arrayOf(TimeSeriesPointPropType);

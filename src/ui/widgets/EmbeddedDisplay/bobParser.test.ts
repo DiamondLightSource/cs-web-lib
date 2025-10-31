@@ -43,8 +43,8 @@ describe("bob widget parser", (): void => {
   </widget>
   </display>`;
 
-  it("parses a label widget", (): void => {
-    const widget = parseBob(labelString, "ca", PREFIX)
+  it("parses a label widget", async (): Promise<void> => {
+    const widget = (await parseBob(labelString, "ca", PREFIX))
       .children?.[0] as WidgetDescription;
     expect(widget.type).toEqual("label");
     // Boolean type
@@ -80,8 +80,8 @@ describe("bob widget parser", (): void => {
       <border_alarm_sensitive>false</border_alarm_sensitive>
     </widget>
   </display>`;
-  it("parses a readback widget", (): void => {
-    const widget = parseBob(readbackString, "xxx", PREFIX)
+  it("parses a readback widget", async (): Promise<void> => {
+    const widget = (await parseBob(readbackString, "xxx", PREFIX))
       .children?.[0] as WidgetDescription;
     expect(widget.pvMetadataList[0].pvName).toEqual(PV.parse("xxx://abc"));
   });
@@ -92,8 +92,8 @@ describe("bob widget parser", (): void => {
     <width>300</width>
     <height>300</height>
   </display>`;
-  it("handles a missing dimension", (): void => {
-    const display = parseBob(noXString, "xxx", "PREFIX");
+  it("handles a missing dimension", async (): Promise<void> => {
+    const display = await parseBob(noXString, "xxx", "PREFIX");
     // Is this correct?
     expect(display.x).toEqual(undefined);
   });
@@ -113,8 +113,8 @@ describe("bob widget parser", (): void => {
       <height>50</height>
     </widget>
   </display>`;
-  it("parses defaults", (): void => {
-    const widget = parseBob(readbackDefaults, "xxx", PREFIX)
+  it("parses defaults", async (): Promise<void> => {
+    const widget = (await parseBob(readbackDefaults, "xxx", PREFIX))
       .children?.[0] as WidgetDescription;
     expect(widget.precisionFromPv).toEqual(true);
     expect(widget.showUnits).toEqual(true);
@@ -140,8 +140,8 @@ describe("bob widget parser", (): void => {
       <show_units>false</show_units>
     </widget>
   </display>`;
-  it("parses precision and units", (): void => {
-    const widget = parseBob(readbackPrecisionUnits, "xxx", PREFIX)
+  it("parses precision and units", async (): Promise<void> => {
+    const widget = (await parseBob(readbackPrecisionUnits, "xxx", PREFIX))
       .children?.[0] as WidgetDescription;
     expect(widget.precisionFromPv).toEqual(undefined);
     expect(widget.precision).toEqual(2);
@@ -165,8 +165,8 @@ describe("bob widget parser", (): void => {
       <format>6</format>
     </widget>
   </display>`;
-  it("parses string format", (): void => {
-    const widget = parseBob(readbackStringFormat, "xxx", PREFIX)
+  it("parses string format", async (): Promise<void> => {
+    const widget = (await parseBob(readbackStringFormat, "xxx", PREFIX))
       .children?.[0] as WidgetDescription;
     expect(widget.formatType).toEqual("string");
   });

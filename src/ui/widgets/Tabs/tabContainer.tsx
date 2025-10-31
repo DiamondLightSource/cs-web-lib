@@ -8,7 +8,7 @@
  *
  * See also the dynamic tabs widget.
  */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import log from "loglevel";
 
@@ -39,20 +39,29 @@ export const TabContainerComponent = (
   props: InferWidgetProps<typeof TabContainerProps>
 ): JSX.Element => {
   const [childIndex, setIndex] = useState(0);
+  const [children, setChildren] = useState<JSX.Element[]>([]);
 
   // TODO: Find out if this repeated calculation can be done in the useMemo hook for measurable performance gains
-  const children = Object.values(props.tabs).map((child, index) => {
-    try {
-      const childObject = parseObject(child, "ca");
-      childObject["scroll"] = true;
-      return widgetDescriptionToComponent(childObject, index);
-    } catch (e) {
-      const message = `Error transforming children into components`;
-      log.warn(message);
-      log.warn(e);
-      return widgetDescriptionToComponent(errorWidget(message), index);
-    }
-  });
+  useEffect(() => {
+    const loadChildren = async () => {
+      const nodes = await Promise.all(
+        Object.values(props.tabs).map(async (child, index) => {
+          try {
+            const childObject = await parseObject(child, "ca");
+            childObject["scroll"] = true;
+            return widgetDescriptionToComponent(childObject, index);
+          } catch (e) {
+            const message = `Error transforming children into components`;
+            log.warn(message);
+            log.warn(e);
+            return widgetDescriptionToComponent(errorWidget(message), index);
+          }
+        })
+      );
+      setChildren(nodes);
+    };
+    loadChildren();
+  }, [props.tabs]);
 
   const tabNames = Object.keys(props.tabs);
   const onTabSelected = (index: number): void => {

@@ -14,6 +14,7 @@ export { BoolButton } from "./BoolButton/boolButton";
 export { ByteMonitor } from "./ByteMonitor/byteMonitor";
 export { Checkbox } from "./Checkbox/checkbox";
 export { ChoiceButton } from "./ChoiceButton/choiceButton";
+export { DataBrowser } from "./DataBrowser/dataBrowser";
 export { Device } from "./Device/device";
 export { DrawerWidget } from "./Drawer/drawer";
 export { DropDown } from "./DropDown/dropDown";
