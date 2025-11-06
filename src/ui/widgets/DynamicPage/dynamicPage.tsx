@@ -18,11 +18,14 @@ import {
   BorderPropOpt,
   BoolPropOpt
 } from "../propTypes";
-import { EmbeddedDisplay } from "../EmbeddedDisplay/embeddedDisplay";
+import {
+  EmbeddedDisplay,
+  EmbeddedDisplayPropsExtra
+} from "../EmbeddedDisplay/embeddedDisplay";
 import { Color } from "../../../types/color";
 import { RelativePosition } from "../../../types/position";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
-import { useTheme } from "@mui/material";
+import { phoebusTheme } from "../../../phoebusTheme";
 
 const DynamicPageProps = {
   location: StringProp,
@@ -33,9 +36,9 @@ const DynamicPageProps = {
 
 // Generic display widget to put other things inside
 export const DynamicPageComponent = (
-  props: InferWidgetProps<typeof DynamicPageProps>
+  props: InferWidgetProps<typeof DynamicPageProps> & EmbeddedDisplayPropsExtra
 ): JSX.Element => {
-  const theme = useTheme();
+  const theme = props.theme || phoebusTheme;
   const style = commonCss(props);
   const fileContext = useContext(FileContext);
 
