@@ -17,7 +17,7 @@ describe("<TabContainer>", (): void => {
     };
     const { findByText } = await act(() => {
       return render(
-        <Provider store={store}>
+        <Provider store={store()}>
           <TabContainerComponent tabs={{ one: child }} />
         </Provider>
       );
@@ -32,7 +32,7 @@ describe("<TabContainer>", (): void => {
     log.setLevel("error");
     const { findByText } = await act(() => {
       return render(
-        <Provider store={store}>
+        <Provider store={store()}>
           <TabContainerComponent tabs={{ one: child }} />
         </Provider>
       );
@@ -54,7 +54,7 @@ describe("<TabContainer>", (): void => {
 
     const { findByText } = await act(() => {
       return render(
-        <Provider store={store}>
+        <Provider store={store()}>
           <TabContainerComponent tabs={{ one: child1, two: child2 }} />
         </Provider>
       );

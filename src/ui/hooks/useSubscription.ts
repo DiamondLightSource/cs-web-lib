@@ -44,7 +44,7 @@ export function useSubscription(
 }
 
 export function writePv(pvName: string, value: DType): void {
-  store.dispatch({
+  store().dispatch({
     type: WRITE_PV,
     payload: { pvName: pvName, value: value }
   });
