@@ -109,7 +109,6 @@ function pvwsToDType(data: any): DType {
   let dtime = undefined;
   if (data.seconds) dtime = new DTime(new Date(data.seconds * 1000));
 
-
   let stringVal = undefined;
   if (data.text !== undefined) {
     stringVal = data.text;

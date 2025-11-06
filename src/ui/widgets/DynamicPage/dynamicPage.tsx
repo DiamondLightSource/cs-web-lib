@@ -18,7 +18,10 @@ import {
   BorderPropOpt,
   BoolPropOpt
 } from "../propTypes";
-import { EmbeddedDisplay, EmbeddedDisplayPropsExtra } from "../EmbeddedDisplay/embeddedDisplay";
+import {
+  EmbeddedDisplay,
+  EmbeddedDisplayPropsExtra
+} from "../EmbeddedDisplay/embeddedDisplay";
 import { Color } from "../../../types/color";
 import { RelativePosition } from "../../../types/position";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
@@ -28,13 +31,12 @@ const DynamicPageProps = {
   location: StringProp,
   border: BorderPropOpt,
   showCloseButton: BoolPropOpt,
-  scroll: BoolPropOpt,
+  scroll: BoolPropOpt
 };
 
 // Generic display widget to put other things inside
 export const DynamicPageComponent = (
-  props: InferWidgetProps<typeof DynamicPageProps>  &
-      EmbeddedDisplayPropsExtra
+  props: InferWidgetProps<typeof DynamicPageProps> & EmbeddedDisplayPropsExtra
 ): JSX.Element => {
   const theme = props.theme || phoebusTheme;
   const style = commonCss(props);

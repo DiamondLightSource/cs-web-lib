@@ -3,11 +3,11 @@
 exports[`<Symbol /> from .bob file > matches snapshot (using fallback symbol) 1`] = `
 <DocumentFragment>
   <div
-    style="overflow: visible; text-align: left; width: 100%; height: 100%;"
+    style="background-color: transparent; overflow: visible; text-align: left; width: 100%; height: 100%;"
   >
     <img
-      src="https://cs-web-symbol.diamond.ac.uk/catalogue/default.svg"
-      style="display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: fill; object-position: top left;"
+      src="https://cs-web-symbol.diamond.ac.uk/catalogue/default_symbol.png"
+      style="display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: none; object-position: top left;"
     />
   </div>
 </DocumentFragment>
@@ -16,11 +16,11 @@ exports[`<Symbol /> from .bob file > matches snapshot (using fallback symbol) 1`
 exports[`<Symbol /> from .bob file > matches snapshot (with index) 1`] = `
 <DocumentFragment>
   <div
-    style="overflow: visible; text-align: left; width: 100%; height: 100%;"
+    style="background-color: transparent; overflow: visible; text-align: left; width: 100%; height: 100%;"
   >
     <img
       src="img 3.svg"
-      style="display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: fill; object-position: top left;"
+      style="display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: none; object-position: top left;"
     />
   </div>
 </DocumentFragment>
@@ -29,11 +29,11 @@ exports[`<Symbol /> from .bob file > matches snapshot (with index) 1`] = `
 exports[`<Symbol /> from .bob file > matches snapshot (with rotation) 1`] = `
 <DocumentFragment>
   <div
-    style="overflow: visible; text-align: left; width: 100%; height: 100%;"
+    style="background-color: transparent; overflow: visible; text-align: left; width: 100%; height: 100%;"
   >
     <img
       src="img 1.gif"
-      style="display: block; transform: rotate(45deg) scaleX(1) scaleY(1); object-fit: fill; object-position: top left;"
+      style="display: block; transform: rotate(45deg) scaleX(1) scaleY(1); object-fit: none; object-position: top left;"
     />
   </div>
 </DocumentFragment>
@@ -42,11 +42,11 @@ exports[`<Symbol /> from .bob file > matches snapshot (with rotation) 1`] = `
 exports[`<Symbol /> from .bob file > matches snapshot (without index) 1`] = `
 <DocumentFragment>
   <div
-    style="overflow: visible; text-align: left; width: 100%; height: 100%;"
+    style="background-color: transparent; overflow: visible; text-align: left; width: 100%; height: 100%;"
   >
     <img
       src="img 1.gif"
-      style="display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: fill; object-position: top left;"
+      style="display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: none; object-position: top left;"
     />
   </div>
 </DocumentFragment>
@@ -55,11 +55,11 @@ exports[`<Symbol /> from .bob file > matches snapshot (without index) 1`] = `
 exports[`<Symbol /> from .opi file > matches snapshot (with rotation) 1`] = `
 <DocumentFragment>
   <div
-    style="overflow: visible; text-align: left; width: 100%; height: 100%;"
+    style="background-color: transparent; overflow: visible; text-align: left; width: 100%; height: 100%;"
   >
     <img
       src="img 1.gif"
-      style="display: block; transform: rotate(45deg) scaleX(1) scaleY(1); object-fit: fill; object-position: top left;"
+      style="display: block; transform: rotate(45deg) scaleX(1) scaleY(1); object-fit: none; object-position: top left;"
     />
   </div>
 </DocumentFragment>
@@ -68,7 +68,7 @@ exports[`<Symbol /> from .opi file > matches snapshot (with rotation) 1`] = `
 exports[`<Symbol /> from .opi file > matches snapshot 1`] = `
 <DocumentFragment>
   <div
-    style="overflow: visible; text-align: left; width: 100%; height: 100%;"
+    style="background-color: transparent; overflow: visible; text-align: left; width: 100%; height: 100%;"
   >
     <img
       src="img 1.gif"
