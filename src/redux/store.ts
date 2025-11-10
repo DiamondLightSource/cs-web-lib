@@ -23,10 +23,10 @@ const buildConnection = (config?: CsWebLibConfig) => {
     config?.PVWS_SOCKET ??
     process.env.VITE_PVWS_SOCKET ??
     import.meta.env.VITE_PVWS_SOCKET;
-  const PVWS_SSL =
-    (config?.PVWS_SSL ??
-      process.env.VITE_PVWS_SSL ??
-      import.meta.env.VITE_PVWS_SSL) === "true";
+  const PVWS_SSL = !!(
+    config?.PVWS_SSL ??
+    (process.env.VITE_PVWS_SSL ?? import.meta.env.VITE_PVWS_SSL) === "true"
+  );
 
   const simulator = new SimulatorPlugin();
   const plugins: [string, Connection][] = [["sim://", simulator]];
