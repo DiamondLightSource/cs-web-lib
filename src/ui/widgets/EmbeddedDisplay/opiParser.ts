@@ -824,6 +824,14 @@ function opiPatchPaths(
       }
     }
   }
+
+  // symbols: list of string file paths
+  if ( widgetDescription["symbols"] && parentDir) {
+    widgetDescription["symbols"] = widgetDescription["symbols"].map((symbol: string) => {
+      if (symbol.startsWith("http")) return symbol;
+      return normalisePath(symbol, parentDir);
+    })
+  }
 }
 
 function opiPatchActions(widgetDescription: WidgetDescription): void {
