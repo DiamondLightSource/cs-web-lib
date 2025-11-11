@@ -6,7 +6,6 @@ import {
 } from "./plugin";
 import { ddouble, dstring } from "../testResources";
 import { DType } from "../types/dtypes";
-import { DoneCallback } from "vitest";
 
 let simulator: SimulatorPlugin;
 beforeEach((): void => {
@@ -23,12 +22,7 @@ function getValue(pvName: string, callback: (value: DType) => void): void {
   });
 }
 
-const assertValue = (
-  pvName: string,
-  impliedPv: string,
-  value: any,
-  done: DoneCallback
-): void => {
+const assertValue = (pvName: string, impliedPv: string, value: any): void => {
   getValue(
     impliedPv,
     (updatedValue: DType) =>
@@ -304,27 +298,24 @@ it("test disconnector", () =>
 describe("supports local initialisation", (): void => {
   // See phoebus doc 7.3.4
   // https://buildmedia.readthedocs.org/media/pdf/ph
-  it("floats", (done): void =>
-    assertValue("loc://num(1.2)", "loc://num", 1.2, done));
+  it("floats", (done): void => assertValue("loc://num(1.2)", "loc://num", 1.2));
   it("arrays", (done): void =>
-    assertValue("loc://nums(1.2, 1.3)", "loc://nums", [1.2, 1.3], done));
+    assertValue("loc://nums(1.2, 1.3)", "loc://nums", [1.2, 1.3]));
   //it("text", (done): void => assertValue("loc://text(\"hello\")", "hello", done))
   // no string vtype implemented
   it("long", (done): void =>
-    assertValue("loc://long<Long>(1.8)", "loc://long", 1.8, done));
+    assertValue("loc://long<Long>(1.8)", "loc://long", 1.8));
   it("enums", (done): void =>
     assertValue(
       'loc://options<VEnum>(2, "A", "Initial", "B", "C")',
       "loc://options",
-      1,
-      done
+      1
     ));
   it("named enums", (done): void =>
     assertValue(
       'loc://options#test<VEnum>(2, "A", "Initial", "B", "C")',
       "loc://options#test",
-      1,
-      done
+      1
     ));
 });
 

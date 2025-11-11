@@ -2,7 +2,7 @@
 
 exports[`<MenuMux /> > it matches the snapshot 1`] = `
 <select
-  onChange={[MockFunction spy]}
+  onChange={[MockFunction]}
   style={
     {
       "width": "100%",

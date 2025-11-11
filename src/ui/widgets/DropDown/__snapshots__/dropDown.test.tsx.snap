@@ -2,7 +2,7 @@
 
 exports[`<DropDownComponent /> > it matches the snapshot 1`] = `
 <details
-  className="_Detail_b0feee"
+  className="_Detail_e96ac1"
   open={false}
   style={
     {
@@ -13,13 +13,13 @@ exports[`<DropDownComponent /> > it matches the snapshot 1`] = `
   }
 >
   <summary
-    className="_Summary_b0feee"
+    className="_Summary_e96ac1"
     style={{}}
   >
     Test
   </summary>
   <div
-    className="_Children_b0feee"
+    className="_Children_e96ac1"
     style={
       {
         "height": "100%",
