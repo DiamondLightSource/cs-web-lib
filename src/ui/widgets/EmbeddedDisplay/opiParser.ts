@@ -751,7 +751,9 @@ export const OPI_COMPLEX_PARSERS: ComplexParserDict = {
   points: opiParsePoints
 };
 
-function opiPatchRules(widgetDescription: WidgetDescription): void {
+function opiPatchRules(
+  widgetDescription: WidgetDescription
+): WidgetDescription {
   /* Re-index simple parsers so we can find the correct one
      for the opi prop. */
   const opiPropParsers: ParserDict = {};
@@ -770,6 +772,7 @@ function opiPatchRules(widgetDescription: WidgetDescription): void {
       });
     }
   });
+  return widgetDescription;
 }
 
 function normalisePath(path: string, parentDir?: string): string {
@@ -784,7 +787,7 @@ function normalisePath(path: string, parentDir?: string): string {
 function opiPatchPaths(
   widgetDescription: WidgetDescription,
   parentDir?: string
-): void {
+): WidgetDescription {
   log.debug(`opiPatchPaths ${parentDir}`);
   // file: OpiFile type
   if (
@@ -834,9 +837,12 @@ function opiPatchPaths(
       }
     );
   }
+  return widgetDescription;
 }
 
-function opiPatchActions(widgetDescription: WidgetDescription): void {
+function opiPatchActions(
+  widgetDescription: WidgetDescription
+): WidgetDescription {
   if (
     widgetDescription.type === "actionbutton" &&
     widgetDescription.text &&
@@ -859,6 +865,7 @@ function opiPatchActions(widgetDescription: WidgetDescription): void {
       };
     }
   }
+  return widgetDescription;
 }
 
 export const OPI_PATCHERS: PatchFunction[] = [
