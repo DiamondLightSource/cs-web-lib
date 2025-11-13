@@ -27,7 +27,8 @@ const ImageProps = {
   onClick: FuncPropOpt,
   overflow: BoolPropOpt,
   backgroundColor: ColorPropOpt,
-  transparent: BoolPropOpt
+  transparent: BoolPropOpt,
+  preserveRatio: BoolPropOpt
 };
 
 export const ImageComponent = (
@@ -37,7 +38,8 @@ export const ImageComponent = (
     rotation = 0,
     flipHorizontal,
     flipVertical,
-    stretchToFit = false
+    stretchToFit = false,
+    preserveRatio = false
   } = props;
 
   const onClick = (event: React.MouseEvent<HTMLDivElement>): void => {
@@ -67,6 +69,10 @@ export const ImageComponent = (
     imageFileName = imageFileName + new Date().getTime();
   }
 
+  // In Phoebus, the aspect ratio of svgs is always maintained even when
+  // stretchToFit is true. Also accept preserveRatio property passed from
+  // Symbol widget
+  const ratio = imageFileName.includes(".svg") ? true : preserveRatio;
   return (
     <div style={style} onClick={onClick}>
       <img
@@ -77,7 +83,7 @@ export const ImageComponent = (
           transform: `rotate(${rotation}deg) scaleX(${
             flipHorizontal ? -1 : 1
           }) scaleY(${flipVertical ? -1 : 1})`,
-          objectFit: stretchToFit ? "fill" : "none",
+          objectFit: ratio || !stretchToFit ? "contain" : "fill",
           objectPosition: "top left"
         }}
       />

@@ -55,7 +55,8 @@ const SymbolProps = {
   arrayIndex: FloatPropOpt,
   enabled: BoolPropOpt,
   fallbackSymbol: StringPropOpt,
-  transparent: BoolPropOpt
+  transparent: BoolPropOpt,
+  preserveRatio: BoolPropOpt
 };
 
 export type SymbolComponentProps = InferWidgetProps<typeof SymbolProps> &
@@ -76,6 +77,7 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
     backgroundColor = "white",
     showBooleanLabel = false,
     enabled = true,
+    preserveRatio = true,
     pvData
   } = props;
   const { value } = getPvValueAndName(pvData);
@@ -158,7 +160,7 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
         transparent
         imageFile={imageFile}
         onClick={onClick}
-        stretchToFit={false}
+        stretchToFit={preserveRatio ? false : true}
         overflow={true}
       />
       {isBob ? (
