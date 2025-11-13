@@ -2,7 +2,7 @@
 
 exports[`<Slideshow /> > it matches the snapshot 1`] = `
 <div
-  className="_Slideshow_04eadb"
+  className="_Slideshow_9785a1"
   style={
     {
       "backgroundColor": undefined,
