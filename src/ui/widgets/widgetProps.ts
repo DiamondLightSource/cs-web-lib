@@ -8,7 +8,8 @@ import {
   ActionsPropType,
   RulesPropOpt,
   PvTypePropOpt,
-  PVMetadataType
+  PVMetadataType,
+  ScriptsPropOpt
 } from "./propTypes";
 
 import { GenericProp } from "../../types/props";
@@ -17,6 +18,7 @@ import PropTypes from "prop-types";
 // Internal prop types object for properties which are not in a standard widget
 const BasicPropsType = {
   rules: RulesPropOpt,
+  scripts: ScriptsPropOpt,
   actions: ActionsPropType,
   tooltip: StringPropOpt,
   border: BorderPropOpt,

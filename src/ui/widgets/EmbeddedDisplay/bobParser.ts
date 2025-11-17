@@ -26,7 +26,7 @@ import {
   RelativePosition
 } from "../../../types/position";
 import { PV } from "../../../types/pv";
-import { OpiFile, Rule } from "../../../types/props";
+import { OpiFile, Rule, Script } from "../../../types/props";
 import {
   OPEN_PAGE,
   OPEN_TAB,
@@ -42,6 +42,7 @@ import { Point, Points } from "../../../types/points";
 import { Axis } from "../../../types/axis";
 import { Trace } from "../../../types/trace";
 import { parsePlt } from "./pltParser";
+import { scriptParser } from "./scripts/scriptParser";
 
 const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   action_button: "actionbutton",
@@ -506,6 +507,8 @@ export async function parseBob(
     ...BOB_COMPLEX_PARSERS,
     rules: (rules: Rule[]): Rule[] =>
       opiParseRules(rules, defaultProtocol, false),
+    scripts: (scripts: ElementCompact): Script[] =>
+      scriptParser(scripts, defaultProtocol, false),
     traces: (props: ElementCompact) => bobParseTraces(props["traces"]),
     axes: (props: ElementCompact) => bobParseYAxes(props["y_axes"]),
     plt: async (props: ElementCompact) =>

@@ -99,6 +99,11 @@ const RulePvs = PropTypes.shape({
   trigger: BoolProp
 }).isRequired;
 
+const ScriptPvs = PropTypes.shape({
+  pvName: PvProp,
+  trigger: BoolProp
+}).isRequired;
+
 const RuleExpressions = PropTypes.shape({
   boolExp: StringProp,
   value: PropTypes.any,
@@ -113,8 +118,16 @@ export const RulePropType = PropTypes.shape({
   expressions: PropTypes.arrayOf(RuleExpressions).isRequired
 });
 
+export const ScriptPropType = PropTypes.shape({
+  file: StringProp,
+  text: StringProp,
+  pvs: PropTypes.arrayOf(ScriptPvs).isRequired
+});
+
 export const RulesProp = PropTypes.arrayOf(RulePropType.isRequired).isRequired;
 export const RulesPropOpt = PropTypes.arrayOf(RulePropType.isRequired);
+
+export const ScriptsPropOpt = PropTypes.arrayOf(ScriptPropType.isRequired);
 
 export const StringOrNumPropOpt = PropTypes.oneOfType([
   PropTypes.string,

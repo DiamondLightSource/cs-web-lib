@@ -64,7 +64,7 @@ describe("bob widget parser", (): void => {
     expect(widget.rotationStep).toEqual(1);
   });
 
-  const readbackString = `
+  const readbackStringWithEmbeddedScript = `
   <display version="2.0.0">
     <x>0</x>
     <y>0</y>
@@ -78,12 +78,74 @@ describe("bob widget parser", (): void => {
       <width>140</width>
       <height>50</height>
       <border_alarm_sensitive>false</border_alarm_sensitive>
+      <scripts>
+        <script file="EmbeddedJs">
+          <text>
+            /* Embedded javascript */ importClass(org.csstudio.display.builder.runtime.script.PVUtil);
+            importClass(org.csstudio.display.builder.runtime.script.ScriptUtil);
+            importPackage(Packages.org.csstudio.opibuilder.scriptUtil);
+            logger = ScriptUtil.getLogger();
+            logger.info("Hello")
+            var value = PVUtil.getDouble(pvs[0]);
+            if (value > 299) {
+              widget.setPropertyValue("background_color", ColorFontUtil.getColorFromRGB(255, 255, 0));
+            } else {
+              widget.setPropertyValue("background_color", ColorFontUtil.getColorFromRGB(128, 255, 255));
+            }
+          </text>
+          <pv_name>SR-DI-DCCT-01:SIGNAL</pv_name>
+          <pv_name trigger="false">$(pv_name)</pv_name>
+        </script>
+      </scripts>
     </widget>
   </display>`;
   it("parses a readback widget", async (): Promise<void> => {
-    const widget = (await parseBob(readbackString, "xxx", PREFIX))
-      .children?.[0] as WidgetDescription;
+    const widget = (
+      await parseBob(readbackStringWithEmbeddedScript, "xxx", PREFIX)
+    ).children?.[0] as WidgetDescription;
     expect(widget.pvMetadataList[0].pvName).toEqual(PV.parse("xxx://abc"));
+  });
+
+  it("parses an embeded script in a widget", async (): Promise<void> => {
+    const expectedScripts = [
+      {
+        file: "EmbeddedJs",
+        pvs: [
+          {
+            pvName: {
+              name: "SR-DI-DCCT-01:SIGNAL",
+              protocol: "xxx"
+            },
+            trigger: true
+          },
+          {
+            pvName: {
+              name: "$(pv_name)",
+              protocol: "xxx"
+            },
+            trigger: true
+          }
+        ],
+        text: `
+            /* Embedded javascript */ importClass(org.csstudio.display.builder.runtime.script.PVUtil);
+            importClass(org.csstudio.display.builder.runtime.script.ScriptUtil);
+            importPackage(Packages.org.csstudio.opibuilder.scriptUtil);
+            logger = ScriptUtil.getLogger();
+            logger.info("Hello")
+            var value = PVUtil.getDouble(pvs[0]);
+            if (value > 299) {
+              widget.setPropertyValue("background_color", ColorFontUtil.getColorFromRGB(255, 255, 0));
+            } else {
+              widget.setPropertyValue("background_color", ColorFontUtil.getColorFromRGB(128, 255, 255));
+            }
+          `
+      }
+    ];
+
+    const widget = (
+      await parseBob(readbackStringWithEmbeddedScript, "xxx", PREFIX)
+    ).children?.[0] as WidgetDescription;
+    expect(widget.scripts).toEqual(expectedScripts);
   });
 
   const noXString = `
