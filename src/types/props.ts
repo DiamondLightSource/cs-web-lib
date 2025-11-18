@@ -22,6 +22,7 @@ export type GenericProp =
   | Border
   | Position
   | Rule[]
+  | Script[]
   | MacroMap
   | WidgetActions
   | OpiFile
@@ -43,12 +44,20 @@ interface RulePV {
   trigger: boolean;
 }
 
+type ScriptPV = RulePV;
+
 export interface Rule {
   name: string;
   prop: string;
   outExp: boolean;
   pvs: RulePV[];
   expressions: Expression[];
+}
+
+export interface Script {
+  file: string;
+  pvs: ScriptPV[];
+  text: string;
 }
 
 export interface OpiFile {
