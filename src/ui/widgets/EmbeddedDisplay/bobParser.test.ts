@@ -81,7 +81,8 @@ describe("bob widget parser", (): void => {
       <scripts>
         <script file="EmbeddedJs">
           <text>
-            /* Embedded javascript */ importClass(org.csstudio.display.builder.runtime.script.PVUtil);
+            /* Embedded javascript */
+            importClass(org.csstudio.display.builder.runtime.script.PVUtil);
             importClass(org.csstudio.display.builder.runtime.script.ScriptUtil);
             importPackage(Packages.org.csstudio.opibuilder.scriptUtil);
             logger = ScriptUtil.getLogger();
@@ -127,7 +128,8 @@ describe("bob widget parser", (): void => {
           }
         ],
         text: `
-            /* Embedded javascript */ importClass(org.csstudio.display.builder.runtime.script.PVUtil);
+            /* Embedded javascript */
+            importClass(org.csstudio.display.builder.runtime.script.PVUtil);
             importClass(org.csstudio.display.builder.runtime.script.ScriptUtil);
             importPackage(Packages.org.csstudio.opibuilder.scriptUtil);
             logger = ScriptUtil.getLogger();
