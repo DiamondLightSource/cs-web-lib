@@ -1,23 +1,9 @@
-/*
-  importClass(org.csstudio.display.builder.runtime.script.PVUtil);
-  importClass(org.csstudio.display.builder.runtime.script.ScriptUtil);
-  importPackage(Packages.org.csstudio.opibuilder.scriptUtil);
-  logger = ScriptUtil.getLogger();
-  logger.info("Hello")
-  var value = PVUtil.getDouble(pvs[0]);
-
-  if (value > 299) {
-    widget.setPropertyValue("background_color", ColorFontUtil.getColorFromRGB(255, 255, 0));
-  } else {
-    widget.setPropertyValue("background_color", ColorFontUtil.getColorFromRGB(128, 255, 255));
-  }
-*/
 import log from "loglevel";
 import { v4 as uuidv4 } from "uuid";
 
 let iFrameSandboxScriptRunner: HTMLIFrameElement | null = null;
 
-// Define the IFramce HTML and javascript to handle execution of dynamic scripts.
+// Define the IFrame HTML and javascript to handle execution of dynamic scripts.
 // It also mocks/implements a small subset of the Phoebus script API sufficient for our PoC cases.
 export const iFrameScriptExecutionHandlerCode = `
   <!DOCTYPE html>
