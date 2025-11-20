@@ -8,6 +8,7 @@ import { opiParsePvName } from "../opiParser";
  * @param jsonProp The json describing the array of script objects
  * @param defaultProtocol The default protocol eg ca (channel access)
  * @param isOpiFile true if this is an OPI file, false otherwise.
+ * @returns An array of Script objects that have been extracted from jsonProp
  */
 export const scriptParser = (
   jsonProp: ElementCompact,
