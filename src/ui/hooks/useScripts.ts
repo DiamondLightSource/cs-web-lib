@@ -67,7 +67,7 @@ export function useScripts(
         callback(result);
       })
       .catch(reason => {
-        log.error(reason);
+        log.warn(reason);
       });
   }
 }
