@@ -28,7 +28,8 @@ const ImageProps = {
   overflow: BoolPropOpt,
   backgroundColor: ColorPropOpt,
   transparent: BoolPropOpt,
-  preserveRatio: BoolPropOpt
+  preserveRatio: BoolPropOpt,
+  opacity: FloatPropOpt
 };
 
 export const ImageComponent = (
@@ -39,7 +40,8 @@ export const ImageComponent = (
     flipHorizontal,
     flipVertical,
     stretchToFit = false,
-    preserveRatio = false
+    preserveRatio = false,
+    opacity = 1
   } = props;
 
   const onClick = (event: React.MouseEvent<HTMLDivElement>): void => {
@@ -84,7 +86,8 @@ export const ImageComponent = (
             flipHorizontal ? -1 : 1
           }) scaleY(${flipVertical ? -1 : 1})`,
           objectFit: ratio || !stretchToFit ? "contain" : "fill",
-          objectPosition: "top left"
+          objectPosition: "top left",
+          opacity: opacity
         }}
       />
     </div>
