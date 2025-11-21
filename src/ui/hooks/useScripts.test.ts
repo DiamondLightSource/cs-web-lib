@@ -103,6 +103,8 @@ describe("useScripts", () => {
   });
 
   it("should handle undefined scripts prop", () => {
+    // @ts-expect-error Testing undefined input
+    // eslint-disable-next-line
     renderHook(() => useScripts(undefined, mockWidgetId, mockCallback));
 
     expect(useSubscription).toHaveBeenCalledWith(mockWidgetId, [], []);

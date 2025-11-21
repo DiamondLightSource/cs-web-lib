@@ -13,11 +13,11 @@ import {
 } from "../widgets/EmbeddedDisplay/scripts/scriptExecutor";
 import { Script } from "../../types/props";
 
-export function useScripts(
+export const useScripts = (
   scriptsProp: Script[],
   widgetId: string,
   callback: (scriptResponse: ScriptResponse) => void
-) {
+) => {
   const scripts = scriptsProp ?? [];
   const allPvs: string[] = [];
   const allTypes: SubscriptionType[] = [];
@@ -70,4 +70,4 @@ export function useScripts(
         log.warn(reason);
       });
   }
-}
+};
