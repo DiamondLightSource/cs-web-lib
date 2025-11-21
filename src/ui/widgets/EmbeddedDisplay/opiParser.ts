@@ -775,7 +775,7 @@ function opiPatchRules(
   return widgetDescription;
 }
 
-function normalisePath(path: string, parentDir?: string): string {
+export function normalisePath(path: string, parentDir?: string): string {
   let prefix = parentDir ?? "";
   while (path.startsWith("../")) {
     path = path.substr(3);

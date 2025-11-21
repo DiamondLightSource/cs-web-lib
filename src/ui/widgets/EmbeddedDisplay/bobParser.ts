@@ -512,7 +512,7 @@ export async function parseBob(
     traces: (props: ElementCompact) => bobParseTraces(props["traces"]),
     axes: (props: ElementCompact) => bobParseYAxes(props["y_axes"]),
     plt: async (props: ElementCompact) =>
-      await parsePlt(props["file"], props._attributes?.type)
+      await parsePlt(props["file"], filepath, props._attributes?.type)
   };
 
   const displayWidget = await parseWidget(
