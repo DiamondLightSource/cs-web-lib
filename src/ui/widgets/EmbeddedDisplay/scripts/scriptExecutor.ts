@@ -3,6 +3,13 @@ import { v4 as uuidv4 } from "uuid";
 
 let iFrameSandboxScriptRunner: HTMLIFrameElement | null = null;
 
+export interface ScriptResponse {
+  functionReturnValue: any;
+  widgetProps: {
+    [key: string]: any;
+  };
+}
+
 // Define the IFrame HTML and javascript to handle execution of dynamic scripts.
 // It also mocks/implements a small subset of the Phoebus script API sufficient for our PoC cases.
 export const iFrameScriptExecutionHandlerCode = `
@@ -106,7 +113,7 @@ const buildSandboxIframe = async (): Promise<HTMLIFrameElement> => {
     setTimeout(() => {
       window.removeEventListener("message", onMessage);
       reject(new Error("The creation of a script execution iframe timed out"));
-    }, 5000);
+    }, 1000);
   });
 };
 
@@ -121,10 +128,7 @@ const buildSandboxIframe = async (): Promise<HTMLIFrameElement> => {
 export const executeDynamicScriptInSandbox = async (
   dynamicScriptCode: string,
   pvs: any[]
-): Promise<{
-  functionReturnValue: any;
-  widgetProps: { [key: string]: any };
-}> => {
+): Promise<ScriptResponse> => {
   if (!iFrameSandboxScriptRunner) {
     await buildSandboxIframe();
   }
@@ -160,8 +164,8 @@ export const executeDynamicScriptInSandbox = async (
 
     setTimeout(() => {
       window.removeEventListener("message", messageHandler);
-      reject(new Error("Script execution timed out"));
-    }, 5000);
+      reject(new Error("Dynamic script execution timed out"));
+    }, 1000);
 
     // Send a message containing the script and pv values to the IFrame to trigger the execution of the script.
     iFrameSandboxScriptRunner?.contentWindow?.postMessage(

@@ -22,6 +22,10 @@ import { ExitFileContext, FileContext } from "../../misc/fileContext";
 import { executeAction, WidgetAction, WidgetActions } from "./widgetActions";
 import { Popover } from "react-tiny-popover";
 import { resolveTooltip } from "./tooltip";
+import { useScripts } from "../hooks/useScripts";
+import { ScriptResponse } from "./EmbeddedDisplay/scripts/scriptExecutor";
+import { OPI_SIMPLE_PARSERS } from "./EmbeddedDisplay/opiParser";
+import { PositionPropNames } from "../../types/position";
 
 const ALARM_SEVERITY_MAP = {
   [AlarmQuality.ALARM]: 1,
@@ -40,6 +44,54 @@ const AlarmColorsMap = {
   [AlarmQuality.UNDEFINED]: Color.UNDEFINED,
   [AlarmQuality.CHANGING]: Color.CHANGING
 };
+
+const scriptResponseCallback =
+  (setScriptPropsCallback: (props: { [key: string]: any }) => void) =>
+  (scriptResponse: ScriptResponse) => {
+    const propKeys = Object.keys(scriptResponse.widgetProps);
+    if (!propKeys || propKeys.length < 1) {
+      return;
+    }
+
+    setScriptPropsCallback((prevProps: { [key: string]: any }) => {
+      let propsHaveBeenUpdated = false;
+      const updatedProps: { [key: string]: any } = {
+        ...prevProps,
+        position: { ...prevProps.position }
+      };
+
+      propKeys.forEach(propName => {
+        const rawValue = scriptResponse.widgetProps[propName];
+        const propValue =
+          rawValue?.type === "rgbaColor" ? new Color(rawValue?.text) : rawValue;
+
+        // remap to the correct internal property name in cs-web-lib
+        const jsonPropName =
+          Object.keys(OPI_SIMPLE_PARSERS).find(
+            jsonName => OPI_SIMPLE_PARSERS[jsonName][0] === propName
+          ) ?? propName;
+
+        if (jsonPropName === "x") {
+          updatedProps.position["x"] = `${propValue}px`;
+          propsHaveBeenUpdated =
+            propsHaveBeenUpdated ||
+            updatedProps.position["x"] !== prevProps.position["x"];
+        } else if (jsonPropName === "y") {
+          updatedProps.position["y"] = `${propValue}px`;
+          propsHaveBeenUpdated =
+            propsHaveBeenUpdated ||
+            updatedProps.position["y"] !== prevProps.position["y"];
+        } else {
+          updatedProps[jsonPropName] = propValue;
+          propsHaveBeenUpdated =
+            propsHaveBeenUpdated ||
+            updatedProps[jsonPropName] !== prevProps[jsonPropName];
+        }
+      });
+
+      return propsHaveBeenUpdated ? updatedProps : prevProps;
+    });
+  };
 
 /**
  * Return a CSSProperties object for props that multiple widgets may have.
@@ -220,6 +272,12 @@ export const Widget = (props: PVWidgetComponent): JSX.Element => {
   const exitContext = useContext(ExitFileContext);
   const [contextOpen, setContextOpen] = useState(false);
 
+  const [scriptProps, setScriptProps] = useState<{ [key: string]: any }>({
+    position: {}
+  });
+
+  useScripts(props.scripts ?? [], id, scriptResponseCallback(setScriptProps));
+
   const contextMenuTriggerCallback = useCallback(
     (action: WidgetAction): void => {
       executeAction(action, files, exitContext);
@@ -231,6 +289,7 @@ export const Widget = (props: PVWidgetComponent): JSX.Element => {
   const [coords, setCoords] = useState<[number, number]>([0, 0]);
   let onContextMenu: ((e: React.MouseEvent) => void) | undefined = undefined;
   const actionsPresent = props.actions && props.actions.actions.length > 0;
+
   if (actionsPresent) {
     onContextMenu = (e: React.MouseEvent): void => {
       e.preventDefault();
@@ -273,11 +332,21 @@ export const Widget = (props: PVWidgetComponent): JSX.Element => {
   const macroProps = useMacros(idProps);
   // Then rules
   const ruleProps = useRules(macroProps);
+
   log.debug(`ruleProps ${ruleProps}`);
   log.debug(ruleProps);
 
   // Extract remaining parameters
-  const { baseWidget, position, ...baseWidgetProps } = ruleProps;
+  const { baseWidget, position, ...baseWidgetProps } = {
+    ...ruleProps,
+    ...scriptProps,
+    position: ruleProps.position
+  };
+
+  Object.keys(scriptProps.position).forEach((propName: string) => {
+    const posPropName = propName as PositionPropNames;
+    ruleProps.position[posPropName] = scriptProps.position[propName];
+  });
 
   // Calculate the inner div style here as it doesn't update frequently.
   const { showOutlines } = useContext(OutlineContext);
@@ -298,7 +367,7 @@ export const Widget = (props: PVWidgetComponent): JSX.Element => {
       )}
       <ConnectingComponent
         component={baseWidget}
-        widgetProps={baseWidgetProps}
+        widgetProps={baseWidgetProps as ConnectingComponentWidgetProps}
         containerStyle={containerStyle}
         onContextMenu={onContextMenu}
       />
