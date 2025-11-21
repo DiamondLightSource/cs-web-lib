@@ -78,8 +78,9 @@
     "xml-js": "^1.6.11"
   },
   "peerDependencies": {
-    "@types/react": "^18.3.1",
+    "react-router-dom-v5-compat": "^6.30.0",
     "@types/react-router-dom": "^5.3.3",
+    "@types/react": "^18.3.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-redux": "^7.2.9",

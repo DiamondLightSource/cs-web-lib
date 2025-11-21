@@ -6,10 +6,10 @@
  * the URL doesn't change.
  * It is provided to widgets using a React context.
  */
-import React from "react";
+import React, { useEffect, useState } from "react";
 import log from "loglevel";
-import { useNavigate, useLocation } from "react-router-dom-v5-compat";
 import { MacroMap, macrosEqual } from "../types/macros";
+import { useNavigate, useLocation } from "react-router-dom-v5-compat";
 
 export interface FileDescription {
   // All information required for an embedded display
@@ -211,6 +211,10 @@ const INITIAL_PAGE_STATE: PageState = {
     defaultProtocol: "pva"
   }
 };
+interface FileHistory {
+  pageState: PageState;
+  tabState: TabState;
+}
 
 export const FileContext = React.createContext(initialState);
 interface FileProviderProps {
@@ -227,16 +231,39 @@ export const FileProvider: React.FC<FileProviderProps> = (
   // Set up the file context, which contains information about
   // the open pages in DynamicPages and tabs in DynamicTabs.
   const navigate = useNavigate();
+  const location = useLocation();
+
   // Note: when pushing to the history, make sure to use the
   // latest version of the state i.e. history.location.state.
   // Previously I used the version retrieved here and this
   // could overwrite the history with older versions
-
-  const historyLocation = useLocation();
-  const { pageState, tabState } = historyLocation.state ?? {
+  const [state, setState] = useState<FileHistory>({
     pageState: initialPageState,
     tabState: initialTabState
-  };
+  });
+
+  // Try to load state from location.state if available
+  useEffect(() => {
+    if (location.state) {
+      const locationState = location.state as FileHistory;
+      if (locationState.pageState || locationState.tabState) {
+        console.log(locationState);
+        setState(prevState => {
+          if (
+            prevState.pageState === locationState.pageState &&
+            prevState.tabState === locationState.tabState
+          ) {
+            return prevState;
+          } else {
+            return locationState;
+          }
+        });
+      }
+      }
+    }
+  }, [location]);
+
+  const { pageState, tabState } = state;
 
   const fileContext = {
     pageState,
@@ -247,21 +274,25 @@ export const FileProvider: React.FC<FileProviderProps> = (
       pathname?: string
     ): void => {
       const newPageState = addPage(pageState, location, fileDesc);
-      navigate(pathname ?? historyLocation.pathname, {
-        state: {
-          pageState: newPageState,
-          tabState: historyLocation.state?.tabState ?? tabState
-        },
+      const newState = {
+        pageState: newPageState,
+        tabState
+      };
+      setState(newState);
+      navigate(pathname || window.location.pathname, {
+        state: newState,
         replace: false
       });
     },
     removePage: (location: string, fileDesc?: FileDescription): void => {
       const newPageState = removePage(pageState, location, fileDesc);
-      navigate(historyLocation.pathname, {
-        state: {
-          pageState: newPageState,
-          tabState: historyLocation.state?.tabState ?? tabState
-        },
+      const newState = {
+        pageState: newPageState,
+        tabState
+      };
+      setState(newState);
+      navigate(window.location.pathname, {
+        state: newState,
         replace: false
       });
     },
@@ -271,11 +302,13 @@ export const FileProvider: React.FC<FileProviderProps> = (
       fileDesc: FileDescription
     ): void => {
       const newTabState = addTab(tabState, location, tabName, fileDesc);
-      navigate(historyLocation.pathname, {
-        state: {
-          pageState: historyLocation.state?.pageState ?? pageState,
-          tabState: newTabState
-        },
+      const newState = {
+        pageState,
+        tabState: newTabState
+      };
+      setState(newState);
+      navigate(window.location.pathname, {
+        state: newState,
         replace: false
       });
     },
@@ -285,21 +318,25 @@ export const FileProvider: React.FC<FileProviderProps> = (
       fileDesc: FileDescription
     ): void => {
       const newTabState = removeTab(tabState, location, tabName, fileDesc);
-      navigate(historyLocation.pathname, {
-        state: {
-          pageState: historyLocation.state?.pageState ?? pageState,
-          tabState: newTabState
-        },
+      const newState = {
+        pageState,
+        tabState: newTabState
+      };
+      setState(newState);
+      navigate(window.location.pathname, {
+        state: newState,
         replace: false
       });
     },
     selectTab: (location: string, index: number): void => {
       const newTabState = selectTab(tabState, location, index);
-      navigate(historyLocation.pathname, {
-        state: {
-          pageState: historyLocation.state?.pageState ?? pageState,
-          tabState: newTabState
-        },
+      const newState = {
+        pageState,
+        tabState: newTabState
+      };
+      setState(newState);
+      navigate(window.location.pathname, {
+        state: newState,
         replace: false
       });
     }
