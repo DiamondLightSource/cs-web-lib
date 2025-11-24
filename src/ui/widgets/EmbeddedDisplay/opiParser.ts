@@ -706,6 +706,7 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   ledBorder: ["led_border", opiParseNumber],
   ledBorderColor: ["led_border_color", opiParseColor],
   bitReverse: ["bitReverse", opiParseBoolean],
+  square: ["square", opiParseBoolean],
   squareLed: ["square_led", opiParseBoolean],
   squareButton: ["square_button", opiParseBoolean],
   effect3d: ["effect_3d", opiParseBoolean],

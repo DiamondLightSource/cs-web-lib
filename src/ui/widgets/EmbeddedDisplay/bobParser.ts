@@ -421,7 +421,7 @@ const BOB_SIMPLE_PARSERS: ParserDict = {
   imageFile: ["file", opiParseString],
   points: ["points", bobParsePoints],
   resize: ["resize", bobParseResizing],
-  squareLed: ["square", opiParseBoolean],
+  square: ["square", opiParseBoolean],
   formatType: ["format", bobParseFormatType],
   stretchToFit: ["stretch_image", opiParseBoolean],
   macros: ["macros", opiParseMacros],

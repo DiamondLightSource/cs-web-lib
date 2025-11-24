@@ -22,7 +22,7 @@ export const ByteMonitorProps = {
   startBit: IntPropOpt,
   horizontal: BoolPropOpt,
   bitReverse: BoolPropOpt,
-  squareLed: BoolPropOpt,
+  square: BoolPropOpt,
   ledBorder: IntPropOpt,
   ledBorderColor: ColorPropOpt,
   effect3d: BoolPropOpt
@@ -49,8 +49,8 @@ export const ByteMonitorComponent = (
     onColor = Color.fromRgba(0, 255, 0),
     offColor = Color.fromRgba(0, 100, 0),
     ledBorder = 2,
-    ledBorderColor = Color.fromRgba(150, 150, 150), // dark grey
-    squareLed = false,
+    ledBorderColor = Color.fromRgba(50, 50, 50, 178), // dark grey
+    square = false,
     effect3d = false,
     width = WIDGET_DEFAULT_SIZES["byte_monitor"][0],
     height = WIDGET_DEFAULT_SIZES["byte_monitor"][1]
@@ -73,7 +73,7 @@ export const ByteMonitorComponent = (
     height,
     border,
     horizontal,
-    squareLed
+    square
   );
   const ledArray: Array<JSX.Element> = [];
   dataValues.forEach((data: number, idx: number) => {
@@ -94,7 +94,7 @@ export const ByteMonitorComponent = (
     style["borderColor"] = ledBorderColor.toString();
     style["borderWidth"] = `${borderWidth}px`;
     // Set shape as square or circular
-    if (squareLed) {
+    if (square) {
       style.width = `${bitWidth + borderWidth}px`;
       style.height = `${bitHeight + borderWidth}px`;
     } else {
@@ -113,7 +113,7 @@ export const ByteMonitorComponent = (
       style["backgroundImage"] = `radial-gradient(circle at top left, white, ${
         data ? onColor?.toString() : offColor?.toString()
       })`;
-      if (!squareLed) {
+      if (!square) {
         style["borderColor"] = "transparent";
         style["backgroundImage"] +=
           ", radial-gradient(circle at top left, black,white)";
