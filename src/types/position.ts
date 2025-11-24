@@ -1,6 +1,16 @@
 import { CSSProperties } from "react";
 
 export type Position = AbsolutePosition | RelativePosition;
+export type PositionPropNames =
+  | "x"
+  | "y"
+  | "width"
+  | "height"
+  | "margin"
+  | "padding"
+  | "minWidth"
+  | "maxWidth"
+  | "minHeight";
 
 function invalidSize(size?: string): boolean {
   return size === "" || size === undefined;
@@ -67,6 +77,20 @@ export class AbsolutePosition {
   public toString(): string {
     return `AbsolutePosition (${this.x},${this.y},${this.width},${this.height})`;
   }
+
+  public clone(): AbsolutePosition {
+    return new AbsolutePosition(
+      this.x,
+      this.y,
+      this.width,
+      this.height,
+      this.margin,
+      this.padding,
+      this.minWidth,
+      this.maxWidth,
+      this.minHeight
+    );
+  }
 }
 
 export class RelativePosition {
@@ -117,5 +141,19 @@ export class RelativePosition {
 
   public toString(): string {
     return `RelativePosition (${this.width},${this.height})`;
+  }
+
+  public clone(): RelativePosition {
+    return new RelativePosition(
+      this.x,
+      this.y,
+      this.width,
+      this.height,
+      this.margin,
+      this.padding,
+      this.minWidth,
+      this.maxWidth,
+      this.minHeight
+    );
   }
 }
