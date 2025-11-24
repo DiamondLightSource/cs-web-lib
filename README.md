@@ -41,14 +41,14 @@ cs-web-lib does not contain the full suite of features and widgets provided by P
 | Monitors          | Byte Monitor      | &#9989;  |                     |
 |                   | LED               | &#9989;  |                     |
 |                   | Multi State LED   | &#10060; | Add later           |
-|                   | Meter             | &#10060; | Add later (date unknown, low priority) |
+|                   | Meter             | &#9989;  |                     |
 |                   | Progress Bar      | &#9989;  |                     |
 |                   | Symbol            | &#9989;  |                     |
 |                   | Table             | &#9989;  |                     |
-|                   | Tank              | &#10060; | Add later (date unknown, low priority) |
+|                   | Tank              | &#9989;  |                     |
 |                   | Text Symbol       | &#10060; | Add later           |
 |                   | Text Update       | &#9989;  |                     | 
-|                   | Thermometer       | &#10060; | Add later (date unknown, low priority) |
+|                   | Thermometer       | &#9989;  |                     |
 | Controls          | Action Button     | &#9989;  |                     |
 |                   | Boolean Button    | &#9989;  |                     |
 |                   | Check Box         | &#9989;  |                     |
@@ -62,9 +62,9 @@ cs-web-lib does not contain the full suite of features and widgets provided by P
 |                   | Spinner           | &#10060; | Add later (date unknown, low priority) |
 |                   | Text Entry        | &#9989;  |                     |
 |                   | Thumbwheel        | &#10060; | Add later (date unknown, low priority) |
-| Plots             | Data Browser      | &#10060; | Add later (date unknown, low priority) |
+| Plots             | Data Browser      | &#9989;  | Basic Implementation |
 |                   | Image             | &#10060; | Unknown             |
-|                   | Stripchart        | &#10060; | Unknown             |
+|                   | Stripchart        | &#9989;  |                     |
 |                   | XY Plot           | &#9989;  |                     |
 | Structure         | Array             | &#10060; | Add later           |
 |                   | Embedded Display  | &#9989;  |                     |
@@ -78,9 +78,9 @@ cs-web-lib does not contain the full suite of features and widgets provided by P
 | Widget      | Included | Reason                  |
 | :---------: | :------: | :---------------------: |
 | Actions     | &#9989;  | Some actions may not be supported. Please open an issue for any issues noticed. |
-| Formulas    | &#10060; | `sim://` PVs are supported, but not `eq://`. This will be added in future. |
-| Rules       | &#9989;  | Partial support. x, y and Font rules are currently not supported. This will be added in future. Please open an issue for any issues noticed.|
-| Scripts     | &#10060; | The use of scripting is recommended against in general by CS Studio Developers. Formulae should be able to handle most use cases.  |
+| Formulas    | &#9989;  | `sim://`, `eq://` and `loc://` PVs are supported. |
+| Rules       | &#9989;  | Partial support. Please open an issue for any issues noticed.|
+| Scripts     | &#10060; | Basic PoC for scripting is currently implemented, which works for background colour and position. Based off this, scripting may be fully incorporated in future.  |
 
 ## Development
 To develop on the library code first clone this repo, install the npm package dependencies and then make changes:
