@@ -2,6 +2,7 @@ import log from "loglevel";
 import { v4 as uuidv4 } from "uuid";
 
 let iFrameSandboxScriptRunner: HTMLIFrameElement | null = null;
+let iFrameSandboxReady = false;
 
 export interface ScriptResponse {
   functionReturnValue: any;
@@ -95,6 +96,7 @@ const buildSandboxIframe = async (): Promise<HTMLIFrameElement> => {
         event.source === iFrameSandboxScriptRunner?.contentWindow
       ) {
         log.debug("The script runner iframe has started");
+        iFrameSandboxReady = true;
         window.removeEventListener("message", onMessage);
         resolve(iFrameSandboxScriptRunner as HTMLIFrameElement);
       }
@@ -127,6 +129,18 @@ export const executeDynamicScriptInSandbox = async (
 ): Promise<ScriptResponse> => {
   if (!iFrameSandboxScriptRunner) {
     await buildSandboxIframe();
+  }
+
+  if (!iFrameSandboxReady) {
+    // The iFrame sandbox is still starting up, this can happen on app startup.
+    // We don't want to block, so log and return an empty response.
+    log.warn(
+      "The Iframe sandbox is starting up, dynamic script execution skipped on this occasion."
+    );
+    return {
+      functionReturnValue: "",
+      widgetProps: {}
+    };
   }
 
   if (!iFrameSandboxScriptRunner?.contentWindow) {
