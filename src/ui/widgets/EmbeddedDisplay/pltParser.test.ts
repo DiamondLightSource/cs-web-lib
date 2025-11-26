@@ -97,7 +97,11 @@ describe("plt parser", (): void => {
     });
     const mockFetch = (): Promise<unknown> => mockFetchPromise;
     vi.spyOn(globalWithFetch, "fetch").mockImplementation(mockFetch);
-    const plt = await parsePlt({ _text: "fakefile.plt" }, "databrowser");
+    const plt = await parsePlt(
+      { _text: "fakefile.plt" },
+      "fakeDir",
+      "databrowser"
+    );
     expect(plt.backgroundColor).toEqual(Color.fromRgba(204, 204, 204));
     // Check custom props parsed correctly
     expect(plt.axes.length).toEqual(1);

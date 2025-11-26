@@ -25,7 +25,8 @@ export const LedProps = {
   offColor: ColorPropOpt,
   lineColor: ColorPropOpt,
   alarmSensitive: BoolPropOpt,
-  bit: IntPropOpt
+  bit: IntPropOpt,
+  square: BoolPropOpt
 };
 
 export type LedComponentProps = InferWidgetProps<typeof LedProps> & PVComponent;
@@ -45,7 +46,8 @@ export const LedComponent = (props: LedComponentProps): JSX.Element => {
     width = WIDGET_DEFAULT_SIZES["led"][0],
     height = WIDGET_DEFAULT_SIZES["led"][1],
     alarmSensitive = false,
-    bit = -1
+    bit = -1,
+    square = false
   } = props;
 
   const { value } = getPvValueAndName(pvData);
@@ -65,11 +67,12 @@ export const LedComponent = (props: LedComponentProps): JSX.Element => {
   }
   style["backgroundColor"] = ledOn ? onColor?.toString() : offColor?.toString();
   style["border"] = `2px solid ${lineColor.toString()}`;
+  style["borderRadius"] = square ? "0%" : "50%";
 
   // make sizes similar to size in CS-Studio, five taken
   // away from default in css file too
-  style.width = `${width - 5}px`;
-  style.height = `${height - 5}px`;
+  style.width = `${width}px`;
+  style.height = `${height}px`;
 
   let className = classes.Led;
   if (alarmSensitive) {
