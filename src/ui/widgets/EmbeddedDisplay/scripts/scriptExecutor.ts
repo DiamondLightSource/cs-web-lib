@@ -88,12 +88,13 @@ const buildSandboxIframe = async (): Promise<HTMLIFrameElement> => {
     iFrameSandboxScriptRunner.style.display = "none";
     iFrameSandboxScriptRunner.id = "script-runner-iframe";
 
-    // This adds an event listen to recieve the IFRAME_READY message, that is sent by the iFrame when it is ready to run scripts.
+    // This adds an event listen to receive the IFRAME_READY message, that is sent by the iFrame when it is ready to run scripts.
     const onMessage = (event: MessageEvent) => {
-      if (event.data === "IFRAME_READY") {
-        log.debug(
-          `The script runner iframe has started the following messeage was recievd: ${event.data}`
-        );
+      if (
+        event.data === "IFRAME_READY" &&
+        event.source === iFrameSandboxScriptRunner?.contentWindow
+      ) {
+        log.debug("The script runner iframe has started");
         window.removeEventListener("message", onMessage);
         resolve(iFrameSandboxScriptRunner as HTMLIFrameElement);
       }
@@ -101,19 +102,14 @@ const buildSandboxIframe = async (): Promise<HTMLIFrameElement> => {
 
     window.addEventListener("message", onMessage);
 
-    iFrameSandboxScriptRunner.onload = () => {
-      if (!iFrameSandboxScriptRunner) {
-        return;
-      }
-      iFrameSandboxScriptRunner.srcdoc = iFrameScriptExecutionHandlerCode;
-    };
-
-    document.body.appendChild(iFrameSandboxScriptRunner);
-
     setTimeout(() => {
       window.removeEventListener("message", onMessage);
       reject(new Error("The creation of a script execution iframe timed out"));
     }, 1000);
+
+    iFrameSandboxScriptRunner.srcdoc = iFrameScriptExecutionHandlerCode;
+
+    document.body.appendChild(iFrameSandboxScriptRunner);
   });
 };
 
@@ -140,7 +136,7 @@ export const executeDynamicScriptInSandbox = async (
   return new Promise<any>((resolve, reject) => {
     const id = uuidv4();
 
-    // Define a message handler to recieve the responses from the IFrame.
+    // Define a message handler to receive the responses from the IFrame.
     const messageHandler = (event: MessageEvent) => {
       if (
         event.data?.id === id &&
@@ -149,7 +145,7 @@ export const executeDynamicScriptInSandbox = async (
       ) {
         window.removeEventListener("message", messageHandler);
         if (!event.data?.error) {
-          // Sucess return the response data.
+          // Success return the response data.
           resolve({
             functionReturnValue: event.data?.functionReturnValue,
             widgetProps: event.data?.widgetProps
