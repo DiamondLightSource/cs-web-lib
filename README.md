@@ -260,7 +260,7 @@ You can install a local version of cs-web-lib into a project to test out any cha
 npm run rollup
 npm pack
 cd <PROJECT_REPO_DIR>
-npm install <CS_WEB_LIB_REPO_DIR>/cs-web-lib
+npm install <CS_WEB_LIB_REPO_DIR>/cs-web-lib/diamondlightsource-cs-web-lib-*.*.*.tar.gz
 ```
 
 
