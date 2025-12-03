@@ -76,14 +76,14 @@ async function fetchAndConvert(
    See https://www.robinwieruch.de/react-hooks-fetch-data
    and https://www.smashingmagazine.com/2020/07/custom-react-hook-fetch-cache-data/
 */
-export function useOpiFile(file: File): WidgetDescription {
+export function useOpiFile(file: File, refresh?: boolean): WidgetDescription {
   const fileExt = file.path.split(".").pop() || "json";
   const [contents, setContents] = useState<WidgetDescription>(EMPTY_WIDGET);
 
   useEffect(() => {
     let isMounted = true;
     const fetchData = async (): Promise<void> => {
-      if (fetchPromises.hasOwnProperty(file.path)) {
+      if (fetchPromises.hasOwnProperty(file.path) && !refresh) {
         // This resource has been requested; once the cached
         // promise has been resolved the fileCache should be
         // populated.
@@ -109,7 +109,7 @@ export function useOpiFile(file: File): WidgetDescription {
     return () => {
       isMounted = false;
     };
-  }, [file.path, file.defaultProtocol, fileExt]);
+  }, [file.path, file.defaultProtocol, fileExt, refresh]);
 
   return contents;
 }

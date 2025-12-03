@@ -48,14 +48,15 @@ const EmbeddedDisplayProps = {
   scroll: BoolPropOpt,
   scalingOrigin: StringPropOpt,
   overrideAutoZoomToFitValue: BoolPropOpt,
-  resize: StringOrNumPropOpt
+  resize: StringOrNumPropOpt,
+  refresh: BoolPropOpt
 };
 
 export const EmbeddedDisplay = (
   props: InferWidgetProps<typeof EmbeddedDisplayProps> &
     EmbeddedDisplayPropsExtra
 ): JSX.Element => {
-  const description = useOpiFile(props.file);
+  const description = useOpiFile(props.file, props.refresh);
   const id = useId();
   let resize = props.resize || "scroll-content";
   // If number, convert back to string
