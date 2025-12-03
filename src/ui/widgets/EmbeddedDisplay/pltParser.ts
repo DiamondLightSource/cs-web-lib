@@ -11,6 +11,7 @@ import { parseChildProps, ParserDict } from "./parser";
 import { Axis } from "../../../types/axis";
 import { Archiver, Trace } from "../../../types/trace";
 import { Plt } from "../../../types/plt";
+import { httpRequest } from "../../../misc/httpClient";
 
 const PLT_PARSERS: ParserDict = {
   start: ["start", opiParseString],
@@ -220,7 +221,7 @@ async function fetchPltFile(file: string, parentDir: string) {
   if (parentDir && !file.startsWith("http")) {
     file = normalisePath(file, parentDir);
   }
-  const filePromise = await fetch(file);
+  const filePromise = await httpRequest(file);
   const contents = await filePromise.text();
   // Convert it to a "compact format"
   const compactJSON = xml2js(contents, {
