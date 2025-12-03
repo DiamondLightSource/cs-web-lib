@@ -6,6 +6,7 @@ import { errorWidget, WidgetDescription } from "../createComponent";
 import { parseBob } from "./bobParser";
 import { parseJson } from "./jsonParser";
 import { parseOpi } from "./opiParser";
+import { httpRequest } from "../../../misc/httpClient";
 
 // Global cache. Should perhaps be put in a context.
 const fileCache: FileCache = {};
@@ -32,12 +33,14 @@ async function fetchAndConvert(
   filepath: string,
   protocol: string
 ): Promise<WidgetDescription> {
-  const parentDir = filepath.substr(0, filepath.lastIndexOf("/"));
-  const filePromise = await fetch(filepath);
-  const fileExt = filepath.split(".").pop() || "json";
-  const contents = await filePromise.text();
-  let description = EMPTY_WIDGET;
   try {
+    const parentDir = filepath.substr(0, filepath.lastIndexOf("/"));
+    const fileResponse = await httpRequest(filepath);
+
+    const fileExt = filepath.split(".").pop() || "json";
+    const contents = await fileResponse.text();
+    let description = EMPTY_WIDGET;
+
     // Hack!
     if (contents.startsWith("<!DOCTYPE html>")) {
       throw new Error("File not found");
