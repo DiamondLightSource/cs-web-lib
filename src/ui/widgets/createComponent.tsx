@@ -21,7 +21,9 @@ const ERROR_WIDGET: WidgetDescription = {
   backgroundColor: Color.TRANSPARENT,
   border: new Border(BorderStyle.Line, Color.RED, 2),
   text: "Error",
-  tooltip: "Error"
+  tooltip: "Error",
+  width: "auto",
+  height: "auto"
 };
 
 export function errorWidget(

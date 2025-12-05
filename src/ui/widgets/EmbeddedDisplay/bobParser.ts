@@ -61,6 +61,7 @@ const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   textupdate: "readback",
   textentry: "input",
   picture: "image",
+  image: "VIDEO_NOT_SUPPORTED",
   polygon: "polygon",
   polyline: "line",
   progressbar: "progressbar",
