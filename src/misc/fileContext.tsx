@@ -8,8 +8,8 @@
  */
 import React from "react";
 import log from "loglevel";
-import { useNavigate, useLocation } from "react-router-dom-v5-compat";
 import { MacroMap, macrosEqual } from "../types/macros";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export interface FileDescription {
   // All information required for an embedded display

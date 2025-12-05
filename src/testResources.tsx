@@ -13,7 +13,6 @@ import {
   WritePv,
   WRITE_PV
 } from "./ui/widgets/widgetActions";
-import { CompatRouter } from "react-router-dom-v5-compat";
 
 // Helper functions for dtypes.
 export function ddouble(
@@ -97,18 +96,16 @@ export function contextRender(
     );
     return (
       <Router>
-        <CompatRouter>
-          <Provider store={store}>
-            <MacroContext.Provider value={macroContext}>
-              <FileProvider
-                initialPageState={initialPageState}
-                initialTabState={initialTabState}
-              >
-                {props.child}
-              </FileProvider>
-            </MacroContext.Provider>
-          </Provider>
-        </CompatRouter>
+        <Provider store={store}>
+          <MacroContext.Provider value={macroContext}>
+            <FileProvider
+              initialPageState={initialPageState}
+              initialTabState={initialTabState}
+            >
+              {props.child}
+            </FileProvider>
+          </MacroContext.Provider>
+        </Provider>
       </Router>
     );
   };
