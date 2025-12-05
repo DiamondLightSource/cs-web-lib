@@ -88,7 +88,7 @@ export function checkPropTypes(
       }
       if (error instanceof Error) {
         const stack = (getStack && getStack()) || "";
-        return "Failed " + location + " type: " + error.message + stack;
+        return "Failed " + location + " type: " + typeSpecName + " Error message:" + error.message + stack;
       }
     }
   }
