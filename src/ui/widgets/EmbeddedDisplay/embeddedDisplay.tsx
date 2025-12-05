@@ -21,11 +21,11 @@ import {
   StringOrNumPropOpt
 } from "../propTypes";
 import { GroupBoxComponent } from "../GroupBox/groupBox";
-import { useOpiFile } from "./useOpiFile";
 import { useId } from "react-id-generator";
 import { getOptionalValue, trimFromString } from "../utils";
 import { Theme, ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
+import { useFile } from "../../hooks/useFile";
 
 const RESIZE_STRINGS = [
   "scroll-widget",
@@ -55,7 +55,7 @@ export const EmbeddedDisplay = (
   props: InferWidgetProps<typeof EmbeddedDisplayProps> &
     EmbeddedDisplayPropsExtra
 ): JSX.Element => {
-  const description = useOpiFile(props.file);
+  const description = useFile(props.file);
   const id = useId();
   let resize = props.resize || "scroll-content";
   // If number, convert back to string

@@ -53,5 +53,14 @@ describe("<ImageComponent />", (): void => {
       }
       expect.assertions(1);
     });
+
+    test("opacity is applied", (): void => {
+      render(<ImageComponent imageFile="test.jpg#" opacity={0.33} />);
+      const img = screen.getByRole("img");
+
+      if ("style" in img) {
+        expect(img.style).toHaveProperty("opacity", "0.33");
+      }
+    });
   });
 });

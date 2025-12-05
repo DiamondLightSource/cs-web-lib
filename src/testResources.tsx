@@ -80,7 +80,8 @@ export function contextRender(
     globalMacros: {},
     subscriptions: {},
     valueCache: {},
-    deviceCache: {}
+    deviceCache: {},
+    fileCache: {}
   }
 ): RenderResult {
   const ParentComponent = (props: { child: JSX.Element }): JSX.Element => {

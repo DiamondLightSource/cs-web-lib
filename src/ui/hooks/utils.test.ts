@@ -1,11 +1,15 @@
 import { CsState, PvState, FullPvState } from "../../redux/csState";
+import { AbsolutePosition, Color } from "../../types";
 import { DType } from "../../types/dtypes";
+import { WidgetDescription } from "../widgets/createComponent";
 import {
   pvStateSelector,
   pvStateComparator,
   PvArrayResults,
   deviceSelector,
-  deviceComparator
+  deviceComparator,
+  fileSelector,
+  fileComparator
 } from "./utils";
 
 const pv1 = "pv1";
@@ -23,7 +27,8 @@ const state: CsState = {
   globalMacros: {},
   effectivePvNameMap: { pv1: "pv1", pv2: "pv3" },
   subscriptions: {},
-  deviceCache: {}
+  deviceCache: {},
+  fileCache: {}
 };
 
 describe("pvStateSelector", (): void => {
@@ -109,5 +114,58 @@ describe("deviceSelector", (): void => {
   it("returns undefined if device not in cache", (): void => {
     state.deviceCache = {};
     expect(deviceSelector("testDevice", state)).toBeUndefined();
+  });
+});
+
+describe("fileComparator", (): void => {
+  it("returns false if string contents don't match", (): void => {
+    const contents1: WidgetDescription = {
+      type: "shape",
+      position: new AbsolutePosition("0", "0", "0", "0")
+    };
+    const contents2: WidgetDescription = {
+      type: "shape",
+      position: new AbsolutePosition("1", "0", "0", "0")
+    };
+    expect(fileComparator(contents1, contents2)).toBe(false);
+  });
+
+  it("returns false if number of keys changed", (): void => {
+    const contents1: WidgetDescription = {
+      type: "shape",
+      position: new AbsolutePosition("0", "0", "0", "0"),
+      backgroundColor: Color.TRANSPARENT
+    };
+    const contents2: WidgetDescription = {
+      type: "shape",
+      position: new AbsolutePosition("0", "0", "0", "0")
+    };
+
+    expect(fileComparator(contents1, contents2)).toBe(false);
+  });
+
+  it("returns true if matches", (): void => {
+    const contents: WidgetDescription = {
+      type: "shape",
+      position: new AbsolutePosition("0", "0", "0", "0")
+    };
+    expect(fileComparator(contents, { ...contents })).toBe(true);
+  });
+});
+
+describe("fileSelector", (): void => {
+  it("finds file in fileCache", (): void => {
+    const contents: WidgetDescription = {
+      type: "shape",
+      position: new AbsolutePosition("0", "0", "0", "0")
+    };
+    state.fileCache["test.bob"] = contents;
+
+    expect(fileSelector("test.bob", state)).toEqual(contents);
+  });
+
+  it("returns undefined if device not in cache", (): void => {
+    state.deviceCache = {};
+    expect(fileSelector("test2.bob", state)).toBeUndefined();
   });
 });

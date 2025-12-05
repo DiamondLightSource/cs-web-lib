@@ -54,7 +54,7 @@ describe("<ByteMonitorComponent />", (): void => {
       startBit: 8,
       numBits: 16,
       horizontal: false,
-      squareLed: true,
+      square: true,
       bitReverse: true,
       effect3d: false,
       onColor: Color.fromRgba(200, 200, 200),

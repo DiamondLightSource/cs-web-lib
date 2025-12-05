@@ -11,10 +11,16 @@ import {
   ValuesChanged,
   VALUES_CHANGED,
   DeviceQueried,
-  DEVICE_QUERIED
+  DEVICE_QUERIED,
+  RefreshFile,
+  FileChanged,
+  FILE_CHANGED,
+  REFRESH_FILE
 } from "./actions";
 import { AlarmQuality, DAlarm, DType } from "../types/dtypes";
 import { ddouble, dstring, ddoubleArray } from "../testResources";
+import { WidgetDescription } from "../ui/widgets/createComponent";
+import { AbsolutePosition } from "../types";
 
 const initialState: CsState = {
   valueCache: {
@@ -28,7 +34,13 @@ const initialState: CsState = {
   globalMacros: {},
   subscriptions: {},
   effectivePvNameMap: {},
-  deviceCache: {}
+  deviceCache: {},
+  fileCache: {
+    "mySecondFile.bob": {
+      type: "ellipse",
+      position: new AbsolutePosition("0", "0", "0", "0")
+    }
+  }
 };
 
 describe("VALUES_CHANGED", (): void => {
@@ -186,4 +198,34 @@ test("handles initializers", (): void => {
   expect(state4.effectivePvNameMap["PV(1)"]).toEqual("PV");
   const state5 = csReducer(state4, unsubAction2);
   expect(state5.effectivePvNameMap["PV(1)"]).toEqual(undefined);
+});
+
+describe("FILE_CHANGED", (): void => {
+  test("csReducer adds file to fileCache", (): void => {
+    const contents: WidgetDescription = {
+      type: "shape",
+      position: new AbsolutePosition("0", "0", "0", "0")
+    };
+    const fileName = "myfile.bob";
+    const action: FileChanged = {
+      type: FILE_CHANGED,
+      payload: { file: fileName, contents: contents }
+    };
+
+    const newState = csReducer(initialState, action);
+    expect(newState.fileCache[fileName]).toEqual(contents);
+  });
+});
+
+describe("REFRESH_FILE", (): void => {
+  test("csReducer deletes the file entry from fileCache", (): void => {
+    const fileName = "mySecondFile.bob";
+    const action: RefreshFile = {
+      type: REFRESH_FILE,
+      payload: { file: fileName }
+    };
+
+    const newState = csReducer(initialState, action);
+    expect(newState.fileCache[fileName]).toBeUndefined();
+  });
 });

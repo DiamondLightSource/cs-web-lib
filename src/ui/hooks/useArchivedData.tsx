@@ -4,6 +4,7 @@ import { TimeSeriesPoint } from "../widgets/StripChart/stripChart";
 import { convertStringTimePeriod, trimArchiveData } from "../widgets/utils";
 import { useState, useEffect } from "react";
 import { Plt } from "../../types/plt";
+import { httpRequest } from "../../misc/httpClient";
 
 /**
  * Fetch archived data for each PV from archivers available
@@ -40,7 +41,7 @@ export function useArchivedData(plt: Plt): [TimeSeriesPoint[], boolean] {
       for (const url of Object.values(archivers)) {
         let tmpData: any[] = fetchedData;
         try {
-          const resp = await fetch(`${url}${timeString}`);
+          const resp = await httpRequest(`${url}${timeString}`);
           const json = await resp.json();
           json.forEach((data: any) => {
             // Trim each dataset down and push into fetchedData

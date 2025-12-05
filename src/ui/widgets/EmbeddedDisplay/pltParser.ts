@@ -4,12 +4,14 @@ import {
   XmlDescription,
   opiParseBoolean,
   opiParseString,
-  opiParseNumber
+  opiParseNumber,
+  normalisePath
 } from "./opiParser";
 import { parseChildProps, ParserDict } from "./parser";
 import { Axis } from "../../../types/axis";
 import { Archiver, Trace } from "../../../types/trace";
 import { Plt } from "../../../types/plt";
+import { httpRequest } from "../../../misc/httpClient";
 
 const PLT_PARSERS: ParserDict = {
   start: ["start", opiParseString],
@@ -187,12 +189,16 @@ function pltParseColor(jsonProp: ElementCompact) {
  */
 export async function parsePlt(
   file: ElementCompact,
+  parentDir: string,
   widgetType?: string | number
 ): Promise<Plt> {
   // TO DO - check file ext is plt
   let props = new Plt();
   if (widgetType === "databrowser" && typeof file._text === "string") {
-    const databrowser: XmlDescription = await fetchPltFile(file._text);
+    const databrowser: XmlDescription = await fetchPltFile(
+      file._text,
+      parentDir
+    );
     // Parse the simple props
     const [pvlist, pvAxes] = pltParsePvlist(databrowser["pvlist"]);
     const axes = pltParseAxes(databrowser["axes"], pvAxes);
@@ -210,8 +216,12 @@ export async function parsePlt(
  * @param file
  * @returns JSON object
  */
-async function fetchPltFile(file: string) {
-  const filePromise = await fetch(file);
+async function fetchPltFile(file: string, parentDir: string) {
+  // Patch filepath if relative path
+  if (parentDir && !file.startsWith("http")) {
+    file = normalisePath(file, parentDir);
+  }
+  const filePromise = await httpRequest(file);
   const contents = await filePromise.text();
   // Convert it to a "compact format"
   const compactJSON = xml2js(contents, {

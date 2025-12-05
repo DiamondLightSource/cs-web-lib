@@ -8,17 +8,21 @@ import {
   WRITE_PV,
   CONNECTION_CHANGED,
   UNSUBSCRIBE,
-  ValueChanged
+  ValueChanged,
+  FILE_CHANGED,
+  REFRESH_FILE
 } from "./actions";
 import { MacroMap } from "../types/macros";
 import { DType, mergeDType } from "../types/dtypes";
+import { WidgetDescription } from "../ui/widgets/createComponent";
 
 const initialState: CsState = {
   valueCache: {},
   globalMacros: { SUFFIX: "1" },
   effectivePvNameMap: {},
   subscriptions: {},
-  deviceCache: {}
+  deviceCache: {},
+  fileCache: {}
 };
 
 export interface PvState {
@@ -51,6 +55,10 @@ export interface DeviceCache {
   [deviceName: string]: DType;
 }
 
+export interface FileCache {
+  [fileName: string]: WidgetDescription;
+}
+
 /* The shape of the store for the entire application. */
 export interface CsState {
   valueCache: ValueCache;
@@ -58,6 +66,7 @@ export interface CsState {
   globalMacros: MacroMap;
   subscriptions: Subscriptions;
   deviceCache: DeviceCache;
+  fileCache: FileCache;
 }
 
 /* Given a new object that is a shallow copy of the original
@@ -162,6 +171,24 @@ export function csReducer(state = initialState, action: Action): CsState {
       return {
         ...state,
         deviceCache: newDeviceState
+      };
+    }
+    case FILE_CHANGED: {
+      const { file, contents } = action.payload;
+      const newFileState = { ...state.fileCache };
+      newFileState[file] = contents;
+      return {
+        ...state,
+        fileCache: newFileState
+      };
+    }
+    case REFRESH_FILE: {
+      const { file } = action.payload;
+      const newFileState = { ...state.fileCache };
+      delete newFileState[file];
+      return {
+        ...state,
+        fileCache: newFileState
       };
     }
   }
