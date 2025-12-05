@@ -1,5 +1,6 @@
 import { PvState, CsState } from "../../redux/csState";
 import { DType } from "../../types/dtypes";
+import { WidgetDescription } from "../widgets/createComponent";
 
 export interface PvArrayResults {
   [pvName: string]: [PvState, string];
@@ -19,6 +20,10 @@ export function pvStateSelector(
 
 export function deviceSelector(device: string, state: CsState): DType {
   return state.deviceCache[device];
+}
+
+export function fileSelector(file: string, state: CsState): WidgetDescription {
+  return state.fileCache[file];
 }
 
 export function deviceComparator(before: DType, after: DType): boolean {
@@ -60,6 +65,27 @@ export function pvStateComparator(
     if (beforeVal !== afterVal || beforeEffPvName !== afterEffPvName) {
       return false;
     }
+  }
+  return true;
+}
+
+export function fileComparator(
+  before: WidgetDescription,
+  after: WidgetDescription
+): boolean {
+  if (!before || !after) {
+    return false;
+  }
+  if (Object.keys(before).length !== Object.keys(after).length) {
+    return false;
+  }
+  if (before.children?.length !== after.children?.length) {
+    return false;
+  }
+  // Can't compare objects directly because they are in different memory locations
+  // But we can compare strings
+  if (JSON.stringify(before) !== JSON.stringify(after)) {
+    return false;
   }
   return true;
 }

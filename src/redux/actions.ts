@@ -9,6 +9,8 @@ export const VALUES_CHANGED = "values_changed";
 export const WRITE_PV = "write_pv";
 export const DEVICE_QUERIED = "device_queried";
 export const QUERY_DEVICE = "query_device";
+export const FILE_CHANGED = "file_changed";
+export const REFRESH_FILE = "refresh_file";
 
 /* The never type in the constructor ensures that TypeScript
    won't allow this error to be created. This is useful in
@@ -81,6 +83,21 @@ export interface QueryDevice {
   };
 }
 
+export interface FileChanged {
+  type: typeof FILE_CHANGED;
+  payload: {
+    file: string;
+    contents: any;
+  };
+}
+
+export interface RefreshFile {
+  type: typeof REFRESH_FILE;
+  payload: {
+    file: string;
+  };
+}
+
 export type Action =
   | ConnectionChanged
   | Subscribe
@@ -89,4 +106,6 @@ export type Action =
   | ValuesChanged
   | WritePv
   | DeviceQueried
-  | QueryDevice;
+  | QueryDevice
+  | FileChanged
+  | RefreshFile;

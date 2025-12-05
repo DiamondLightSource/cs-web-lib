@@ -15,7 +15,8 @@ function getConnectionState(): CsState {
     subscriptions: {},
     globalMacros: {},
     effectivePvNameMap: {},
-    deviceCache: { testDevice: new DType({ stringValue: "42" }) }
+    deviceCache: { testDevice: new DType({ stringValue: "42" }) },
+    fileCache: {}
   };
 }
 

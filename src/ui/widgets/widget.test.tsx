@@ -39,7 +39,8 @@ describe("<Widget />", (): void => {
       globalMacros: {},
       subscriptions: { [PV_NAME]: [] },
       valueCache: {},
-      deviceCache: {}
+      deviceCache: {},
+      fileCache: {}
     };
     const pv = new PV("pv");
 
