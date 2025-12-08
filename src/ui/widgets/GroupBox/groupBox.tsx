@@ -1,4 +1,4 @@
-import React, { CSSProperties } from "react";
+import React, { CSSProperties, useContext } from "react";
 
 import { Widget } from "../widget";
 import { WidgetPropType } from "../widgetProps";
@@ -10,11 +10,13 @@ import {
   BoolPropOpt,
   FontPropOpt,
   IntPropOpt,
-  StringPropOpt
+  StringPropOpt,
+  MacrosPropOpt
 } from "../propTypes";
 import { Font } from "../../../types/font";
 import { Color } from "../../../types/color";
 import Box from "@mui/material/Box";
+import { MacroContext, MacroContextType } from "../../../types/macros";
 
 const INNER_DIV_STYLE: CSSProperties = {
   position: "relative",
@@ -30,7 +32,8 @@ const GroupBoxProps = {
   lineColor: ColorPropOpt,
   font: FontPropOpt,
   styleOpt: IntPropOpt,
-  transparent: BoolPropOpt
+  transparent: BoolPropOpt,
+  macros: MacrosPropOpt
 };
 
 // Widget that renders a group-box style border showing the name prop.
@@ -83,31 +86,43 @@ export const GroupBoxComponent = (
     name = props.name;
   }
 
+  const parentMacros = useContext(MacroContext).macros;
+  const displayMacros = props.macros ?? {};
+  const updatedMacroContext: MacroContextType = {
+    updateMacro: (key: string, value: string): void => {},
+    macros: {
+      ...parentMacros,
+      ...displayMacros
+    }
+  };
+
   return (
-    <div style={outerDivStyle}>
-      <Box component="fieldset" sx={boxStyle}>
-        {styleOpt === 1 ? (
-          <div
-            style={{
-              height: "20px",
-              width: "100%",
-              backgroundColor: lineColor.toString(),
-              ...font.css(),
-              textAlign: "left",
-              color: foregroundColor.toString()
-            }}
-          >
-            {name}
+    <MacroContext.Provider value={updatedMacroContext}>
+      <div style={outerDivStyle}>
+        <Box component="fieldset" sx={boxStyle}>
+          {styleOpt === 1 ? (
+            <div
+              style={{
+                height: "20px",
+                width: "100%",
+                backgroundColor: lineColor.toString(),
+                ...font.css(),
+                textAlign: "left",
+                color: foregroundColor.toString()
+              }}
+            >
+              {name}
+            </div>
+          ) : (
+            <></>
+          )}
+          {styleOpt === 0 ? <legend>{name}</legend> : <></>}
+          <div style={INNER_DIV_STYLE}>
+            <>{props.children}</>
           </div>
-        ) : (
-          <></>
-        )}
-        {styleOpt === 0 ? <legend>{name}</legend> : <></>}
-        <div style={INNER_DIV_STYLE}>
-          <>{props.children}</>
-        </div>
-      </Box>
-    </div>
+        </Box>
+      </div>
+    </MacroContext.Provider>
   );
 };
 

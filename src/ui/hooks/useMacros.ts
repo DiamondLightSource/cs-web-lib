@@ -68,8 +68,10 @@ export function useMacros<P extends MacroProps>(props: P): AnyProps {
     ...globalMacros, // lower priority
     ...displayMacros, // higher priority
     // Temporary special case for pv_name in macros.
-    pvName: props.pvName?.name || "",
-    pv_name: props.pvName?.name || "",
+    pvName:
+      props.pvName?.name || displayMacros.pvName || globalMacros.pvName || "",
+    pv_name:
+      props.pvName?.name || displayMacros.pv_name || globalMacros.pv_name || "",
     ...propMacros
   };
   return recursiveResolve(props, allMacros);
