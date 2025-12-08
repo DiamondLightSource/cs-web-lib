@@ -8,8 +8,8 @@
  */
 import React from "react";
 import log from "loglevel";
-import { useHistory, useLocation } from "react-router-dom";
 import { MacroMap, macrosEqual } from "../types/macros";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export interface FileDescription {
   // All information required for an embedded display
@@ -211,10 +211,6 @@ const INITIAL_PAGE_STATE: PageState = {
     defaultProtocol: "pva"
   }
 };
-interface FileHistory {
-  pageState: PageState;
-  tabState: TabState;
-}
 
 export const FileContext = React.createContext(initialState);
 interface FileProviderProps {
@@ -230,16 +226,18 @@ export const FileProvider: React.FC<FileProviderProps> = (
   const initialTabState = props.initialTabState ?? {};
   // Set up the file context, which contains information about
   // the open pages in DynamicPages and tabs in DynamicTabs.
-  const history = useHistory<FileHistory>();
+  const navigate = useNavigate();
   // Note: when pushing to the history, make sure to use the
   // latest version of the state i.e. history.location.state.
   // Previously I used the version retrieved here and this
   // could overwrite the history with older versions
-  const historyLocation = useLocation<FileHistory>();
+
+  const historyLocation = useLocation();
   const { pageState, tabState } = historyLocation.state ?? {
     pageState: initialPageState,
     tabState: initialTabState
   };
+
   const fileContext = {
     pageState,
     tabState,
@@ -249,16 +247,22 @@ export const FileProvider: React.FC<FileProviderProps> = (
       pathname?: string
     ): void => {
       const newPageState = addPage(pageState, location, fileDesc);
-      history.push(pathname ? pathname : history.location.pathname, {
-        pageState: newPageState,
-        tabState: history.location.state?.tabState ?? tabState
+      navigate(pathname ?? historyLocation.pathname, {
+        state: {
+          pageState: newPageState,
+          tabState: historyLocation.state?.tabState ?? tabState
+        },
+        replace: false
       });
     },
     removePage: (location: string, fileDesc?: FileDescription): void => {
       const newPageState = removePage(pageState, location, fileDesc);
-      history.push(history.location.pathname, {
-        pageState: newPageState,
-        tabState: history.location.state?.tabState ?? tabState
+      navigate(historyLocation.pathname, {
+        state: {
+          pageState: newPageState,
+          tabState: historyLocation.state?.tabState ?? tabState
+        },
+        replace: false
       });
     },
     addTab: (
@@ -267,9 +271,12 @@ export const FileProvider: React.FC<FileProviderProps> = (
       fileDesc: FileDescription
     ): void => {
       const newTabState = addTab(tabState, location, tabName, fileDesc);
-      history.push(history.location.pathname, {
-        pageState: history.location.state?.pageState ?? pageState,
-        tabState: newTabState
+      navigate(historyLocation.pathname, {
+        state: {
+          pageState: historyLocation.state?.pageState ?? pageState,
+          tabState: newTabState
+        },
+        replace: false
       });
     },
     removeTab: (
@@ -278,16 +285,22 @@ export const FileProvider: React.FC<FileProviderProps> = (
       fileDesc: FileDescription
     ): void => {
       const newTabState = removeTab(tabState, location, tabName, fileDesc);
-      history.push(history.location.pathname, {
-        pageState: history.location.state?.pageState ?? pageState,
-        tabState: newTabState
+      navigate(historyLocation.pathname, {
+        state: {
+          pageState: historyLocation.state?.pageState ?? pageState,
+          tabState: newTabState
+        },
+        replace: false
       });
     },
     selectTab: (location: string, index: number): void => {
       const newTabState = selectTab(tabState, location, index);
-      history.push(history.location.pathname, {
-        pageState: history.location.state?.pageState ?? pageState,
-        tabState: newTabState
+      navigate(historyLocation.pathname, {
+        state: {
+          pageState: historyLocation.state?.pageState ?? pageState,
+          tabState: newTabState
+        },
+        replace: false
       });
     }
   };
