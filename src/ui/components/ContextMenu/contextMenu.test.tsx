@@ -4,15 +4,7 @@ import { fireEvent } from "@testing-library/react";
 import { Widget } from "../../widgets/widget";
 import { RelativePosition } from "../../../types/position";
 import { contextRender, OPEN_BBC_ACTION } from "../../../testResources";
-import { vi, Mock } from "vitest";
-
-vi.mock("react-router-dom-v5-compat", async () => {
-  const actual = await vi.importActual("react-router-dom-v5-compat");
-  return {
-    ...actual,
-    useNavigate: vi.fn(() => vi.fn())
-  };
-});
+import { Mock } from "vitest";
 
 // Clear the window.open mock (set up in setupTests.ts).
 afterEach((): void => {
