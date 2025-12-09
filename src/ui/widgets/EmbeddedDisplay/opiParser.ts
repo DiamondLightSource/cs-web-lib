@@ -733,7 +733,8 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   showGrid: ["show_grid", opiParseBoolean],
   scaleFont: ["scale_font", opiParseFont],
   minimum: ["minimum", opiParseNumber],
-  maximum: ["maximum", opiParseNumber]
+  maximum: ["maximum", opiParseNumber],
+  groupName: ["group_name", opiParseString]
 };
 
 /**

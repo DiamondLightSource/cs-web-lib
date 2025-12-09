@@ -18,7 +18,8 @@ import {
   FilePropType,
   BoolPropOpt,
   StringPropOpt,
-  StringOrNumPropOpt
+  StringOrNumPropOpt,
+  MacrosPropOpt
 } from "../propTypes";
 import { GroupBoxComponent } from "../GroupBox/groupBox";
 import { useId } from "react-id-generator";
@@ -48,7 +49,9 @@ const EmbeddedDisplayProps = {
   scroll: BoolPropOpt,
   scalingOrigin: StringPropOpt,
   overrideAutoZoomToFitValue: BoolPropOpt,
-  resize: StringOrNumPropOpt
+  resize: StringOrNumPropOpt,
+  macros: MacrosPropOpt,
+  groupName: StringPropOpt
 };
 
 export const EmbeddedDisplay = (
@@ -76,11 +79,11 @@ export const EmbeddedDisplay = (
   // Get the screen height and width. If not provided then set to
   // the window height and width, repectively.
   const heightString = getOptionalValue(
-    description.position.height,
+    description.position?.height,
     `${String(window.innerHeight)}px`
   );
   const widthString = getOptionalValue(
-    description.position.width,
+    description.position?.width,
     `${String(window.innerWidth)}px`
   );
 
@@ -149,7 +152,38 @@ export const EmbeddedDisplay = (
     scaleFactorY = String(scaleHeightVal);
   }
 
-  const displayChildren = getOptionalValue(description.children, []);
+  let selectedDescription = description;
+  if (props.groupName) {
+    // A specific group has been specified find that group and resize the display to match its dimensions.
+    let matchingGroup = description.children?.find(
+      x => x.type === "groupbox" && x.name === props.groupName
+    );
+    if (matchingGroup && matchingGroup?.position) {
+      const position = matchingGroup.position.clone();
+      position.x = 0;
+      position.y = 0;
+
+      matchingGroup = { ...matchingGroup, styleOpt: 3, position };
+      if (selectedDescription.position) {
+        const displayPosition = selectedDescription.position.clone();
+        displayPosition.height = matchingGroup.position.height;
+        displayPosition.width = matchingGroup.position.width;
+        displayPosition.x = 0;
+        displayPosition.y = 0;
+        selectedDescription = {
+          ...selectedDescription,
+          position: displayPosition
+        };
+      }
+    }
+
+    selectedDescription = {
+      ...selectedDescription,
+      children: matchingGroup ? [matchingGroup] : description.children
+    };
+  }
+
+  const displayChildren = getOptionalValue(selectedDescription.children, []);
   for (let i = 0; i < displayChildren.length; i++) {
     // Check for nested embeddedDisplays
     if (displayChildren[i].type === "embeddedDisplay") {
@@ -177,11 +211,11 @@ export const EmbeddedDisplay = (
       type: "display",
       position: props.position,
       backgroundColor:
-        description.backgroundColor ?? new Color("rgb(255,255,255"),
+        selectedDescription.backgroundColor ?? new Color("rgb(255,255,255"),
       border:
         props.border ?? new Border(BorderStyle.Line, new Color("white"), 0),
       overflow: overflow,
-      children: [description],
+      children: [selectedDescription],
       scaling: [scaleFactorX, scaleFactorY],
       autoZoomToFit: applyAutoZoomToFit,
       scalingOrigin: props.scalingOrigin
@@ -196,12 +230,14 @@ export const EmbeddedDisplay = (
   // Include and override parent macros with those from the prop.
   const parentMacros = useContext(MacroContext).macros;
   const embeddedDisplayMacros = props.file.macros ?? {};
+  const displayMacros = props.macros ?? {};
   const embeddedDisplayMacroContext: MacroContextType = {
     // Currently not allowing changing the macros of an embedded display.
     updateMacro: (key: string, value: string): void => {},
     macros: {
       ...parentMacros, // lower priority
       ...embeddedDisplayMacros, // higher priority
+      ...displayMacros,
       LCID: id.toString() // highest priority
     }
   };

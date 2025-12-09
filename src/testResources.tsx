@@ -81,15 +81,22 @@ export function contextRender(
     valueCache: {},
     deviceCache: {},
     fileCache: {}
-  }
+  },
+  initialContextMacros = {}
 ): RenderResult {
   const ParentComponent = (props: { child: JSX.Element }): JSX.Element => {
     // Hard-code macros for now.
     // eslint-disable-next-line no-template-curly-in-string
     const contextMacros = { a: "A", b: "B", c: "C", e: "${a}" };
     const globalMacros = { c: "D", d: "E" };
-    initialCsState.globalMacros = globalMacros;
-    const macroContext = { macros: contextMacros, updateMacro: (): void => {} };
+    initialCsState.globalMacros = {
+      ...globalMacros,
+      ...initialCsState.globalMacros
+    };
+    const macroContext = {
+      macros: { ...contextMacros, ...initialContextMacros },
+      updateMacro: (): void => {}
+    };
     const store = createStore<CsState, any, any, any>(
       csReducer,
       initialCsState

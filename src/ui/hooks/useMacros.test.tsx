@@ -3,20 +3,40 @@ import React from "react";
 import { useMacros } from "./useMacros";
 import { PV } from "../../types/pv";
 import { contextRender } from "../../testResources";
+import { CsState } from "../../redux/csState";
 
 /* Use one of the techniques described here for testing hooks without
   excessive mocking.
   https://kentcdodds.com/blog/how-to-test-custom-react-hooks
 */
-export function substituteMacros(props: Record<string, unknown>): any {
+export function substituteMacros(
+  props: Record<string, unknown>,
+  initialCsState: CsState = buildInitialCsState(),
+  initialContextMacros: { [key: string]: any } = {}
+): any {
   let resolvedProps = {};
   function MacrosTester(): JSX.Element {
     resolvedProps = useMacros(props);
     return <div></div>;
   }
-  contextRender(<MacrosTester />);
+  contextRender(
+    <MacrosTester />,
+    undefined,
+    undefined,
+    initialCsState,
+    initialContextMacros
+  );
   return resolvedProps;
 }
+
+const buildInitialCsState = (): CsState => ({
+  effectivePvNameMap: {},
+  globalMacros: {},
+  subscriptions: {},
+  valueCache: {},
+  deviceCache: {},
+  fileCache: {}
+});
 
 const actionsProp = {
   executeAsOne: false,
@@ -113,5 +133,31 @@ describe("useMacros", (): void => {
     };
     const resolvedProps = substituteMacros(props);
     expect(resolvedProps.arrayProp).toEqual(["${z}b", { key: "CD" }]);
+  });
+  it("handles global macros called pv_name and pvname", (): void => {
+    const csStage = buildInitialCsState();
+    csStage.globalMacros = { pv_name: "the_pv_name", pvname: "thePvName" };
+
+    const props = {
+      prop1: "${pv_name}_b",
+      prop2: "${pvname}_D"
+    };
+
+    const resolvedProps = substituteMacros(props, csStage);
+    expect(resolvedProps.prop1).toEqual("the_pv_name_b");
+    expect(resolvedProps.prop2).toEqual("thePvName_D");
+  });
+
+  it("handles context macros called pv_name and pvname", (): void => {
+    const contextMacros = { pv_name: "the_pv_name", pvname: "thePvName" };
+
+    const props = {
+      prop1: "${pv_name}_b",
+      prop2: "${pvname}_D"
+    };
+
+    const resolvedProps = substituteMacros(props, undefined, contextMacros);
+    expect(resolvedProps.prop1).toEqual("the_pv_name_b");
+    expect(resolvedProps.prop2).toEqual("thePvName_D");
   });
 });
