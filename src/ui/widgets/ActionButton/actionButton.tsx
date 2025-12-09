@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { WidgetActions, executeActions } from "../widgetActions";
+import { DynamicAction, WidgetActions, executeActions } from "../widgetActions";
 import { Widget } from "../widget";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import classes from "./actionButton.module.css";
@@ -87,7 +87,6 @@ export const ActionButtonComponent = (
     width,
     height
   );
-
   return (
     <Button
       variant={transparent ? "text" : "contained"}
@@ -130,7 +129,13 @@ export const ActionButtonComponent = (
             whiteSpace: "pre-wrap"
           }}
         >
-          {props.text ?? ""}
+          {props.text || // where there is no text, look for an action description.
+            ((
+              props.actions?.actions?.find(
+                x => (x as DynamicAction)?.dynamicInfo?.description
+              ) as DynamicAction
+            )?.dynamicInfo?.description ??
+              "")}
         </span>
       )}
     </Button>

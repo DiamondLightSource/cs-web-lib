@@ -234,8 +234,19 @@ export const executeActions = (
       toExecute = [actions.actions[0]];
     }
     for (const action of toExecute) {
+      let macros = parentMacros;
+      if (
+        action.type !== EXIT &&
+        action.type !== WRITE_PV &&
+        action.type !== OPEN_WEBPAGE
+      ) {
+        if (action.dynamicInfo?.file?.macros) {
+          macros = { ...macros, ...action.dynamicInfo.file.macros };
+        }
+      }
+
       log.debug(`Executing an action: ${getActionDescription(action)}`);
-      executeAction(action, files, exitContext, parentMacros);
+      executeAction(action, files, exitContext, macros);
     }
   }
 };
