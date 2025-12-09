@@ -79,11 +79,11 @@ export const EmbeddedDisplay = (
   // Get the screen height and width. If not provided then set to
   // the window height and width, repectively.
   const heightString = getOptionalValue(
-    description.position.height,
+    description.position?.height,
     `${String(window.innerHeight)}px`
   );
   const widthString = getOptionalValue(
-    description.position.width,
+    description.position?.width,
     `${String(window.innerWidth)}px`
   );
 
@@ -168,6 +168,8 @@ export const EmbeddedDisplay = (
         const displayPosition = selectedDescription.position.clone();
         displayPosition.height = matchingGroup.position.height;
         displayPosition.width = matchingGroup.position.width;
+        displayPosition.x = 0;
+        displayPosition.y = 0;
         selectedDescription = {
           ...selectedDescription,
           position: displayPosition
