@@ -6,7 +6,7 @@ name: Publish to NPM
 on:
   push:
     tags:
-    - '*'
+      - "*"
 
 jobs:
   build:
@@ -23,8 +23,10 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     permissions:
+      id-token: write
       contents: read
       packages: write
+    environment: release
     steps:
       - uses: actions/checkout@v4.1.7
       - uses: actions/setup-node@v4.0.3
@@ -34,5 +36,3 @@ jobs:
       - run: npm ci
       - run: npm run rollup
       - run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
