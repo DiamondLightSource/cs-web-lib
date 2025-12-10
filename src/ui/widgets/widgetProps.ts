@@ -14,6 +14,7 @@ import {
 
 import { GenericProp } from "../../types/props";
 import PropTypes from "prop-types";
+import { File } from "../hooks/useFile";
 
 // Internal prop types object for properties which are not in a standard widget
 const BasicPropsType = {
@@ -67,7 +68,8 @@ type ComponentProps = {
 export type ConnectingComponentWidgetProps = BasicProps &
   PvPropsAndMetdataProps &
   PvDataCollection &
-  AnyOtherProps;
+  AnyOtherProps &
+  File;
 
 // Props for the Widget wrapper component
 export type PVWidgetComponent = BasicProps &
@@ -76,7 +78,10 @@ export type PVWidgetComponent = BasicProps &
   PvPropsAndMetdataProps;
 
 // type used by useMacros and useRules (not really props)
-export type AnyProps = PVWidgetComponent & PvDataCollection & AnyOtherProps;
+export type AnyProps = PVWidgetComponent &
+  PvDataCollection &
+  AnyOtherProps &
+  File;
 
 // Types used by widget components implementations that display a value.
 export type PVComponent = ComponentProps & PvDataCollection;

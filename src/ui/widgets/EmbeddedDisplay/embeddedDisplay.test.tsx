@@ -278,4 +278,127 @@ describe("<EmbeddedDisplay>", (): void => {
       expect(queryByText("Test group 1")).not.toBeInTheDocument();
     });
   });
+
+  it("selects specific group from fetched children, when group is specified by macro name", async (): Promise<void> => {
+    const mockSuccessResponse = {
+      type: "display",
+      name: "embedded_display",
+      position: "absolute",
+      x: 10,
+      y: 20,
+      width: 600,
+      height: 700,
+      children: [
+        {
+          type: "groupbox",
+          name: "group_name_1",
+          position: "absolute",
+          x: 20,
+          y: 30,
+          width: 400,
+          height: 500,
+          children: [
+            {
+              type: "label",
+              position: "relative",
+              text: "Test group 1"
+            }
+          ]
+        },
+        {
+          type: "groupbox",
+          name: "$(MACRO_GROUP_NAME)",
+          position: "absolute",
+          x: 220,
+          y: 230,
+          width: 240,
+          height: 250,
+          children: [
+            {
+              type: "label",
+              position: "relative",
+              text: "Test group 2"
+            }
+          ]
+        }
+      ]
+    };
+
+    const mockJsonPromise = Promise.resolve(
+      JSON.stringify(mockSuccessResponse)
+    );
+    const mockFetchPromise = Promise.resolve({
+      text: (): Promise<unknown> => mockJsonPromise
+    });
+
+    vi.spyOn(globalWithFetch, "fetch").mockImplementation(
+      (): Promise<unknown> => mockFetchPromise
+    );
+
+    const { queryByText } = contextRender(
+      <EmbeddedDisplay
+        position={new RelativePosition()}
+        name={"Top_Display"}
+        groupName={"$(MACRO_GROUP_NAME)"}
+        file={{
+          path: "/TestFile3.json",
+          defaultProtocol: "ca",
+          macros: { MACRO_GROUP_NAME: "a_group_name_specified_by_macro" }
+        }}
+      />,
+      {},
+      {}
+    );
+
+    expect(globalWithFetch.fetch).toHaveBeenCalledTimes(1);
+    expect(globalWithFetch.fetch).toHaveBeenCalledWith("/TestFile3.json");
+
+    await waitFor((): void => {
+      expect(queryByText("Test group 2")).toBeInTheDocument();
+      // Second group should not be present
+      expect(queryByText("Test group 1")).not.toBeInTheDocument();
+    });
+  });
+
+  it("Applies macros to filename before loading the embedded display file", async (): Promise<void> => {
+    const mockSuccessResponse = {
+      type: "display",
+      name: "embedded_display",
+      position: "absolute",
+      x: 10,
+      y: 20,
+      width: 600,
+      height: 700,
+      children: []
+    };
+
+    const mockJsonPromise = Promise.resolve(
+      JSON.stringify(mockSuccessResponse)
+    );
+    const mockFetchPromise = Promise.resolve({
+      text: (): Promise<unknown> => mockJsonPromise
+    });
+
+    vi.spyOn(globalWithFetch, "fetch").mockImplementation(
+      (): Promise<unknown> => mockFetchPromise
+    );
+
+    contextRender(
+      <EmbeddedDisplay
+        position={new RelativePosition()}
+        name={"Top_Display"}
+        groupName={"group_name_2"}
+        file={{
+          path: "$(MACRO_FILENAME)",
+          defaultProtocol: "ca",
+          macros: { MACRO_FILENAME: "aBobFile.bob" }
+        }}
+      />,
+      {},
+      {}
+    );
+
+    expect(globalWithFetch.fetch).toHaveBeenCalledTimes(1);
+    expect(globalWithFetch.fetch).toHaveBeenCalledWith("aBobFile.bob");
+  });
 });

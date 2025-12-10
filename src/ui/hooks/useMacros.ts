@@ -15,7 +15,10 @@ export interface MacroProps extends React.PropsWithChildren<any> {
  * into any arrays and objects.
  * Do not descend into child components as this is called for each widget.
  */
-function recursiveResolve(props: MacroProps, macroMap: MacroMap): AnyProps {
+export function recursiveResolve(
+  props: MacroProps,
+  macroMap: MacroMap
+): AnyProps {
   // Shallow clone of props object with the same prototype. This is
   // important for when a prop object is an ES6 class e.g. Font or Color.
   const resolvedProps = Object.assign(
