@@ -26,7 +26,8 @@ import { useId } from "react-id-generator";
 import { getOptionalValue, trimFromString } from "../utils";
 import { Theme, ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
-import { useFile } from "../../hooks/useFile";
+import { useFile, File } from "../../hooks/useFile";
+import { recursiveResolve } from "../../hooks/useMacros";
 
 const RESIZE_STRINGS = [
   "scroll-widget",
@@ -58,9 +59,31 @@ export const EmbeddedDisplay = (
   props: InferWidgetProps<typeof EmbeddedDisplayProps> &
     EmbeddedDisplayPropsExtra
 ): JSX.Element => {
-  const description = useFile(props.file);
   const id = useId();
-  let resize = props.resize || "scroll-content";
+
+  // First resolve the macros
+  // Include and override parent macros with those from the prop.
+  const parentMacros = useContext(MacroContext).macros;
+  const embeddedDisplayMacros = props.file.macros ?? {};
+  const displayMacros = props.macros ?? {};
+  const embeddedDisplayMacroContext: MacroContextType = {
+    // Currently not allowing changing the macros of an embedded display.
+    updateMacro: (key: string, value: string): void => {},
+    macros: {
+      ...parentMacros, // lower priority
+      ...embeddedDisplayMacros, // higher priority
+      ...displayMacros,
+      LCID: id.toString() // highest priority
+    }
+  };
+
+  const resolvedProps = recursiveResolve(
+    props,
+    embeddedDisplayMacroContext.macros
+  );
+  const description = useFile(resolvedProps.file as File);
+
+  let resize = resolvedProps.resize || "scroll-content";
   // If number, convert back to string
   if (typeof resize === "number") resize = RESIZE_STRINGS[resize];
 
@@ -72,7 +95,7 @@ export const EmbeddedDisplay = (
   // property will be used instead of the opi autoZoomToFit value. If it has
   // not been set then the value from the opi autoZoomToFit parameter is used
   let applyAutoZoomToFit = getOptionalValue(
-    props.overrideAutoZoomToFitValue,
+    resolvedProps.overrideAutoZoomToFitValue,
     description.autoZoomToFit
   );
 
@@ -87,7 +110,7 @@ export const EmbeddedDisplay = (
     `${String(window.innerWidth)}px`
   );
 
-  let overflow = props.scroll ? "auto" : "hidden";
+  let overflow = resolvedProps.scroll ? "auto" : "hidden";
   // Resize prop determines if embedded display is cropped, resized etc
   switch (resize) {
     case "scroll-content":
@@ -129,16 +152,16 @@ export const EmbeddedDisplay = (
     if (resize === "stretch-content" || resize === "size-content") {
       // Height and width from parsed opi file will always take the form
       // "<num>px" but bob files can be numbers
-      if (typeof props.height === "string") {
-        scaleHeightVal = trimFromString(props.height) / heightInt;
-      } else if (typeof props.height === "number") {
-        scaleHeightVal = props.height / heightInt;
+      if (typeof resolvedProps.height === "string") {
+        scaleHeightVal = trimFromString(resolvedProps.height) / heightInt;
+      } else if (typeof resolvedProps.height === "number") {
+        scaleHeightVal = resolvedProps.height / heightInt;
       }
 
-      if (typeof props.width === "string") {
-        scaleWidthVal = trimFromString(props.width) / widthInt;
-      } else if (typeof props.width === "number") {
-        scaleWidthVal = props.width / widthInt;
+      if (typeof resolvedProps.width === "string") {
+        scaleWidthVal = trimFromString(resolvedProps.width) / widthInt;
+      } else if (typeof resolvedProps.width === "number") {
+        scaleWidthVal = resolvedProps.width / widthInt;
       }
     }
 
@@ -153,10 +176,14 @@ export const EmbeddedDisplay = (
   }
 
   let selectedDescription = description;
-  if (props.groupName) {
+  if (resolvedProps.groupName) {
     // A specific group has been specified find that group and resize the display to match its dimensions.
     let matchingGroup = description.children?.find(
-      x => x.type === "groupbox" && x.name === props.groupName
+      x =>
+        x.type === "groupbox" &&
+        (x.name === resolvedProps.groupName ||
+          resolveMacros(x.name ?? "", embeddedDisplayMacroContext.macros) ===
+            resolvedProps.groupName)
     );
     if (matchingGroup && matchingGroup?.position) {
       const position = matchingGroup.position.clone();
@@ -194,12 +221,12 @@ export const EmbeddedDisplay = (
       } else {
         // Otherwise pass on the scalingOrigin so if the child should
         // be scaled, then it will use the same transform-origin
-        displayChildren[i].scalingOrigin = props.scalingOrigin;
+        displayChildren[i].scalingOrigin = resolvedProps.scalingOrigin;
         // Update the parent container area to be the full area for the child
         // embedded display so it can be scaled into it if needed. Note height
         // from parsed opi file will always take the form "<num>px" so trim
         if (window.innerHeight > trimFromString(heightString)) {
-          props.position.height = `${String(window.innerHeight)}px`;
+          resolvedProps.position.height = `${String(window.innerHeight)}px`;
         }
       }
     }
@@ -209,50 +236,33 @@ export const EmbeddedDisplay = (
   try {
     component = widgetDescriptionToComponent({
       type: "display",
-      position: props.position,
+      position: resolvedProps.position,
       backgroundColor:
         selectedDescription.backgroundColor ?? new Color("rgb(255,255,255"),
       border:
-        props.border ?? new Border(BorderStyle.Line, new Color("white"), 0),
+        resolvedProps.border ??
+        new Border(BorderStyle.Line, new Color("white"), 0),
       overflow: overflow,
       children: [selectedDescription],
       scaling: [scaleFactorX, scaleFactorY],
       autoZoomToFit: applyAutoZoomToFit,
-      scalingOrigin: props.scalingOrigin
+      scalingOrigin: resolvedProps.scalingOrigin
     });
   } catch (e) {
-    const message = `Error loading ${props.file.path}: ${e}.`;
+    const message = `Error loading ${(resolvedProps.file as File).path}: ${e}.`;
     log.warn(message);
     log.warn(e);
     component = widgetDescriptionToComponent(errorWidget(message));
   }
 
-  // Include and override parent macros with those from the prop.
-  const parentMacros = useContext(MacroContext).macros;
-  const embeddedDisplayMacros = props.file.macros ?? {};
-  const displayMacros = props.macros ?? {};
-  const embeddedDisplayMacroContext: MacroContextType = {
-    // Currently not allowing changing the macros of an embedded display.
-    updateMacro: (key: string, value: string): void => {},
-    macros: {
-      ...parentMacros, // lower priority
-      ...embeddedDisplayMacros, // higher priority
-      ...displayMacros,
-      LCID: id.toString() // highest priority
-    }
-  };
-
-  // Awkward to have to do this manually. Can we make this more elegant?
-  const resolvedName = resolveMacros(
-    props.name ?? "",
-    embeddedDisplayMacroContext.macros
-  );
-
-  if (props.border?.style === BorderStyle.GroupBox) {
+  if (resolvedProps.border?.style === BorderStyle.GroupBox) {
     return (
       <ThemeProvider theme={props.theme ?? phoebusTheme}>
         <MacroContext.Provider value={embeddedDisplayMacroContext}>
-          <GroupBoxComponent name={resolvedName} styleOpt={0}>
+          <GroupBoxComponent
+            name={(resolvedProps.name ?? "") as string}
+            styleOpt={0}
+          >
             {component}
           </GroupBoxComponent>
         </MacroContext.Provider>

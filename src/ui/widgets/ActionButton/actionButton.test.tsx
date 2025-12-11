@@ -10,9 +10,9 @@ import { Color } from "../../../types";
 
 // Pass the theme in with the component to access default values
 const mock = vi.fn();
-const actionButton = (props: any) => (
+const actionButton = (props: any, text = "hello") => (
   <ThemeProvider theme={phoebusTheme}>
-    <ActionButtonComponent text={"hello"} onClick={mock} {...props} />
+    <ActionButtonComponent text={text} onClick={mock} {...props} />
   </ThemeProvider>
 );
 
@@ -33,6 +33,21 @@ describe("<ActionButton />", (): void => {
     });
     // For some reason, background colour doesn't like to be passed as an object so pass as string
     expect(button.textContent).toEqual("hello");
+  });
+
+  test("it renders a button with text from action description if text prop is empty string", (): void => {
+    const { getByRole } = contextRender(
+      actionButton(
+        {
+          actions: {
+            actions: [{ dynamicInfo: { description: "description text" } }]
+          }
+        },
+        ""
+      )
+    );
+    const button = getByRole("button");
+    expect(button.textContent).toEqual("description text");
   });
 
   test("it renders a button with style from props", (): void => {

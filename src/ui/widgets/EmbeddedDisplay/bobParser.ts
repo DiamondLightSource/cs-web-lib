@@ -387,8 +387,7 @@ export function bobParseActions(
               (action.description && action.description._text) || undefined,
             file: {
               path: action.file._text,
-              // TODO: Should probably be accessing properties of the element here
-              macros: {},
+              macros: action.macros ? opiParseMacros(action.macros) : {},
               defaultProtocol: "ca"
             }
           }
