@@ -463,7 +463,8 @@ const BOB_SIMPLE_PARSERS: ParserDict = {
   titleFont: ["title_font", bobParseFont],
   scaleFont: ["scale_font", bobParseFont],
   start: ["start", opiParseString],
-  end: ["end", opiParseString]
+  end: ["end", opiParseString],
+  arrayIndex: ["array_index", bobParseNumber]
 };
 
 const BOB_COMPLEX_PARSERS: ComplexParserDict = {
