@@ -1,3 +1,5 @@
+import { colord } from "colord";
+
 export class Color {
   private text: string;
   private name?: string;
@@ -40,5 +42,9 @@ export class Color {
 
   public toString(): string {
     return this.text;
+  }
+
+  public changeAlpha(a: number): Color {
+    return new Color(colord(this.text).alpha(a).toRgbString());
   }
 }

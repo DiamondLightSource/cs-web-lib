@@ -24,6 +24,7 @@ export { GroupingContainer } from "./GroupingContainer/groupingContainer";
 export { Input } from "./Input/input";
 export { LED } from "./LED/led";
 export { Line } from "./Line/line";
+export { LinearMeter } from "./LinearMeter/linearMeter";
 export { MenuButton } from "./MenuButton/menuButton";
 export { MenuMux } from "./MenuMux/menuMux";
 export { Polygon } from "./Polygon/polygon";

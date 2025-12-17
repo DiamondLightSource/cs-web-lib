@@ -215,3 +215,15 @@ export const TimeSeriesPointPropType = PropTypes.shape({
 });
 
 export const ArchivedDataPropOpt = PropTypes.arrayOf(TimeSeriesPointPropType);
+
+export const BobColorsPropOpt = PropTypes.shape({
+  needleColor: ColorPropOpt,
+  normalStatusColor: ColorPropOpt,
+  minorWarningColor: ColorPropOpt,
+  majorWarningColor: ColorPropOpt,
+  foregroundColor: ColorPropOpt,
+  knobColor: ColorPropOpt,
+  backgroundColor: ColorPropOpt,
+  isGradientEnabled: BoolPropOpt,
+  isHighlightingOfActiveRegionsEnabled: BoolPropOpt
+});
