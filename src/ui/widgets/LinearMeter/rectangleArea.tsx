@@ -6,13 +6,15 @@ export type RectangleAreaProps = {
   maximum: number;
   fill?: string;
   stroke?: string;
+  strokeWidth?: number;
 };
 
 export const RectangleAreaHorizontal: React.FC<RectangleAreaProps> = ({
   minimum,
   maximum,
   fill = "rgba(0, 0, 0, 1)",
-  stroke
+  stroke = "rgba(0, 0, 0, 1)",
+  strokeWidth = 1
 }: RectangleAreaProps) => {
   const { top, height, left, width } = useDrawingArea();
   const xScale = useXScale();
@@ -32,12 +34,13 @@ export const RectangleAreaHorizontal: React.FC<RectangleAreaProps> = ({
 
   return (
     <rect
-      x={x + 0.5}
-      y={top + 0.5}
-      width={deltaX - 1}
-      height={height - 1}
+      x={x}
+      y={top}
+      width={deltaX}
+      height={height}
       fill={fill}
       stroke={stroke}
+      strokeWidth={strokeWidth}
       pointerEvents="none"
     />
   );
@@ -47,7 +50,8 @@ export const RectangleAreaVertical: React.FC<RectangleAreaProps> = ({
   minimum,
   maximum,
   fill = "rgba(0, 0, 0, 1)",
-  stroke
+  stroke = "rgba(0, 0, 0, 1)",
+  strokeWidth = 1
 }: RectangleAreaProps) => {
   const { left, width, top, height } = useDrawingArea();
   const yScale = useYScale();
@@ -67,12 +71,13 @@ export const RectangleAreaVertical: React.FC<RectangleAreaProps> = ({
 
   return (
     <rect
-      x={left + 0.5}
+      x={left}
       y={y}
-      width={width - 1}
+      width={width}
       height={deltaY}
       fill={fill}
       stroke={stroke}
+      strokeWidth={strokeWidth}
       pointerEvents="none"
     />
   );

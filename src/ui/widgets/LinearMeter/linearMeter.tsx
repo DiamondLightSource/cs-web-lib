@@ -183,16 +183,7 @@ export const LinearMeterComponent = (
     }
   ];
 
-  const fixedReferenceLines = [
-    alarmRangeMin,
-    warningRangeMin,
-    warningRangeMax,
-    alarmRangeMax
-  ].filter(
-    value => value != null && showLimits && value < maximum && value > minimum
-  );
-
-  const limitZones = buildStatusRegions(
+  const statusAreas = buildStatusRegions(
     alarmRangeMin,
     warningRangeMin,
     warningRangeMax,
@@ -288,9 +279,9 @@ export const LinearMeterComponent = (
       >
         {displayHorizontal ? (
           <>
-            {limitZones.map((x, idx) => (
+            {statusAreas.map((x, idx) => (
               <RectangleAreaHorizontal
-                key={`ReferenceContinuousArea${idx}`}
+                key={`statusAreas${idx}`}
                 maximum={x.maximum}
                 minimum={x.minimum}
                 fill={x.fill}
@@ -309,23 +300,12 @@ export const LinearMeterComponent = (
               size={knobSize}
               fill={knobColor?.toString()}
             />
-            {fixedReferenceLines.map((value, idx) => (
-              <ChartsReferenceLine
-                key={`RefLine${idx}`}
-                x={value as number}
-                axisId="x"
-                lineStyle={{
-                  stroke: foregroundColor?.toString(),
-                  strokeWidth: 1
-                }}
-              />
-            ))}
           </>
         ) : (
           <>
-            {limitZones.map((x, idx) => (
+            {statusAreas.map((x, idx) => (
               <RectangleAreaVertical
-                key={`ReferenceContinuousArea${idx}`}
+                key={`statusAreas${idx}`}
                 maximum={x.maximum}
                 minimum={x.minimum}
                 fill={x.fill}
@@ -344,17 +324,6 @@ export const LinearMeterComponent = (
               size={knobSize}
               fill={knobColor?.toString()}
             />
-            {fixedReferenceLines.map((value, idx) => (
-              <ChartsReferenceLine
-                key={`RefLine${idx}`}
-                y={value as number}
-                axisId="y"
-                lineStyle={{
-                  stroke: foregroundColor?.toString(),
-                  strokeWidth: 1
-                }}
-              />
-            ))}
           </>
         )}
       </BarChart>

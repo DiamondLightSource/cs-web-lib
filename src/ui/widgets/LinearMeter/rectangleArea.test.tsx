@@ -35,11 +35,13 @@ describe("RectangleAreaHorizontal", () => {
 
     const rect = container.querySelector("rect");
     expect(rect).toBeInTheDocument();
-    expect(rect).toHaveAttribute("x", "50.5");
-    expect(rect).toHaveAttribute("y", "10.5");
-    expect(rect).toHaveAttribute("width", "49");
-    expect(rect).toHaveAttribute("height", "199");
+    expect(rect).toHaveAttribute("x", "50");
+    expect(rect).toHaveAttribute("y", "10");
+    expect(rect).toHaveAttribute("width", "50");
+    expect(rect).toHaveAttribute("height", "200");
     expect(rect).toHaveAttribute("fill", "rgba(0, 0, 0, 1)");
+    expect(rect).toHaveAttribute("stroke", "rgba(0, 0, 0, 1)");
+    expect(rect).toHaveAttribute("stroke-width", "1");
   });
 
   it("renders with custom fill and stroke", () => {
@@ -83,8 +85,8 @@ describe("RectangleAreaHorizontal", () => {
     );
 
     const rect = container.querySelector("rect");
-    expect(rect).toHaveAttribute("x", "50.5");
-    expect(rect).toHaveAttribute("width", "49");
+    expect(rect).toHaveAttribute("x", "50");
+    expect(rect).toHaveAttribute("width", "50");
   });
 
   it("handles minimum out of range correctly", () => {
@@ -103,8 +105,8 @@ describe("RectangleAreaHorizontal", () => {
     );
 
     const rect = container.querySelector("rect");
-    expect(rect).toHaveAttribute("x", "20.5");
-    expect(rect).toHaveAttribute("width", "79");
+    expect(rect).toHaveAttribute("x", "20");
+    expect(rect).toHaveAttribute("width", "80");
   });
 
   it("handles maximum out of range correctly", () => {
@@ -123,8 +125,8 @@ describe("RectangleAreaHorizontal", () => {
     );
 
     const rect = container.querySelector("rect");
-    expect(rect).toHaveAttribute("x", "40.5");
-    expect(rect).toHaveAttribute("width", "279");
+    expect(rect).toHaveAttribute("x", "40");
+    expect(rect).toHaveAttribute("width", "280");
   });
 
   it("handles maximum and minimum greater than range correctly", () => {
@@ -202,9 +204,9 @@ describe("RectangleAreaVertical", () => {
 
     const rect = container.querySelector("rect");
     expect(rect).toBeInTheDocument();
-    expect(rect).toHaveAttribute("x", "20.5");
+    expect(rect).toHaveAttribute("x", "20");
     expect(rect).toHaveAttribute("y", "50");
-    expect(rect).toHaveAttribute("width", "299");
+    expect(rect).toHaveAttribute("width", "300");
     expect(rect).toHaveAttribute("height", "50");
     expect(rect).toHaveAttribute("fill", "rgba(0, 0, 0, 1)");
   });
