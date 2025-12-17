@@ -127,7 +127,7 @@ export async function genericParser(
 export function parseChildProps(
   props: ElementCompact,
   parser: ParserDict
-): any {
+): { [key: string]: any } {
   const obj: { [key: string]: any } = {}; // Object to assign props to
   Object.entries(props).forEach((entry: any) => {
     const [key, value] = entry;

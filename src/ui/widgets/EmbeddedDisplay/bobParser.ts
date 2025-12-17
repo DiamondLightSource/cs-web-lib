@@ -58,6 +58,7 @@ const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   group: "groupbox",
   label: "label",
   led: "led",
+  linearmeter: "linearmeter",
   textupdate: "readback",
   textentry: "input",
   picture: "image",
@@ -92,6 +93,7 @@ export const WIDGET_DEFAULT_SIZES: { [key: string]: [number, number] } = {
   group: [300, 200],
   label: [100, 20],
   led: [20, 20],
+  linearmeter: [120, 120],
   textupdate: [100, 20],
   textentry: [100, 20],
   picture: [150, 100],
@@ -438,6 +440,7 @@ const BOB_SIMPLE_PARSERS: ParserDict = {
   levelHigh: ["level_high", bobParseNumber],
   levelLolo: ["level_lolo", bobParseNumber],
   levelLow: ["level_low", bobParseNumber],
+  showLimits: ["show_limits", opiParseBoolean],
   showScale: ["show_scale", opiParseBoolean],
   showHihi: ["show_hihi", opiParseBoolean],
   showHigh: ["show_high", opiParseBoolean],
@@ -451,7 +454,17 @@ const BOB_SIMPLE_PARSERS: ParserDict = {
   minimum: ["minimum", bobParseNumber],
   format: ["format", bobParseNumber],
   emptyColor: ["empty_color", opiParseColor],
-  needleColor: ["needle_color", opiParseColor],
+  knobColor: ["knob_color", opiParseColor],
+  normalStatusColor: ["normal_status_color", opiParseColor],
+  minorWarningColor: ["minor_warning_color", opiParseColor],
+  majorWarningColor: ["major_warning_color", opiParseColor],
+  isHighlightingOfActiveRegionsEnabled: [
+    "is_highlighting_of_active_regions_enabled",
+    opiParseBoolean
+  ],
+  needleWidth: ["needle_width", bobParseNumber],
+  knobSize: ["knob_size", bobParseNumber],
+  displayHorizontal: ["displayHorizontal", opiParseBoolean],
   xPv: ["xPv", opiParseString],
   yPv: ["yPv", opiParseString],
   axis: ["axis", bobParseNumber],
@@ -513,7 +526,9 @@ export async function parseBob(
     traces: (props: ElementCompact) => bobParseTraces(props["traces"]),
     axes: (props: ElementCompact) => bobParseYAxes(props["y_axes"]),
     plt: async (props: ElementCompact) =>
-      await parsePlt(props["file"], filepath, props._attributes?.type)
+      await parsePlt(props["file"], filepath, props._attributes?.type),
+    colors: (props: ElementCompact) =>
+      parseChildProps(props["colors"], BOB_SIMPLE_PARSERS)
   };
 
   const displayWidget = await parseWidget(
