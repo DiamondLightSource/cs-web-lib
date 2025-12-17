@@ -22,6 +22,7 @@ cs-web-lib does not contain the full suite of features and widgets provided by P
 |                   | Rectangle         | &#9989;  |                     |
 | Monitors          | Byte Monitor      | &#9989;  |                     |
 |                   | LED               | &#9989;  |                     |
+|                   | Linear Meter      | &#9989;  |                     |
 |                   | Multi State LED   | &#10060; | Add later           |
 |                   | Meter             | &#9989;  |                     |
 |                   | Progress Bar      | &#9989;  |                     |
