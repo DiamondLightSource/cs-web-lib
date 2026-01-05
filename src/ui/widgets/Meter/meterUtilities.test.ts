@@ -158,6 +158,11 @@ describe("formatValue", () => {
     const formatter = formatValue(123.456, NumberFormatEnum.Default, -1, "V");
     expect(formatter()).toBe("123");
   });
+
+  it("should handle precision 0 correctly, with no decimals", () => {
+    const formatter = formatValue(123.456, NumberFormatEnum.Default, 0, "V");
+    expect(formatter()).toBe("123");
+  });
 });
 
 describe("buildSubArcs", () => {
