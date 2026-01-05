@@ -73,7 +73,10 @@ export const formatValue =
         (precision < 4 && absValue < Math.pow(10, precision)) ||
         absValue > 10000
       ) {
-        strVal = value.toPrecision(maxPrecision);
+        strVal =
+          maxPrecision === 0
+            ? value.toFixed(0)
+            : value.toPrecision(maxPrecision);
       } else {
         strVal = value.toPrecision(1 + Math.floor(Math.log10(absValue)));
       }
