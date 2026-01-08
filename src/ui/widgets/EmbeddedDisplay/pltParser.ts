@@ -41,6 +41,7 @@ const PLT_PARSERS: ParserDict = {
   request: ["request", opiParseString],
   archive: ["archive", pltParseArchiver],
   titleFont: ["title_font", pltParseFont],
+  title: ["title", opiParseString],
   scaleFont: ["scale_font", pltParseFont],
   labelFont: ["label_font", pltParseFont],
   legendFont: ["legend_font", pltParseFont],
@@ -211,6 +212,7 @@ export async function parsePlt(
       axes: axes
     });
   }
+  console.log(props);
   return props;
 }
 
