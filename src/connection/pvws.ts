@@ -206,6 +206,18 @@ export class PvwsPlugin implements Connection {
     }
   }
 
+  private sendMessage(message: string) {
+    if (this.socket.readyState) {
+      // Socket is set up, we can send message
+      this.socket.send(message);
+    } else {
+      // Socket is not set up, wait until open to send message
+      this.socket.addEventListener("open", _ev => {
+        this.socket.send(message);
+      });
+    }
+  }
+
   private handleError(event: Event) {
     log.error("Error from " + this.url);
     this.close();
@@ -256,7 +268,7 @@ export class PvwsPlugin implements Connection {
   }
 
   private _subscribe(pvName: string) {
-    this.socket.send(JSON.stringify({ type: "subscribe", pvs: [pvName] }));
+    this.sendMessage(JSON.stringify({ type: "subscribe", pvs: [pvName] }));
   }
 
   public subscribe(pvName: string, type?: SubscriptionType): string {
@@ -274,23 +286,16 @@ export class PvwsPlugin implements Connection {
   }
 
   public putPv(pvName: string, value: DType): void {
-    if (value.value.stringValue === undefined) {
-      this.socket.send(
-        JSON.stringify({
-          type: "write",
-          pv: pvName,
-          value: value.value.doubleValue
-        })
-      );
-    } else {
-      this.socket.send(
-        JSON.stringify({
-          type: "write",
-          pv: pvName,
-          value: value.value.stringValue
-        })
-      );
-    }
+    this.sendMessage(
+      JSON.stringify({
+        type: "write",
+        pv: pvName,
+        value:
+          value.value.stringValue === undefined
+            ? value.value.doubleValue
+            : value.value.stringValue
+      })
+    );
   }
 
   public unsubscribe(pvName: string): void {
@@ -298,7 +303,7 @@ export class PvwsPlugin implements Connection {
     // for the same PV at present, so if this method is called then
     // there is no further need for this PV.
     if (this.subscriptions[pvName]) {
-      this.socket.send(JSON.stringify({ type: "clear", pvs: [pvName] }));
+      this.sendMessage(JSON.stringify({ type: "clear", pvs: [pvName] }));
       delete this.subscriptions[pvName];
     }
   }
