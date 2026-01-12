@@ -207,10 +207,10 @@ export class PvwsPlugin implements Connection {
   }
 
   private sendMessage(message: string) {
-    if (this.socket.readyState) {
+    if (this.socket.readyState === 1) {
       // Socket is set up, we can send message
       this.socket.send(message);
-    } else {
+    } else if (!this.socket.readyState) {
       // Socket is not set up, wait until open to send message
       this.socket.addEventListener("open", _ev => {
         this.socket.send(message);
