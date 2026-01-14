@@ -56,13 +56,70 @@ describe("iFrameScriptExecutionHandlerCode", () => {
     );
   });
 
+  it("should support getString", async () => {
+    const postMessageMock = vi.fn();
+
+    const messageData = {
+      functionCode: "return PVUtil.getString(pvs[0]);",
+      id: 1234,
+      pvs: [{ number: 3, string: "A value string" }]
+    };
+
+    await postTestMessageToIframe(iframe, postMessageMock, messageData);
+
+    // Validate that the dynamic script executed as expected
+    expect(postMessageMock).toHaveBeenCalledWith(
+      { id: 1234, functionReturnValue: "A value string", widgetProps: {} },
+      "*"
+    );
+  });
+
+  it("should support getDouble", async () => {
+    const postMessageMock = vi.fn();
+
+    const messageData = {
+      functionCode: "return PVUtil.getDouble(pvs[0]);",
+      id: 1234,
+      pvs: [{ number: 3, string: "A value string" }]
+    };
+
+    await postTestMessageToIframe(iframe, postMessageMock, messageData);
+
+    // Validate that the dynamic script executed as expected
+    expect(postMessageMock).toHaveBeenCalledWith(
+      { id: 1234, functionReturnValue: 3, widgetProps: {} },
+      "*"
+    );
+  });
+
   it("should execute code containing some Phoebus built ins and return results via postMessage", async () => {
     const postMessageMock = vi.fn();
     const testScript = `
       importClass(org.csstudio.display.builder.runtime.script.PVUtil);
       importClass(org.csstudio.display.builder.runtime.script.ScriptUtil);
-      importPackage(Packages.org.csstudio.opibuilder.scriptUtil);
-      return PVUtil.getDouble(1+2);
+      importPackage(Packages.org.csstudio.opibuilder.scriptUtil);      
+      return PVUtil.getString(pvs[0]);;
+    `;
+
+    const messageData = {
+      functionCode: testScript,
+      id: 3456,
+      pvs: [{ number: 2, string: "A value string" }]
+    };
+
+    await postTestMessageToIframe(iframe, postMessageMock, messageData);
+
+    expect(postMessageMock).toHaveBeenCalledWith(
+      { id: 3456, functionReturnValue: "A value string", widgetProps: {} },
+      "*"
+    );
+  });
+
+  it("should execute code containing getString Phoebus built in and return results via postMessage", async () => {
+    const postMessageMock = vi.fn();
+    const testScript = `
+      importClass(org.csstudio.display.builder.runtime.script.PVUtil);
+      return 1+2;
     `;
 
     const messageData = {
@@ -82,7 +139,7 @@ describe("iFrameScriptExecutionHandlerCode", () => {
   it("should execute code containing widget.setPropertyValue and return results via postMessage in widgetProps", async () => {
     const postMessageMock = vi.fn();
     const testScript = `
-      widget.setPropertyValue("x", PVUtil.getDouble(1+2));
+      widget.setPropertyValue("x", PVUtil.getDouble(pvs[0]));
       widget.setPropertyValue("background_color", ColorFontUtil.getColorFromRGB(255, 0, 255));
       widget.setPropertyValue("foreground_color", ColorFontUtil.YELLOW);
     `;
@@ -90,7 +147,7 @@ describe("iFrameScriptExecutionHandlerCode", () => {
     const messageData = {
       functionCode: testScript,
       id: 73734,
-      pvs: []
+      pvs: [{ number: 3, string: "A value string" }]
     };
 
     await postTestMessageToIframe(iframe, postMessageMock, messageData);
@@ -129,13 +186,13 @@ describe("iFrameScriptExecutionHandlerCode", () => {
     const messageData1 = {
       functionCode: testScript,
       id: 73734,
-      pvs: [301]
+      pvs: [{ number: 301, string: "301" }]
     };
 
     const messageData2 = {
       functionCode: testScript,
       id: 9098,
-      pvs: [298]
+      pvs: [{ number: 298, string: "298" }]
     };
 
     await postTestMessageToIframe(iframe, postMessageMock, messageData1);

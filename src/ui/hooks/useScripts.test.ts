@@ -94,7 +94,10 @@ describe("useScripts", () => {
 
     expect(executeDynamicScriptInSandbox).toHaveBeenCalledWith(
       "return pvs[0] + pvs[1]",
-      [10, null]
+      [
+        { number: 10, string: "10" },
+        { number: null, string: null }
+      ]
     );
     expect(mockCallback).toHaveBeenCalledWith({
       success: true,
@@ -126,7 +129,7 @@ describe("useScripts", () => {
 
     expect(executeDynamicScriptInSandbox).toHaveBeenCalledWith(
       "return pvs[0]",
-      [undefined]
+      [{ number: undefined, string: undefined }]
     );
   });
 
@@ -151,12 +154,12 @@ describe("useScripts", () => {
     expect(executeDynamicScriptInSandbox).toHaveBeenNthCalledWith(
       1,
       "return pvs[0]",
-      [10]
+      [{ number: 10, string: "10" }]
     );
     expect(executeDynamicScriptInSandbox).toHaveBeenNthCalledWith(
       2,
       "return pvs[0]",
-      [null]
+      [{ number: null, string: null }]
     );
   });
 });
