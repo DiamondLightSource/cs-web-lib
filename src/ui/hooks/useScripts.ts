@@ -42,18 +42,23 @@ export const useScripts = (
     const { pvs: pvMetadataList } = script;
 
     // Build array of pv values
-    const pvValues: (number | string | undefined)[] = [];
+    const pvValues: {
+      number: number | undefined;
+      string: string | undefined;
+    }[] = [];
     for (const pvMetadata of pvMetadataList) {
       const pvDatum = pvDataMap[pvMetadata.pvName.qualifiedName()][0];
 
-      let value = undefined;
+      let value: { number: number | undefined; string: string | undefined } = {
+        number: undefined,
+        string: undefined
+      };
 
       if (pvDatum?.value) {
         const doubleValue = pvDatum.value.getDoubleValue();
         const stringValue = DType.coerceString(pvDatum.value);
-        value = doubleValue ?? stringValue;
+        value = { number: doubleValue, string: stringValue };
       }
-
       pvValues.push(value);
     }
 

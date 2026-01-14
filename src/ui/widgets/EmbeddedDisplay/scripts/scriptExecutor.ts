@@ -22,7 +22,8 @@ export const iFrameScriptExecutionHandlerCode = `
           importClass: (a) => {},
           importPackage: (a) => {},
           PVUtil: {
-            getDouble: (value) => Number(value),
+            getDouble: (value) => value.number,
+            getString: (value) => value.string,
           },
           org: {
             csstudio: { display: { builder: { runtime: { script: { PVUtil: undefined, ScriptUtil: undefined } } } } }
@@ -125,7 +126,7 @@ const buildSandboxIframe = async (): Promise<HTMLIFrameElement> => {
  */
 export const executeDynamicScriptInSandbox = async (
   dynamicScriptCode: string,
-  pvs: any[]
+  pvs: { number: number | undefined; string: string | undefined }[]
 ): Promise<ScriptResponse> => {
   if (!iFrameSandboxScriptRunner) {
     await buildSandboxIframe();
