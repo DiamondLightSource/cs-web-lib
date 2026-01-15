@@ -33,6 +33,7 @@ import {
 } from "../widgetActions";
 import { snakeCaseToCamelCase } from "../utils";
 import { Point, Points } from "../../../types/points";
+import { buildUrl, isFullyQualifiedUrl } from "../../../misc/urlUtils";
 
 export interface XmlDescription {
   _attributes: { [key: string]: string };
@@ -780,10 +781,11 @@ function opiPatchRules(
 export function normalisePath(path: string, parentDir?: string): string {
   let prefix = parentDir ?? "";
   while (path.startsWith("../")) {
-    path = path.substr(3);
-    prefix = prefix.substr(0, prefix.lastIndexOf("/"));
+    path = path.slice(3);
+    prefix = prefix.slice(0, prefix.lastIndexOf("/"));
   }
-  return `${prefix}/${path}`;
+
+  return buildUrl(prefix, path);
 }
 
 function opiPatchPaths(
@@ -795,7 +797,7 @@ function opiPatchPaths(
   if (
     widgetDescription["file"] &&
     parentDir &&
-    !widgetDescription["file"].path.startsWith("http")
+    !isFullyQualifiedUrl(widgetDescription["file"].path)
   ) {
     widgetDescription["file"].path = normalisePath(
       widgetDescription["file"].path,
@@ -806,7 +808,7 @@ function opiPatchPaths(
   // imageFile and image: just strings
   for (const prop of ["imageFile", "image"]) {
     // If image over http do not manipulate path.
-    if (widgetDescription[prop]?.startsWith("http")) {
+    if (isFullyQualifiedUrl(widgetDescription[prop])) {
       continue;
     }
     if (widgetDescription[prop]) {
@@ -834,7 +836,7 @@ function opiPatchPaths(
   if (widgetDescription["symbols"] && parentDir) {
     widgetDescription["symbols"] = widgetDescription["symbols"].map(
       (symbol: string) => {
-        if (symbol.startsWith("http")) return symbol;
+        if (isFullyQualifiedUrl(symbol)) return symbol;
         return normalisePath(symbol, parentDir);
       }
     );

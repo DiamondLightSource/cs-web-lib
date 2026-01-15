@@ -12,6 +12,7 @@ import { Axis } from "../../../types/axis";
 import { Archiver, Trace } from "../../../types/trace";
 import { Plt } from "../../../types/plt";
 import { httpRequest } from "../../../misc/httpClient";
+import { isFullyQualifiedUrl } from "../../../misc";
 
 const PLT_PARSERS: ParserDict = {
   start: ["start", opiParseString],
@@ -218,7 +219,7 @@ export async function parsePlt(
  */
 async function fetchPltFile(file: string, parentDir: string) {
   // Patch filepath if relative path
-  if (parentDir && !file.startsWith("http")) {
+  if (parentDir && !isFullyQualifiedUrl(file)) {
     file = normalisePath(file, parentDir);
   }
   const filePromise = await httpRequest(file);
