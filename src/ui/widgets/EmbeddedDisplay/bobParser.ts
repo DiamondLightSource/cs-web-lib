@@ -354,9 +354,11 @@ export function bobParseActions(
 
   actionsToProcess.forEach((action): void => {
     log.debug(action);
-    const type = action._attributes?.type;
+    const strType: string = action?._attributes?.type
+      ? `${action._attributes.type}`.toLowerCase()
+      : "UNDEFINED";
     try {
-      if (type === "write_pv") {
+      if (strType === "write_pv") {
         processedActions.actions.push({
           type: WRITE_PV,
           writePvInfo: {
@@ -369,7 +371,7 @@ export function bobParseActions(
               (action.description && action.description._text) || undefined
           }
         });
-      } else if (type === "open_webpage") {
+      } else if (strType === "open_webpage") {
         processedActions.actions.push({
           type: OPEN_WEBPAGE,
           openWebpageInfo: {
@@ -378,7 +380,7 @@ export function bobParseActions(
               (action.description && action.description._text) || undefined
           }
         });
-      } else if (type === "open_display") {
+      } else if (strType === "open_display") {
         const type = action.target._text === "replace" ? OPEN_PAGE : OPEN_TAB;
         processedActions.actions.push({
           type: type,
@@ -397,7 +399,7 @@ export function bobParseActions(
       }
     } catch (e: any) {
       log.error(
-        `Could not find action of type ${type} in available actions to convert: ${e.message}`
+        `Could not find action of type ${strType} in available actions to convert: ${e.message}`
       );
     }
   });
