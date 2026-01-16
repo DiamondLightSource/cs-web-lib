@@ -1,7 +1,6 @@
 import React from "react";
 import { MenuButtonComponent } from "./menuButton";
-import { create } from "react-test-renderer";
-import { dtimeNow, DAlarm, DType, DDisplay } from "../../../types/dtypes";
+import { DAlarm, DType, DDisplay } from "../../../types/dtypes";
 import {
   ACTIONS_EX_FIRST,
   WRITE_PV_ACTION_NO_DESC
@@ -10,6 +9,7 @@ import { act, fireEvent, render } from "@testing-library/react";
 import { vi } from "vitest";
 import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
+import { PvDatum } from "../../../redux/csState";
 
 const mock = vi.fn();
 beforeEach((): void => {
@@ -18,18 +18,25 @@ beforeEach((): void => {
 
 const BASE_PROPS = {
   connected: true,
-  onChange: mock,
   enabled: true,
-  pvName: "testpv",
   actionsFromPv: true,
-  value: new DType(
-    { doubleValue: 0 },
-    DAlarm.NONE,
-    dtimeNow(),
-    new DDisplay({
-      choices: ["zero", "one", "two", "three", "four", "five"]
-    })
-  )
+  pvData: [
+    {
+      effectivePvName: "TEST:PV",
+      connected: true,
+      readonly: false,
+      value: {
+        getDoubleValue: () => 0,
+        getTime: () => {
+          new Date(Date.now());
+        },
+        alarm: DAlarm.NONE,
+        display: new DDisplay({
+          choices: ["zero", "one", "two", "three", "four", "five"]
+        })
+      } as Partial<DType> as DType
+    } as Partial<PvDatum> as PvDatum
+  ]
 };
 
 const MenuButtonRenderer = (menuButtonProps: any): JSX.Element => {
@@ -42,8 +49,8 @@ const MenuButtonRenderer = (menuButtonProps: any): JSX.Element => {
 
 describe("<MenuButton />", (): void => {
   test("it matches the snapshot", (): void => {
-    const snapshot = create(MenuButtonRenderer(BASE_PROPS));
-    expect(snapshot.toJSON()).toMatchSnapshot();
+    const { asFragment } = render(MenuButtonRenderer(BASE_PROPS));
+    expect(asFragment()).toMatchSnapshot();
   });
 
   test("it renders with default style", (): void => {
@@ -58,7 +65,7 @@ describe("<MenuButton />", (): void => {
       });
     });
 
-    expect(options[0].textContent).toEqual("zero");
+    expect(options[0].textContent).toEqual("");
   });
 
   test("it renders with style from props", (): void => {
@@ -79,7 +86,7 @@ describe("<MenuButton />", (): void => {
       });
     });
 
-    expect(options[0].textContent).toEqual("Item 1");
+    expect(options[1].textContent).toEqual("Item 1");
   });
 
   test("it renders all the choices", (): void => {
@@ -87,7 +94,7 @@ describe("<MenuButton />", (): void => {
     const select = getByRole("combobox");
     fireEvent.mouseDown(select);
     const options = getAllByRole("option");
-    expect(options.length).toBe(6);
+    expect(options.length).toBe(7);
   });
 
   test("it renders actions", (): void => {
@@ -109,20 +116,30 @@ describe("<MenuButton />", (): void => {
   test("it renders the option with the correct index", (): void => {
     const props = {
       ...BASE_PROPS,
-      value: new DType(
-        { doubleValue: 5 },
-        DAlarm.NONE,
-        dtimeNow(),
-        new DDisplay({
-          choices: ["zero", "one", "two", "three", "four", "five"]
-        })
-      )
+      pvData: [
+        {
+          effectivePvName: "TEST:PV",
+          connected: true,
+          readonly: false,
+          value: {
+            getDoubleValue: () => 5,
+            getTime: () => {
+              new Date(Date.now());
+            },
+            alarm: DAlarm.NONE,
+            display: new DDisplay({
+              choices: ["zero", "one", "two", "three", "four", "five"]
+            })
+          } as Partial<DType> as DType
+        } as Partial<PvDatum> as PvDatum
+      ]
     };
     const { getAllByRole, getByRole } = render(MenuButtonRenderer(props));
     const select = getByRole("combobox");
     fireEvent.mouseDown(select);
     const options = getAllByRole("option");
-    expect(options[5]).toHaveFocus();
+    expect(select).toHaveTextContent("five");
+    expect(options[6]).toHaveFocus();
   });
 
   test("function called on click", (): void => {
@@ -142,6 +159,8 @@ describe("<MenuButton />", (): void => {
     act(() => {
       options[2].click();
     });
+
+    //expect(options[2]).toHaveFocus();
     expect(mock).toHaveBeenCalledWith(WRITE_PV_ACTION_NO_DESC);
   });
 
