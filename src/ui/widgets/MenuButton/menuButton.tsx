@@ -12,15 +12,11 @@ import {
   BorderPropOpt,
   ActionsPropType
 } from "../propTypes";
-import {
-  executeAction,
-  WidgetAction,
-  WritePv,
-  WRITE_PV
-} from "../widgetActions";
+import { executeAction, WritePv, WRITE_PV } from "../widgetActions";
 import { FileContext } from "../../../misc/fileContext";
 import { MenuItem, Select, SelectChangeEvent, useTheme } from "@mui/material";
 import { getPvValueAndName } from "../utils";
+import log from "loglevel";
 
 export const MenuButtonProps = {
   foregroundColor: ColorPropOpt,
@@ -64,50 +60,42 @@ export const MenuButtonComponent = (
     effectivePvName: pvName,
     connected
   } = getPvValueAndName(pvData);
+  const enumPv = value?.display.choices ? true : false;
 
   // Store whether component is disabled or not
   let disabled = !enabled;
 
-  let options: string[] = label ? [label] : [""];
-  const displayOffset = 1;
+  // If no value set at first, use blank label
+  let options: string[] = label ? [label] : pvName ? [] : ["No PV"];
 
   // Using value to dictate displayed value as described here: https://reactjs.org/docs/forms.html#the-select-tag
-  // Show 0 by default where there is only one option
-  const [displayIndex, setDisplayIndex] = useState(0);
+  // Show nothing by default where there is only one option, or warning of no PV
+  const [displayValue, setDisplayValue] = useState(
+    (value?.getStringValue() ?? pvName) ? "" : "No PV"
+  );
 
   // Disable PV if not connected, or if we requested options from PV and got none
   if (
-    !connected ||
+    (pvName && !connected) ||
     value === null ||
     (value?.display.choices === undefined && fromPv)
   ) {
     disabled = true;
   }
 
-  if (!fromPv || !value?.display?.choices || !pvName) {
+  if (!itemsFromPv || !value?.display?.choices || !pvName) {
     options = options.concat(items as string[]);
   } else {
     options = options.concat(value?.display?.choices);
   }
 
-  const allowedIndices: number[] = [];
-  // If not items from PV but PV still has items
-  if (!fromPv && value?.display.choices) {
-    // Compare the two lists and find allowed values
-    items.forEach((item, idx) => {
-      if (value.display.choices?.find(x => x === item))
-        allowedIndices.push(idx);
-    });
-  }
-
   if (pvName) {
-    actions = options.map((option, i) => {
-      if (!i) return;
+    actions = options.map(option => {
       const writePv: WritePv = {
         type: WRITE_PV,
         writePvInfo: {
           pvName: pvName,
-          value: i
+          value: option
         }
       };
       return writePv;
@@ -116,15 +104,15 @@ export const MenuButtonComponent = (
 
   useEffect(() => {
     if (value) {
-      setDisplayIndex((value.getDoubleValue() ?? -1) + displayOffset);
+      setDisplayValue(value.getStringValue() ?? "");
     }
-  }, [value, displayOffset]);
+  }, [value]);
 
   const mappedOptions = options.map((text, index): JSX.Element => {
     return (
       <MenuItem
         key={index}
-        value={index}
+        value={text}
         sx={{
           fontFamily: props.font?.css() ?? "",
           color: foregroundColor.toString()
@@ -138,18 +126,21 @@ export const MenuButtonComponent = (
   function onChange(event: SelectChangeEvent): void {
     // Do nothing if we click on the first blank option
     if (event.target.value) {
-      // If no PV connected, manually change index
+      // If no PV connected, reset to No PV
       if (!pvName) {
-        setDisplayIndex(parseFloat(event.target.value));
+        setDisplayValue("No PV");
       } else {
         // If PV connected, we allow the value to change and trigger index change
         try {
-          executeAction(
-            actions[parseFloat(event.target.value) - displayOffset],
-            files
-          );
-        } catch (e) {
-          console.log(e);
+          executeAction(actions[options.indexOf(event.target.value)], files);
+        } catch (e: any) {
+          // If action fails due to widget items not existing on PV
+          if (enumPv && !value?.display.choices?.includes(event.target.value)) {
+            // Add an option to display our error string
+            setDisplayValue(e.toString());
+          } else {
+            log.error(`Action failed: ${e}`);
+          }
         }
       }
     }
@@ -158,7 +149,7 @@ export const MenuButtonComponent = (
   return (
     <Select
       disabled={disabled}
-      value={displayIndex.toString()}
+      value={displayValue}
       MenuProps={{
         slotProps: {
           paper: {
@@ -167,9 +158,6 @@ export const MenuButtonComponent = (
             }
           }
         }
-      }}
-      renderValue={value => {
-        return options[displayIndex];
       }}
       onChange={event => onChange(event)}
       sx={{

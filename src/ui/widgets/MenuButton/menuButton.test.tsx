@@ -1,32 +1,31 @@
 import React from "react";
 import { MenuButtonComponent } from "./menuButton";
 import { DAlarm, DType, DDisplay } from "../../../types/dtypes";
-import {
-  ACTIONS_EX_FIRST,
-  WRITE_PV_ACTION_NO_DESC
-} from "../../../testResources";
+import { ACTIONS_EX_FIRST } from "../../../testResources";
 import { act, fireEvent, render } from "@testing-library/react";
 import { vi } from "vitest";
 import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
 import { PvDatum } from "../../../redux/csState";
+import * as useSubscription from "../../hooks/useSubscription";
 
-const mock = vi.fn();
+const mockWritePv = vi
+  .spyOn(useSubscription, "writePv")
+  .mockImplementation(vi.fn());
+
 beforeEach((): void => {
-  mock.mockReset();
+  mockWritePv.mockReset();
 });
 
 const BASE_PROPS = {
-  connected: true,
   enabled: true,
-  actionsFromPv: true,
   pvData: [
     {
       effectivePvName: "TEST:PV",
       connected: true,
       readonly: false,
       value: {
-        getDoubleValue: () => 0,
+        getStringValue: () => "zero",
         getTime: () => {
           new Date(Date.now());
         },
@@ -65,7 +64,7 @@ describe("<MenuButton />", (): void => {
       });
     });
 
-    expect(options[0].textContent).toEqual("");
+    expect(options[0].textContent).toEqual("zero");
   });
 
   test("it renders with style from props", (): void => {
@@ -86,7 +85,7 @@ describe("<MenuButton />", (): void => {
       });
     });
 
-    expect(options[1].textContent).toEqual("Item 1");
+    expect(options[1].textContent).toEqual("Item 2");
   });
 
   test("it renders all the choices", (): void => {
@@ -94,7 +93,7 @@ describe("<MenuButton />", (): void => {
     const select = getByRole("combobox");
     fireEvent.mouseDown(select);
     const options = getAllByRole("option");
-    expect(options.length).toBe(7);
+    expect(options.length).toBe(6);
   });
 
   test("it renders actions", (): void => {
@@ -106,11 +105,11 @@ describe("<MenuButton />", (): void => {
     };
     const { getAllByRole, getByRole } = render(MenuButtonRenderer(props));
     const select = getByRole("combobox");
-    expect(select.firstChild?.textContent).toEqual("Item 1");
+    expect(select.firstChild?.textContent).toEqual("zero");
     fireEvent.mouseDown(select);
     const options = getAllByRole("option");
-    // Two actions plus label.
-    expect(options.length).toBe(3);
+    // Two actions plus options plus label.
+    expect(options.length).toBe(7);
   });
 
   test("it renders the option with the correct index", (): void => {
@@ -122,7 +121,7 @@ describe("<MenuButton />", (): void => {
           connected: true,
           readonly: false,
           value: {
-            getDoubleValue: () => 5,
+            getStringValue: () => "five",
             getTime: () => {
               new Date(Date.now());
             },
@@ -139,10 +138,50 @@ describe("<MenuButton />", (): void => {
     fireEvent.mouseDown(select);
     const options = getAllByRole("option");
     expect(select).toHaveTextContent("five");
-    expect(options[6]).toHaveFocus();
+    expect(options[5]).toHaveFocus();
   });
 
-  test("function called on click", (): void => {
+  test("it triggers the correct action if pv and widget values differ", async (): Promise<void> => {
+    const props = {
+      ...BASE_PROPS,
+      items: ["zero", "one", "two"],
+      itemsFromPv: false,
+      pvData: [
+        {
+          effectivePvName: "TEST:PV",
+          connected: true,
+          readonly: false,
+          value: {
+            getStringValue: () => "one",
+            getTime: () => {
+              new Date(Date.now());
+            },
+            alarm: DAlarm.NONE,
+            display: new DDisplay({
+              choices: ["one", "two"]
+            })
+          } as Partial<DType> as DType
+        } as Partial<PvDatum> as PvDatum
+      ]
+    };
+    const { getAllByRole, getByRole } = render(MenuButtonRenderer(props));
+    const select = getByRole("combobox");
+    fireEvent.mouseDown(select);
+    const options = getAllByRole("option");
+    expect(select).toHaveTextContent("one");
+    expect(options[1]).toHaveFocus();
+
+    await act(async () => {
+      fireEvent.click(options[2]);
+    });
+
+    expect(mockWritePv).toHaveBeenCalledWith(
+      "TEST:PV",
+      new DType({ stringValue: "two" })
+    );
+  });
+
+  test("function called on click", async (): Promise<void> => {
     const props = {
       ...BASE_PROPS,
       actionsFromPv: false,
@@ -150,21 +189,23 @@ describe("<MenuButton />", (): void => {
       label: "menu button with label"
     };
     const { getAllByRole, getByRole } = render(MenuButtonRenderer(props));
-    const trigger = getByRole("combobox");
-    fireEvent.mouseDown(trigger);
+    const select = getByRole("combobox");
+    fireEvent.mouseDown(select);
     const options = getAllByRole("option");
 
     expect(options[1]).toHaveFocus();
 
-    act(() => {
-      options[2].click();
+    await act(async () => {
+      fireEvent.click(options[2]);
     });
 
-    //expect(options[2]).toHaveFocus();
-    expect(mock).toHaveBeenCalledWith(WRITE_PV_ACTION_NO_DESC);
+    expect(mockWritePv).toHaveBeenCalledWith(
+      "TEST:PV",
+      new DType({ stringValue: "one" })
+    );
   });
 
-  test("widget is disabled", (): void => {
+  test("the widget is disabled", (): void => {
     const props = {
       ...BASE_PROPS,
       enabled: false
@@ -172,5 +213,37 @@ describe("<MenuButton />", (): void => {
     const { getByRole } = render(MenuButtonRenderer(props));
     const select = getByRole("combobox");
     expect(select).toHaveAttribute("aria-disabled");
+  });
+
+  test("it defaults to `No PV` value if no PV", (): void => {
+    const props = {
+      ...BASE_PROPS,
+      items: ["zero", "one", "two"],
+      pvData: [
+        {
+          effectivePvName: undefined,
+          connected: false,
+          readonly: false,
+          value: {
+            getStringValue: () => undefined,
+            getTime: () => {
+              new Date(Date.now());
+            },
+            alarm: DAlarm.NONE,
+            display: new DDisplay({
+              choices: ["one", "two"]
+            })
+          } as Partial<DType> as DType
+        } as Partial<PvDatum> as PvDatum
+      ],
+      itemsfromPv: false
+    };
+    const { getByRole, getAllByRole } = render(MenuButtonRenderer(props));
+    const select = getByRole("combobox");
+    fireEvent.mouseDown(select);
+    //expect(select).toHaveTextContent("No PV");
+    const options = getAllByRole("option");
+    expect(options[0]).toHaveTextContent("No PV");
+    expect(options[0]).toHaveFocus();
   });
 });

@@ -19,7 +19,7 @@ exports[`<MenuButton /> > it matches the snapshot 1`] = `
       aria-invalid="false"
       class="MuiSelect-nativeInput css-j0riat-MuiSelect-nativeInput"
       tabindex="-1"
-      value="1"
+      value="zero"
     />
     <svg
       aria-hidden="true"
