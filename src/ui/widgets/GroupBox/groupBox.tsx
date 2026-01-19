@@ -73,8 +73,7 @@ export const GroupBoxComponent = (
 
   if (styleOpt === 0) {
     // Typical group box with label
-    outerDivStyle.padding = "10px";
-    outerDivStyle.paddingTop = "0px";
+    outerDivStyle.paddingRight = "10px";
     boxStyle.paddingLeft = "8px";
   } else if (styleOpt === 3) {
     // No groupbox
