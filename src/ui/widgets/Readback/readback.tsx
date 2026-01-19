@@ -49,7 +49,7 @@ const TextField = styled(MuiTextField)({
     lineHeight: "0px"
   },
   "& .MuiInputBase-root": {
-    height: "100%",
+    height: "100%", 
     width: "100%",
     padding: "0px"
   },
@@ -87,7 +87,7 @@ export const ReadbackComponent = (
     transparent = false,
     text = "######",
     textAlign = "left",
-    textAlignV = "top",
+    textAlignV = "centre",
     showUnits = false,
     precisionFromPv = false,
     rotationStep = 0,
