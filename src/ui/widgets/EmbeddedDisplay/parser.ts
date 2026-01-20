@@ -197,7 +197,7 @@ export async function parseWidget(
   // Default to true if wrapWords is not defined.
   // Applicable to BOB files.
   if (widgetDescription.wrapWords === undefined) {
-    widgetDescription.wrapWords = true;
+    widgetDescription.wrapWords = false;
   }
 
   return widgetDescription;
