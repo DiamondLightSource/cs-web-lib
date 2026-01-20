@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Widget } from "../widget";
-import { PVWidgetPropType } from "../widgetProps";
+import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import {
   BoolPropOpt,
@@ -9,94 +9,93 @@ import {
   StringArrayPropOpt,
   StringPropOpt,
   FontPropOpt,
-  FuncPropOpt
+  BorderPropOpt,
+  ActionsPropType
 } from "../propTypes";
-import { DType } from "../../../types/dtypes";
-import {
-  executeAction,
-  WidgetAction,
-  WidgetActions,
-  WritePv,
-  WRITE_PV
-} from "../widgetActions";
+import { executeAction, WritePv, WRITE_PV } from "../widgetActions";
 import { FileContext } from "../../../misc/fileContext";
-import { Border } from "../../../types/border";
-import { Color } from "../../../types/color";
 import { MenuItem, Select, SelectChangeEvent, useTheme } from "@mui/material";
-import { Font } from "../../../types";
+import { getPvValueAndName } from "../utils";
+import log from "loglevel";
 
-export interface MenuButtonProps {
-  connected: boolean;
-  onChange: (action: WidgetAction) => void;
-  pvName?: string;
-  value?: DType;
-  actionsFromPv?: boolean;
-  itemsFromPv?: boolean;
-  label?: string;
-  actions?: WidgetActions;
-  foregroundColor?: Color;
-  backgroundColor?: Color;
-  border?: Border;
-  font?: Font;
-  items?: string[];
-  enabled?: boolean;
-}
-
-const MenuButtonComponentProps = {
+export const MenuButtonProps = {
   foregroundColor: ColorPropOpt,
   backgroundColor: ColorPropOpt,
   font: FontPropOpt,
+  border: BorderPropOpt,
   enabled: BoolPropOpt,
-  onChange: FuncPropOpt,
   // opi specific prop
   actionsFromPv: BoolPropOpt,
+  actions: ActionsPropType,
   label: StringPropOpt,
   // bob specific prop
   items: StringArrayPropOpt,
   itemsFromPv: BoolPropOpt
 };
 
-export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
+export type MenuButtonComponentProps = InferWidgetProps<
+  typeof MenuButtonProps
+> &
+  PVComponent;
+
+export const MenuButtonComponent = (
+  props: MenuButtonComponentProps
+): JSX.Element => {
   const theme = useTheme();
   const {
-    connected,
-    value = null,
     enabled = true,
     actionsFromPv = true,
     itemsFromPv = true,
-    pvName,
+    pvData,
     label,
     foregroundColor = theme.palette.primary.contrastText,
     backgroundColor = theme.palette.primary.main,
     items = ["Item 1", "Item 2"]
   } = props;
+  const files = useContext(FileContext);
   const fromPv = actionsFromPv && itemsFromPv;
-  let actions: WidgetAction[] = props.actions?.actions ?? [];
+  let actions: any[] = props.actions?.actions ?? [];
+  const {
+    value,
+    effectivePvName: pvName,
+    connected
+  } = getPvValueAndName(pvData);
+  const enumPv = value?.display.choices ? true : false;
 
   // Store whether component is disabled or not
   let disabled = !enabled;
 
-  let options: string[] = label ? [label] : [];
-  const displayOffset = label ? 1 : 0;
+  // If no value set at first, use blank label
+  let options: string[] = label ? [label] : pvName ? [] : ["No PV"];
 
   // Using value to dictate displayed value as described here: https://reactjs.org/docs/forms.html#the-select-tag
-  // Show 0 by default where there is only one option
-  const [displayIndex, setDisplayIndex] = useState(0);
+  // Show nothing by default where there is only one option, or warning of no PV
+  const [displayValue, setDisplayValue] = useState(
+    (value?.getStringValue() ?? pvName) ? "" : "No PV"
+  );
 
-  if (!connected || value === null) {
+  // Disable PV if not connected, or if we requested options from PV and got none
+  if (
+    (pvName && !connected) ||
+    value === null ||
+    (value?.display.choices === undefined && fromPv)
+  ) {
     disabled = true;
   }
 
-  if (!fromPv || !value?.display?.choices || !pvName) {
-    options = options.concat(items);
+  if (!itemsFromPv || !value?.display?.choices || !pvName) {
+    options = options.concat(items as string[]);
   } else {
     options = options.concat(value?.display?.choices);
-    actions = options.map((option, i) => {
+  }
+
+  if (pvName) {
+    actions = options.map(option => {
       const writePv: WritePv = {
         type: WRITE_PV,
         writePvInfo: {
           pvName: pvName,
-          value: i
+          value: option
         }
       };
       return writePv;
@@ -105,15 +104,15 @@ export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
 
   useEffect(() => {
     if (value) {
-      setDisplayIndex((value.getDoubleValue() ?? 0) + displayOffset);
+      setDisplayValue(value.getStringValue() ?? "");
     }
-  }, [value, displayOffset]);
+  }, [value]);
 
   const mappedOptions = options.map((text, index): JSX.Element => {
     return (
       <MenuItem
         key={index}
-        value={index}
+        value={text}
         sx={{
           fontFamily: props.font?.css() ?? "",
           color: foregroundColor.toString()
@@ -125,14 +124,32 @@ export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
   });
 
   function onChange(event: SelectChangeEvent): void {
-    setDisplayIndex(parseFloat(event.target.value));
-    props.onChange(actions[parseFloat(event.target.value) - displayOffset]);
+    // Do nothing if we click on the first blank option
+    if (event.target.value) {
+      // If no PV connected, reset to No PV
+      if (!pvName) {
+        setDisplayValue("No PV");
+      } else {
+        // If PV connected, we allow the value to change and trigger index change
+        try {
+          executeAction(actions[options.indexOf(event.target.value)], files);
+        } catch (e: any) {
+          // If action fails due to widget items not existing on PV
+          if (enumPv && !value?.display.choices?.includes(event.target.value)) {
+            // Add an option to display our error string
+            setDisplayValue(e.toString());
+          } else {
+            log.error(`Action failed: ${e}`);
+          }
+        }
+      }
+    }
   }
 
   return (
     <Select
       disabled={disabled}
-      value={displayIndex.toString()}
+      value={displayValue}
       MenuProps={{
         slotProps: {
           paper: {
@@ -141,9 +158,6 @@ export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
             }
           }
         }
-      }}
-      renderValue={value => {
-        return options[displayIndex];
       }}
       onChange={event => onChange(event)}
       sx={{
@@ -171,42 +185,13 @@ export const MenuButtonComponent = (props: MenuButtonProps): JSX.Element => {
   );
 };
 
-// Menu button which also knows how to write to a PV
-export const SmartMenuButton = (props: MenuButtonProps): JSX.Element => {
-  const files = useContext(FileContext);
-  // Function to send the value on to the PV
-  function onChange(action: WidgetAction): void {
-    // The value from the select element is an integer as a string,
-    // so we parse it into a float.
-    executeAction(action, files);
-  }
-
-  return (
-    <MenuButtonComponent
-      pvName={props.pvName}
-      connected={props.connected}
-      value={props.value}
-      actionsFromPv={props.actionsFromPv}
-      itemsFromPv={props.itemsFromPv}
-      actions={props.actions}
-      onChange={onChange}
-      label={props.label}
-      foregroundColor={props.foregroundColor}
-      backgroundColor={props.backgroundColor}
-      items={props.items}
-      font={props.font}
-      enabled={props.enabled}
-    />
-  );
-};
-
 const MenuButtonWidgetProps = {
-  ...MenuButtonComponentProps,
+  ...MenuButtonProps,
   ...PVWidgetPropType
 };
 
 export const MenuButton = (
   props: InferWidgetProps<typeof MenuButtonWidgetProps>
-): JSX.Element => <Widget baseWidget={SmartMenuButton} {...props} />;
+): JSX.Element => <Widget baseWidget={MenuButtonComponent} {...props} />;
 
 registerWidget(MenuButton, MenuButtonWidgetProps, "menubutton");
