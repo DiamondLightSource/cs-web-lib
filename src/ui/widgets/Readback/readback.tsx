@@ -49,7 +49,7 @@ const TextField = styled(MuiTextField)({
     lineHeight: "0px"
   },
   "& .MuiInputBase-root": {
-    height: "100%", 
+    height: "100%",
     width: "100%",
     padding: "0px"
   },
