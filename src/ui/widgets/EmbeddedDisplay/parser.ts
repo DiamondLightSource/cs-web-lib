@@ -18,7 +18,6 @@ import { StringProp, PositionProp } from "../propTypes";
 import { ElementCompact } from "xml-js";
 import { PV } from "../../../types";
 import { snakeCaseToCamelCase } from "../utils";
-import { MacroMap } from "../../../types/macros";
 
 // Specific widgets we should allow empty string parsing for
 const PARSE_EMPTY_STRINGS = ["text", "label", "on_label", "off_label", "title"];
@@ -49,8 +48,7 @@ export type ComplexParserDict = {
 
 export type PatchFunction = (
   props: WidgetDescription,
-  path?: string,
-  macros?: MacroMap
+  path?: string
 ) => WidgetDescription;
 
 /* Take an object representing a widget and return our widget description. */
@@ -155,8 +153,7 @@ export async function parseWidget(
   complexParsers: ComplexParserDict,
   passThrough: boolean,
   patchFunctions: PatchFunction[],
-  filepath?: string,
-  macros?: MacroMap
+  filepath?: string
 ): Promise<WidgetDescription> {
   const targetWidget = getTargetWidget(props);
   let widgetDescription = await genericParser(
@@ -168,7 +165,7 @@ export async function parseWidget(
   );
   // Execute patch functions.
   for (const patcher of patchFunctions) {
-    widgetDescription = patcher(widgetDescription, filepath, macros);
+    widgetDescription = patcher(widgetDescription, filepath);
   }
   /* Child widgets */
   const childWidgets = toArray(props[childrenName]);
@@ -182,8 +179,7 @@ export async function parseWidget(
         complexParsers,
         passThrough,
         patchFunctions,
-        filepath,
-        macros
+        filepath
       );
     })
   );

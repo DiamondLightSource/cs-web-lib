@@ -43,7 +43,6 @@ import { Axis } from "../../../types/axis";
 import { Trace } from "../../../types/trace";
 import { parsePlt } from "./pltParser";
 import { scriptParser } from "./scripts/scriptParser";
-import { MacroMap } from "../../../types/macros";
 
 const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   action_button: "actionbutton",
@@ -496,8 +495,7 @@ const BOB_COMPLEX_PARSERS: ComplexParserDict = {
 export async function parseBob(
   xmlString: string,
   defaultProtocol: string,
-  filepath: string,
-  macros?: MacroMap
+  filepath: string
 ): Promise<WidgetDescription> {
   // Convert it to a "compact format"
   const compactJSON = xml2js(xmlString, {
@@ -543,8 +541,7 @@ export async function parseBob(
     complexParsers,
     false,
     OPI_PATCHERS,
-    filepath,
-    macros
+    filepath
   );
 
   displayWidget.position = new RelativePosition(
