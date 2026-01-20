@@ -3,7 +3,7 @@
 import log from "loglevel";
 import { ElementCompact, xml2js } from "xml-js";
 import { Rule, Expression, OpiFile } from "../../../types/props";
-import { MacroMap } from "../../../types/macros";
+import { MacroMap, resolveMacros } from "../../../types/macros";
 import { Color } from "../../../types/color";
 import { FontStyle, Font } from "../../../types/font";
 import { Border, BorderStyle } from "../../../types/border";
@@ -778,22 +778,31 @@ function opiPatchRules(
   return widgetDescription;
 }
 
-export function normalisePath(path: string, parentDir?: string): string {
+export function normalisePath(
+  path: string,
+  parentDir?: string,
+  macros?: MacroMap
+): string {
   let prefix = parentDir ?? "";
   while (path.startsWith("../")) {
     path = path.slice(3);
     prefix = prefix.slice(0, prefix.lastIndexOf("/"));
   }
 
-  return buildUrl(prefix, path);
+  // If path contains macros, we need to apply these before building the url
+  const resolvedPath = macros ? resolveMacros(path, macros) : path;
+
+  return buildUrl(prefix, resolvedPath);
 }
 
 function opiPatchPaths(
   widgetDescription: WidgetDescription,
-  parentDir?: string
+  parentDir?: string,
+  macros?: MacroMap
 ): WidgetDescription {
   log.debug(`opiPatchPaths ${parentDir}`);
   // file: OpiFile type
+
   if (
     widgetDescription["file"] &&
     parentDir &&
@@ -801,7 +810,8 @@ function opiPatchPaths(
   ) {
     widgetDescription["file"].path = normalisePath(
       widgetDescription["file"].path,
-      parentDir
+      parentDir,
+      macros
     );
     log.debug(`Corrected opi file to ${widgetDescription["file"].path}`);
   }
@@ -814,7 +824,8 @@ function opiPatchPaths(
     if (widgetDescription[prop]) {
       widgetDescription[prop] = normalisePath(
         widgetDescription[prop],
-        parentDir
+        parentDir,
+        macros
       );
       log.debug(`Corrected image file to ${widgetDescription.imageFile}`);
     }
@@ -825,7 +836,8 @@ function opiPatchPaths(
       if (action.dynamicInfo) {
         action.dynamicInfo.file.path = normalisePath(
           action.dynamicInfo.file.path,
-          parentDir
+          parentDir,
+          macros
         );
         log.debug(`Corrected path to ${action.dynamicInfo.file.path}`);
       }
@@ -837,7 +849,7 @@ function opiPatchPaths(
     widgetDescription["symbols"] = widgetDescription["symbols"].map(
       (symbol: string) => {
         if (isFullyQualifiedUrl(symbol)) return symbol;
-        return normalisePath(symbol, parentDir);
+        return normalisePath(symbol, parentDir, macros);
       }
     );
   }

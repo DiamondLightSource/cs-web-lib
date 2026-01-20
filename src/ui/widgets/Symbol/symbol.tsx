@@ -91,7 +91,7 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
   const index = convertValueToIndex(value, initialIndex, arrayIndex);
 
   const regex = / [0-9]\./;
-  let imageFile = isBob ? symbols[index] : props.imageFile;
+  let imageFile = isBob ? (symbols[index] ?? symbols[0]) : props.imageFile;
   // If no provided image file
   if (!imageFile) imageFile = fallbackSymbol;
   const intValue = DType.coerceDouble(value);

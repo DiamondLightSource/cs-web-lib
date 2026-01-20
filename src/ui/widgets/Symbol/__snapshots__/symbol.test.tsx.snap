@@ -6,7 +6,7 @@ exports[`<Symbol /> from .bob file > matches snapshot (using fallback symbol) 1`
     style="background-color: transparent; overflow: visible; text-align: left; width: 100%; height: 100%;"
   >
     <img
-      src="https://cs-web-symbol.diamond.ac.uk/catalogue/default_symbol.png"
+      src="img 1.gif"
       style="display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: contain; object-position: top left; opacity: 1;"
     />
   </div>
