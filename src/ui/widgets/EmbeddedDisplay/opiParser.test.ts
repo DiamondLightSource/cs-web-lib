@@ -2,7 +2,7 @@ import log from "loglevel";
 import { Color } from "../../../types/color";
 import { Border } from "../../../types/border";
 import { Rule } from "../../../types/props";
-import { parseOpi } from "./opiParser";
+import { normalisePath, parseOpi } from "./opiParser";
 import { AbsolutePosition, RelativePosition } from "../../../types/position";
 import { ensureWidgetsRegistered } from "..";
 import { WidgetDescription } from "../createComponent";
@@ -408,5 +408,78 @@ $(trace_0_y_pv_value)</tooltip>
     expect(widget.axes.length).toEqual(3);
     expect(widget.traces[0].bufferSize).toEqual(65536);
     expect(widget.axes[2].onRight).toEqual(true);
+  });
+});
+
+describe("normalisePath", (): void => {
+  it("returns path when no other arguments are specified", async (): Promise<void> => {
+    const result = normalisePath("/a/path");
+    expect(result).toBe("/a/path");
+  });
+
+  it("returns path without .. when no other arguments are specified and path starts with ../", async (): Promise<void> => {
+    const result = normalisePath("../../a/path");
+    expect(result).toBe("/a/path");
+  });
+
+  it("Joins path and parent when parent is a valid url", async (): Promise<void> => {
+    const result = normalisePath("/a/path", "http://test.diamond.ac.uk/");
+    expect(result).toBe("http://test.diamond.ac.uk/a/path");
+  });
+
+  it("Joins path and parent when parent is a path", async (): Promise<void> => {
+    const result = normalisePath("/a/path", "/parent/path");
+    expect(result).toBe("/parent/path/a/path");
+  });
+
+  it("Joins path when path contains .. and removes trailing folders from paren path", async (): Promise<void> => {
+    const result = normalisePath("../a/path", "/parent/path");
+    expect(result).toBe("/parent/a/path");
+  });
+
+  it("Returns path if path is a valid url", async (): Promise<void> => {
+    const result = normalisePath(
+      "https://anothertest.diamond.ac.uk/a/path",
+      "http://test.diamond.ac.uk/"
+    );
+    expect(result).toBe("https://anothertest.diamond.ac.uk/a/path");
+  });
+
+  it("Does not substitute macros if macros undefined", async (): Promise<void> => {
+    const result = normalisePath(
+      "$(some_macro)/$(another_macro)/path",
+      "$(another_macro)/parent"
+    );
+    expect(result).toBe(
+      "$(another_macro)/parent/$(some_macro)/$(another_macro)/path"
+    );
+  });
+
+  it("Substitutes macros into path if macros defined", async (): Promise<void> => {
+    const result = normalisePath(
+      "$(some_macro)/$(another_macro)/path",
+      "$(another_macro)/parent",
+      {
+        some_macro: "macroPath",
+        another_macro: "anotherMacroPath",
+        absent_macro: "no_match"
+      }
+    );
+    expect(result).toBe(
+      "$(another_macro)/parent/macroPath/anotherMacroPath/path"
+    );
+  });
+
+  it("Substitutes macros into path, returns path if path becomes a fully qualified url", async (): Promise<void> => {
+    const result = normalisePath(
+      "$(some_macro)/$(another_macro)/path",
+      "$(another_macro)/parent",
+      {
+        some_macro: "http://test.diamond.ac.uk",
+        another_macro: "anotherMacroPath",
+        absent_macro: "no_match"
+      }
+    );
+    expect(result).toBe("http://test.diamond.ac.uk/anotherMacroPath/path");
   });
 });
