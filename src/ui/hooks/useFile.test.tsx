@@ -98,7 +98,7 @@ describe("useFile", (): void => {
       children: [],
       precisionFromPv: true,
       showUnits: true,
-      wrapWords: true
+      wrapWords: false
     });
     expect(
       screen.getByText(`contents: ${responseContent}`)
