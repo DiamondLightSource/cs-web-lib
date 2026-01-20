@@ -3,7 +3,7 @@
 exports[`<GroupBoxComponent /> snapshots > it matches the snapshot for Group Box style 1`] = `
 <DocumentFragment>
   <div
-    style="width: 100%; height: 100%; position: absolute; padding: 0px 10px 10px 10px; box-sizing: border-box;"
+    style="width: 100%; height: 100%; position: absolute; padding: 0px 10px 0px 0px; box-sizing: border-box;"
   >
     <fieldset
       class="MuiBox-root css-hz4gww"
