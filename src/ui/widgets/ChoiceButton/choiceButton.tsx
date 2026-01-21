@@ -49,7 +49,7 @@ const ToggleButton = styled(MuiToggleButton)({
     overflow: "hidden",
     display: "block",
     padding: 0,
-    lineHeight: 1,
+    lineHeight: 1.2,
     alignItems: "center",
     justifyContent: "center",
     textOverflow: "clip",

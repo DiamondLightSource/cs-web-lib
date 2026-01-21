@@ -46,7 +46,7 @@ const Typography = styled(MuiTypography)({
   overflow: "hidden",
   borderRadius: "4px",
   borderWidth: "0px",
-  lineHeight: 1,
+  lineHeight: 1.2,
   padding: 0
 });
 
