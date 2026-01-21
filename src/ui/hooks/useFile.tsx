@@ -26,7 +26,8 @@ export interface File {
 
 export async function fetchAndConvert(
   filepath: string,
-  protocol: string
+  protocol: string,
+  macros?: MacroMap
 ): Promise<WidgetDescription> {
   try {
     const parentDir = filepath.substr(0, filepath.lastIndexOf("/"));
@@ -44,7 +45,7 @@ export async function fetchAndConvert(
       // Convert the contents to widget description style object
       switch (fileExt) {
         case "bob":
-          description = await parseBob(contents, protocol, parentDir);
+          description = await parseBob(contents, protocol, parentDir, macros);
           break;
         case "json":
           description = await parseJson(contents, protocol, parentDir);
@@ -63,7 +64,7 @@ export async function fetchAndConvert(
   }
 }
 
-export function useFile(file: File): WidgetDescription {
+export function useFile(file: File, macros?: MacroMap): WidgetDescription {
   const dispatch = useDispatch();
   const fileExt = file.path.split(".").pop() || "json";
   const contents = useSelector(
@@ -74,7 +75,11 @@ export function useFile(file: File): WidgetDescription {
   useEffect(() => {
     let isMounted = true;
     const fetchData = async (): Promise<void> => {
-      const fetchPromise = fetchAndConvert(file.path, file.defaultProtocol);
+      const fetchPromise = fetchAndConvert(
+        file.path,
+        file.defaultProtocol,
+        macros
+      );
       const contents = await fetchPromise;
       // Populate the file cache.
       if (isMounted) {
@@ -90,7 +95,7 @@ export function useFile(file: File): WidgetDescription {
     return () => {
       isMounted = false;
     };
-  }, [file.path, file.defaultProtocol, fileExt, contents, dispatch]);
+  }, [file.path, file.defaultProtocol, fileExt, contents, dispatch, macros]);
 
   return contents || EMPTY_WIDGET;
 }

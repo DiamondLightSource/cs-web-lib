@@ -81,7 +81,10 @@ export const EmbeddedDisplay = (
     props,
     embeddedDisplayMacroContext.macros
   );
-  const description = useFile(resolvedProps.file as File);
+  const description = useFile(
+    resolvedProps.file as File,
+    embeddedDisplayMacroContext.macros
+  );
 
   let resize = resolvedProps.resize || "scroll-content";
   // If number, convert back to string
