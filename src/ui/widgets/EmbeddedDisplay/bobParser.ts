@@ -248,14 +248,20 @@ function bobParseResizing(jsonProp: ElementCompact): string {
   }
 }
 
-function bobParseSymbols(jsonProp: ElementCompact): string[] {
-  const symbols: string[] = [];
-  Object.values(jsonProp["symbol"]).forEach((item: any) => {
-    // For a single symbol, we are passed a string. For multiple symbols
-    // we are passed an object, so we need to return string from it
-    symbols.push(typeof item === "string" ? item : item._text);
-  });
-  return symbols;
+function bobParseSymbols(jsonProp: ElementCompact): string[] | string {
+  if (jsonProp["symbol"]) {
+    const symbols: string[] = [];
+    Object.values(jsonProp["symbol"]).forEach((item: any) => {
+      // For a single symbol, we are passed a string. For multiple symbols
+      // we are passed an object, so we need to return string from it
+      symbols.push(typeof item === "string" ? item : item._text);
+    });
+    return symbols;
+  } else if (jsonProp["_text"]) {
+    return `${jsonProp["_text"]}`;
+  }
+
+  return [];
 }
 
 /**
@@ -542,7 +548,7 @@ export async function parseBob(
     simpleParsers,
     complexParsers,
     false,
-    OPI_PATCHERS,
+    OPI_PATCHERS(BOB_SIMPLE_PARSERS),
     filepath,
     macros
   );

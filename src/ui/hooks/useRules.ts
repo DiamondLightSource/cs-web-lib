@@ -121,7 +121,17 @@ export function useRules(props: AnyProps): AnyProps {
                 newProps["position"]["y"] = `${exp.value._text}px`;
                 break;
               default:
-                newProps[prop] = exp.convertedValue;
+                const match = prop.match(/^(.*)\[\s*(\d+)\s*\]$/);
+                if (match) {
+                  const prefix: string = match[1];
+                  const index = parseInt(match[2], 10);
+                  const prop = newProps[prefix];
+                  if (Array.isArray(prop) && prop.length > index) {
+                    (prop as Array<any>)[index] = exp.convertedValue;
+                  }
+                } else {
+                  newProps[prop] = exp.convertedValue;
+                }
             }
             log.debug("Output value");
             log.debug(newProps);

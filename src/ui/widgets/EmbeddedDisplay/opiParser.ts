@@ -289,13 +289,15 @@ export const opiParseRules = (
         };
       });
       const expArray = toArray(ruleElement.exp);
-      const expressions = expArray.map((expression: ElementCompact) => {
-        const value = expression.value;
-        return {
-          boolExp: expression._attributes?.bool_exp as string,
-          value: value
-        };
-      });
+      const expressions = expArray.map(
+        (expression: ElementCompact): Expression => {
+          const value = expression.value;
+          return {
+            boolExp: expression._attributes?.bool_exp as string,
+            value: value
+          };
+        }
+      );
       return {
         name: name,
         prop: xmlProp,
@@ -754,29 +756,37 @@ export const OPI_COMPLEX_PARSERS: ComplexParserDict = {
   points: opiParsePoints
 };
 
-function opiPatchRules(
-  widgetDescription: WidgetDescription
-): WidgetDescription {
-  /* Re-index simple parsers so we can find the correct one
+const opiPatchRules =
+  (parserDict: ParserDict) =>
+  (widgetDescription: WidgetDescription): WidgetDescription => {
+    /* Re-index simple parsers so we can find the correct one
      for the opi prop. */
-  const opiPropParsers: ParserDict = {};
-  Object.entries(OPI_SIMPLE_PARSERS).forEach(([jsonProp, vals]) => {
-    opiPropParsers[vals[0]] = [jsonProp, vals[1]];
-  });
-  /* Patch up the rules by converting the prop to our name
+    const propParsers: ParserDict = {};
+    Object.entries(parserDict ?? {}).forEach(([jsonProp, vals]) => {
+      propParsers[vals[0]] = [jsonProp, vals[1]];
+    });
+    /* Patch up the rules by converting the prop to our name
      and converting the value to the correct type. */
-  widgetDescription.rules?.forEach((rule: Rule) => {
-    if (opiPropParsers.hasOwnProperty(rule.prop)) {
-      const [newPropName, parser] = opiPropParsers[rule.prop];
-      rule.prop = newPropName;
-      rule.expressions.forEach((expression: Expression) => {
-        const convertedValue = parser(expression.value);
-        expression.convertedValue = convertedValue;
-      });
-    }
-  });
-  return widgetDescription;
-}
+    widgetDescription.rules?.forEach((rule: Rule) => {
+      let ruleProp = rule?.prop;
+
+      const matchArrayPattern = ruleProp?.match(/^(.*)\[\s*(\d+)\s*\]$/);
+      if (matchArrayPattern) {
+        // this looks like an array remove the index to match the prop
+        ruleProp = matchArrayPattern[1];
+      }
+      if (propParsers.hasOwnProperty(ruleProp)) {
+        const [newPropName, parser] = propParsers[ruleProp];
+
+        rule.prop = matchArrayPattern ? rule.prop : newPropName;
+        rule.expressions.forEach((expression: Expression) => {
+          const convertedValue = parser(expression?.value);
+          expression.convertedValue = convertedValue;
+        });
+      }
+    });
+    return widgetDescription;
+  };
 
 export function normalisePath(
   path: string,
@@ -852,6 +862,20 @@ function opiPatchPaths(
         return normalisePath(symbol, parentDir, macros);
       }
     );
+    // For the case where a symbol contains a rule that updates a symbol path
+    widgetDescription["rules"]
+      ?.filter((rule: any) => rule?.prop?.startsWith("symbols["))
+      ?.forEach((rule: any) => {
+        rule?.expressions
+          ?.filter((expression: any) => expression.convertedValue)
+          ?.forEach((expression: any) => {
+            expression.convertedValue = normalisePath(
+              expression.convertedValue,
+              parentDir,
+              macros
+            );
+          });
+      });
   }
   return widgetDescription;
 }
@@ -884,8 +908,8 @@ function opiPatchActions(
   return widgetDescription;
 }
 
-export const OPI_PATCHERS: PatchFunction[] = [
-  opiPatchRules,
+export const OPI_PATCHERS = (parserDict: ParserDict): PatchFunction[] => [
+  opiPatchRules(parserDict),
   opiPatchPaths,
   opiPatchActions
 ];
@@ -933,7 +957,7 @@ export async function parseOpi(
     simpleParsers,
     complexParsers,
     false,
-    OPI_PATCHERS,
+    OPI_PATCHERS(OPI_SIMPLE_PARSERS),
     filepath
   );
 
