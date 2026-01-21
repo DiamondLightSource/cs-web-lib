@@ -54,7 +54,7 @@ const Button = styled(MuiButton)({
     overflow: "clip",
     textTransform: "none",
     whiteSpace: "pre-wrap",
-    lineHeight: 1
+    lineHeight: 1.2
   },
   "&.Mui-disabled": {
     cursor: "not-allowed",
