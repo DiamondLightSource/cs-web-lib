@@ -33,7 +33,8 @@ const GroupBoxProps = {
   font: FontPropOpt,
   styleOpt: IntPropOpt,
   transparent: BoolPropOpt,
-  macros: MacrosPropOpt
+  macros: MacrosPropOpt,
+  visible: BoolPropOpt
 };
 
 // Widget that renders a group-box style border showing the name prop.
@@ -46,9 +47,10 @@ export const GroupBoxComponent = (
     backgroundColor = Color.fromRgba(240, 240, 240),
     foregroundColor = Color.fromRgba(0, 0, 0),
     lineColor = Color.fromRgba(0, 0, 0),
-    font = new Font(16),
+    font = new Font(14),
     styleOpt = 0,
-    transparent = false
+    transparent = false,
+    visible = true
   } = props;
 
   const outerDivStyle: CSSProperties = {
@@ -68,6 +70,7 @@ export const GroupBoxComponent = (
     overflow: "visible",
     backgroundColor: transparent ? "transparent" : backgroundColor.toString(),
     color: foregroundColor.toString(),
+    visibility: visible ? "visible" : "hidden",
     ...font.css()
   };
 
