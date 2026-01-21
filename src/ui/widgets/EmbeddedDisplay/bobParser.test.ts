@@ -182,7 +182,7 @@ describe("bob widget parser", (): void => {
       .children?.[0] as WidgetDescription;
     expect(widget.precisionFromPv).toEqual(true);
     expect(widget.showUnits).toEqual(true);
-    expect(widget.wrapWords).toEqual(false);
+    expect(widget.wrapWords).toEqual(true);
     expect(widget.alarmSensitive).toEqual(true);
   });
 
