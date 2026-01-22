@@ -34,6 +34,7 @@ import {
 import { snakeCaseToCamelCase } from "../utils";
 import { Point, Points } from "../../../types/points";
 import { buildUrl, isFullyQualifiedUrl } from "../../../misc/urlUtils";
+import { parseArrayString } from "../../../misc/stringUtils";
 
 export interface XmlDescription {
   _attributes: { [key: string]: string };
@@ -770,10 +771,10 @@ const opiPatchRules =
     widgetDescription.rules?.forEach((rule: Rule) => {
       let ruleProp = rule?.prop;
 
-      const matchArrayPattern = ruleProp?.match(/^(.*)\[\s*(\d+)\s*\]$/);
+      const matchArrayPattern = parseArrayString(ruleProp);
       if (matchArrayPattern) {
         // this looks like an array remove the index to match the prop
-        ruleProp = matchArrayPattern[1];
+        ruleProp = matchArrayPattern[0];
       }
       if (propParsers.hasOwnProperty(ruleProp)) {
         const [newPropName, parser] = propParsers[ruleProp];
