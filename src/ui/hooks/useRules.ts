@@ -124,7 +124,7 @@ export function useRules(props: AnyProps): AnyProps {
               default:
                 const match = parseArrayString(prop);
                 if (match) {
-                  const [ prefix, index ] = match;
+                  const [prefix, index] = match;
                   const prop = newProps[prefix];
                   if (Array.isArray(prop) && prop.length > index) {
                     (prop as Array<any>)[index] = exp.convertedValue;
