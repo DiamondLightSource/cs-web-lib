@@ -11,6 +11,7 @@ import { SubscriptionType } from "../../connection/plugin";
 import { Border, BorderStyle } from "../../types/border";
 import { Color } from "../../types/color";
 import { opiParseColor } from "../widgets/EmbeddedDisplay/opiParser";
+import { parseArrayString } from "../../misc/stringUtils";
 
 // See https://stackoverflow.com/questions/54542318/using-an-enum-as-a-dictionary-key
 type EnumDictionary<T extends string | symbol | number, U> = {
@@ -121,7 +122,16 @@ export function useRules(props: AnyProps): AnyProps {
                 newProps["position"]["y"] = `${exp.value._text}px`;
                 break;
               default:
-                newProps[prop] = exp.convertedValue;
+                const match = parseArrayString(prop);
+                if (match) {
+                  const [prefix, index] = match;
+                  const prop = newProps[prefix];
+                  if (Array.isArray(prop) && prop.length > index) {
+                    (prop as Array<any>)[index] = exp.convertedValue;
+                  }
+                } else {
+                  newProps[prop] = exp.convertedValue;
+                }
             }
             log.debug("Output value");
             log.debug(newProps);
