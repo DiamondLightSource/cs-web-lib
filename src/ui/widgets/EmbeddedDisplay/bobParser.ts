@@ -425,7 +425,7 @@ function bobGetTargetWidget(props: any): React.FC {
   return targetWidget;
 }
 
-const BOB_SIMPLE_PARSERS: ParserDict = {
+export const BOB_SIMPLE_PARSERS: ParserDict = {
   ...OPI_SIMPLE_PARSERS,
   font: ["font", bobParseFont],
   items: ["items", bobParseItems],

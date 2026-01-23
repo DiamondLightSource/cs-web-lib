@@ -1,9 +1,10 @@
 import { Color } from "../../../types/color";
 import { AbsolutePosition } from "../../../types/position";
-import { parseBob } from "./bobParser";
+import { BOB_SIMPLE_PARSERS, parseBob } from "./bobParser";
 import { PV } from "../../../types/pv";
 import { ensureWidgetsRegistered } from "..";
 import { WidgetDescription } from "../createComponent";
+import { ElementCompact } from "xml-js";
 ensureWidgetsRegistered();
 
 const PREFIX = "prefix";
@@ -233,5 +234,109 @@ describe("bob widget parser", (): void => {
     const widget = (await parseBob(readbackStringFormat, "xxx", PREFIX))
       .children?.[0] as WidgetDescription;
     expect(widget.formatType).toEqual("string");
+  });
+});
+
+describe("bobParseSymbols", () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_text, bobParseSymbols] = BOB_SIMPLE_PARSERS.symbols;
+  it("returns array of strings when `symbol` has multiple items (strings and {_text})", () => {
+    const input: ElementCompact = {
+      symbol: {
+        0: "item1",
+        1: { _text: "item2" },
+        2: "item3",
+        foo: { _text: "item4" }
+      }
+    };
+
+    const result = bobParseSymbols(input);
+
+    expect(result).toEqual(["item1", "item2", "item3", "item4"]);
+  });
+
+  it("returns array with a single value when `symbol` has a single item as string", () => {
+    const input: ElementCompact = {
+      symbol: {
+        only: "AAPL"
+      }
+    };
+
+    const result = bobParseSymbols(input);
+    expect(result).toEqual(["AAPL"]);
+  });
+
+  it("returns array with a single value when `symbol` has a single item as object with `_text`", () => {
+    const input: ElementCompact = {
+      symbol: {
+        only: { _text: "AAPL" }
+      }
+    };
+
+    const result = bobParseSymbols(input);
+    expect(result).toEqual(["AAPL"]);
+  });
+
+  it("returns string when `_text` exists and `symbol` does not", () => {
+    const input: ElementCompact = {
+      _text: "SingleTextValue"
+    };
+
+    const result = bobParseSymbols(input);
+    expect(result).toBe("SingleTextValue");
+  });
+
+  it("prefers `symbol` over `_text` when both are present", () => {
+    const input: ElementCompact = {
+      symbol: {
+        0: "TSLA",
+        1: { _text: "AMZN" }
+      },
+      _text: "ShouldBeIgnored"
+    };
+
+    const result = bobParseSymbols(input);
+    expect(result).toEqual(["TSLA", "AMZN"]);
+  });
+
+  it("returns empty array when neither `symbol` nor `_text` is present", () => {
+    const input: ElementCompact = {
+      someOtherProp: 42
+    };
+
+    const result = bobParseSymbols(input);
+    expect(result).toEqual([]);
+  });
+
+  it("returns empty array when input is an empty object", () => {
+    const input: ElementCompact = {};
+    const result = bobParseSymbols(input);
+    expect(result).toEqual([]);
+  });
+
+  it("returns empty array when `symbol` is an empty object", () => {
+    const input: ElementCompact = { symbol: {} };
+
+    const result = bobParseSymbols(input);
+    expect(result).toEqual([]);
+  });
+
+  it("coerces `_text` to string when `_text` is numeric-like", () => {
+    const input: ElementCompact = { _text: 12345 };
+
+    const result = bobParseSymbols(input);
+    expect(result).toBe("12345");
+  });
+
+  it("does not throw when all `symbol` items are either strings or objects with `_text`", () => {
+    const input: ElementCompact = {
+      symbol: {
+        a: "IBM",
+        b: { _text: "ORCL" }
+      }
+    };
+
+    expect(() => bobParseSymbols(input)).not.toThrow();
+    expect(bobParseSymbols(input)).toEqual(["IBM", "ORCL"]);
   });
 });
