@@ -2,10 +2,18 @@ import log from "loglevel";
 import { Color } from "../../../types/color";
 import { Border } from "../../../types/border";
 import { Rule } from "../../../types/props";
-import { normalisePath, parseOpi } from "./opiParser";
+import {
+  normalisePath,
+  opiParseRules,
+  opiPatchRules,
+  parseOpi
+} from "./opiParser";
 import { AbsolutePosition, RelativePosition } from "../../../types/position";
 import { ensureWidgetsRegistered } from "..";
 import { WidgetDescription } from "../createComponent";
+import { ElementCompact } from "xml-js";
+import { ParserDict } from "./parser";
+
 ensureWidgetsRegistered();
 
 const PREFIX = "prefix/pmacApp_opi";
@@ -481,5 +489,447 @@ describe("normalisePath", (): void => {
       }
     );
     expect(result).toBe("http://test.diamond.ac.uk/anotherMacroPath/path");
+  });
+});
+
+describe("opiParseRules", () => {
+  const defaultProtocol = "ca";
+
+  it("returns an empty array when jsonProp.rules is missing", () => {
+    const input: ElementCompact = {};
+    const result = opiParseRules(input, defaultProtocol, true);
+    expect(result).toEqual([]);
+  });
+
+  it("returns an empty array when jsonProp.rules exists but has no rule", () => {
+    const input: ElementCompact = {
+      rules: { rule: undefined }
+    };
+    const result = opiParseRules(input, defaultProtocol, true);
+    expect(result).toEqual([]);
+  });
+
+  it("parses a single rule with with isOpiFile = false and with multiple pvs with trig true and false", () => {
+    const input: ElementCompact = {
+      rules: {
+        rule: {
+          _attributes: {
+            name: "Rule A",
+            prop_id: "background_color",
+            out_exp: "true"
+          },
+          pv: [
+            { _attributes: { trig: "true" }, _text: "SYS:PV1" },
+            { _text: "SYS:PV2" },
+            { _attributes: { trig: "false" }, _text: "SYS:PV3" }
+          ],
+          exp: [
+            { _attributes: { bool_exp: "pv0 > 10" }, value: 1 },
+            { _attributes: { bool_exp: "pv1 == 0" }, value: "OFF" }
+          ]
+        }
+      }
+    };
+
+    const result = opiParseRules(input, defaultProtocol, true);
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({
+      name: "Rule A",
+      prop: "background_color",
+      outExp: true
+    });
+
+    expect(result[0].pvs).toHaveLength(3);
+
+    expect(result[0].pvs[0]?.trigger).toBe(true);
+    expect(result[0].pvs[0]?.pvName?.toString()).toBe(
+      `${defaultProtocol}://SYS:PV1`
+    );
+
+    expect(result[0].pvs[1]?.trigger).toBe(false);
+    expect(result[0].pvs[1]?.pvName?.toString()).toBe(
+      `${defaultProtocol}://SYS:PV2`
+    );
+
+    expect(result[0].pvs[2]?.trigger).toBe(false);
+    expect(result[0].pvs[2]?.pvName?.toString()).toBe(
+      `${defaultProtocol}://SYS:PV3`
+    );
+
+    expect(result[0].expressions).toEqual([
+      { boolExp: "pv0 > 10", value: 1 },
+      { boolExp: "pv1 == 0", value: "OFF" }
+    ]);
+  });
+
+  it("parses a single rule with isOpiFile = false and <pv_name> nodes, trigger always true", () => {
+    const input: ElementCompact = {
+      rules: {
+        rule: {
+          _attributes: {
+            name: "Rule B",
+            prop_id: "visible",
+            out_exp: "false"
+          },
+          pv_name: { _text: "DEV:STAT" }, // single -> toArray -> [single]
+          exp: { _attributes: { bool_exp: "pv0 == 1" }, value: true }
+        }
+      }
+    };
+
+    const result = opiParseRules(input, defaultProtocol, false);
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({
+      name: "Rule B",
+      prop: "visible",
+      outExp: false
+    });
+
+    expect(result[0].pvs).toHaveLength(1);
+
+    expect(result[0].pvs[0]?.trigger).toBe(true);
+    expect(result[0].pvs[0]?.pvName?.toString()).toBe(
+      `${defaultProtocol}://DEV:STAT`
+    );
+
+    expect(result[0].expressions).toEqual([
+      { boolExp: "pv0 == 1", value: true }
+    ]);
+  });
+
+  it("handles multiple rules", () => {
+    const input: ElementCompact = {
+      rules: {
+        rule: [
+          {
+            _attributes: {
+              name: "Rule1",
+              prop_id: "width",
+              out_exp: "true"
+            },
+            pv: { _text: "A:PV" },
+            exp: { _attributes: { bool_exp: "pv0 > 5" }, value: 100 }
+          },
+          {
+            _attributes: {
+              name: "Rule2",
+              prop_id: "height",
+              out_exp: "false"
+            },
+            pv: [{ _text: "B:PV1" }, { _text: "B:PV2" }],
+            exp: [
+              { _attributes: { bool_exp: "pv0 < 0" }, value: 10 },
+              { _attributes: { bool_exp: "pv1 >= 0" }, value: 20 }
+            ]
+          }
+        ]
+      }
+    };
+
+    const result = opiParseRules(input, defaultProtocol, true);
+
+    expect(result).toHaveLength(2);
+
+    // Rule1
+    expect(result[0]).toMatchObject({
+      name: "Rule1",
+      prop: "width",
+      outExp: true
+    });
+    expect(result[0].pvs).toHaveLength(1);
+    expect(result[0].pvs[0]?.trigger).toBe(false);
+    expect(result[0].pvs[0]?.pvName?.toString()).toBe(
+      `${defaultProtocol}://A:PV`
+    );
+    expect(result[0].expressions).toEqual([{ boolExp: "pv0 > 5", value: 100 }]);
+
+    expect(result[1]).toMatchObject({
+      name: "Rule2",
+      prop: "height",
+      outExp: false
+    });
+    expect(result[1].pvs).toHaveLength(2);
+    expect(result[1].pvs[0]?.trigger).toBe(false);
+    expect(result[1].pvs[0]?.pvName?.toString()).toBe(
+      `${defaultProtocol}://B:PV1`
+    );
+    expect(result[1].pvs[1]?.trigger).toBe(false);
+    expect(result[1].pvs[1]?.pvName?.toString()).toBe(
+      `${defaultProtocol}://B:PV2`
+    );
+    expect(result[1].expressions).toEqual([
+      { boolExp: "pv0 < 0", value: 10 },
+      { boolExp: "pv1 >= 0", value: 20 }
+    ]);
+  });
+
+  it('treats out_exp strictly equal to "true"', () => {
+    const inputTrue: ElementCompact = {
+      rules: {
+        rule: {
+          _attributes: {
+            name: "R1",
+            prop_id: "alpha",
+            out_exp: "true"
+          },
+          pv: { _text: "PVX" },
+          exp: { _attributes: { bool_exp: "pv0 == 1" }, value: 1 }
+        }
+      }
+    };
+
+    const inputFalse: ElementCompact = {
+      rules: {
+        rule: {
+          _attributes: {
+            name: "R2",
+            prop_id: "beta",
+            out_exp: "false"
+          },
+          pv: { _text: "PVY" },
+          exp: { _attributes: { bool_exp: "pv0 == 1" }, value: 1 }
+        }
+      }
+    };
+
+    const r1 = opiParseRules(inputTrue, defaultProtocol, true);
+    const r2 = opiParseRules(inputFalse, defaultProtocol, true);
+
+    expect(r1[0].outExp).toBe(true);
+    expect(r2[0].outExp).toBe(false);
+  });
+
+  it("handles absent exp gracefully (empty expressions array)", () => {
+    const input: ElementCompact = {
+      rules: {
+        rule: {
+          _attributes: {
+            name: "NoExp",
+            prop_id: "gamma",
+            out_exp: "true"
+          },
+          pv: { _text: "PVZ" }
+        }
+      }
+    };
+
+    const result = opiParseRules(input, defaultProtocol, true);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].expressions).toEqual([]);
+  });
+
+  it("handles absent pv/pv_name gracefully (empty pvs array)", () => {
+    const inputOpi: ElementCompact = {
+      rules: {
+        rule: {
+          _attributes: {
+            name: "NoPV",
+            prop_id: "delta",
+            out_exp: "true"
+          },
+          exp: { _attributes: { bool_exp: "true" }, value: 42 }
+        }
+      }
+    };
+
+    const resultOpi = opiParseRules(inputOpi, defaultProtocol, true);
+    expect(resultOpi).toHaveLength(1);
+    expect(resultOpi[0].pvs).toEqual([]);
+
+    const inputNonOpi: ElementCompact = {
+      rules: {
+        rule: {
+          _attributes: {
+            name: "NoPVNonOpi",
+            prop_id: "epsilon",
+            out_exp: "false"
+          },
+          exp: { _attributes: { bool_exp: "false" }, value: 0 }
+        }
+      }
+    };
+
+    const resultNonOpi = opiParseRules(inputNonOpi, defaultProtocol, false);
+    expect(resultNonOpi).toHaveLength(1);
+    expect(resultNonOpi[0].pvs).toEqual([]);
+  });
+
+  it("preserves expression value types (number, string, boolean, object)", () => {
+    const input: ElementCompact = {
+      rules: {
+        rule: {
+          _attributes: {
+            name: "Types",
+            prop_id: "zeta",
+            out_exp: "true"
+          },
+          pv: { _text: "PV:TYPES" },
+          exp: [
+            { _attributes: { bool_exp: "true" }, value: 123 },
+            { _attributes: { bool_exp: "true" }, value: "text" },
+            { _attributes: { bool_exp: "true" }, value: false },
+            { _attributes: { bool_exp: "true" }, value: { k: "v" } }
+          ]
+        }
+      }
+    };
+
+    const result = opiParseRules(input, defaultProtocol, true);
+    expect(result).toHaveLength(1);
+    expect(result[0].expressions).toEqual([
+      { boolExp: "true", value: 123 },
+      { boolExp: "true", value: "text" },
+      { boolExp: "true", value: false },
+      { boolExp: "true", value: { k: "v" } }
+    ]);
+  });
+});
+
+describe("opiPatchRules", () => {
+  it("renames rule.prop to json prop name and converts expression values when NOT an array pattern", () => {
+    const parserDict: ParserDict = {
+      "opi.number": ["number", (v: any) => Number(v)]
+    };
+
+    const widget: WidgetDescription = {
+      rules: [
+        {
+          prop: "number",
+          expressions: [{ value: "42" }, { value: "7" }]
+        }
+      ]
+    } as Partial<WidgetDescription> as WidgetDescription;
+
+    const result = opiPatchRules(parserDict)(widget);
+
+    expect(result.rules?.[0].prop).toBe("opi.number");
+
+    const exps = result.rules?.[0]?.expressions;
+    expect(exps[0].convertedValue).toBe(42);
+    expect(exps[1].convertedValue).toBe(7);
+  });
+
+  it("does NOT rename rule.prop if it matches an array pattern, but still converts values", () => {
+    const parserDict: ParserDict = {
+      "opi.flag": ["flag", (v: unknown) => v === "true" || v === true]
+    };
+
+    const widget: WidgetDescription = {
+      rules: [
+        {
+          prop: "flag[0]",
+          expressions: [{ value: "true" }, { value: "false" }]
+        }
+      ]
+    } as Partial<WidgetDescription> as WidgetDescription;
+
+    const result = opiPatchRules(parserDict)(widget);
+
+    expect(result.rules?.[0].prop).toBe("flag[0]");
+
+    const exps = result.rules?.[0]?.expressions;
+    expect(exps[0].convertedValue).toBe(true);
+    expect(exps[1].convertedValue).toBe(false);
+  });
+
+  it("skips rules whose props are not in the parser dict", () => {
+    const parserDict: ParserDict = {
+      "opi.count": ["count", (v: unknown) => Number(v)]
+    };
+
+    const widget: WidgetDescription = {
+      rules: [
+        {
+          prop: "unknownProp",
+          expressions: [{ value: "123" }]
+        }
+      ]
+    } as Partial<WidgetDescription> as WidgetDescription;
+
+    const result = opiPatchRules(parserDict)(widget);
+
+    expect(result.rules?.[0].prop).toBe("unknownProp");
+    expect(result.rules?.[0].expressions[0].convertedValue).toBeUndefined();
+  });
+
+  it("handles multiple rules and expressions with mixed cases", () => {
+    const parserDict: ParserDict = {
+      "opi.num": ["num", (v: unknown) => Number(v)],
+      "opi.text": ["text", (v: unknown) => String(v).toUpperCase()]
+    };
+
+    const widget: WidgetDescription = {
+      rules: [
+        { prop: "num", expressions: [{ value: "5" }, { value: "10" }] }, // rename + convert
+        { prop: "text[2]", expressions: [{ value: "hello" }] }, // array-like: no rename, convert
+        { prop: "noMatch", expressions: [{ value: "x" }] } // untouched
+      ]
+    } as Partial<WidgetDescription> as WidgetDescription;
+
+    const result = opiPatchRules(parserDict)(widget);
+
+    expect(result.rules?.[0].prop).toBe("opi.num");
+    expect(result.rules?.[0].expressions[0].convertedValue).toBe(5);
+    expect(result.rules?.[0].expressions[1].convertedValue).toBe(10);
+
+    expect(result.rules?.[1].prop).toBe("text[2]");
+    expect(result.rules?.[1].expressions[0].convertedValue).toBe("HELLO");
+
+    expect(result.rules?.[2].prop).toBe("noMatch");
+    expect(result.rules?.[2].expressions[0].convertedValue).toBeUndefined();
+  });
+
+  it("returns the same widget when rules is undefined or empty", () => {
+    const parserDict: ParserDict = {
+      "opi.some": ["some", (v: any) => v]
+    };
+
+    const emptyRulesWidget: WidgetDescription = {
+      rules: []
+    } as Partial<WidgetDescription> as WidgetDescription;
+    const noRulesWidget: WidgetDescription =
+      {} as Partial<WidgetDescription> as WidgetDescription;
+
+    const resultEmpty = opiPatchRules(parserDict)(emptyRulesWidget);
+    const resultNone = opiPatchRules(parserDict)(noRulesWidget);
+
+    expect(resultEmpty).toEqual(emptyRulesWidget);
+    expect(resultNone).toEqual(noRulesWidget);
+  });
+
+  it("works when parserDict is null/undefined (no changes applied)", () => {
+    const widget: WidgetDescription = {
+      rules: [{ prop: "anything", expressions: [{ value: "x" }] }]
+    } as Partial<WidgetDescription> as WidgetDescription;
+
+    const result = opiPatchRules(undefined as unknown as ParserDict)(widget);
+
+    expect(result.rules?.[0].prop).toBe("anything");
+    expect(result.rules?.[0].expressions[0].convertedValue).toBeUndefined();
+  });
+
+  it("re-indexes parserDict correctly: simpleProp -> [jsonProp, parser]", () => {
+    const parserDict: ParserDict = {
+      "opi.alpha": ["a", (v: unknown) => `A:${v}`],
+      "opi.beta": ["b", (v: unknown) => `B:${v}`]
+    };
+
+    const widget: WidgetDescription = {
+      rules: [
+        { prop: "a", expressions: [{ value: 1 }] },
+        { prop: "b", expressions: [{ value: 2 }] }
+      ]
+    } as Partial<WidgetDescription> as WidgetDescription;
+
+    const result = opiPatchRules(parserDict)(widget);
+
+    expect(result.rules?.[0].prop).toBe("opi.alpha");
+    expect(result.rules?.[0].expressions[0].convertedValue).toBe("A:1");
+
+    expect(result.rules?.[1].prop).toBe("opi.beta");
+    expect(result.rules?.[1].expressions[0].convertedValue).toBe("B:2");
   });
 });

@@ -757,7 +757,7 @@ export const OPI_COMPLEX_PARSERS: ComplexParserDict = {
   points: opiParsePoints
 };
 
-const opiPatchRules =
+export const opiPatchRules =
   (parserDict: ParserDict) =>
   (widgetDescription: WidgetDescription): WidgetDescription => {
     /* Re-index simple parsers so we can find the correct one

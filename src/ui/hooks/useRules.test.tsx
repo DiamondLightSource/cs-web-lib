@@ -10,7 +10,12 @@ import { CsState } from "../../redux/csState";
 function getRuleTester(props: any): JSX.Element {
   const RuleTester = (props: { id: string; rules: Rule[] }): JSX.Element => {
     const ruleProps = useRules(props as AnyProps);
-    return <div>{ruleProps.text.toString()}</div>;
+    return (
+      <div>
+        <div>{ruleProps?.text?.toString()}</div>
+        <div>{JSON.stringify(ruleProps.object)}</div>
+      </div>
+    );
   };
   return <RuleTester {...props} />;
 }
@@ -48,6 +53,20 @@ const rule: Rule = {
       boolExp: "true",
       value: "no",
       convertedValue: "no"
+    }
+  ]
+};
+
+const ruleWithArrayElementProp: Rule = {
+  name: "ruleWithArrayElementProp",
+  prop: "object[2]",
+  outExp: false,
+  pvs: [{ pvName: new PV("PV1"), trigger: true }],
+  expressions: [
+    {
+      boolExp: "pv0 > 1",
+      value: "yes",
+      convertedValue: "substituteElement"
     }
   ]
 };
@@ -91,5 +110,38 @@ describe("useRules", (): void => {
     const csState = getCsState(ddouble(2));
     const { getByText } = contextRender(ruleTester, {}, {}, csState);
     expect(getByText("2")).toBeInTheDocument();
+  });
+
+  it("Rule updates array element", (): void => {
+    const props = {
+      id: "id1",
+      rules: [ruleWithArrayElementProp],
+      object: ["element_0", "element_1", "element_2", "element_3"]
+    };
+    const ruleTester = getRuleTester(props);
+    const csState = getCsState(ddouble(2));
+    const { getByText } = contextRender(ruleTester, {}, {}, csState);
+
+    const expectedText = JSON.stringify([
+      "element_0",
+      "element_1",
+      "substituteElement",
+      "element_3"
+    ]);
+    expect(getByText(expectedText)).toBeInTheDocument();
+  });
+
+  it("Rule updating array element, does not throw when index out of range", (): void => {
+    const props = {
+      id: "id1",
+      rules: [ruleWithArrayElementProp],
+      object: ["element_0", "element_1"]
+    };
+    const ruleTester = getRuleTester(props);
+    const csState = getCsState(ddouble(2));
+    const { getByText } = contextRender(ruleTester, {}, {}, csState);
+
+    const expectedText = JSON.stringify(["element_0", "element_1"]);
+    expect(getByText(expectedText)).toBeInTheDocument();
   });
 });
