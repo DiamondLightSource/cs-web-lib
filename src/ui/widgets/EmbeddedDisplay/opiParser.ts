@@ -773,7 +773,7 @@ export const opiPatchRules =
     /* Patch up the rules by converting the prop to our name
      and converting the value to the correct type. */
     await Promise.all(
-      widgetDescription.rules?.map(async (rule: Rule) => {
+      (widgetDescription?.rules ?? []).map(async (rule: Rule) => {
         let ruleProp = rule?.prop;
 
         const matchArrayPattern = parseArrayString(ruleProp);
@@ -798,7 +798,7 @@ export const opiPatchRules =
           const parser = complexParsers[ruleProp];
 
           await Promise.all(
-            rule.expressions.map(async expression => {
+            (rule?.expressions ?? []).map(async expression => {
               const convertedValue = await parser({
                 [ruleProp]: expression?.value
               });

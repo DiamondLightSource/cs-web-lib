@@ -789,7 +789,7 @@ describe("opiParseRules", () => {
 });
 
 describe("opiPatchRules", () => {
-  it("renames rule.prop to json prop name and converts expression values when NOT an array pattern", () => {
+  it("renames rule.prop to json prop name and converts expression values when NOT an array pattern", async () => {
     const parserDict: ParserDict = {
       "opi.number": ["number", (v: any) => Number(v)]
     };
@@ -803,7 +803,12 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = opiPatchRules(parserDict)(widget);
+    const result = await opiPatchRules(parserDict, {})(
+      widget,
+      undefined,
+      undefined,
+      { "opi.number": 123 }
+    );
 
     expect(result.rules?.[0].prop).toBe("opi.number");
 
@@ -812,7 +817,7 @@ describe("opiPatchRules", () => {
     expect(exps[1].convertedValue).toBe(7);
   });
 
-  it("does NOT rename rule.prop if it matches an array pattern, but still converts values", () => {
+  it("does NOT rename rule.prop if it matches an array pattern, but still converts values", async () => {
     const parserDict: ParserDict = {
       "opi.flag": ["flag", (v: unknown) => v === "true" || v === true]
     };
@@ -826,7 +831,12 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = opiPatchRules(parserDict)(widget);
+    const result = await opiPatchRules(parserDict, {})(
+      widget,
+      undefined,
+      undefined,
+      { "opi.flag": 123 }
+    );
 
     expect(result.rules?.[0].prop).toBe("flag[0]");
 
@@ -835,7 +845,7 @@ describe("opiPatchRules", () => {
     expect(exps[1].convertedValue).toBe(false);
   });
 
-  it("skips rules whose props are not in the parser dict", () => {
+  it("skips rules whose props are not in the parser dict", async () => {
     const parserDict: ParserDict = {
       "opi.count": ["count", (v: unknown) => Number(v)]
     };
@@ -849,13 +859,13 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = opiPatchRules(parserDict)(widget);
+    const result = await opiPatchRules(parserDict, {})(widget);
 
     expect(result.rules?.[0].prop).toBe("unknownProp");
     expect(result.rules?.[0].expressions[0].convertedValue).toBeUndefined();
   });
 
-  it("handles multiple rules and expressions with mixed cases", () => {
+  it("handles multiple rules and expressions with mixed cases", async () => {
     const parserDict: ParserDict = {
       "opi.num": ["num", (v: unknown) => Number(v)],
       "opi.text": ["text", (v: unknown) => String(v).toUpperCase()]
@@ -869,7 +879,12 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = opiPatchRules(parserDict)(widget);
+    const result = await opiPatchRules(parserDict, {})(
+      widget,
+      undefined,
+      undefined,
+      { "opi.num": 123, "opi.text": 345 }
+    );
 
     expect(result.rules?.[0].prop).toBe("opi.num");
     expect(result.rules?.[0].expressions[0].convertedValue).toBe(5);
@@ -882,7 +897,7 @@ describe("opiPatchRules", () => {
     expect(result.rules?.[2].expressions[0].convertedValue).toBeUndefined();
   });
 
-  it("returns the same widget when rules is undefined or empty", () => {
+  it("returns the same widget when rules is undefined or empty", async () => {
     const parserDict: ParserDict = {
       "opi.some": ["some", (v: any) => v]
     };
@@ -893,19 +908,19 @@ describe("opiPatchRules", () => {
     const noRulesWidget: WidgetDescription =
       {} as Partial<WidgetDescription> as WidgetDescription;
 
-    const resultEmpty = opiPatchRules(parserDict)(emptyRulesWidget);
-    const resultNone = opiPatchRules(parserDict)(noRulesWidget);
+    const resultEmpty = await opiPatchRules(parserDict, {})(emptyRulesWidget);
+    const resultNone = await opiPatchRules(parserDict, {})(noRulesWidget);
 
     expect(resultEmpty).toEqual(emptyRulesWidget);
     expect(resultNone).toEqual(noRulesWidget);
   });
 
-  it("works when parserDict is null/undefined (no changes applied)", () => {
+  it("works when parserDict is null/undefined (no changes applied)", async () => {
     const widget: WidgetDescription = {
       rules: [{ prop: "anything", expressions: [{ value: "x" }] }]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = opiPatchRules(
+    const result = await opiPatchRules(
       undefined as unknown as ParserDict,
       {}
     )(widget);
@@ -914,7 +929,7 @@ describe("opiPatchRules", () => {
     expect(result.rules?.[0].expressions[0].convertedValue).toBeUndefined();
   });
 
-  it("re-indexes parserDict correctly: simpleProp -> [jsonProp, parser]", () => {
+  it("re-indexes parserDict correctly: simpleProp -> [jsonProp, parser]", async () => {
     const parserDict: ParserDict = {
       "opi.alpha": ["a", (v: unknown) => `A:${v}`],
       "opi.beta": ["b", (v: unknown) => `B:${v}`]
@@ -927,7 +942,12 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = opiPatchRules(parserDict, {})(widget);
+    const result = await opiPatchRules(parserDict, {})(
+      widget,
+      undefined,
+      undefined,
+      { "opi.alpha": 123, "opi.beta": 345 }
+    );
 
     expect(result.rules?.[0].prop).toBe("opi.alpha");
     expect(result.rules?.[0].expressions[0].convertedValue).toBe("A:1");
