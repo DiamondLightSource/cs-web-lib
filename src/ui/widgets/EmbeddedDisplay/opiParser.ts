@@ -623,15 +623,14 @@ function opiParseResizing(jsonProp: ElementCompact): string {
  * that will return a shape object
  * @param props
  */
-function opiGetTargetWidget(props: any): React.FC {
+function opiGetTargetWidget(props: any): {
+  widget: React.FC;
+  widgetProps: any;
+} {
   const typeid = opiParseType(props);
-  let targetWidget;
-  try {
-    targetWidget = REGISTERED_WIDGETS[typeid][0];
-  } catch {
-    targetWidget = REGISTERED_WIDGETS["shape"][0];
-  }
-  return targetWidget;
+  const targetWidget =
+    REGISTERED_WIDGETS[typeid] ?? REGISTERED_WIDGETS["shape"];
+  return { widget: targetWidget[0], widgetProps: targetWidget[1] };
 }
 
 /**

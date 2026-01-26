@@ -123,15 +123,14 @@ export const COMPLEX_PARSERS: ComplexParserDict = {
 };
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-function jsonGetTargetWidget(props: any): React.FC {
+function jsonGetTargetWidget(props: any): {
+  widget: React.FC;
+  widgetProps: any;
+} {
   const typeid = props.type;
-  let targetWidget;
-  try {
-    targetWidget = REGISTERED_WIDGETS[typeid][0];
-  } catch {
-    targetWidget = REGISTERED_WIDGETS["shape"][0];
-  }
-  return targetWidget;
+  const targetWidget =
+    REGISTERED_WIDGETS[typeid] ?? REGISTERED_WIDGETS["shape"];
+  return { widget: targetWidget[0], widgetProps: targetWidget[1] };
 }
 
 /**
