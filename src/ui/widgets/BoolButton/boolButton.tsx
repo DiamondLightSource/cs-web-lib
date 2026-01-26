@@ -9,20 +9,16 @@ import {
   PointsPropOpt,
   BoolPropOpt,
   StringPropOpt,
-  FontPropOpt
+  FontPropOpt,
+  ChoicePropOpt
 } from "../propTypes";
 import { Color } from "../../../types/color";
-import classes from "./boolButton.module.css";
 import { writePv } from "../../hooks/useSubscription";
 import { DType } from "../../../types/dtypes";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { Button as MuiButton, styled, useTheme } from "@mui/material";
 import { getPvValueAndName } from "../utils";
-
-// For HTML button, these are the sizes of the buffer on
-// width and height. Must take into account when allocating
-// maximum size for text
-const BUTTON_BUFFER = { width: 12, height: 6 };
+import { LedComponent } from "../LED/led";
 
 const BoolButtonProps = {
   pvName: StringPropOpt,
@@ -45,27 +41,31 @@ const BoolButtonProps = {
   confirmMessage: StringPropOpt,
   labelsFromPv: BoolPropOpt,
   enabled: BoolPropOpt,
-  font: FontPropOpt
+  font: FontPropOpt,
+  textAlign: ChoicePropOpt(["left", "center", "right"]),
+  textAlignV: ChoicePropOpt(["top", "center", "bottom"])
 };
 
 const Button = styled(MuiButton)({
   "&.MuiButton-root": {
-    display: "block",
-    alignItems: "center",
-    justifyContent: "center",
+    display: "flex",
+    lineHeight: 1.3,
     height: "100%",
     width: "100%",
     minWidth: 0,
     minHeight: 0,
     padding: 0,
     overflow: "hidden",
-    whiteSpace: "nowrap",
+    whiteSpace: "wrap",
     wordBreak: "break-word",
     textTransform: "none"
   },
   "&.Mui-disabled": {
     cursor: "not-allowed",
     pointerEvents: "all !important"
+  },
+  "& .MuiButton-startIcon": {
+    margin: "0px"
   }
 });
 
@@ -76,8 +76,6 @@ export type BoolButtonComponentProps = InferWidgetProps<
 
 /**
  * Button that displays boolean value, and changes when clicked.
- * Currently no write to PV so value does not change, only button
- * appearance does
  * @param props
  */
 export const BoolButtonComponent = (
@@ -98,7 +96,9 @@ export const BoolButtonComponent = (
     showBooleanLabel = true,
     showLed = true,
     labelsFromPv = false,
-    enabled = true
+    enabled = true,
+    textAlign = "center",
+    textAlignV = "center"
   } = props;
   const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
 
@@ -117,23 +117,11 @@ export const BoolButtonComponent = (
 
   // Use useState for properties that change on click - text and color
   const [label, setLabel] = useState(showBooleanLabel ? offLabel : "");
-  const [ledColor, setLedColor] = useState(offColor.toString());
   const doubleValue = value?.getDoubleValue();
+  const [ledColor, setLedColor] = useState(offColor.toString());
 
   // Establish LED style
-  const [ledStyle, ledDiameter] = showLed
-    ? createLed(width, height, ledColor)
-    : [{}, 0];
-  if (squareButton) ledStyle["borderRadius"] = 0;
-
-  const textStyle: CSSProperties = {
-    // Ensure that text doesn't overflow from button
-    maxWidth: width - ledDiameter - BUTTON_BUFFER.width,
-    maxHeight: height - BUTTON_BUFFER.height
-  };
-
-  // Hide LED if it isn't visible
-  if (showLed) ledStyle["visibility"] = "visible";
+  const ledDiameter = showLed ? getDimensions(width, height) : 0;
 
   // This is necessary in order to set the initial label value
   // after connection to PV established, as setState cannot be
@@ -159,19 +147,14 @@ export const BoolButtonComponent = (
   ]);
 
   function handleClick() {
-    // Update button
-    if (doubleValue === onState) {
-      if (showBooleanLabel) setLabel(offLabel);
-      setLedColor(offColor.toString());
-    } else if (doubleValue === offState) {
-      if (showBooleanLabel) setLabel(onLabel);
-      setLedColor(onColor.toString());
-    }
     // Write to PV
     if (pvName) {
-      let newValue = offState;
-      if (doubleValue === offState) newValue = onState;
-      writePv(pvName, new DType({ doubleValue: newValue }));
+      writePv(
+        pvName,
+        new DType({
+          doubleValue: doubleValue === offState ? onState : offState
+        })
+      );
     }
   }
 
@@ -185,54 +168,50 @@ export const BoolButtonComponent = (
           fontFamily: font,
           color: foregroundColor.toString(),
           // If no LED, use on/off colours as background
-          backgroundColor: showLed ? backgroundColor.toString() : ledColor
+          backgroundColor: showLed ? backgroundColor.toString() : ledColor,
+          "&.MuiButton-root": {
+            alignItems:
+              textAlignV === "top"
+                ? "flex-start"
+                : textAlignV === "bottom"
+                  ? "flex-end"
+                  : "",
+            justifyContent: textAlign
+          }
         }}
+        startIcon={
+          showLed ? (
+            <LedComponent
+              pvData={pvData}
+              onColor={onColor}
+              offColor={offColor}
+              width={ledDiameter}
+              height={ledDiameter}
+            />
+          ) : (
+            <></>
+          )
+        }
       >
-        <span
-          className={classes.LedAndText}
-          style={{
-            width: width - BUTTON_BUFFER.width,
-            height: height - BUTTON_BUFFER.height
-          }}
-        >
-          <span className={classes.Led} style={ledStyle} />
-          <span className={classes.Text} style={textStyle}>
-            {label}
-          </span>
-        </span>
+        {label}
       </Button>
     </>
   );
 };
 
 /**
- * Create an LED to display on BoolButton
+ * Calculate dimensions of the LED
  * @param width button width in px
  * @param height button height in px
- * @param color color of led
- * @returns CSSProperties for led
+ * @returns number diameter
  */
-export function createLed(
-  width: number,
-  height: number,
-  color: string
-): [CSSProperties, number] {
+export function getDimensions(width: number, height: number): number {
   // This is the same sizing as in Phoebus
   const size = Math.min(width, height);
   const ledRadius = size / 3.7;
   const ledDiameter = Math.round(ledRadius * 2);
 
-  const ledStyle: CSSProperties = {
-    width: ledDiameter,
-    height: ledDiameter,
-    backgroundColor: color,
-    boxShadow: `inset ${ledDiameter / 4}px ${ledDiameter / 4}px ${
-      ledDiameter * 0.4
-    }px rgba(255,255,255,.5)`,
-    visibility: "hidden"
-  };
-
-  return [ledStyle, ledDiameter];
+  return ledDiameter;
 }
 
 const BoolButtonWidgetProps = {
