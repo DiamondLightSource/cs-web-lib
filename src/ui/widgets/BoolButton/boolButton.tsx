@@ -1,4 +1,4 @@
-import React, { useEffect, useState, CSSProperties } from "react";
+import React, { useEffect, useState } from "react";
 import { Widget } from "../widget";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
@@ -65,7 +65,8 @@ const Button = styled(MuiButton)({
     pointerEvents: "all !important"
   },
   "& .MuiButton-startIcon": {
-    margin: "0px"
+    margin: "0px",
+    marginRight: "2px"
   }
 });
 
@@ -92,7 +93,6 @@ export const BoolButtonComponent = (
     offState = 0,
     onColor = Color.fromRgba(0, 255, 0),
     offColor = Color.fromRgba(0, 100, 0),
-    squareButton = false,
     showBooleanLabel = true,
     showLed = true,
     labelsFromPv = false,
