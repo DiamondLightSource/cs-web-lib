@@ -548,7 +548,7 @@ export async function parseBob(
     simpleParsers,
     complexParsers,
     false,
-    OPI_PATCHERS(BOB_SIMPLE_PARSERS),
+    OPI_PATCHERS(BOB_SIMPLE_PARSERS, BOB_COMPLEX_PARSERS),
     filepath,
     macros
   );

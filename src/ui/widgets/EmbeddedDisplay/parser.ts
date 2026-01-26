@@ -50,8 +50,9 @@ export type ComplexParserDict = {
 export type PatchFunction = (
   props: WidgetDescription,
   path?: string,
-  macros?: MacroMap
-) => WidgetDescription;
+  macros?: MacroMap,
+  allowedProps?: { [key: string]: unknown }
+) => WidgetDescription | Promise<WidgetDescription>;
 
 /* Take an object representing a widget and return our widget description. */
 export async function genericParser(
@@ -159,6 +160,7 @@ export async function parseWidget(
   macros?: MacroMap
 ): Promise<WidgetDescription> {
   const targetWidget = getTargetWidget(props);
+  const allowedProps = { ...targetWidget?.propTypes };
   let widgetDescription = await genericParser(
     props,
     targetWidget,
@@ -168,7 +170,12 @@ export async function parseWidget(
   );
   // Execute patch functions.
   for (const patcher of patchFunctions) {
-    widgetDescription = patcher(widgetDescription, filepath, macros);
+    widgetDescription = await patcher(
+      widgetDescription,
+      filepath,
+      macros,
+      allowedProps
+    );
   }
   /* Child widgets */
   const childWidgets = toArray(props[childrenName]);

@@ -905,7 +905,10 @@ describe("opiPatchRules", () => {
       rules: [{ prop: "anything", expressions: [{ value: "x" }] }]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = opiPatchRules(undefined as unknown as ParserDict)(widget);
+    const result = opiPatchRules(
+      undefined as unknown as ParserDict,
+      {}
+    )(widget);
 
     expect(result.rules?.[0].prop).toBe("anything");
     expect(result.rules?.[0].expressions[0].convertedValue).toBeUndefined();
@@ -924,7 +927,7 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = opiPatchRules(parserDict)(widget);
+    const result = opiPatchRules(parserDict, {})(widget);
 
     expect(result.rules?.[0].prop).toBe("opi.alpha");
     expect(result.rules?.[0].expressions[0].convertedValue).toBe("A:1");

@@ -121,6 +121,9 @@ export function useRules(props: AnyProps): AnyProps {
               case "y":
                 newProps["position"]["y"] = `${exp.value._text}px`;
                 break;
+              case "file":
+                newProps["file"]["path"] = exp?.convertedValue?.path;
+                break;
               default:
                 const match = parseArrayString(prop);
                 if (match) {
