@@ -1,5 +1,5 @@
 import React from "react";
-import { BoolButtonComponent } from "./boolButton";
+import { BoolButtonComponent, getDimensions } from "./boolButton";
 import { act, fireEvent, render } from "@testing-library/react";
 import { DAlarm, DType } from "../../../types/dtypes";
 import { Color } from "../../../types";
@@ -142,5 +142,19 @@ describe("<BoolButton />", (): void => {
       "TEST:PV",
       new DType({ doubleValue: 0 })
     );
+  });
+});
+
+describe("getDimensions()", (): void => {
+  test("it calculates correct dimensions if width > height", (): void => {
+    const diameter = getDimensions(200, 20);
+
+    expect(diameter).toEqual(11);
+  });
+
+  test("it calculates correct dimensions if height > width", (): void => {
+    const diameter = getDimensions(30, 70);
+
+    expect(diameter).toEqual(16);
   });
 });
