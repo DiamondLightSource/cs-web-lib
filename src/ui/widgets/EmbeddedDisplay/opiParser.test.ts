@@ -845,7 +845,7 @@ describe("opiPatchRules", () => {
     expect(exps[1].convertedValue).toBe(false);
   });
 
-  it("skips rules whose props are not in the parser dict", async () => {
+  it("does not modify rules whose props are not in the parser dict", async () => {
     const parserDict: ParserDict = {
       "opi.count": ["count", (v: unknown) => Number(v)]
     };
@@ -859,9 +859,39 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = await opiPatchRules(parserDict, {})(widget);
+    const result = await opiPatchRules(parserDict, {})(
+      widget,
+      undefined,
+      undefined,
+      { "opi.count": 123 }
+    );
 
     expect(result.rules?.[0].prop).toBe("unknownProp");
+    expect(result.rules?.[0].expressions[0].convertedValue).toBeUndefined();
+  });
+
+  it("does not modify rules whose props are not in the allowed props list", async () => {
+    const parserDict: ParserDict = {
+      "opi.count": ["count", (v: unknown) => Number(v)]
+    };
+
+    const widget: WidgetDescription = {
+      rules: [
+        {
+          prop: "count",
+          expressions: [{ value: "123" }]
+        }
+      ]
+    } as Partial<WidgetDescription> as WidgetDescription;
+
+    const result = await opiPatchRules(parserDict, {})(
+      widget,
+      undefined,
+      undefined,
+      { "opi.sum": 123 }
+    );
+
+    expect(result.rules?.[0].prop).toBe("count");
     expect(result.rules?.[0].expressions[0].convertedValue).toBeUndefined();
   });
 
