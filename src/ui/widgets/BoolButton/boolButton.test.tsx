@@ -1,11 +1,21 @@
 import React from "react";
-import { BoolButtonComponent } from "./boolButton";
-import { fireEvent, render } from "@testing-library/react";
-import { DType } from "../../../types/dtypes";
+import { BoolButtonComponent, getDimensions } from "./boolButton";
+import { act, fireEvent, render } from "@testing-library/react";
+import { DAlarm, DType } from "../../../types/dtypes";
 import { Color } from "../../../types";
 import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
 import { PvDatum } from "../../../redux/csState";
+import { vi } from "vitest";
+import * as useSubscription from "../../hooks/useSubscription";
+
+const mockWritePv = vi
+  .spyOn(useSubscription, "writePv")
+  .mockImplementation(vi.fn());
+
+beforeEach((): void => {
+  mockWritePv.mockReset();
+});
 
 const BoolButtonRenderer = (boolButtonProps: any): JSX.Element => {
   return (
@@ -18,8 +28,11 @@ const BoolButtonRenderer = (boolButtonProps: any): JSX.Element => {
 const TEST_PVDATUM = {
   effectivePvName: "TEST:PV",
   connected: true,
-  readonly: true,
-  value: new DType({ doubleValue: 1 })
+  readonly: false,
+  value: {
+    getDoubleValue: () => 1,
+    alarm: DAlarm.NONE
+  } as Partial<DType> as DType
 } as Partial<PvDatum> as PvDatum;
 
 const TEST_PROPS = {
@@ -41,13 +54,12 @@ const TEST_PROPS = {
 describe("<BoolButton />", (): void => {
   test("it renders a button with default values", (): void => {
     const boolButtonProps = {
-      value: new DType({ doubleValue: 1 }),
-      onState: 1,
-      offState: 0
+      pvData: [TEST_PVDATUM]
     };
     const { getByRole } = render(BoolButtonRenderer(boolButtonProps));
     const button = getByRole("button") as HTMLButtonElement;
     const spanElement = button.firstChild as HTMLSpanElement;
+    const led = spanElement.children[0] as HTMLSpanElement;
 
     expect(button).toHaveStyle({
       "background-color": "rgb(210, 210, 210)",
@@ -56,7 +68,8 @@ describe("<BoolButton />", (): void => {
       borderRadius: ""
     });
 
-    expect(spanElement.children.length).toEqual(2);
+    expect(led.style.backgroundColor).toEqual("rgb(0, 255, 0)");
+    expect(led.style.height).toEqual("16px");
   });
 
   test("it renders a button with led and overwrites default values", (): void => {
@@ -68,15 +81,11 @@ describe("<BoolButton />", (): void => {
     const button = getByRole("button") as HTMLButtonElement;
     const spanElement = button.firstChild as HTMLSpanElement;
     const led = spanElement.children[0] as HTMLSpanElement;
-    const text = spanElement.children[1] as HTMLSpanElement;
 
     expect(button.textContent).toEqual("Enabled");
     expect(led.className).toContain("Led");
     expect(led.style.backgroundColor).toEqual("rgb(0, 235, 10)");
     expect(led.style.height).toEqual("11px");
-    expect(led.style.boxShadow).toEqual(
-      "inset 2.75px 2.75px 4.4px rgba(255,255,255,.5)"
-    );
 
     expect(button).toHaveStyle({
       "background-color": "rgb(20, 20, 200)",
@@ -84,27 +93,23 @@ describe("<BoolButton />", (): void => {
       width: "100%",
       borderRadius: ""
     });
-    // Vite adds random hashhex to all CSS module classnames, so check if contains not equals
-    expect(text.className).toContain("Text");
   });
 
   test("no text if showboolean is false", (): void => {
     const boolButtonProps = {
-      value: new DType({ doubleValue: 0 }),
+      pvData: [{ ...TEST_PVDATUM, value: new DType({ doubleValue: 0 }) }],
       showBooleanLabel: false,
       onState: 1,
       offState: 0
     };
     const { getByRole } = render(BoolButtonRenderer(boolButtonProps));
     const button = getByRole("button") as HTMLButtonElement;
-    const spanElement = button.firstChild as HTMLSpanElement;
-    const text = spanElement.children[1] as HTMLSpanElement;
 
-    expect(text.textContent).toEqual("");
+    expect(button.textContent).toEqual("");
     expect(button).toHaveStyle("background-color: rgb(210, 210, 210)");
   });
 
-  test("change background colour if no LED", async (): Promise<void> => {
+  test("it changes background colour if no LED", async (): Promise<void> => {
     const boolButtonProps = {
       ...TEST_PROPS,
       showLed: false
@@ -114,35 +119,9 @@ describe("<BoolButton />", (): void => {
 
     // Original on values
     expect(button).toHaveStyle("background-color: rgb(0, 235, 10)");
-
-    // Click button to off
-    fireEvent.click(button);
-
-    expect(button).toHaveStyle("background-color: rgb(0, 100, 0)");
   });
 
-  test("on click change led colour if no text ", async (): Promise<void> => {
-    const boolButtonProps = {
-      ...TEST_PROPS,
-      pvData: [{ ...TEST_PVDATUM, value: new DType({ doubleValue: 0 }) }],
-      onLabel: "",
-      offLabel: "",
-      showLed: true
-    };
-    const { getByRole } = render(BoolButtonRenderer(boolButtonProps));
-    const button = getByRole("button") as HTMLButtonElement;
-    const spanElement = button.firstChild as HTMLSpanElement;
-    const led = spanElement.children[0] as HTMLSpanElement;
-    // Original off values
-    expect(led.style.backgroundColor).toEqual("rgb(0, 100, 0)");
-
-    // Click button to on
-    fireEvent.click(button);
-
-    expect(led.style.backgroundColor).toEqual("rgb(0, 235, 10)");
-  });
-
-  test("on click change text and led colour ", async (): Promise<void> => {
+  test("it writes to pv on click", async (): Promise<void> => {
     const boolButtonProps = {
       ...TEST_PROPS,
       showLed: true
@@ -151,15 +130,31 @@ describe("<BoolButton />", (): void => {
     const button = getByRole("button") as HTMLButtonElement;
     const spanElement = button.firstChild as HTMLSpanElement;
     const led = spanElement.children[0] as HTMLSpanElement;
-    const text = spanElement.children[1] as HTMLSpanElement;
     // Original on values
-    expect(text.textContent).toEqual("Enabled");
+    expect(button.textContent).toEqual("Enabled");
     expect(led.style.backgroundColor).toEqual("rgb(0, 235, 10)");
 
-    // Click button to off
-    fireEvent.click(button);
+    await act(async () => {
+      fireEvent.click(button);
+    });
 
-    expect(text.textContent).toEqual("Disabled");
-    expect(led.style.backgroundColor).toEqual("rgb(0, 100, 0)");
+    expect(mockWritePv).toHaveBeenCalledWith(
+      "TEST:PV",
+      new DType({ doubleValue: 0 })
+    );
+  });
+});
+
+describe("getDimensions()", (): void => {
+  test("it calculates correct dimensions if width > height", (): void => {
+    const diameter = getDimensions(200, 20);
+
+    expect(diameter).toEqual(11);
+  });
+
+  test("it calculates correct dimensions if height > width", (): void => {
+    const diameter = getDimensions(30, 70);
+
+    expect(diameter).toEqual(16);
   });
 });
