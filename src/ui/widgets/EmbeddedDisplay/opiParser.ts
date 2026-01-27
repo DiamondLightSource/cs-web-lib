@@ -828,7 +828,7 @@ export function normalisePath(
   return buildUrl(prefix, resolvedPath);
 }
 
-function opiPatchPaths(
+export function opiPatchPaths(
   widgetDescription: WidgetDescription,
   parentDir?: string,
   macros?: MacroMap

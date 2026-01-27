@@ -5,6 +5,7 @@ import { Rule } from "../../../types/props";
 import {
   normalisePath,
   opiParseRules,
+  opiPatchPaths,
   opiPatchRules,
   parseOpi
 } from "./opiParser";
@@ -12,7 +13,7 @@ import { AbsolutePosition, RelativePosition } from "../../../types/position";
 import { ensureWidgetsRegistered } from "..";
 import { WidgetDescription } from "../createComponent";
 import { ElementCompact } from "xml-js";
-import { ParserDict } from "./parser";
+import { ComplexParserDict, ParserDict } from "./parser";
 
 ensureWidgetsRegistered();
 
@@ -427,7 +428,7 @@ describe("normalisePath", (): void => {
 
   it("returns path without .. when no other arguments are specified and path starts with ../", async (): Promise<void> => {
     const result = normalisePath("../../a/path");
-    expect(result).toBe("/a/path");
+    expect(result).toBe("a/path");
   });
 
   it("Joins path and parent when parent is a valid url", async (): Promise<void> => {
@@ -984,5 +985,394 @@ describe("opiPatchRules", () => {
 
     expect(result.rules?.[1].prop).toBe("opi.beta");
     expect(result.rules?.[1].expressions[0].convertedValue).toBe("B:2");
+  });
+
+  it("invokes complex parser on matching field", async () => {
+    const complexParserDict: ComplexParserDict = {
+      file: (v: any) => ({ path: v.file, protocol: "ca" })
+    };
+
+    const widget: WidgetDescription = {
+      rules: [
+        {
+          prop: "file",
+          expressions: [{ value: "file1" }, { value: "file2" }]
+        }
+      ]
+    } as Partial<WidgetDescription> as WidgetDescription;
+
+    const result = await opiPatchRules({}, complexParserDict)(
+      widget,
+      undefined,
+      undefined,
+      { file: 123 }
+    );
+
+    expect(result.rules?.[0].prop).toBe("file");
+
+    const exps = result.rules?.[0]?.expressions;
+    expect(exps[0].convertedValue).toStrictEqual({
+      path: "file1",
+      protocol: "ca"
+    });
+    expect(exps[1].convertedValue).toStrictEqual({
+      path: "file2",
+      protocol: "ca"
+    });
+  });
+
+  it("invokes complex parser even if prop is not in the allowed props", async () => {
+    const complexParserDict: ComplexParserDict = {
+      file: (v: any) => ({ path: v.file, protocol: "ca" })
+    };
+
+    const widget: WidgetDescription = {
+      rules: [
+        {
+          prop: "file",
+          expressions: [{ value: "file1" }, { value: "file2" }]
+        }
+      ]
+    } as Partial<WidgetDescription> as WidgetDescription;
+
+    const result = await opiPatchRules({}, complexParserDict)(
+      widget,
+      undefined,
+      undefined,
+      { file345: 123 }
+    );
+
+    expect(result.rules?.[0].prop).toBe("file");
+
+    const exps = result.rules?.[0]?.expressions;
+    expect(exps[0].convertedValue).toStrictEqual({
+      path: "file1",
+      protocol: "ca"
+    });
+    expect(exps[1].convertedValue).toStrictEqual({
+      path: "file2",
+      protocol: "ca"
+    });
+  });
+
+  it("invoke complex parser over simple parser if simple parser dict name matches, but key not in allowed props", async () => {
+    const parserDict: ParserDict = {
+      imageFile: ["file", (v: unknown) => `A:${v}`]
+    };
+    const complexParserDict: ComplexParserDict = {
+      file: (v: any) => ({ path: v.file, protocol: "ca" })
+    };
+
+    const widget: WidgetDescription = {
+      rules: [
+        {
+          prop: "file",
+          expressions: [{ value: "file1" }, { value: "file2" }]
+        }
+      ]
+    } as Partial<WidgetDescription> as WidgetDescription;
+
+    const result = await opiPatchRules(parserDict, complexParserDict)(
+      widget,
+      undefined,
+      undefined,
+      { file: 123 }
+    );
+
+    expect(result.rules?.[0].prop).toBe("file");
+
+    const exps = result.rules?.[0]?.expressions;
+    expect(exps[0].convertedValue).toStrictEqual({
+      path: "file1",
+      protocol: "ca"
+    });
+    expect(exps[1].convertedValue).toStrictEqual({
+      path: "file2",
+      protocol: "ca"
+    });
+  });
+
+  it("invoke complex parser over simple parser if simple parser key is in allowed props object, but xml prop name does not match", async () => {
+    const parserDict: ParserDict = {
+      file: ["imageFile", (v: unknown) => `A:${v}`]
+    };
+    const complexParserDict: ComplexParserDict = {
+      file: (v: any) => ({ path: v.file, protocol: "ca" })
+    };
+
+    const widget: WidgetDescription = {
+      rules: [
+        {
+          prop: "file",
+          expressions: [{ value: "file1" }, { value: "file2" }]
+        }
+      ]
+    } as Partial<WidgetDescription> as WidgetDescription;
+
+    const result = await opiPatchRules(parserDict, complexParserDict)(
+      widget,
+      undefined,
+      undefined,
+      { file: 123 }
+    );
+
+    expect(result.rules?.[0].prop).toBe("file");
+
+    const exps = result.rules?.[0]?.expressions;
+    expect(exps[0].convertedValue).toStrictEqual({
+      path: "file1",
+      protocol: "ca"
+    });
+    expect(exps[1].convertedValue).toStrictEqual({
+      path: "file2",
+      protocol: "ca"
+    });
+  });
+
+  it("invoke simple parser over complex parser if prop is not in the allowed props object", async () => {
+    const parserDict: ParserDict = {
+      imageFile: ["file", (v: unknown) => `A:${v}`]
+    };
+    const complexParserDict: ComplexParserDict = {
+      file: (v: any) => ({ path: v.file, protocol: "ca" })
+    };
+
+    const widget: WidgetDescription = {
+      rules: [
+        {
+          prop: "file",
+          expressions: [{ value: "file1" }, { value: "file2" }]
+        }
+      ]
+    } as Partial<WidgetDescription> as WidgetDescription;
+
+    const result = await opiPatchRules(parserDict, complexParserDict)(
+      widget,
+      undefined,
+      undefined,
+      { imageFile: 123 }
+    );
+
+    expect(result.rules?.[0].prop).toBe("imageFile");
+
+    const exps = result.rules?.[0]?.expressions;
+    expect(exps[0].convertedValue).toBe("A:file1");
+    expect(exps[1].convertedValue).toBe("A:file2");
+  });
+});
+
+describe("opiPatchPaths", () => {
+  it("should patch file path when not fully qualified", () => {
+    const widgetDescription: Partial<WidgetDescription> = {
+      file: { path: "relative/path.opi" }
+    };
+    const parentDir = "/parent/dir";
+
+    const result = opiPatchPaths(
+      widgetDescription as WidgetDescription,
+      parentDir
+    );
+
+    expect(result.file.path).toBe("/parent/dir/relative/path.opi");
+  });
+
+  it("should not patch file path when fully qualified", () => {
+    const widgetDescription: Partial<WidgetDescription> = {
+      file: { path: "http://example.com/path.opi" }
+    };
+    const parentDir = "/parent/dir";
+
+    const result = opiPatchPaths(
+      widgetDescription as WidgetDescription,
+      parentDir
+    );
+
+    expect(result.file.path).toBe("http://example.com/path.opi");
+  });
+
+  it("should patch imageFile and image properties", () => {
+    const widgetDescription: Partial<WidgetDescription> = {
+      imageFile: "img/icon.png",
+      image: "img/background.jpg"
+    };
+    const parentDir = "/parent/dir";
+
+    const result = opiPatchPaths(
+      widgetDescription as WidgetDescription,
+      parentDir
+    );
+
+    expect(result.imageFile).toBe("/parent/dir/img/icon.png");
+    expect(result.image).toBe("/parent/dir/img/background.jpg");
+  });
+
+  it("should not patch imageFile and image when they are fully qualified URLs", () => {
+    const widgetDescription: Partial<WidgetDescription> = {
+      imageFile: "http://example.com/img/icon.png",
+      image: "http://example.com/img/background.jpg"
+    };
+    const parentDir = "/parent/dir";
+
+    const result = opiPatchPaths(
+      widgetDescription as WidgetDescription,
+      parentDir
+    );
+
+    expect(result.imageFile).toBe("http://example.com/img/icon.png");
+    expect(result.image).toBe("http://example.com/img/background.jpg");
+  });
+
+  it("should patch action file paths", () => {
+    const widgetDescription: Partial<WidgetDescription> = {
+      actions: {
+        actions: [
+          {
+            dynamicInfo: {
+              file: { path: "actions/action1.opi" }
+            }
+          },
+          {
+            dynamicInfo: {
+              file: { path: "actions/action2.opi" }
+            }
+          }
+        ]
+      }
+    };
+    const parentDir = "/parent/dir";
+
+    const result = opiPatchPaths(
+      widgetDescription as WidgetDescription,
+      parentDir
+    );
+
+    expect(result.actions.actions[0].dynamicInfo.file.path).toBe(
+      "/parent/dir/actions/action1.opi"
+    );
+    expect(result.actions.actions[1].dynamicInfo.file.path).toBe(
+      "/parent/dir/actions/action2.opi"
+    );
+  });
+
+  it("should patch symbol paths", () => {
+    const widgetDescription: Partial<WidgetDescription> = {
+      symbols: [
+        "symbols/sym1.svg",
+        "http://example.com/sym2.svg",
+        "symbols/sym3.svg"
+      ]
+    };
+    const parentDir = "/parent/dir";
+
+    const result = opiPatchPaths(
+      widgetDescription as WidgetDescription,
+      parentDir
+    );
+
+    expect(result.symbols).toEqual([
+      "/parent/dir/symbols/sym1.svg",
+      "http://example.com/sym2.svg",
+      "/parent/dir/symbols/sym3.svg"
+    ]);
+  });
+
+  it("should patch rules that update symbol paths", () => {
+    const widgetDescription: Partial<WidgetDescription> = {
+      symbols: ["symbols/default.svg"],
+      rules: [
+        {
+          prop: "symbols[0]",
+          expressions: [{ convertedValue: "symbols/alternative.svg" }]
+        }
+      ]
+    };
+    const parentDir = "/parent/dir";
+
+    const result = opiPatchPaths(
+      widgetDescription as WidgetDescription,
+      parentDir
+    );
+
+    expect(result.symbols[0]).toBe("/parent/dir/symbols/default.svg");
+    expect(result.rules[0].expressions[0].convertedValue).toBe(
+      "/parent/dir/symbols/alternative.svg"
+    );
+  });
+
+  it("should patch rules that contain file paths", () => {
+    const widgetDescription: Partial<WidgetDescription> = {
+      rules: [
+        {
+          prop: "file.path",
+          expressions: [{ convertedValue: { path: "alternative/file.opi" } }]
+        }
+      ]
+    };
+    const parentDir = "/parent/dir";
+
+    const result = opiPatchPaths(
+      widgetDescription as WidgetDescription,
+      parentDir
+    );
+
+    expect(result.rules[0].expressions[0].convertedValue.path).toBe(
+      "/parent/dir/alternative/file.opi"
+    );
+  });
+
+  it("should handle undefined parentDir", () => {
+    const widgetDescription: Partial<WidgetDescription> = {
+      file: { path: "relative/path.opi" },
+      imageFile: "img/icon.png"
+    };
+
+    const result = opiPatchPaths(widgetDescription as WidgetDescription);
+
+    expect(result.file.path).toBe("relative/path.opi");
+    expect(result.imageFile).toBe("img/icon.png");
+  });
+
+  it("should apply macros to paths", () => {
+    const widgetDescription: Partial<WidgetDescription> = {
+      file: { path: "$(MACRO)/path.opi" }
+    };
+    const parentDir = "/parent/dir";
+    const macros = { MACRO: "expanded" };
+
+    const result = opiPatchPaths(
+      widgetDescription as WidgetDescription,
+      parentDir,
+      macros
+    );
+
+    expect(result.file.path).toBe("/parent/dir/expanded/path.opi");
+  });
+
+  it("should apply macros to paths, before joining", () => {
+    const widgetDescription: Partial<WidgetDescription> = {
+      file: { path: "$(MACRO)/path.opi" }
+    };
+    const parentDir = "/parent/dir";
+    const macros = { MACRO: "http://example.com" };
+
+    const result = opiPatchPaths(
+      widgetDescription as WidgetDescription,
+      parentDir,
+      macros
+    );
+
+    expect(result.file.path).toBe("http://example.com/path.opi");
+  });
+
+  it("should handle empty widget description", () => {
+    const widgetDescription: Partial<WidgetDescription> = {};
+    const parentDir = "/parent/dir";
+
+    const result = opiPatchPaths(
+      widgetDescription as WidgetDescription,
+      parentDir
+    );
+
+    expect(result).toEqual({});
   });
 });
