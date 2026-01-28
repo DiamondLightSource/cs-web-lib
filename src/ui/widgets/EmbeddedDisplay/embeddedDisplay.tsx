@@ -19,7 +19,8 @@ import {
   BoolPropOpt,
   StringPropOpt,
   StringOrNumPropOpt,
-  MacrosPropOpt
+  MacrosPropOpt,
+  RulesPropOpt
 } from "../propTypes";
 import { GroupBoxComponent } from "../GroupBox/groupBox";
 import { useId } from "react-id-generator";
@@ -28,6 +29,7 @@ import { Theme, ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
 import { useFile, File } from "../../hooks/useFile";
 import { recursiveResolve } from "../../hooks/useMacros";
+import { useRules } from "../../hooks/useRules";
 
 const RESIZE_STRINGS = [
   "scroll-widget",
@@ -52,7 +54,8 @@ const EmbeddedDisplayProps = {
   overrideAutoZoomToFitValue: BoolPropOpt,
   resize: StringOrNumPropOpt,
   macros: MacrosPropOpt,
-  groupName: StringPropOpt
+  groupName: StringPropOpt,
+  rules: RulesPropOpt
 };
 
 export const EmbeddedDisplay = (
@@ -77,10 +80,13 @@ export const EmbeddedDisplay = (
     }
   };
 
-  const resolvedProps = recursiveResolve(
+  const macroProps = recursiveResolve(
     props,
     embeddedDisplayMacroContext.macros
   );
+
+  const resolvedProps = useRules(macroProps);
+
   const description = useFile(
     resolvedProps.file as File,
     embeddedDisplayMacroContext.macros
@@ -103,7 +109,7 @@ export const EmbeddedDisplay = (
   );
 
   // Get the screen height and width. If not provided then set to
-  // the window height and width, repectively.
+  // the window height and width, respectively.
   const heightString = getOptionalValue(
     description.position?.height,
     `${String(window.innerHeight)}px`
@@ -252,7 +258,7 @@ export const EmbeddedDisplay = (
       scalingOrigin: resolvedProps.scalingOrigin
     });
   } catch (e) {
-    const message = `Error loading ${(resolvedProps.file as File).path}: ${e}.`;
+    const message = `Error loading ${(resolvedProps.file as File)?.path}: ${e}.`;
     log.warn(message);
     log.warn(e);
     component = widgetDescriptionToComponent(errorWidget(message));

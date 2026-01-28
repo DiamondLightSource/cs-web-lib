@@ -50,26 +50,25 @@ export type ComplexParserDict = {
 export type PatchFunction = (
   props: WidgetDescription,
   path?: string,
-  macros?: MacroMap
-) => WidgetDescription;
+  macros?: MacroMap,
+  allowedProps?: { [key: string]: unknown }
+) => WidgetDescription | Promise<WidgetDescription>;
 
 /* Take an object representing a widget and return our widget description. */
 export async function genericParser(
   widget: any, // eslint-disable-line @typescript-eslint/explicit-module-boundary-types
-  targetWidget: React.FC,
+  targetWidget: { widget: React.FC; widgetProps: any },
   simpleParsers: ParserDict,
   complexParsers: ComplexParserDict,
   // Whether props with no registered function should be passed through
   // with no parsing.
   passThrough: boolean
 ): Promise<WidgetDescription> {
-  const newProps: any = { type: targetWidget };
+  const newProps: any = { type: targetWidget.widget };
   const allProps = {
     type: StringProp,
     position: PositionProp,
-    /* We will need another way of using prop-types at runtime here. */
-    // eslint-disable-next-line react/forbid-foreign-prop-types
-    ...targetWidget.propTypes
+    ...targetWidget.widgetProps
   };
   /* First, parse our props if we know how to. */
   for (const prop of Object.keys(allProps)) {
@@ -149,7 +148,7 @@ export function parseChildProps(
 
 export async function parseWidget(
   props: any, // eslint-disable-line @typescript-eslint/explicit-module-boundary-types
-  getTargetWidget: (props: any) => React.FC,
+  getTargetWidget: (props: any) => { widget: React.FC; widgetProps: any },
   childrenName: string,
   simpleParsers: ParserDict,
   complexParsers: ComplexParserDict,
@@ -159,6 +158,7 @@ export async function parseWidget(
   macros?: MacroMap
 ): Promise<WidgetDescription> {
   const targetWidget = getTargetWidget(props);
+  const allowedProps = { position: PositionProp, ...targetWidget?.widgetProps };
   let widgetDescription = await genericParser(
     props,
     targetWidget,
@@ -168,7 +168,12 @@ export async function parseWidget(
   );
   // Execute patch functions.
   for (const patcher of patchFunctions) {
-    widgetDescription = patcher(widgetDescription, filepath, macros);
+    widgetDescription = await patcher(
+      widgetDescription,
+      filepath,
+      macros,
+      allowedProps
+    );
   }
   /* Child widgets */
   const childWidgets = toArray(props[childrenName]);
