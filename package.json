@@ -61,6 +61,7 @@
     "prettier": "^3.3.3",
     "react-gauge-component": "^1.2.64",
     "react-id-generator": "^3.0.2",
+    "react-router": "^7.13.0",
     "react-test-renderer": "^18.3.1",
     "react-tiny-popover": "^8.1.2",
     "rollup": "^4",
@@ -82,7 +83,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-redux": "^7.2.9",
-    "react-router-dom": "^6.30.2"
+    "react-router": "^7.13.0"
   },
   "module": "dist/esm/index.js",
   "files": [
