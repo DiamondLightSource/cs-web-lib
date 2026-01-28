@@ -69,6 +69,8 @@ const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   progressbar: "progressbar",
   rectangle: "shape",
   tank: "tank",
+  navtabs: "navigationtabs",
+  tabs: "tabcontainer",
   thermometer: "thermometer",
   meter: "meter",
   choice: "choicebutton",
@@ -103,6 +105,7 @@ export const WIDGET_DEFAULT_SIZES: { [key: string]: [number, number] } = {
   progressbar: [100, 20],
   rectangle: [100, 20],
   tank: [150, 200],
+  navtabs: [500, 300],
   thermometer: [40, 160],
   meter: [240, 120],
   scaledslider: [400, 55],
@@ -323,6 +326,19 @@ function bobParseXAxis(props: any): Axis {
 }
 
 /**
+ * Parses the tabs object
+ * @param props
+ * @returns a tabs object.
+ */
+function bobParseTabs(props: any): any {
+  const tabs: any[] = [];
+  props.tabs.tab.forEach((tab: any) => {
+    tabs.push(parseChildProps(tab, BOB_SIMPLE_PARSERS));
+  });
+  return tabs;
+}
+
+/**
  * Creates a WidgetActions object from the actions tied to the json object
  * @param jsonProp
  * @param defaultProtocol
@@ -485,7 +501,13 @@ export const BOB_SIMPLE_PARSERS: ParserDict = {
   scaleFont: ["scale_font", bobParseFont],
   start: ["start", opiParseString],
   end: ["end", opiParseString],
-  arrayIndex: ["array_index", bobParseNumber]
+  arrayIndex: ["array_index", bobParseNumber],
+  file: ["file", opiParseString],
+  direction: ["direction", opiParseString],
+  tabWidth: ["tab_width", bobParseNumber],
+  tabHeight: ["tab_height", bobParseNumber],
+  tabSpacing: ["tab_spacing", bobParseNumber],
+  activeTab: ["active_tab", bobParseNumber]
 };
 
 const BOB_COMPLEX_PARSERS: ComplexParserDict = {
@@ -495,7 +517,8 @@ const BOB_COMPLEX_PARSERS: ComplexParserDict = {
   border: bobParseBorder,
   alarmSensitive: bobParseAlarmSensitive,
   file: bobParseFile,
-  xAxis: bobParseXAxis
+  xAxis: bobParseXAxis,
+  tabs: bobParseTabs
 };
 
 export async function parseBob(

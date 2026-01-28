@@ -720,6 +720,7 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   arrowLength: ["arrow_length", opiParseNumber],
   fillArrow: ["fill_arrow", opiParseBoolean],
   selectedColor: ["selected_color", opiParseColor],
+  deselectedColor: ["deselected_color", opiParseColor],
   enabled: ["enabled", opiParseBoolean],
   resize: ["resize_behaviour", opiParseResizing],
   labelsFromPv: ["labels_from_pv", opiParseBoolean],
