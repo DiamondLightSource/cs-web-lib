@@ -14,11 +14,15 @@ export const buildUrl = (
   const baseHost =
     defaultBaseHost && defaultBaseHost?.endsWith("/")
       ? defaultBaseHost
-      : `${defaultBaseHost ?? ""}/`;
+      : defaultBaseHost
+        ? `${defaultBaseHost}/`
+        : "";
+
+  const filteredPaths = args?.filter(s => s != null && s !== "");
+
   const path =
-    args
-      ?.filter(s => s != null && s !== "")
-      .map(s => s?.replace(/\/+$/, "").replace(/^\/+/, ""))
+    filteredPaths
+      ?.map(s => s?.replace(/\/+$/, "").replace(/^\/+/, ""))
       .join("/") ?? "";
 
   if (isFullyQualifiedUrl(path)) {
@@ -32,5 +36,13 @@ export const buildUrl = (
   }
 
   // Assume a local relative path
-  return `${baseHost}${path}`;
+  if (
+    filteredPaths &&
+    filteredPaths[0]?.startsWith("/") &&
+    (!baseHost || baseHost === "")
+  ) {
+    return `/${path}`;
+  } else {
+    return `${baseHost}${path}`;
+  }
 };

@@ -6,6 +6,8 @@ import { RelativePosition } from "../../../types/position";
 import { contextRender } from "../../../testResources";
 import { ensureWidgetsRegistered } from "..";
 import { vi } from "vitest";
+import * as useRulesModule from "../../hooks/useRules";
+
 ensureWidgetsRegistered();
 
 interface GlobalFetch extends NodeJS.Global {
@@ -13,9 +15,15 @@ interface GlobalFetch extends NodeJS.Global {
 }
 const globalWithFetch = global as GlobalFetch;
 
+vi.mock("../../hooks/useRules", () => ({
+  useRules: vi.fn()
+}));
+vi.mocked(useRulesModule.useRules).mockImplementation(props => props);
+
 beforeEach((): void => {
   // Ensure the fetch() function mock is always cleared.
   vi.spyOn(globalWithFetch, "fetch").mockClear();
+  vi.mocked(useRulesModule.useRules).mockClear();
 });
 
 describe("<EmbeddedDisplay>", (): void => {
@@ -38,25 +46,29 @@ describe("<EmbeddedDisplay>", (): void => {
         (): Promise<unknown> => mockFetchPromise
       );
 
+      const props = {
+        position: new RelativePosition(),
+        file: {
+          path: inputFile,
+          defaultProtocol: "ca",
+          macros: {}
+        }
+      };
+
       // Suppress logging for expected error.
       log.setLevel("error");
-      const { queryByText } = contextRender(
-        <EmbeddedDisplay
-          position={new RelativePosition()}
-          file={{
-            path: inputFile,
-            defaultProtocol: "ca",
-            macros: {}
-          }}
-        />
-      );
+      const { queryByText } = contextRender(<EmbeddedDisplay {...props} />);
 
       expect(globalWithFetch.fetch).toHaveBeenCalledTimes(1);
       expect(globalWithFetch.fetch).toHaveBeenCalledWith(resolvedFile);
 
-      await waitFor((): void =>
-        expect(queryByText(/Error parsing.*/)).toBeInTheDocument()
-      );
+      await waitFor((): void => {
+        expect(vi.mocked(useRulesModule.useRules)).toHaveBeenCalledWith(
+          expect.objectContaining(props)
+        );
+
+        expect(queryByText(/Error parsing.*/)).toBeInTheDocument();
+      });
       log.setLevel("info");
     }
   );

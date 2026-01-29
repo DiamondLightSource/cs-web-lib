@@ -63,7 +63,7 @@ const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   textupdate: "readback",
   textentry: "input",
   picture: "image",
-  image: "VIDEO_NOT_SUPPORTED",
+  image: "demoImage",
   polygon: "polygon",
   polyline: "line",
   progressbar: "progressbar",
@@ -414,15 +414,14 @@ export function bobParseActions(
   return processedActions;
 }
 
-function bobGetTargetWidget(props: any): React.FC {
+function bobGetTargetWidget(props: any): {
+  widget: React.FC;
+  widgetProps: any;
+} {
   const typeid = bobParseType(props);
-  let targetWidget;
-  try {
-    targetWidget = REGISTERED_WIDGETS[typeid][0];
-  } catch {
-    targetWidget = REGISTERED_WIDGETS["shape"][0];
-  }
-  return targetWidget;
+  const targetWidget =
+    REGISTERED_WIDGETS[typeid] ?? REGISTERED_WIDGETS["shape"];
+  return { widget: targetWidget[0], widgetProps: targetWidget[1] };
 }
 
 export const BOB_SIMPLE_PARSERS: ParserDict = {
@@ -548,7 +547,7 @@ export async function parseBob(
     simpleParsers,
     complexParsers,
     false,
-    OPI_PATCHERS(BOB_SIMPLE_PARSERS),
+    OPI_PATCHERS(BOB_SIMPLE_PARSERS, BOB_COMPLEX_PARSERS),
     filepath,
     macros
   );

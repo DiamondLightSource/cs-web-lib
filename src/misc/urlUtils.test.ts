@@ -131,7 +131,7 @@ describe("urlUtils", () => {
 
       const result = buildUrl("", ...args);
 
-      expect(result).toEqual("/path1/filename.json");
+      expect(result).toEqual("path1/filename.json");
     });
   });
 });

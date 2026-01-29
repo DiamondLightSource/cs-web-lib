@@ -68,8 +68,7 @@ type ComponentProps = {
 export type ConnectingComponentWidgetProps = BasicProps &
   PvPropsAndMetdataProps &
   PvDataCollection &
-  AnyOtherProps &
-  File;
+  AnyOtherProps & { file: File };
 
 // Props for the Widget wrapper component
 export type PVWidgetComponent = BasicProps &
@@ -80,8 +79,7 @@ export type PVWidgetComponent = BasicProps &
 // type used by useMacros and useRules (not really props)
 export type AnyProps = PVWidgetComponent &
   PvDataCollection &
-  AnyOtherProps &
-  File;
+  AnyOtherProps & { file: File };
 
 // Types used by widget components implementations that display a value.
 export type PVComponent = ComponentProps & PvDataCollection;

@@ -623,15 +623,14 @@ function opiParseResizing(jsonProp: ElementCompact): string {
  * that will return a shape object
  * @param props
  */
-function opiGetTargetWidget(props: any): React.FC {
+function opiGetTargetWidget(props: any): {
+  widget: React.FC;
+  widgetProps: any;
+} {
   const typeid = opiParseType(props);
-  let targetWidget;
-  try {
-    targetWidget = REGISTERED_WIDGETS[typeid][0];
-  } catch {
-    targetWidget = REGISTERED_WIDGETS["shape"][0];
-  }
-  return targetWidget;
+  const targetWidget =
+    REGISTERED_WIDGETS[typeid] ?? REGISTERED_WIDGETS["shape"];
+  return { widget: targetWidget[0], widgetProps: targetWidget[1] };
 }
 
 /**
@@ -758,8 +757,13 @@ export const OPI_COMPLEX_PARSERS: ComplexParserDict = {
 };
 
 export const opiPatchRules =
-  (parserDict: ParserDict) =>
-  (widgetDescription: WidgetDescription): WidgetDescription => {
+  (parserDict: ParserDict, complexParsers: ComplexParserDict) =>
+  async (
+    widgetDescription: WidgetDescription,
+    path?: string,
+    macros?: MacroMap,
+    allowedProps?: { [key: string]: unknown }
+  ): Promise<WidgetDescription> => {
     /* Re-index simple parsers so we can find the correct one
      for the opi prop. */
     const propParsers: ParserDict = {};
@@ -768,24 +772,42 @@ export const opiPatchRules =
     });
     /* Patch up the rules by converting the prop to our name
      and converting the value to the correct type. */
-    widgetDescription.rules?.forEach((rule: Rule) => {
-      let ruleProp = rule?.prop;
+    await Promise.all(
+      (widgetDescription?.rules ?? []).map(async (rule: Rule) => {
+        let ruleProp = rule?.prop;
 
-      const matchArrayPattern = parseArrayString(ruleProp);
-      if (matchArrayPattern) {
-        // this looks like an array remove the index to match the prop
-        ruleProp = matchArrayPattern[0];
-      }
-      if (propParsers.hasOwnProperty(ruleProp)) {
-        const [newPropName, parser] = propParsers[ruleProp];
+        const matchArrayPattern = parseArrayString(ruleProp);
+        if (matchArrayPattern) {
+          // this looks like an array remove the index to match the prop
+          ruleProp = matchArrayPattern[0];
+        }
 
-        rule.prop = matchArrayPattern ? rule.prop : newPropName;
-        rule.expressions.forEach((expression: Expression) => {
-          const convertedValue = parser(expression?.value);
-          expression.convertedValue = convertedValue;
-        });
-      }
-    });
+        if (
+          propParsers.hasOwnProperty(ruleProp) &&
+          propParsers[ruleProp][0] &&
+          allowedProps?.hasOwnProperty(propParsers[ruleProp][0])
+        ) {
+          // if there is a simple parser and the target cs-web-lib widget has the property with the resulting name
+          const [newPropName, parser] = propParsers[ruleProp];
+          rule.prop = matchArrayPattern ? rule.prop : newPropName;
+          rule.expressions.forEach((expression: Expression) => {
+            const convertedValue = parser(expression?.value);
+            expression.convertedValue = convertedValue;
+          });
+        } else if (complexParsers.hasOwnProperty(ruleProp)) {
+          const parser = complexParsers[ruleProp];
+
+          await Promise.all(
+            (rule?.expressions ?? []).map(async expression => {
+              const convertedValue = await parser({
+                [ruleProp]: expression?.value
+              });
+              expression.convertedValue = convertedValue;
+            })
+          );
+        }
+      })
+    );
     return widgetDescription;
   };
 
@@ -806,7 +828,7 @@ export function normalisePath(
   return buildUrl(prefix, resolvedPath);
 }
 
-function opiPatchPaths(
+export function opiPatchPaths(
   widgetDescription: WidgetDescription,
   parentDir?: string,
   macros?: MacroMap
@@ -878,6 +900,24 @@ function opiPatchPaths(
           });
       });
   }
+
+  // case where a rule contains a file
+  if (widgetDescription["rules"] && parentDir) {
+    widgetDescription["rules"]
+      ?.filter((rule: any) => rule?.prop?.startsWith("file"))
+      ?.forEach((rule: any) => {
+        rule?.expressions
+          ?.filter((expression: any) => expression?.convertedValue?.path)
+          ?.forEach((expression: any) => {
+            expression.convertedValue.path = normalisePath(
+              expression.convertedValue.path,
+              parentDir,
+              macros
+            );
+          });
+      });
+  }
+
   return widgetDescription;
 }
 
@@ -909,8 +949,11 @@ function opiPatchActions(
   return widgetDescription;
 }
 
-export const OPI_PATCHERS = (parserDict: ParserDict): PatchFunction[] => [
-  opiPatchRules(parserDict),
+export const OPI_PATCHERS = (
+  parserDict: ParserDict,
+  complexParsers: ComplexParserDict
+): PatchFunction[] => [
+  opiPatchRules(parserDict, complexParsers),
   opiPatchPaths,
   opiPatchActions
 ];
@@ -945,11 +988,9 @@ export async function parseOpi(
 
   const complexParsers = {
     ...OPI_COMPLEX_PARSERS,
-    rules: (rules: Rule[]): Rule[] =>
+    rules: (rules: Rule[], allowedProps?: { [key: string]: unknown }): Rule[] =>
       opiParseRules(rules, defaultProtocol, true)
   };
-
-  log.debug(compactJSON.display);
 
   const displayWidget = await parseWidget(
     compactJSON.display,
@@ -958,7 +999,7 @@ export async function parseOpi(
     simpleParsers,
     complexParsers,
     false,
-    OPI_PATCHERS(OPI_SIMPLE_PARSERS),
+    OPI_PATCHERS(OPI_SIMPLE_PARSERS, OPI_COMPLEX_PARSERS),
     filepath
   );
 
