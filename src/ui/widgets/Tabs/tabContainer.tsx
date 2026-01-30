@@ -6,7 +6,6 @@
  */
 import React, { useMemo } from "react";
 import PropTypes from "prop-types";
-import log from "loglevel";
 
 import { Widget } from "../widget";
 import { WidgetPropType } from "../widgetProps";
@@ -20,7 +19,7 @@ import {
 } from "../propTypes";
 
 import { TabBar } from "./tabs";
-import { Color, RelativePosition } from "../../../types";
+import { AbsolutePosition, Color } from "../../../types";
 import { widgetDescriptionToComponent } from "../createComponent";
 
 export const TabContainerProps = {
@@ -36,6 +35,7 @@ export const TabContainerProps = {
 export const TabContainerComponent = (
   props: InferWidgetProps<typeof TabContainerProps>
 ): JSX.Element => {
+  const { tabHeight = 30 } = props;
 
   // Convert tabs into React components from widget descriptions
   const tabChildren = useMemo(() => {
@@ -44,7 +44,7 @@ export const TabContainerComponent = (
         name: tab.name,
         children: widgetDescriptionToComponent({
           type: "display",
-          position: new RelativePosition(),
+          position: new AbsolutePosition("0px", `${tabHeight}px`, "100%", `calc(100% - ${tabHeight}px)`),
           backgroundColor:
             props.backgroundColor ?? new Color("rgb(255,255,255"),
           children: tab.children,

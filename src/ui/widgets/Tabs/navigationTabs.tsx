@@ -13,7 +13,6 @@ import { registerWidget } from "../register";
 import {
   InferWidgetProps,
   ColorPropOpt,
-  ChoicePropOpt,
   BoolPropOpt,
   IntPropOpt,
   FontPropOpt
