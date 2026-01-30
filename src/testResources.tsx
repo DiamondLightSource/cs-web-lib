@@ -6,7 +6,7 @@ import { Provider } from "react-redux";
 import { MacroContext } from "./types/macros";
 import { csReducer, CsState } from "./redux/csState";
 import { createStore } from "redux";
-import { BrowserRouter as Router } from "react-router-dom";
+import { BrowserRouter as Router } from "react-router";
 import {
   OPEN_WEBPAGE,
   WidgetAction,

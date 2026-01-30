@@ -9,7 +9,7 @@
 import React from "react";
 import log from "loglevel";
 import { MacroMap, macrosEqual } from "../types/macros";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router";
 
 export interface FileDescription {
   // All information required for an embedded display
