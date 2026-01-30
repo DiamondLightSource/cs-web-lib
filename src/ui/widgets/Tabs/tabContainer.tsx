@@ -39,17 +39,23 @@ export const TabContainerComponent = (
 
   // Convert tabs into React components from widget descriptions
   const tabChildren = useMemo(() => {
-    return props.tabs.map((tab) => {
-       return {
+    return props.tabs.map(tab => {
+      return {
         name: tab.name,
         children: widgetDescriptionToComponent({
           type: "display",
-          position: new AbsolutePosition("0px", `${tabHeight}px`, "100%", `calc(100% - ${tabHeight}px)`),
+          position: new AbsolutePosition(
+            "0px",
+            `${tabHeight}px`,
+            "100%",
+            `calc(100% - ${tabHeight}px)`
+          ),
           backgroundColor:
             props.backgroundColor ?? new Color("rgb(255,255,255"),
-          children: tab.children,
+          children: tab.children
         })
-    }});
+      };
+    });
   }, [props.tabs]);
 
   return (

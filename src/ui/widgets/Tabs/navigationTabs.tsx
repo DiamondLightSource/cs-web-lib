@@ -1,7 +1,7 @@
 /**
  * A widget that displays widgets in a number of pre-defined
  * tabs. This displays existing files via Embedded Displays
- * 
+ *
  * See also the dynamic tabs widget.
  */
 import React, { useMemo } from "react";
@@ -38,23 +38,25 @@ export const NavigationTabsProps = {
 export const NavigationTabsComponent = (
   props: InferWidgetProps<typeof NavigationTabsProps>
 ): JSX.Element => {
-
   const tabChildren = useMemo(() => {
-    return props.tabs.map((tab) => {
-       return {
+    return props.tabs.map(tab => {
+      return {
         name: tab.name,
-        children: (<EmbeddedDisplay
-          height={"100%"}
-          width={"100%"}
-          position={new RelativePosition()}
-          scroll={true}
-          resize={0}
-          file={{
-            path: tab.file,
-            macros: { ...tab.macros },
-            defaultProtocol: tab.protocol ?? "ca"
-          }}
-      />)}
+        children: (
+          <EmbeddedDisplay
+            height={"100%"}
+            width={"100%"}
+            position={new RelativePosition()}
+            scroll={true}
+            resize={0}
+            file={{
+              path: tab.file,
+              macros: { ...tab.macros },
+              defaultProtocol: tab.protocol ?? "ca"
+            }}
+          />
+        )
+      };
     });
   }, [props.tabs]);
 
