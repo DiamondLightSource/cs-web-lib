@@ -106,6 +106,7 @@ export const WIDGET_DEFAULT_SIZES: { [key: string]: [number, number] } = {
   rectangle: [100, 20],
   tank: [150, 200],
   navtabs: [500, 300],
+  tabs: [400, 300],
   thermometer: [40, 160],
   meter: [240, 120],
   scaledslider: [400, 55],
@@ -326,14 +327,42 @@ function bobParseXAxis(props: any): Axis {
 }
 
 /**
- * Parses the tabs object
- * @param props
- * @returns a tabs object.
+ * Parses the tabs object, and any child widgets it may have
+ * @param props tab object
+ * @param simpleParsers object, property parser for children
+ * @param complexParsers object, complex property parser for children
+ * @param filepath string, path of current file
+ * @param macros macro map associated with this file
+ * @returns a tab object, with attached children
  */
-function bobParseTabs(props: any): any {
+async function bobParseTabs(
+  props: any,
+  simpleParsers: ParserDict,
+  complexParsers: ComplexParserDict,
+  filepath?: string,
+  macros?: MacroMap
+): Promise<any> {
   const tabs: any[] = [];
-  props.tabs.tab.forEach((tab: any) => {
+  props.tab.forEach(async (tab: any, idx: number) => {
     tabs.push(parseChildProps(tab, BOB_SIMPLE_PARSERS));
+    if (tab.children) {
+      const childWidgets = toArray(tab.children["widget"]);
+      tabs[idx].children = await Promise.all(
+        childWidgets.map(async (child: any) => {
+          return await parseWidget(
+            child,
+            bobGetTargetWidget,
+            "widget",
+            simpleParsers,
+            complexParsers,
+            false,
+            OPI_PATCHERS(BOB_SIMPLE_PARSERS, BOB_COMPLEX_PARSERS),
+            filepath,
+            macros
+          );
+        })
+      );
+    }
   });
   return tabs;
 }
@@ -503,7 +532,7 @@ export const BOB_SIMPLE_PARSERS: ParserDict = {
   end: ["end", opiParseString],
   arrayIndex: ["array_index", bobParseNumber],
   file: ["file", opiParseString],
-  direction: ["direction", opiParseString],
+  direction: ["direction", bobParseNumber],
   tabWidth: ["tab_width", bobParseNumber],
   tabHeight: ["tab_height", bobParseNumber],
   tabSpacing: ["tab_spacing", bobParseNumber],
@@ -517,8 +546,7 @@ const BOB_COMPLEX_PARSERS: ComplexParserDict = {
   border: bobParseBorder,
   alarmSensitive: bobParseAlarmSensitive,
   file: bobParseFile,
-  xAxis: bobParseXAxis,
-  tabs: bobParseTabs
+  xAxis: bobParseXAxis
 };
 
 export async function parseBob(
@@ -560,7 +588,15 @@ export async function parseBob(
     plt: async (props: ElementCompact) =>
       await parsePlt(props["file"], filepath, props._attributes?.type),
     colors: (props: ElementCompact) =>
-      parseChildProps(props["colors"], BOB_SIMPLE_PARSERS)
+      parseChildProps(props["colors"], BOB_SIMPLE_PARSERS),
+    tabs: async (props: ElementCompact) =>
+      bobParseTabs(
+        props["tabs"],
+        simpleParsers,
+        complexParsers,
+        filepath,
+        macros
+      )
   };
 
   const displayWidget = await parseWidget(
