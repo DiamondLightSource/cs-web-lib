@@ -1,4 +1,4 @@
-import { createStore, applyMiddleware, compose } from "redux";
+import { configureStore } from "@reduxjs/toolkit";
 
 import { csReducer } from "./csState";
 import { connectionMiddleware } from "./connectionMiddleware";
@@ -15,7 +15,7 @@ export type CsWebLibConfig = {
 };
 
 // Store singleton
-let storeInstance: ReturnType<typeof createStore> | null = null;
+let storeInstance: ReturnType<typeof configureStore> | null = null;
 let connectionInstance: ConnectionForwarder | null = null;
 
 const buildConnection = (config?: CsWebLibConfig) => {
@@ -45,9 +45,6 @@ const buildConnection = (config?: CsWebLibConfig) => {
   return new ConnectionForwarder(plugins);
 };
 
-const composeEnhancers =
-  (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-
 export const store = (config?: CsWebLibConfig) => {
   if (storeInstance) {
     return storeInstance;
@@ -64,15 +61,15 @@ export const store = (config?: CsWebLibConfig) => {
       "100"
   );
 
-  storeInstance = createStore(
-    csReducer,
-    /* preloadedState, */ composeEnhancers(
-      applyMiddleware(
+  storeInstance = configureStore({
+    reducer: csReducer,
+    middleware: (getDefaultMiddleware) => 
+      getDefaultMiddleware().concat(
         connectionMiddleware(connectionInstance),
         throttleMiddleware(new UpdateThrottle(THROTTLE_PERIOD))
-      )
-    )
-  );
+      ),
+    devTools: true, // This replaces the Redux DevTools Extension setup
+  });
 
   return storeInstance;
 };
