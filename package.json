@@ -19,13 +19,13 @@
     "url": "https://github.com/DiamondLightSource/cs-web-lib.git"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.11.2",
     "apollo-link-retry": "^2.2.16",
     "bufferutil": "^4.0.8",
     "loglevel": "^1.9.2",
     "plotly.js": "^2.35.2",
     "plotly.js-basic-dist": "^2.35.2",
     "react-plotly.js": "^2.6.0",
-    "redux": "^4.2.1",
     "utf-8-validate": "^5.0.10",
     "uuid": "^9.0.1"
   },
@@ -46,7 +46,7 @@
     "@types/react-test-renderer": "^18.3.0",
     "@types/uuid": "^9.0.8",
     "@typescript-eslint/typescript-estree": "^8.13.0",
-    "@vitejs/plugin-react": "^4.3.3",
+    "@vitejs/plugin-react": "^4.7.0",
     "base64-js": "^1.5.1",
     "clipboard-copy": "^4.0.1",
     "d3": "^7.9.0",

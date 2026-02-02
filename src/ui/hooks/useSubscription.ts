@@ -1,5 +1,9 @@
 import { useEffect } from "react";
-import { SUBSCRIBE, UNSUBSCRIBE, WRITE_PV } from "../../redux/actions";
+import {
+  subscribeAction,
+  unsubscribeAction,
+  WRITE_PV
+} from "../../redux/actions";
 import { useDispatch } from "react-redux";
 import { DType } from "../../types/dtypes";
 import { SubscriptionType } from "../../connection/plugin";
@@ -26,17 +30,11 @@ export function useSubscription(
   // - returns a function that takes no arguments and returns nothing
   useEffect((): (() => void) => {
     pvsAndTypes.forEach(([pvName, type]): void => {
-      dispatch({
-        type: SUBSCRIBE,
-        payload: { componentId: componentId, pvName: pvName, type: type }
-      });
+      dispatch(subscribeAction({ componentId, pvName, type }));
     });
     return (): void => {
       pvNames.forEach((pvName): void => {
-        dispatch({
-          type: UNSUBSCRIBE,
-          payload: { componentId: componentId, pvName: pvName }
-        });
+        dispatch(unsubscribeAction({ componentId, pvName }));
       });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

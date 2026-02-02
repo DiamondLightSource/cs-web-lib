@@ -1,5 +1,11 @@
-import { VALUE_CHANGED, Action, VALUES_CHANGED } from "./actions";
-import { MiddlewareAPI, Dispatch } from "redux";
+import {
+  Action,
+  ValueChanged,
+  valueChangedAction,
+  VALUES_CHANGED
+} from "./actions";
+import { MiddlewareAPI, Middleware } from "@reduxjs/toolkit";
+import { CsState } from "./csState";
 
 export class UpdateThrottle {
   private queue: Action[];
@@ -29,16 +35,16 @@ export class UpdateThrottle {
 }
 
 export const throttleMiddleware =
-  (updater: UpdateThrottle) =>
+  (updater: UpdateThrottle): Middleware<unknown, CsState> =>
   (
-    store: MiddlewareAPI
+    store
     // next(action) returns the action, but in the case of a value being cached,
     // we don't call next(action) so return undefined.
   ) =>
-  (next: Dispatch<Action>) =>
-  (action: Action): Action | undefined => {
-    if (action.type === VALUE_CHANGED) {
-      updater.queueUpdate(action, store);
+  next =>
+  action => {
+    if (valueChangedAction.match(action)) {
+      updater.queueUpdate(action as ValueChanged, store);
     } else {
       return next(action);
     }

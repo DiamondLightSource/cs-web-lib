@@ -16,9 +16,9 @@ export type CsWebLibConfig = {
 
 // Store singleton
 let storeInstance: ReturnType<typeof configureStore> | null = null;
-let connectionInstance: ConnectionForwarder | null = null;
+let connectionInstance: Connection | null = null;
 
-const buildConnection = (config?: CsWebLibConfig) => {
+const buildConnection = (config?: CsWebLibConfig): Connection => {
   const PVWS_SOCKET =
     config?.PVWS_SOCKET ??
     process.env.VITE_PVWS_SOCKET ??
@@ -50,10 +50,6 @@ export const store = (config?: CsWebLibConfig) => {
     return storeInstance;
   }
 
-  if (!connectionInstance) {
-    connectionInstance = buildConnection(config);
-  }
-
   const THROTTLE_PERIOD: number = parseFloat(
     config?.THROTTLE_PERIOD ??
       process.env.VITE_THROTTLE_PERIOD ??
@@ -63,12 +59,13 @@ export const store = (config?: CsWebLibConfig) => {
 
   storeInstance = configureStore({
     reducer: csReducer,
-    middleware: (getDefaultMiddleware) => 
-      getDefaultMiddleware().concat(
-        connectionMiddleware(connectionInstance),
-        throttleMiddleware(new UpdateThrottle(THROTTLE_PERIOD))
-      ),
-    devTools: true, // This replaces the Redux DevTools Extension setup
+    middleware: getDefaultMiddleware =>
+      getDefaultMiddleware()
+        .concat(
+          connectionMiddleware(connectionInstance || buildConnection(config))
+        )
+        .concat(throttleMiddleware(new UpdateThrottle(THROTTLE_PERIOD))),
+    devTools: true
   });
 
   return storeInstance;
