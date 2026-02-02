@@ -2,7 +2,7 @@
   "name": "@diamondlightsource/cs-web-lib",
   "version": "0.10.0",
   "description": "Control system web library",
-  "main": "dist/cjs/index.js",
+  "main": "./dist/index.cjs",
   "scripts": {
     "rollup": "rollup -c",
     "test": "vitest",
@@ -86,11 +86,19 @@
     "react-redux": "^7.2.9",
     "react-router": "^7.13.0"
   },
-  "module": "dist/esm/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    }
+  },
   "files": [
     "dist"
   ],
-  "types": "dist/index.d.ts",
   "prettier": {
     "trailingComma": "none",
     "arrowParens": "avoid"

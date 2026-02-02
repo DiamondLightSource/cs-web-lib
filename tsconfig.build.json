@@ -4,9 +4,7 @@
     "noEmit": false,
     "outDir": "dist",
     "declarationDir": "dist",
-    "sourceMap": true,
-    "declaration": true,
-    "isolatedModules": true
+    "declaration": true
   },
   "exclude": ["**/*.test.ts", "**/*.test.tsx", "**/*.stories.tsx", "node_modules"]
 }
