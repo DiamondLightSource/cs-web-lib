@@ -20,7 +20,8 @@ import {
 
 import { TabBar } from "./tabs";
 import { AbsolutePosition, Color } from "../../../types";
-import { widgetDescriptionToComponent } from "../createComponent";
+import { errorWidget, widgetDescriptionToComponent } from "../createComponent";
+import log from "loglevel";
 
 export const TabContainerProps = {
   tabs: PropTypes.array.isRequired,
@@ -39,24 +40,34 @@ export const TabContainerComponent = (
 
   // Convert tabs into React components from widget descriptions
   const tabChildren = useMemo(() => {
-    return props.tabs.map(tab => {
-      return {
-        name: tab.name,
-        children: widgetDescriptionToComponent({
-          type: "display",
-          position: new AbsolutePosition(
-            "0px",
-            `${tabHeight}px`,
-            "100%",
-            `calc(100% - ${tabHeight}px)`
-          ),
-          backgroundColor:
-            props.backgroundColor ?? new Color("rgb(255,255,255"),
-          children: tab.children
-        })
-      };
+    return props.tabs.map((tab, idx) => {
+      try {
+        return {
+          name: tab.name,
+          children: widgetDescriptionToComponent({
+            type: "display",
+            position: new AbsolutePosition(
+              "0px",
+              `${tabHeight}px`,
+              "100%",
+              `calc(100% - ${tabHeight}px)`
+            ),
+            backgroundColor:
+              props.backgroundColor ?? new Color("rgb(255,255,255"),
+            children: tab.children
+          })
+        };
+      } catch (e) {
+        const message = `Error transforming children into components`;
+        log.warn(message);
+        log.warn(e);
+        return {
+          name: tab.name,
+          children: widgetDescriptionToComponent(errorWidget(message), idx)
+        };
+      }
     });
-  }, [props.tabs]);
+  }, [props.tabs, props.backgroundColor, tabHeight]);
 
   return (
     <div>
