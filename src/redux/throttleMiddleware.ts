@@ -5,7 +5,6 @@ import {
   VALUES_CHANGED
 } from "./actions";
 import { MiddlewareAPI, Middleware } from "@reduxjs/toolkit";
-import { CsState } from "./csState";
 
 export class UpdateThrottle {
   private queue: Action[];
@@ -35,7 +34,7 @@ export class UpdateThrottle {
 }
 
 export const throttleMiddleware =
-  (updater: UpdateThrottle): Middleware<unknown, CsState> =>
+  (updater: UpdateThrottle): Middleware =>
   (
     store
     // next(action) returns the action, but in the case of a value being cached,

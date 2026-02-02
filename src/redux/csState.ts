@@ -1,20 +1,10 @@
 import log from "loglevel";
-import {
-  VALUE_CHANGED,
-  VALUES_CHANGED,
-  DEVICE_QUERIED,
-  Action,
-  SUBSCRIBE,
-  WRITE_PV,
-  CONNECTION_CHANGED,
-  UNSUBSCRIBE,
-  ValueChanged,
-  FILE_CHANGED,
-  REFRESH_FILE
-} from "./actions";
+import { ValueChanged } from "./actions";
 import { MacroMap } from "../types/macros";
 import { DType, mergeDType } from "../types/dtypes";
 import { WidgetDescription } from "../ui/widgets/createComponent";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { SubscriptionType } from "../connection";
 
 const initialState: CsState = {
   valueCache: {},
@@ -76,120 +66,138 @@ function updateValueCache(
   action: ValueChanged
 ): void {
   const { pvName, value } = action.payload;
-  // New PvState object.
-  const newPvState = { ...newValueCache[pvName] };
-  // New DType object.
-  const newValue = mergeDType(newPvState.value, value);
-  newPvState.value = newValue;
-  newValueCache[pvName] = newPvState;
+  const mergedValue = mergeDType(newValueCache[pvName]?.value, value);
+  newValueCache[pvName] = { ...newValueCache[pvName], value: mergedValue };
 }
 
-export function csReducer(state = initialState, action: Action): CsState {
-  log.debug(action);
-  switch (action.type) {
-    case VALUE_CHANGED: {
+const csSlice = createSlice({
+  name: "cs",
+  initialState,
+  reducers: {
+    valueChanged(
+      state,
+      action: PayloadAction<{ pvName: string; value: DType }>
+    ) {
+      log.debug(action);
       const newValueCache: ValueCache = { ...state.valueCache };
-      updateValueCache(newValueCache, action);
-      return { ...state, valueCache: newValueCache };
-    }
-    case VALUES_CHANGED: {
+      updateValueCache(newValueCache, action as ValueChanged);
+    },
+
+    valuesChanged(state, action: PayloadAction<Array<ValueChanged>>) {
+      log.debug(action);
       const newValueCache: ValueCache = { ...state.valueCache };
-      for (const changedAction of action.payload) {
-        updateValueCache(newValueCache, changedAction);
+      for (const valueAction of action.payload) {
+        updateValueCache(newValueCache, valueAction as ValueChanged);
       }
-      return { ...state, valueCache: newValueCache };
-    }
-    case CONNECTION_CHANGED: {
-      const newValueCache: ValueCache = { ...state.valueCache };
+    },
+
+    connectionChanged(
+      state,
+      action: PayloadAction<{
+        pvName: string;
+        value: { isConnected: boolean; isReadonly: boolean };
+      }>
+    ) {
+      log.debug(action);
       const { pvName, value } = action.payload;
-      const pvState = newValueCache[pvName];
-      const newPvState = {
-        ...pvState,
+      const existing = state.valueCache[pvName] ?? {
+        connected: false,
+        readonly: false,
+        initializingPvName: pvName
+      };
+      state.valueCache[pvName] = {
+        ...existing,
         connected: value.isConnected,
         readonly: value.isReadonly
       };
-      newValueCache[action.payload.pvName] = newPvState;
-      return { ...state, valueCache: newValueCache };
-    }
-    case SUBSCRIBE: {
-      const { componentId, effectivePvName } = action.payload;
-      const newEffectivePvMap = { ...state.effectivePvNameMap };
-      const newSubscriptions = { ...state.subscriptions };
+    },
 
-      const existingList = state.subscriptions[effectivePvName] || [];
+    subscribe(
+      state,
+      action: PayloadAction<{
+        componentId: string;
+        pvName: string;
+        effectivePvName: string;
+        type: SubscriptionType;
+      }>
+    ) {
+      log.debug(action);
+      const { componentId, pvName, effectivePvName } = action.payload;
 
-      newSubscriptions[effectivePvName] = [...existingList, componentId];
-
-      if (action.payload.pvName !== action.payload.effectivePvName) {
-        newEffectivePvMap[action.payload.pvName] =
-          action.payload.effectivePvName;
+      const list = state.subscriptions[effectivePvName] ?? [];
+      if (!list.includes(componentId)) {
+        list.push(componentId);
+        state.subscriptions[effectivePvName] = list;
       }
-      return {
-        ...state,
-        subscriptions: newSubscriptions,
-        effectivePvNameMap: newEffectivePvMap
-      };
-    }
-    case UNSUBSCRIBE: {
-      const newEffectivePvMap = { ...state.effectivePvNameMap };
-      const { componentId, pvName } = action.payload;
-      const effectivePvName = state.effectivePvNameMap[pvName] || pvName;
 
-      if (
-        state.subscriptions[effectivePvName].length === 1 &&
-        state.subscriptions[effectivePvName][0] === componentId
-      ) {
-        // O(n)
-        Object.keys(newEffectivePvMap).forEach((key): void => {
-          if (newEffectivePvMap[key] === effectivePvName) {
-            delete newEffectivePvMap[key];
+      if (pvName !== effectivePvName) {
+        state.effectivePvNameMap[pvName] = effectivePvName;
+      }
+    },
+
+    unsubscribe(
+      state,
+      action: PayloadAction<{ componentId: string; pvName: string }>
+    ) {
+      log.debug(action);
+      const { componentId, pvName } = action.payload;
+      const effectivePvName = state.effectivePvNameMap[pvName] ?? pvName;
+
+      const current = state.subscriptions[effectivePvName] ?? [];
+      const next = current.filter(id => id !== componentId);
+      if (next.length === 0) {
+        delete state.subscriptions[effectivePvName];
+
+        Object.keys(state.effectivePvNameMap).forEach((key: string) => {
+          if (state.effectivePvNameMap[key] === effectivePvName) {
+            delete state.effectivePvNameMap[key];
           }
         });
+      } else {
+        state.subscriptions[effectivePvName] = next;
       }
+    },
 
-      const newSubscriptions = { ...state.subscriptions };
-      const newPvSubs = state.subscriptions[effectivePvName]?.filter(
-        (id): boolean => id !== componentId
-      );
-      newSubscriptions[effectivePvName] = newPvSubs ?? [];
+    writePv(_state, _action: PayloadAction<{ pvName: string; value: DType }>) {
+      // intentionally empty — handled by listener middleware
+    },
 
-      return {
-        ...state,
-        subscriptions: newSubscriptions,
-        effectivePvNameMap: newEffectivePvMap
-      };
-    }
-    case WRITE_PV: {
-      // Handled by middleware.
-      break;
-    }
-    case DEVICE_QUERIED: {
+    deviceQueried(
+      state,
+      action: PayloadAction<{ device: string; value: DType }>
+    ) {
+      log.debug(action);
       const { device, value } = action.payload;
-      const newDeviceState = { ...state.deviceCache };
-      newDeviceState[device] = value;
-      return {
-        ...state,
-        deviceCache: newDeviceState
-      };
-    }
-    case FILE_CHANGED: {
+      state.deviceCache[device] = value;
+    },
+
+    fileChanged(
+      state,
+      action: PayloadAction<{ file: string; contents: WidgetDescription }>
+    ) {
+      log.debug(action);
       const { file, contents } = action.payload;
-      const newFileState = { ...state.fileCache };
-      newFileState[file] = contents;
-      return {
-        ...state,
-        fileCache: newFileState
-      };
-    }
-    case REFRESH_FILE: {
+      state.fileCache[file] = contents;
+    },
+
+    refreshFile(state, action: PayloadAction<{ file: string }>) {
+      log.debug(action);
       const { file } = action.payload;
-      const newFileState = { ...state.fileCache };
-      delete newFileState[file];
-      return {
-        ...state,
-        fileCache: newFileState
-      };
+      delete state.fileCache[file];
     }
   }
-  return state;
-}
+});
+
+export const {
+  valueChanged,
+  valuesChanged,
+  connectionChanged,
+  subscribe,
+  unsubscribe,
+  writePv,
+  deviceQueried,
+  fileChanged,
+  refreshFile
+} = csSlice.actions;
+
+export default csSlice.reducer;

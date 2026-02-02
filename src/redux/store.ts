@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 
-import { csReducer } from "./csState";
+import csReducer from "./csState";
 import { connectionMiddleware } from "./connectionMiddleware";
 import { throttleMiddleware, UpdateThrottle } from "./throttleMiddleware";
 import { Connection } from "../connection/plugin";
@@ -45,32 +45,31 @@ const buildConnection = (config?: CsWebLibConfig): Connection => {
   return new ConnectionForwarder(plugins);
 };
 
-export const store = (config?: CsWebLibConfig) => {
-  if (storeInstance) {
-    return storeInstance;
-  }
-
-  const THROTTLE_PERIOD: number = parseFloat(
-    config?.THROTTLE_PERIOD ??
-      process.env.VITE_THROTTLE_PERIOD ??
-      import.meta.env.VITE_THROTTLE_PERIOD ??
-      "100"
-  );
-
-  const isDevMode = config?.storeMode === "DEV";
-
-  storeInstance = configureStore({
+const createStoreInstance = (config?: CsWebLibConfig) =>
+  configureStore({
     reducer: csReducer,
     middleware: getDefaultMiddleware =>
-      getDefaultMiddleware({
-        immutableCheck: isDevMode,
-        serializableCheck: isDevMode
-      })
-        .concat(throttleMiddleware(new UpdateThrottle(THROTTLE_PERIOD)))
-        .concat(connectionMiddleware(buildConnection(config))),
-    devTools: isDevMode
+      getDefaultMiddleware()
+        .concat(connectionMiddleware(buildConnection(config)))
+        .concat(
+          throttleMiddleware(
+            new UpdateThrottle(
+              parseFloat(
+                config?.THROTTLE_PERIOD ??
+                  process.env.VITE_THROTTLE_PERIOD ??
+                  import.meta.env.VITE_THROTTLE_PERIOD ??
+                  "100"
+              )
+            )
+          )
+        ),
+    devTools: true
   });
 
+export const store = (config?: CsWebLibConfig) => {
+  if (!storeInstance) {
+    storeInstance = createStoreInstance(config);
+  }
   return storeInstance;
 };
 
