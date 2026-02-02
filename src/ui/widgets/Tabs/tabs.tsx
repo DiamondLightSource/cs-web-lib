@@ -1,6 +1,14 @@
 import React, { useState } from "react";
-import { Box, Tab as MuiTab, styled, Tabs, useTheme } from "@mui/material";
-import { Color, Font, RelativePosition } from "../../../types";
+import {
+  Box,
+  IconButton,
+  Tab as MuiTab,
+  styled,
+  Tabs,
+  useTheme
+} from "@mui/material";
+import { Color, Font } from "../../../types";
+import { Close } from "@mui/icons-material";
 import PropTypes from "prop-types";
 import {
   ColorPropOpt,
@@ -19,6 +27,11 @@ const Tab = styled(MuiTab)({
   },
   "&:hover": {
     opacity: 0.5
+  },
+  "&.Mui-selected": {
+    "&:hover": {
+      opacity: 1
+    }
   }
 });
 
@@ -52,18 +65,20 @@ export const TabBar = (
     visible = true
   } = props;
   const [value, setValue] = useState(activeTab);
-  console.log(props.tabs);
+  // TO DO - sort out indicators
 
   const font =
     props.font ??
     new Font(theme.typography.fontSize, undefined, theme.typography.fontFamily);
+
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     const element = event.target as HTMLElement;
     if (element.tagName === "path") {
       event.preventDefault();
       return;
     }
-    setValue(newValue);
+    // If a handler function is passed in, do that instead
+    props.onTabSelected ? props.onTabSelected(newValue) : setValue(newValue);
   };
 
   return (
@@ -84,7 +99,7 @@ export const TabBar = (
           display: "flex",
           font: font.css(),
           "& .MuiTabs-indicator": {
-            backgroundColor: "transparent"
+            backgroundColor: "black"
           }
         }}
         value={value}
@@ -95,12 +110,36 @@ export const TabBar = (
           (tab, index): JSX.Element => (
             <Tab
               key={index}
-              label={tab.name}
+              // Close tab on middle click if on provided in props
+              onMouseDown={(e: React.MouseEvent): void => {
+                if (e.button === 1 && props.onTabClosed) {
+                  props.onTabClosed(index);
+                }
+              }}
+              label={
+                <span>
+                  {tab.name}
+                  {props.onTabClosed ? (
+                    <IconButton
+                      size="small"
+                      component="span"
+                      onClick={props.onTabClosed(index)}
+                    >
+                      <Close />
+                    </IconButton>
+                  ) : (
+                    <></>
+                  )}
+                </span>
+              }
               sx={{
                 color: "black",
                 "&.Mui-selected": {
                   backgroundColor: selectedColor.toString(),
-                  color: "black"
+                  color: "black",
+                  "& .MuiTabs-indicator": {
+                    color: "black"
+                  }
                 },
                 backgroundColor: deselectedColor.toString(),
                 marginRight: direction ? "0px" : `${tabSpacing}px`,
