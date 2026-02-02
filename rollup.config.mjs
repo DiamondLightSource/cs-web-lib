@@ -12,14 +12,11 @@ const config = [
     input: "src/index.ts",
     output: [
       {
-        file: "dist/cjs/index.js",
-        format: "cjs",
-        sourcemap: true
-      },
-      {
-        file: "dist/esm/index.js",
+        dir: "dist",
         format: "esm",
-        sourcemap: true
+        sourcemap: true,
+        entryFileNames: "[name].js",
+        preserveModules: true
       }
     ],
     plugins: [
@@ -27,7 +24,9 @@ const config = [
       resolve({ preferBuiltins: true }),
       commonjs(),
       typescript({
-        tsconfig: "./tsconfig.json",
+        tsconfig: "./tsconfig.build.json",
+        outDir: "dist",
+        declarationDir: "dist",        
         compilerOptions: { outDir: "dist" }
       }),
       postcss(),
@@ -35,11 +34,11 @@ const config = [
     ]
   },
   {
-    input: "dist/esm/index.d.ts",
+    input: "dist/esm/types/index.d.ts",
     output: [{ file: "dist/index.d.ts", format: "esm" }],
     plugins: [dts()],
 
-    external: [/\.css$/]
+    external: [/\.css$/, '@reduxjs/toolkit']
   }
 ];
 
