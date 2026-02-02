@@ -3,6 +3,7 @@ import {
   Box,
   IconButton,
   Tab as MuiTab,
+  Paper,
   styled,
   Tabs,
   useTheme
@@ -65,7 +66,6 @@ export const TabBar = (
     visible = true
   } = props;
   const [value, setValue] = useState(activeTab);
-  // TO DO - sort out indicators
 
   const font =
     props.font ??
@@ -96,10 +96,12 @@ export const TabBar = (
         sx={{
           width: direction ? tabWidth : "100%",
           height: direction ? "100%" : tabHeight,
+          minHeight: direction ? "100%" : tabHeight,
+          minWidth: direction ? tabWidth : "100%",
           display: "flex",
           font: font.css(),
           "& .MuiTabs-indicator": {
-            backgroundColor: "black"
+            backgroundColor: "transparent"
           }
         }}
         value={value}
@@ -133,20 +135,15 @@ export const TabBar = (
                 </span>
               }
               sx={{
-                color: "black",
                 "&.Mui-selected": {
                   backgroundColor: selectedColor.toString(),
-                  color: "black",
-                  "& .MuiTabs-indicator": {
-                    color: "black"
-                  }
+                  color: "black"
                 },
+                boxShadow: 3,
                 backgroundColor: deselectedColor.toString(),
                 marginRight: direction ? "0px" : `${tabSpacing}px`,
                 marginBottom: direction ? `${tabSpacing}px` : "0px",
                 "&.MuiTab-root": {
-                  width: tabWidth,
-                  height: tabHeight,
                   minWidth: tabWidth,
                   minHeight: tabHeight
                 }
@@ -157,20 +154,20 @@ export const TabBar = (
       </Tabs>
       {props.tabs.map(
         (tab, index): JSX.Element => (
-          <div
+          <Paper
+            elevation={3}
             role="tabpanel"
             hidden={value !== index}
             id={`simple-tabpanel-${index}`}
             key={`${tab.name}${index}`}
             aria-labelledby={`simple-tab-${index}`}
-            style={{
-              height: direction ? "100%" : `calc(100% - ${tabHeight}px)`,
-              overflowY: "scroll",
-              width: direction ? `calc(100% - ${tabWidth}px)` : "100%"
+            sx={{
+              display: "flex",
+              overflowY: "scroll"
             }}
           >
             {value === index && <>{tab.children}</>}
-          </div>
+          </Paper>
         )
       )}
     </Box>
