@@ -162,8 +162,8 @@ export const TabBar = (
             key={`${tab.name}${index}`}
             aria-labelledby={`simple-tab-${index}`}
             sx={{
-              display: "flex",
-              overflowY: "scroll"
+              overflow: "scroll",
+              backgroundColor: "transparent"
             }}
           >
             {value === index && <>{tab.children}</>}

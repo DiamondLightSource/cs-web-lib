@@ -19,9 +19,13 @@ import {
 } from "../propTypes";
 
 import { TabBar } from "./tabs";
-import { AbsolutePosition, Color } from "../../../types";
+import {
+  Color,
+  RelativePosition
+} from "../../../types";
 import { errorWidget, widgetDescriptionToComponent } from "../createComponent";
 import log from "loglevel";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 export const TabContainerProps = {
   tabs: PropTypes.array.isRequired,
@@ -30,13 +34,19 @@ export const TabContainerProps = {
   direction: IntPropOpt,
   tabHeight: IntPropOpt,
   font: FontPropOpt,
-  children: ChildrenPropOpt
+  children: ChildrenPropOpt,
+  width: IntPropOpt,
+  height: IntPropOpt
 };
 
 export const TabContainerComponent = (
   props: InferWidgetProps<typeof TabContainerProps>
 ): JSX.Element => {
-  const { tabHeight = 30 } = props;
+  const {
+    tabHeight = 30,
+    width = WIDGET_DEFAULT_SIZES["tabs"][0],
+    height = WIDGET_DEFAULT_SIZES["tabs"][1]
+  } = props;
 
   // Convert tabs into React components from widget descriptions
   const tabChildren = useMemo(() => {
@@ -46,11 +56,11 @@ export const TabContainerComponent = (
           name: tab.name,
           children: widgetDescriptionToComponent({
             type: "display",
-            position: new AbsolutePosition(
+            position: new RelativePosition(
               "0px",
               `${tabHeight}px`,
-              "100%",
-              `calc(100% - ${tabHeight}px)`
+              `${width}px`,
+              `${height - tabHeight}px`
             ),
             backgroundColor:
               props.backgroundColor ?? new Color("rgb(255,255,255"),
@@ -70,15 +80,13 @@ export const TabContainerComponent = (
   }, [props.tabs, props.backgroundColor, tabHeight]);
 
   return (
-    <div>
-      <TabBar
-        direction={0}
-        selectedColor={props.backgroundColor || Color.fromRgba(255, 255, 255)}
-        deselectedColor={props.backgroundColor || Color.fromRgba(255, 255, 255)}
-        {...props}
-        tabs={tabChildren}
-      ></TabBar>
-    </div>
+    <TabBar
+      direction={0}
+      selectedColor={props.backgroundColor || Color.fromRgba(255, 255, 255)}
+      deselectedColor={props.backgroundColor || Color.fromRgba(255, 255, 255)}
+      {...props}
+      tabs={tabChildren}
+    ></TabBar>
   );
 };
 
