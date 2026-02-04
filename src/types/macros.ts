@@ -74,12 +74,15 @@ function interpolate(
   );
 
   /* Allow missing macros to go unresolved. */
+  const missingSubstitutions: { [key: string]: string } = {};
   for (const missing of missingMappings) {
-    substitutions[missing] = "${" + missing + "}";
+    missingSubstitutions[missing] = "${" + missing + "}";
   }
 
+  const allSubs = { ...substitutions, ...missingSubstitutions };
+
   // apply substitutions to str
-  return str.replace(regexp, (x, g): string => substitutions[g].toString());
+  return str.replace(regexp, (x, g): string => allSubs[g].toString());
 }
 
 /**

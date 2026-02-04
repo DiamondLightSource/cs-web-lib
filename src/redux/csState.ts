@@ -120,12 +120,6 @@ export function csReducer(state = initialState, action: Action): CsState {
 
       newSubscriptions[effectivePvName] = [...existingList, componentId];
 
-      if (newSubscriptions.hasOwnProperty(effectivePvName)) {
-        newSubscriptions[effectivePvName].push(componentId);
-      } else {
-        newSubscriptions[effectivePvName] = [componentId];
-      }
-
       if (action.payload.pvName !== action.payload.effectivePvName) {
         newEffectivePvMap[action.payload.pvName] =
           action.payload.effectivePvName;
