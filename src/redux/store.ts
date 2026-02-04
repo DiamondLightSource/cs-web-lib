@@ -9,6 +9,7 @@ import { PvwsPlugin } from "../connection/pvws";
 import { ConnectionForwarder } from "../connection/forwarder";
 
 export type CsWebLibConfig = {
+  storeMode: "DEV" | "PRDO" | undefined;
   PVWS_SOCKET: string | undefined;
   PVWS_SSL: boolean | undefined;
   THROTTLE_PERIOD: number | undefined;
@@ -16,7 +17,6 @@ export type CsWebLibConfig = {
 
 // Store singleton
 let storeInstance: ReturnType<typeof configureStore> | null = null;
-let connectionInstance: Connection | null = null;
 
 const buildConnection = (config?: CsWebLibConfig): Connection => {
   const PVWS_SOCKET =
@@ -57,15 +57,20 @@ export const store = (config?: CsWebLibConfig) => {
       "100"
   );
 
+  const isDevMode = config?.storeMode === "DEV"; 
+
   storeInstance = configureStore({
     reducer: csReducer,
     middleware: getDefaultMiddleware =>
-      getDefaultMiddleware()
+      getDefaultMiddleware({
+         immutableCheck: isDevMode,
+         serializableCheck: isDevMode,
+      })
+        .concat(throttleMiddleware(new UpdateThrottle(THROTTLE_PERIOD)))
         .concat(
-          connectionMiddleware(connectionInstance || buildConnection(config))
-        )
-        .concat(throttleMiddleware(new UpdateThrottle(THROTTLE_PERIOD))),
-    devTools: true
+          connectionMiddleware(buildConnection(config))
+        ),
+    devTools: isDevMode
   });
 
   return storeInstance;
@@ -74,5 +79,4 @@ export const store = (config?: CsWebLibConfig) => {
 // Reset store (for testing)
 export const resetStore = () => {
   storeInstance = null;
-  connectionInstance = null;
 };
