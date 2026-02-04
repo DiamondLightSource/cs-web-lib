@@ -57,19 +57,17 @@ export const store = (config?: CsWebLibConfig) => {
       "100"
   );
 
-  const isDevMode = config?.storeMode === "DEV"; 
+  const isDevMode = config?.storeMode === "DEV";
 
   storeInstance = configureStore({
     reducer: csReducer,
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware({
-         immutableCheck: isDevMode,
-         serializableCheck: isDevMode,
+        immutableCheck: isDevMode,
+        serializableCheck: isDevMode
       })
         .concat(throttleMiddleware(new UpdateThrottle(THROTTLE_PERIOD)))
-        .concat(
-          connectionMiddleware(buildConnection(config))
-        ),
+        .concat(connectionMiddleware(buildConnection(config))),
     devTools: isDevMode
   });
 
