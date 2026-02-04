@@ -1,13 +1,13 @@
 import { useEffect } from "react";
-import {
-  subscribeAction,
-  unsubscribeAction,
-  WRITE_PV
-} from "../../redux/actions";
 import { useDispatch } from "react-redux";
 import { DType } from "../../types/dtypes";
 import { SubscriptionType } from "../../connection/plugin";
 import { store } from "../../redux/store";
+import {
+  subscribe,
+  unsubscribe,
+  writePv as writePvAction
+} from "../../redux/csState";
 
 export function useSubscription(
   componentId: string,
@@ -30,11 +30,11 @@ export function useSubscription(
   // - returns a function that takes no arguments and returns nothing
   useEffect((): (() => void) => {
     pvsAndTypes.forEach(([pvName, type]): void => {
-      dispatch(subscribeAction({ componentId, pvName, type }));
+      dispatch(subscribe({ componentId, pvName, type }));
     });
     return (): void => {
       pvNames.forEach((pvName): void => {
-        dispatch(unsubscribeAction({ componentId, pvName }));
+        dispatch(unsubscribe({ componentId, pvName }));
       });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -42,8 +42,5 @@ export function useSubscription(
 }
 
 export function writePv(pvName: string, value: DType): void {
-  store().dispatch({
-    type: WRITE_PV,
-    payload: { pvName: pvName, value: value }
-  });
+  store().dispatch(writePvAction({ pvName: pvName, value: value }));
 }

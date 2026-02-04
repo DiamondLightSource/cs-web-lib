@@ -4,7 +4,7 @@ import { FileProvider, PageState, TabState } from "./misc/fileContext";
 import { render, RenderResult } from "@testing-library/react";
 import { Provider } from "react-redux";
 import { MacroContext } from "./types/macros";
-import { csReducer, CsState } from "./redux/csState";
+import csReducer, { CsState } from "./redux/csState";
 import { configureStore } from "@reduxjs/toolkit";
 
 import { BrowserRouter as Router } from "react-router";

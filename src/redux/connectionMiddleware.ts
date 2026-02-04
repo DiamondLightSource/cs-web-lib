@@ -1,11 +1,11 @@
 import log from "loglevel";
 import { Connection, ConnectionState } from "../connection/plugin";
-import { queryDeviceAction } from "./actions";
 import { DType } from "../types/dtypes";
 import { Middleware, MiddlewareAPI } from "@reduxjs/toolkit";
 import {
   connectionChanged,
   deviceQueried,
+  queryDevice,
   subscribe,
   unsubscribe,
   valueChanged,
@@ -93,6 +93,7 @@ export const connectionMiddleware =
         store.getState().effectivePvNameMap[pvName] || pvName;
 
       if (
+        subs[effectivePvName] &&
         subs[effectivePvName].length === 1 &&
         subs[effectivePvName][0] === componentId
       ) {
@@ -103,7 +104,7 @@ export const connectionMiddleware =
           log.error(error);
         }
       }
-    } else if (queryDeviceAction.match(action)) {
+    } else if (queryDevice.match(action)) {
       const { device } = action.payload;
       try {
         // Devices should be queried once and then stored

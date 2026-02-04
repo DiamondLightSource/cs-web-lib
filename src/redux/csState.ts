@@ -1,5 +1,4 @@
 import log from "loglevel";
-import { ValueChanged } from "./actions";
 import { MacroMap } from "../types/macros";
 import { DType, mergeDType } from "../types/dtypes";
 import { WidgetDescription } from "../ui/widgets/createComponent";
@@ -59,35 +58,33 @@ export interface CsState {
   fileCache: FileCache;
 }
 
+type ValueChangedActionType = PayloadAction<{ pvName: string; value: DType }>;
+
 /* Given a new object that is a shallow copy of the original
    valueCache, update with contents of a ValueChanged action. */
 function updateValueCache(
-  newValueCache: ValueCache,
-  action: ValueChanged
+  valueCache: ValueCache,
+  action: ValueChangedActionType
 ): void {
   const { pvName, value } = action.payload;
-  const mergedValue = mergeDType(newValueCache[pvName]?.value, value);
-  newValueCache[pvName] = { ...newValueCache[pvName], value: mergedValue };
+  const mergedValue = mergeDType(valueCache[pvName]?.value, value);
+  console.log(mergedValue);
+  valueCache[pvName] = { ...valueCache[pvName], value: mergedValue };
 }
 
 const csSlice = createSlice({
   name: "cs",
   initialState,
   reducers: {
-    valueChanged(
-      state,
-      action: PayloadAction<{ pvName: string; value: DType }>
-    ) {
+    valueChanged(state, action: ValueChangedActionType) {
       log.debug(action);
-      const newValueCache: ValueCache = { ...state.valueCache };
-      updateValueCache(newValueCache, action as ValueChanged);
+      updateValueCache(state.valueCache, action);
     },
 
-    valuesChanged(state, action: PayloadAction<Array<ValueChanged>>) {
+    valuesChanged(state, action: PayloadAction<Array<ValueChangedActionType>>) {
       log.debug(action);
-      const newValueCache: ValueCache = { ...state.valueCache };
       for (const valueAction of action.payload) {
-        updateValueCache(newValueCache, valueAction as ValueChanged);
+        updateValueCache(state.valueCache, valueAction);
       }
     },
 
@@ -117,12 +114,14 @@ const csSlice = createSlice({
       action: PayloadAction<{
         componentId: string;
         pvName: string;
-        effectivePvName: string;
+        effectivePvName?: string;
         type: SubscriptionType;
       }>
     ) {
+      // the connection middleware intercepts this action and injects the effectivePvName before forwarding it
       log.debug(action);
-      const { componentId, pvName, effectivePvName } = action.payload;
+      const { componentId, pvName } = action.payload;
+      const effectivePvName = action.payload?.effectivePvName || pvName;
 
       const list = state.subscriptions[effectivePvName] ?? [];
       if (!list.includes(componentId)) {
@@ -171,6 +170,10 @@ const csSlice = createSlice({
       state.deviceCache[device] = value;
     },
 
+    queryDevice(_state, _action: PayloadAction<{ device: string }>) {
+      // intentionally empty — handled by listener middleware
+    },
+
     fileChanged(
       state,
       action: PayloadAction<{ file: string; contents: WidgetDescription }>
@@ -196,6 +199,7 @@ export const {
   unsubscribe,
   writePv,
   deviceQueried,
+  queryDevice,
   fileChanged,
   refreshFile
 } = csSlice.actions;
