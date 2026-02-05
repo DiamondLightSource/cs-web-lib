@@ -19,10 +19,7 @@ import {
 } from "../propTypes";
 
 import { TabBar } from "./tabs";
-import {
-  Color,
-  RelativePosition
-} from "../../../types";
+import { Color, RelativePosition } from "../../../types";
 import { errorWidget, widgetDescriptionToComponent } from "../createComponent";
 import log from "loglevel";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
@@ -77,7 +74,7 @@ export const TabContainerComponent = (
         };
       }
     });
-  }, [props.tabs, props.backgroundColor, tabHeight]);
+  }, [props.tabs, props.backgroundColor, tabHeight, width, height]);
 
   return (
     <TabBar
