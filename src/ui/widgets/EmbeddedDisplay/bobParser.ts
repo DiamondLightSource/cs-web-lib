@@ -343,8 +343,13 @@ async function bobParseTabs(
   macros?: MacroMap
 ): Promise<any> {
   const tabs: any[] = [];
-  props.tab.forEach(async (tab: any, idx: number) => {
-    tabs.push(parseChildProps(tab, BOB_SIMPLE_PARSERS));
+  await props.tab.forEach(async (tab: any, idx: number) => {
+    // We have to parse file separately because it already exists as a complex parser
+    const tabProps = parseChildProps(tab, {
+      file: ["file", opiParseString],
+      ...BOB_SIMPLE_PARSERS
+    });
+    tabs.push(tabProps);
     if (tab.children) {
       const childWidgets = toArray(tab.children["widget"]);
       tabs[idx].children = await Promise.all(
@@ -531,7 +536,6 @@ export const BOB_SIMPLE_PARSERS: ParserDict = {
   start: ["start", opiParseString],
   end: ["end", opiParseString],
   arrayIndex: ["array_index", bobParseNumber],
-  file: ["file", opiParseString],
   direction: ["direction", bobParseNumber],
   tabWidth: ["tab_width", bobParseNumber],
   tabHeight: ["tab_height", bobParseNumber],
