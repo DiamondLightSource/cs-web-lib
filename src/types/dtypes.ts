@@ -14,16 +14,6 @@ export enum DisplayForm {
   ENGINEERING
 }
 
-export class DRange {
-  public min: number;
-  public max: number;
-  public constructor(min: number, max: number) {
-    this.min = min;
-    this.max = max;
-  }
-  public static NONE = new DRange(0, 0);
-}
-
 export type NumberArray =
   | Int8Array
   | Uint8Array

@@ -1,4 +1,5 @@
-import { ChannelRole, DRange, DisplayForm } from "../dtypes";
+import { ChannelRole, DisplayForm } from "../dtypes";
+import { DRange } from "./dRange";
 
 export interface DDisplay {
   description?: string;

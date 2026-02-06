@@ -11,7 +11,7 @@ import {
   SubscriptionType
 } from "./plugin";
 
-import { DRange } from "../types/dtypes";
+import { newDRange } from "../types/dtypes/dRange";
 import { newDDisplay } from "../types/dtypes/dDisplay";
 import { newDTime } from "../types/dtypes/dTime";
 import { DType, newDType } from "../types/dtypes/dType";
@@ -74,10 +74,10 @@ function pvwsToDType(data: any): DType {
     role: undefined,
     controlRange: undefined,
     alarmRange: data.alarm_low
-      ? new DRange(data.alarm_low, data.alarm_high)
+      ? newDRange(data.alarm_low, data.alarm_high)
       : undefined,
     warningRange: data.warn_low
-      ? new DRange(data.warn_low, data.warn_high)
+      ? newDRange(data.warn_low, data.warn_high)
       : undefined,
     units: data.units,
     precision: data.precision,
