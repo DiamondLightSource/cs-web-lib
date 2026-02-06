@@ -1,4 +1,5 @@
-import { DTypeValue, DDisplay, NumberArray, mergeDDisplay } from "../dtypes";
+import { DTypeValue, NumberArray } from "../dtypes";
+import { mergeDDisplay, DDisplay, dDisplayNONE } from "./dDisplay";
 import { DTime } from "./dTime";
 import { DAlarm, DAlarmNONE } from "./dAlarm";
 
@@ -20,7 +21,7 @@ export const newDType = (
   value,
   alarm,
   time,
-  display: display ?? DDisplay.NONE,
+  display: display ?? dDisplayNONE,
   partial: partial ?? false
 });
 

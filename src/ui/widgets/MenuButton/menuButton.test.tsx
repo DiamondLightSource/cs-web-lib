@@ -1,6 +1,6 @@
 import React from "react";
 import { MenuButtonComponent } from "./menuButton";
-import { DDisplay } from "../../../types/dtypes";
+import { newDDisplay } from "../../../types/dtypes/dDisplay";
 import { newDTime } from "../../../types/dtypes/dTime";
 import { DType, newDType } from "../../../types/dtypes/dType";
 import { ACTIONS_EX_FIRST } from "../../../testResources";
@@ -31,7 +31,7 @@ const BASE_PROPS = {
         { doubleValue: 10, stringValue: "zero" },
         DAlarmNONE(),
         newDTime(new Date(Date.now())),
-        new DDisplay({
+        newDDisplay({
           choices: ["zero", "one", "two", "three", "four", "five"]
         })
       )
@@ -125,7 +125,7 @@ describe("<MenuButton />", (): void => {
             { doubleValue: 10, stringValue: "five" },
             DAlarmNONE(),
             newDTime(new Date(Date.now())),
-            new DDisplay({
+            newDDisplay({
               choices: ["zero", "one", "two", "three", "four", "five"]
             })
           )
@@ -154,7 +154,7 @@ describe("<MenuButton />", (): void => {
             { doubleValue: 10, stringValue: "one" },
             DAlarmNONE(),
             newDTime(new Date(Date.now())),
-            new DDisplay({
+            newDDisplay({
               choices: ["one", "two"]
             })
           )
@@ -227,7 +227,7 @@ describe("<MenuButton />", (): void => {
               new Date(Date.now());
             },
             alarm: DAlarmNONE(),
-            display: new DDisplay({
+            display: newDDisplay({
               choices: ["one", "two"]
             })
           } as Partial<DType> as DType

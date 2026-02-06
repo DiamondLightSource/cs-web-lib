@@ -1,7 +1,7 @@
 import React from "react";
 import { ChoiceButtonComponent } from "./choiceButton";
 import { fireEvent, render } from "@testing-library/react";
-import { DDisplay } from "../../../types/dtypes";
+import { newDDisplay } from "../../../types/dtypes/dDisplay";
 import { newDType } from "../../../types/dtypes/dType";
 import { Color, Font } from "../../../types";
 import { ThemeProvider } from "@mui/material";
@@ -93,7 +93,7 @@ describe("<ChoiceButton />", (): void => {
             { doubleValue: 0 },
             undefined,
             undefined,
-            new DDisplay({ choices: ["hi", "Hello"] })
+            newDDisplay({ choices: ["hi", "Hello"] })
           )
         } as Partial<PvDatum> as PvDatum
       ],

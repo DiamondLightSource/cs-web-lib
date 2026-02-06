@@ -7,7 +7,7 @@ import {
   nullConnCallback,
   nullValueCallback
 } from "./plugin";
-import { DDisplay } from "../types/dtypes";
+import { newDDisplay } from "../types/dtypes/dDisplay";
 import { dtimeNow } from "../types/dtypes/dTime";
 import {
   DType,
@@ -104,7 +104,7 @@ class SinePv extends SimPv {
       { doubleValue: val },
       undefined,
       undefined,
-      new DDisplay({
+      newDDisplay({
         units: "yoonits!"
       })
     );
@@ -181,7 +181,7 @@ class SimEnumPv extends SimPv {
     { doubleValue: 0, stringValue: "one" },
     DAlarmNONE(),
     dtimeNow(),
-    new DDisplay({ choices: ["one", "two", "three", "four"] })
+    newDDisplay({ choices: ["one", "two", "three", "four"] })
   );
   public constructor(...args: SimArgs) {
     super(...args);
@@ -200,7 +200,7 @@ class SimEnumPv extends SimPv {
       },
       DAlarmNONE(),
       dtimeNow(),
-      new DDisplay({
+      newDDisplay({
         choices: this.value.display?.choices
       })
     );
@@ -214,7 +214,7 @@ class EnumPv extends SimPv {
     { doubleValue: 0 },
     DAlarmNONE(),
     dtimeNow(),
-    new DDisplay({ choices: ["one", "two", "three", "four"] })
+    newDDisplay({ choices: ["one", "two", "three", "four"] })
   );
 
   public constructor(...args: SimArgs) {
@@ -435,7 +435,7 @@ export class SimulatorPlugin implements Connection {
             },
             DAlarmNONE(),
             dtimeNow(),
-            new DDisplay({ choices: initial.slice(1) })
+            newDDisplay({ choices: initial.slice(1) })
           );
         } else if (initial.length === 1) {
           initial = newDType({ doubleValue: initial[0] });

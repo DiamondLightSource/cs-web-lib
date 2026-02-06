@@ -1,5 +1,6 @@
 import { dstring, ddoubleArray, ddouble } from "../testResources";
-import { DDisplay, DRange, mergeDDisplay } from "./dtypes";
+import { DRange } from "./dtypes";
+import { mergeDDisplay, newDDisplay } from "./dtypes/dDisplay";
 import {
   dTypeCoerceArray,
   dTypeCoerceDouble,
@@ -91,9 +92,9 @@ describe("mergeDType", (): void => {
   });
 
   test("mergeDDisplay merges values", (): void => {
-    const orig = new DDisplay({ units: "A" });
-    const update = new DDisplay({ warningRange: new DRange(1, 2) });
-    const expected = new DDisplay({
+    const orig = newDDisplay({ units: "A" });
+    const update = newDDisplay({ warningRange: new DRange(1, 2) });
+    const expected = newDDisplay({
       units: "A",
       warningRange: new DRange(1, 2)
     });

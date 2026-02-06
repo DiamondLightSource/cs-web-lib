@@ -11,7 +11,8 @@ import {
   SubscriptionType
 } from "./plugin";
 
-import { DDisplay, DRange } from "../types/dtypes";
+import { DRange } from "../types/dtypes";
+import { newDDisplay } from "../types/dtypes/dDisplay";
 import { newDTime } from "../types/dtypes/dTime";
 import { DType, newDType } from "../types/dtypes/dType";
 import { AlarmQuality, newDAlarm } from "../types/dtypes/dAlarm";
@@ -68,7 +69,7 @@ function pvwsToDType(data: any): DType {
       alarm = newDAlarm(AlarmQuality.VALID, "");
     }
   }
-  ddisplay = new DDisplay({
+  ddisplay = newDDisplay({
     description: undefined,
     role: undefined,
     controlRange: undefined,

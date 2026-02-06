@@ -1,6 +1,6 @@
 import React from "react";
 import { ReadbackComponent } from "./readback";
-import { DDisplay } from "../../../types/dtypes";
+import { newDDisplay } from "../../../types/dtypes/dDisplay";
 import { DType, newDType } from "../../../types/dtypes/dType";
 import { render } from "@testing-library/react";
 import { ThemeProvider } from "@mui/material";
@@ -66,7 +66,7 @@ describe("<Readback />", (): void => {
             { stringValue: "hello" },
             undefined,
             undefined,
-            new DDisplay({ units: "xyz" })
+            newDDisplay({ units: "xyz" })
           )
         } as Partial<PvDatum> as PvDatum
       ],
