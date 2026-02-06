@@ -1,6 +1,7 @@
 import React from "react";
 import { MenuButtonComponent } from "./menuButton";
-import { DDisplay, DTime } from "../../../types/dtypes";
+import { DDisplay } from "../../../types/dtypes";
+import { newDTime } from "../../../types/dtypes/dTime";
 import { DType, newDType } from "../../../types/dtypes/dType";
 import { ACTIONS_EX_FIRST } from "../../../testResources";
 import { act, fireEvent, render } from "@testing-library/react";
@@ -29,7 +30,7 @@ const BASE_PROPS = {
       value: newDType(
         { doubleValue: 10, stringValue: "zero" },
         DAlarmNONE(),
-        new DTime(new Date(Date.now())),
+        newDTime(new Date(Date.now())),
         new DDisplay({
           choices: ["zero", "one", "two", "three", "four", "five"]
         })
@@ -123,7 +124,7 @@ describe("<MenuButton />", (): void => {
           value: newDType(
             { doubleValue: 10, stringValue: "five" },
             DAlarmNONE(),
-            new DTime(new Date(Date.now())),
+            newDTime(new Date(Date.now())),
             new DDisplay({
               choices: ["zero", "one", "two", "three", "four", "five"]
             })
@@ -152,7 +153,7 @@ describe("<MenuButton />", (): void => {
           value: newDType(
             { doubleValue: 10, stringValue: "one" },
             DAlarmNONE(),
-            new DTime(new Date(Date.now())),
+            newDTime(new Date(Date.now())),
             new DDisplay({
               choices: ["one", "two"]
             })

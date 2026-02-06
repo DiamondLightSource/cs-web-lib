@@ -1,15 +1,3 @@
-export class DTime {
-  public datetime: Date;
-
-  public constructor(datetime: Date) {
-    this.datetime = datetime;
-  }
-}
-
-export function dtimeNow(): DTime {
-  return new DTime(new Date());
-}
-
 export enum ChannelRole {
   RO,
   WO,

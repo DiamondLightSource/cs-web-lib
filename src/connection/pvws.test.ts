@@ -2,6 +2,7 @@ import { PvwsPlugin } from "./pvws";
 import WS from "vitest-websocket-mock";
 import { newDType } from "../types/dtypes/dType";
 import { vi, describe, beforeEach, afterEach, it, Mock } from "vitest";
+import { dTimeToDate } from "../types/dtypes/dTime";
 
 describe("PvwsPlugin", (): void => {
   let cp: PvwsPlugin;
@@ -73,7 +74,7 @@ describe("PvwsPlugin", (): void => {
     expect(calls.length).toBe(1);
     const [pv, value] = mockValUpdate.mock.calls[0];
     expect(pv).toBe("hello");
-    expect(value.time?.datetime?.getFullYear()).toBe(2017);
+    expect(dTimeToDate(value.time)?.getFullYear()).toBe(2017);
   });
 
   it("unsubscribes_with_no_errors", (): void => {

@@ -7,7 +7,7 @@ import { Trace } from "../../../types/trace";
 import { Axis } from "../../../types/axis";
 import { Plt } from "../../../types/plt";
 import { PvDatum } from "../../../redux/csState";
-import { DTime } from "../../../types/dtypes";
+import { newDTime } from "../../../types/dtypes/dTime";
 import { newDType } from "../../../types/dtypes/dType";
 
 declare global {
@@ -55,7 +55,7 @@ describe("DataBrowserComponent", () => {
       effectivePvName: pvName,
       connected: true,
       readonly: true,
-      value: newDType({ doubleValue: value }, undefined, new DTime(date), {
+      value: newDType({ doubleValue: value }, undefined, newDTime(date), {
         units: "mm",
         controlRange: { min: 0, max: 100 }
       })

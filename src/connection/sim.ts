@@ -7,7 +7,8 @@ import {
   nullConnCallback,
   nullValueCallback
 } from "./plugin";
-import { dtimeNow, DDisplay } from "../types/dtypes";
+import { DDisplay } from "../types/dtypes";
+import { dtimeNow } from "../types/dtypes/dTime";
 import {
   DType,
   dTypeCoerceDouble,

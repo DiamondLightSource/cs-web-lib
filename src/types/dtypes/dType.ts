@@ -1,10 +1,5 @@
-import {
-  DTypeValue,
-  DTime,
-  DDisplay,
-  NumberArray,
-  mergeDDisplay
-} from "../dtypes";
+import { DTypeValue, DDisplay, NumberArray, mergeDDisplay } from "../dtypes";
+import { DTime } from "./dTime";
 import { DAlarm, DAlarmNONE } from "./dAlarm";
 
 export interface DType {

@@ -11,7 +11,8 @@ import {
   SubscriptionType
 } from "./plugin";
 
-import { DTime, DDisplay, DRange } from "../types/dtypes";
+import { DDisplay, DRange } from "../types/dtypes";
+import { newDTime } from "../types/dtypes/dTime";
 import { DType, newDType } from "../types/dtypes/dType";
 import { AlarmQuality, newDAlarm } from "../types/dtypes/dAlarm";
 import log from "loglevel";
@@ -102,7 +103,7 @@ function pvwsToDType(data: any): DType {
   }
 
   let dtime = undefined;
-  if (data.seconds) dtime = new DTime(new Date(data.seconds * 1000));
+  if (data.seconds) dtime = newDTime(new Date(data.seconds * 1000));
 
   let stringVal = undefined;
   if (data.text !== undefined) {
