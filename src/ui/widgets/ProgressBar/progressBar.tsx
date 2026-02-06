@@ -14,6 +14,7 @@ import {
 import { LinearProgress } from "@mui/material";
 import { Color } from "../../../types/color";
 import { getPvValueAndName } from "../utils";
+import { dTypeGetDoubleValue } from "../../../types/dtypes/dType";
 
 export const ProgressBarProps = {
   min: FloatPropOpt,
@@ -56,7 +57,7 @@ export const ProgressBarComponent = (
     min = value.display.controlRange?.min;
     max = value.display.controlRange?.max;
   }
-  const numValue = value?.getDoubleValue() ?? 0;
+  const numValue = dTypeGetDoubleValue(value) ?? 0;
   const percentCalc = logScale
     ? ((Math.log10(numValue) - Math.log10(min)) * 100) /
       (Math.log10(max) - Math.log10(min))

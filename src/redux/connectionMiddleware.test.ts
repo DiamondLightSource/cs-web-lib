@@ -1,6 +1,6 @@
 import { connectionMiddleware } from "./connectionMiddleware";
 import { ddouble } from "../testResources";
-import { DType } from "../types/dtypes";
+import { newDType } from "../types/dtypes/dType";
 import { vi } from "vitest";
 import { queryDevice, subscribe, writePv } from "./csState";
 
@@ -87,7 +87,7 @@ describe("connectionMiddleware", (): void => {
 
   it("doesn't query when the current device is in cache", (): void => {
     mockStore.getState.mockReturnValue({
-      deviceCache: { testDevice: new DType({ stringValue: "42" }) }
+      deviceCache: { testDevice: newDType({ stringValue: "42" }) }
     });
     const middleware = connectionMiddleware(mockConnection);
     const nextHandler = middleware(mockStore);

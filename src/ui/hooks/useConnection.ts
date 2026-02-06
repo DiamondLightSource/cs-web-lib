@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { CsState, PvDataCollection } from "../../redux/csState";
 import { pvStateSelector, PvArrayResults, pvStateComparator } from "./utils";
 import { SubscriptionType } from "../../connection/plugin";
-import { DType } from "../../types/dtypes";
+import { DType } from "../../types/dtypes/dType";
 
 export interface PvProps extends React.PropsWithChildren<any> {
   pvName: string;

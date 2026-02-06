@@ -1,6 +1,6 @@
 import { PvwsPlugin } from "./pvws";
 import WS from "vitest-websocket-mock";
-import { DType } from "../types/dtypes";
+import { newDType } from "../types/dtypes/dType";
 import { vi, describe, beforeEach, afterEach, it, Mock } from "vitest";
 
 describe("PvwsPlugin", (): void => {
@@ -25,7 +25,7 @@ describe("PvwsPlugin", (): void => {
     ws.send(JSON.stringify({ type: "update", pv: "hello", value: 42 }));
     expect(mockValUpdate).toHaveBeenCalledWith(
       "hello",
-      new DType(
+      newDType(
         {
           stringValue: "42",
           doubleValue: 42,
@@ -50,7 +50,7 @@ describe("PvwsPlugin", (): void => {
     );
     expect(mockValUpdate).toHaveBeenCalledWith(
       "hello",
-      new DType(
+      newDType(
         {
           arrayValue: Int32Array.from([0, 1, 2]),
           stringValue: undefined,

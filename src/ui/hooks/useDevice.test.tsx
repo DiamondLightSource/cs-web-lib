@@ -1,6 +1,6 @@
 import React from "react";
 import { contextRender } from "../../testResources";
-import { DType } from "../../types/dtypes";
+import { newDType } from "../../types/dtypes/dType";
 import { CsState } from "../../redux/csState";
 import { useDevice } from "./useDevice";
 
@@ -15,7 +15,7 @@ function getConnectionState(): CsState {
     subscriptions: {},
     globalMacros: {},
     effectivePvNameMap: {},
-    deviceCache: { testDevice: new DType({ stringValue: "42" }) },
+    deviceCache: { testDevice: newDType({ stringValue: "42" }) },
     fileCache: {}
   };
 }

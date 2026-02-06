@@ -3,7 +3,7 @@ import { DeviceComponent } from "./device";
 import { render } from "@testing-library/react";
 import * as deviceHook from "../../hooks/useDevice";
 import * as jsonParsing from "../createComponent";
-import { DType } from "../../../types/dtypes";
+import { DType } from "../../../types/dtypes/dType";
 import { ensureWidgetsRegistered } from "..";
 import { vi } from "vitest";
 ensureWidgetsRegistered();

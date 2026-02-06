@@ -1,12 +1,16 @@
 import { dstring, ddoubleArray, ddouble } from "../testResources";
+import { DDisplay, DRange, mergeDDisplay } from "./dtypes";
 import {
+  dTypeCoerceArray,
+  dTypeCoerceDouble,
+  dTypeCoerceString,
+  dTypeGetArrayValue,
+  dTypeGetDoubleValue,
+  dTypeGetStringValue,
   mergeDType,
-  DType,
-  DDisplay,
-  DRange,
-  mergeDDisplay,
-  DAlarm
-} from "./dtypes";
+  newDType
+} from "./dtypes/dType";
+import { DAlarmMAJOR } from "./dtypes/dAlarm";
 
 const stringDType = dstring("hello");
 const doubleDType = ddouble(42);
@@ -14,62 +18,62 @@ const arrayDType = ddoubleArray([3, 5, 0.5]);
 
 describe("DType", (): void => {
   test("getStringValue() returns string if present", (): void => {
-    expect(stringDType.getStringValue()).toEqual("hello");
+    expect(dTypeGetStringValue(stringDType)).toEqual("hello");
   });
 
   test("getDoubleValue() returns double value", (): void => {
-    expect(doubleDType.getDoubleValue()).toEqual(42);
+    expect(dTypeGetDoubleValue(doubleDType)).toEqual(42);
   });
 
   test("getDoubleValue() returns undefined if empty", (): void => {
-    expect(stringDType.getDoubleValue()).toBeUndefined();
+    expect(dTypeGetDoubleValue(stringDType)).toBeUndefined();
   });
 
   test("getDoubleValue() returns undefined if array type", (): void => {
     const arrayDType = ddoubleArray([1, 2, 3]);
-    expect(arrayDType.getDoubleValue()).toBeUndefined();
+    expect(dTypeGetDoubleValue(arrayDType)).toBeUndefined();
   });
 
   test("getArrayValue() returns undefined if empty", (): void => {
-    expect(stringDType.getArrayValue()).toBeUndefined();
+    expect(dTypeGetArrayValue(stringDType)).toBeUndefined();
   });
 });
 
 describe("DType coercion", (): void => {
   test("coerceDouble() returns double if defined", (): void => {
-    expect(DType.coerceDouble(doubleDType)).toEqual(42);
+    expect(dTypeCoerceDouble(doubleDType)).toEqual(42);
   });
   test("coerceDouble() returns NaN if invalid string", (): void => {
-    expect(DType.coerceDouble(dstring("2 or 3"))).toBeNaN();
+    expect(dTypeCoerceDouble(dstring("2 or 3"))).toBeNaN();
   });
 
   test("coerceDouble() returns NaN if undefined", (): void => {
-    expect(DType.coerceDouble(undefined)).toBeNaN();
+    expect(dTypeCoerceDouble(undefined)).toBeNaN();
   });
 
   test("coerceDouble() returns NaN if empty", (): void => {
-    expect(DType.coerceDouble(stringDType)).toBeNaN();
+    expect(dTypeCoerceDouble(stringDType)).toBeNaN();
   });
 
   test("coerceString() returns numeric string", (): void => {
-    expect(DType.coerceString(doubleDType)).toEqual("42");
+    expect(dTypeCoerceString(doubleDType)).toEqual("42");
   });
 
   test("coerceString() returns string if defined", (): void => {
-    expect(DType.coerceString(stringDType)).toEqual("hello");
+    expect(dTypeCoerceString(stringDType)).toEqual("hello");
   });
 
   test("coerceString() returns array type", (): void => {
-    expect(DType.coerceString(arrayDType)).toEqual("3,5,0.5");
+    expect(dTypeCoerceString(arrayDType)).toEqual("3,5,0.5");
   });
 
   test("coerceArray() returns array if defined", (): void => {
-    expect(DType.coerceArray(ddoubleArray([1, 2, 3]))).toEqual(
+    expect(dTypeCoerceArray(ddoubleArray([1, 2, 3]))).toEqual(
       Float64Array.from([1, 2, 3])
     );
   });
   test("coerceArray() returns array from double value", (): void => {
-    expect(DType.coerceArray(doubleDType)).toEqual(Float64Array.from([42]));
+    expect(dTypeCoerceArray(doubleDType)).toEqual(Float64Array.from([42]));
   });
 });
 
@@ -80,9 +84,9 @@ describe("mergeDType", (): void => {
   });
 
   test("returns merge if  update is partial", (): void => {
-    const orig = new DType({ doubleValue: 3 });
-    const alarmDType = new DType({}, DAlarm.MAJOR, undefined, undefined, true);
-    const expected = new DType({ doubleValue: 3 }, DAlarm.MAJOR);
+    const orig = newDType({ doubleValue: 3 });
+    const alarmDType = newDType({}, DAlarmMAJOR(), undefined, undefined, true);
+    const expected = newDType({ doubleValue: 3 }, DAlarmMAJOR());
     expect(mergeDType(orig, alarmDType)).toEqual(expected);
   });
 

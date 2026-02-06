@@ -5,7 +5,14 @@ import {
   ValueChangedCallback
 } from "./plugin";
 import { ddouble, dstring } from "../testResources";
-import { DType } from "../types/dtypes";
+import {
+  DType,
+  dTypeCoerceDouble,
+  dTypeCoerceString,
+  dTypeGetArrayValue,
+  dTypeGetDoubleValue,
+  dTypeGetStringValue
+} from "../types/dtypes/dType";
 
 let simulator: SimulatorPlugin;
 beforeEach((): void => {
@@ -27,12 +34,12 @@ const assertValue = (pvName: string, impliedPv: string, value: any): void => {
     impliedPv,
     (updatedValue: DType) =>
       new Promise<void>(done => {
-        if (!isNaN(DType.coerceDouble(updatedValue))) {
-          expect(updatedValue.getDoubleValue()).toStrictEqual(value);
-        } else if (updatedValue.getArrayValue() !== undefined) {
-          expect(updatedValue.getArrayValue()).toStrictEqual(value);
+        if (!isNaN(dTypeCoerceDouble(updatedValue))) {
+          expect(dTypeGetDoubleValue(updatedValue)).toStrictEqual(value);
+        } else if (dTypeGetArrayValue(updatedValue) !== undefined) {
+          expect(dTypeGetArrayValue(updatedValue)).toStrictEqual(value);
         } else {
-          expect(updatedValue.getStringValue()).toStrictEqual(value);
+          expect(dTypeGetStringValue(updatedValue)).toStrictEqual(value);
         }
         done();
       })
@@ -45,10 +52,10 @@ it("local double updates", () =>
     let zeroDone = false;
     getValue("loc://location", (value: DType): void => {
       if (!zeroDone) {
-        expect(value.getDoubleValue()).toEqual(0.0);
+        expect(dTypeGetDoubleValue(value)).toEqual(0.0);
         zeroDone = true;
       } else {
-        expect(value.getDoubleValue()).toEqual(17.0);
+        expect(dTypeGetDoubleValue(value)).toEqual(17.0);
       }
       done();
     });
@@ -60,12 +67,12 @@ it("local enum updates", () =>
     let zeroDone = false;
     getValue("loc://enum", (value: DType): void => {
       if (!zeroDone) {
-        expect(value.getDoubleValue()).toEqual(1.0);
-        expect(value.getStringValue()).toEqual("deux");
+        expect(dTypeGetDoubleValue(value)).toEqual(1.0);
+        expect(dTypeGetStringValue(value)).toEqual("deux");
         zeroDone = true;
       } else {
-        expect(value.getDoubleValue()).toEqual(0.0);
-        expect(value.getStringValue()).toEqual("un");
+        expect(dTypeGetDoubleValue(value)).toEqual(0.0);
+        expect(dTypeGetStringValue(value)).toEqual("un");
       }
       done();
     });
@@ -78,12 +85,12 @@ it("local enum updates from string", () =>
     let zeroDone = false;
     getValue("loc://enum", (value: DType): void => {
       if (!zeroDone) {
-        expect(value.getDoubleValue()).toEqual(1.0);
-        expect(value.getStringValue()).toEqual("deux");
+        expect(dTypeGetDoubleValue(value)).toEqual(1.0);
+        expect(dTypeGetStringValue(value)).toEqual("deux");
         zeroDone = true;
       } else {
-        expect(value.getDoubleValue()).toEqual(0.0);
-        expect(value.getStringValue()).toEqual("un");
+        expect(dTypeGetDoubleValue(value)).toEqual(0.0);
+        expect(dTypeGetStringValue(value)).toEqual("un");
       }
       done();
     });
@@ -101,7 +108,7 @@ it("local values zero initially", () =>
   new Promise<void>(done => {
     // "Unless a type selector and initial value are provided, a local value will be of type ‘double’ with initial value of 0." [https://buildmedia.readthedocs.org/media/pdf/phoebus-doc/latest/phoebus-doc.pdf]
     getValue("loc://location", (value: DType): void => {
-      expect(value.getDoubleValue()).toEqual(0.0);
+      expect(dTypeGetDoubleValue(value)).toEqual(0.0);
       done();
     });
     simulator.subscribe("loc://location");
@@ -117,7 +124,7 @@ it("doesn't delete pv on unsubscribe", (): void => {
 
 it("test random values ", (): void => {
   getValue("sim://random", (value: DType): void => {
-    expect(value.getDoubleValue());
+    expect(dTypeGetDoubleValue(value));
   });
   simulator.subscribe("sim://random");
 });
@@ -125,7 +132,7 @@ it("test random values ", (): void => {
 it("test initial flipflop value", () =>
   new Promise<void>(done => {
     getValue("sim://flipflop(10)", (value: DType): void => {
-      expect(value.getDoubleValue()).toBe(0);
+      expect(dTypeGetDoubleValue(value)).toBe(0);
       done();
     });
     simulator.subscribe("sim://flipflop(10)");
@@ -169,11 +176,11 @@ it("test illegal names", (): void => {
 it("test enum", (): void => {
   getValue("sim://enum", (value: DType): void => {
     expect(
-      ["one", "two", "three", "four"].indexOf(DType.coerceString(value))
+      ["one", "two", "three", "four"].indexOf(dTypeCoerceString(value))
     ).toBeGreaterThan(-1);
-    expect(
-      (value.display?.choices as string[])[DType.coerceDouble(value)]
-    ).toBe(value.getStringValue());
+    expect((value.display?.choices as string[])[dTypeCoerceDouble(value)]).toBe(
+      dTypeGetStringValue(value)
+    );
   });
   simulator.subscribe("sim://enum");
 });
@@ -198,7 +205,7 @@ describe("LimitData", (): void => {
   it("initial limit values", () =>
     new Promise<void>(done => {
       getValue("sim://limit", (value: DType): void => {
-        expect(value.getDoubleValue()).toBe(50);
+        expect(dTypeGetDoubleValue(value)).toBe(50);
         done();
       });
       simulator.subscribe("sim://limit");
@@ -208,9 +215,9 @@ describe("LimitData", (): void => {
     new Promise<void>(done => {
       function* repeatedCallback(): any {
         const value1 = yield;
-        expect(value1.getDoubleValue()).toEqual(50);
+        expect(dTypeGetDoubleValue(value1)).toEqual(50);
         const value2 = yield;
-        expect(value2.getDoubleValue()).toEqual(17);
+        expect(dTypeGetDoubleValue(value2)).toEqual(17);
         done();
       }
       const iter = repeatedCallback();
@@ -226,9 +233,9 @@ describe("LimitData", (): void => {
     new Promise<void>(done => {
       function* repeatedCallback(): any {
         const value1 = yield;
-        expect(value1.getDoubleValue()).toEqual(50);
+        expect(dTypeGetDoubleValue(value1)).toEqual(50);
         const value2 = yield;
-        expect(value2.getDoubleValue()).toEqual(89);
+        expect(dTypeGetDoubleValue(value2)).toEqual(89);
         done();
       }
       const iter = repeatedCallback();
@@ -245,18 +252,18 @@ describe("LimitData", (): void => {
       function* repeatedCallback(): any {
         const update1 = yield;
         expect(update1.name).toEqual("sim://limit#one");
-        expect(update1.value.getDoubleValue()).toEqual(50);
+        expect(dTypeGetDoubleValue(update1.value)).toEqual(50);
 
         const update2 = yield;
         expect(update2.name).toEqual("sim://limit#two");
-        expect(update2.value.getDoubleValue()).toEqual(50);
+        expect(dTypeGetDoubleValue(update2.value)).toEqual(50);
 
         const update3 = yield;
         expect(update3.name).toEqual("sim://limit#one");
-        expect(update3.value.getDoubleValue()).toEqual(1);
+        expect(dTypeGetDoubleValue(update3.value)).toEqual(1);
         const update4 = yield;
         expect(update4.name).toEqual("sim://limit#two");
-        expect(update4.value.getDoubleValue()).toEqual(2);
+        expect(dTypeGetDoubleValue(update4.value)).toEqual(2);
         done();
       }
       const iter = repeatedCallback();
@@ -332,8 +339,8 @@ it("distinguish sine values", () =>
         twoUpdated = true;
       }
 
-      expect(update.value.getDoubleValue()).toBeLessThan(1.1);
-      expect(update.value.getDoubleValue()).toBeGreaterThan(-1.1);
+      expect(dTypeGetDoubleValue(update?.value)).toBeLessThan(1.1);
+      expect(dTypeGetDoubleValue(update?.value)).toBeGreaterThan(-1.1);
 
       if (oneUpdated && twoUpdated) {
         done();
@@ -468,8 +475,8 @@ it("unsubscribe stops updates, but maintains value", () =>
 
     const callback = (data: { value: DType; name: string }): void => {
       if (client.subscribed) {
-        expect(data.value.getDoubleValue()).toBe(
-          client.expectedValue.getDoubleValue()
+        expect(dTypeGetDoubleValue(data.value)).toBe(
+          dTypeGetDoubleValue(client.expectedValue)
         );
         callbacks.stage("zero", (): void => {
           client.putPv(2.0);

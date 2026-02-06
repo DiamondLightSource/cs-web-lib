@@ -2,7 +2,7 @@ import { writePv } from "../hooks/useSubscription";
 import log from "loglevel";
 
 import { MacroMap } from "../../types/macros";
-import { DType } from "../../types/dtypes";
+import { newDType } from "../../types/dtypes/dType";
 import { DynamicContent } from "./propTypes";
 import { ExitContextType, FileContextType } from "../../misc/fileContext";
 
@@ -202,9 +202,9 @@ export const executeAction = (
     case WRITE_PV:
       let dtypeVal;
       if (typeof action.writePvInfo.value === "number") {
-        dtypeVal = new DType({ doubleValue: action.writePvInfo.value });
+        dtypeVal = newDType({ doubleValue: action.writePvInfo.value });
       } else {
-        dtypeVal = new DType({ stringValue: action.writePvInfo.value });
+        dtypeVal = newDType({ stringValue: action.writePvInfo.value });
       }
       writePv(action.writePvInfo.pvName, dtypeVal);
       break;

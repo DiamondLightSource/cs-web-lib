@@ -6,12 +6,17 @@ import { CsState } from "../../redux/csState";
 
 import { PvArrayResults, pvStateSelector, pvStateComparator } from "./utils";
 import { AnyProps } from "../widgets/widgetProps";
-import { AlarmQuality, DType } from "../../types/dtypes";
+import {
+  dTypeCoerceString,
+  dTypeGetAlarm,
+  dTypeGetDoubleValue
+} from "../../types/dtypes/dType";
 import { SubscriptionType } from "../../connection/plugin";
 import { Border, BorderStyle } from "../../types/border";
 import { Color } from "../../types/color";
 import { opiParseColor } from "../widgets/EmbeddedDisplay/opiParser";
 import { parseArrayString } from "../../misc/stringUtils";
+import { AlarmQuality } from "../../types/dtypes/dAlarm";
 
 // See https://stackoverflow.com/questions/54542318/using-an-enum-as-a-dictionary-key
 type EnumDictionary<T extends string | symbol | number, U> = {
@@ -64,12 +69,12 @@ export function useRules(props: AnyProps): AnyProps {
       let stringValue = undefined;
       let severity = undefined;
       if (val) {
-        doubleValue = val.getDoubleValue();
+        doubleValue = dTypeGetDoubleValue(val);
         intValue =
           doubleValue === undefined ? undefined : Math.round(doubleValue);
-        stringValue = DType.coerceString(val);
+        stringValue = dTypeCoerceString(val);
         value = doubleValue ?? stringValue;
-        severity = INT_SEVERITIES[val.getAlarm()?.quality || 0];
+        severity = INT_SEVERITIES[dTypeGetAlarm(val)?.quality || 0];
       }
 
       pvVars["pv" + i] = value;

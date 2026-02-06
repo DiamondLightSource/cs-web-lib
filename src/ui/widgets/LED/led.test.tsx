@@ -1,13 +1,14 @@
 import React from "react";
 import { LedComponent, LedComponentProps } from "./led";
-import { DAlarm, DType, AlarmQuality } from "../../../types/dtypes";
+import { DType, newDType } from "../../../types/dtypes/dType";
 import renderer, { ReactTestRendererJSON } from "react-test-renderer";
 import { Color } from "../../../types/color";
 import { ddouble } from "../../../testResources";
 import { PvDatum } from "../../../redux/csState";
+import { AlarmQuality, newDAlarm } from "../../../types/dtypes/dAlarm";
 
 const createValue = (alarmType: AlarmQuality): DType => {
-  return new DType({ stringValue: "3.141" }, new DAlarm(alarmType, ""));
+  return newDType({ stringValue: "3.141" }, newDAlarm(alarmType, ""));
 };
 
 const UNUSED_VALUE = createValue(AlarmQuality.ALARM);

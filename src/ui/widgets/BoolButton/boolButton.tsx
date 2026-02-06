@@ -14,7 +14,7 @@ import {
 } from "../propTypes";
 import { Color } from "../../../types/color";
 import { writePv } from "../../hooks/useSubscription";
-import { DType } from "../../../types/dtypes";
+import { dTypeGetDoubleValue, newDType } from "../../../types/dtypes/dType";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { Button as MuiButton, styled, useTheme } from "@mui/material";
 import { getPvValueAndName } from "../utils";
@@ -117,7 +117,7 @@ export const BoolButtonComponent = (
 
   // Use useState for properties that change on click - text and color
   const [label, setLabel] = useState(showBooleanLabel ? offLabel : "");
-  const doubleValue = value?.getDoubleValue();
+  const doubleValue = dTypeGetDoubleValue(value);
   const [ledColor, setLedColor] = useState(offColor.toString());
 
   // Establish LED style
@@ -151,7 +151,7 @@ export const BoolButtonComponent = (
     if (pvName) {
       writePv(
         pvName,
-        new DType({
+        newDType({
           doubleValue: doubleValue === offState ? onState : offState
         })
       );

@@ -33,6 +33,7 @@ import {
   TrianglePointerVertical
 } from "./trianglePointer";
 import { buildStatusRegions } from "./linearMeterUtilities";
+import { dTypeGetDoubleValue } from "../../../types/dtypes/dType";
 
 export const LinearMeterComponentProps = {
   minimum: FloatPropOpt,
@@ -82,7 +83,7 @@ export const LinearMeterComponent = (
 
   const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
   const units = value?.display.units ?? "";
-  const numValue = value?.getDoubleValue() ?? 0;
+  const numValue = dTypeGetDoubleValue(value) ?? 0;
 
   const backgroundColor =
     props?.colors?.backgroundColor?.toString() ?? theme.palette.primary.main;

@@ -1,6 +1,6 @@
 import log from "loglevel";
 import { MacroMap } from "../types/macros";
-import { DType, mergeDType } from "../types/dtypes";
+import { mergeDType, DType } from "../types/dtypes/dType";
 import { WidgetDescription } from "../ui/widgets/createComponent";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { SubscriptionType } from "../connection";

@@ -7,11 +7,12 @@ import { LinearMeterComponent } from "./linearMeter";
 import * as utils from "../utils";
 import * as meterUtilities from "../Meter/meterUtilities";
 import * as linearMeterUtilities from "./linearMeterUtilities";
-import { Color, DType } from "../../../types";
+import { Color } from "../../../types";
 import { PvDatum } from "../../../redux/csState";
 import { TriangleProps } from "./trianglePointer";
 import { RectangleAreaProps } from "./rectangleArea";
 import { ChartsReferenceLineProps } from "@mui/x-charts";
+import { newDType } from "../../../types/dtypes/dType";
 
 vi.mock("@mui/x-charts/BarChart", () => {
   const MockBarChart: React.FC<any> = ({ children, ...props }) => (
@@ -145,15 +146,12 @@ describe("LinearMeterComponent", () => {
         effectivePvName: "TEST:PV",
         connected: true,
         readonly: true,
-        value: {
-          getDoubleValue: () => 50,
-          display: {
-            units: "kW",
-            controlRange: { min: 0, max: 100 },
-            alarmRange: { min: 80, max: 100 },
-            warningRange: { min: 60, max: 80 }
-          }
-        } as Partial<DType> as DType
+        value: newDType({ doubleValue: 50 }, undefined, undefined, {
+          units: "kW",
+          controlRange: { min: 0, max: 100 },
+          alarmRange: { min: 80, max: 100 },
+          warningRange: { min: 60, max: 80 }
+        })
       } as Partial<PvDatum> as PvDatum
     ],
     minimum: 0,
@@ -182,15 +180,12 @@ describe("LinearMeterComponent", () => {
     vi.clearAllMocks();
 
     vi.spyOn(utils, "getPvValueAndName").mockReturnValue({
-      value: {
-        getDoubleValue: () => 50,
-        display: {
-          units: "mm",
-          alarmRange: { min: 10, max: 90 },
-          warningRange: { min: 20, max: 80 },
-          controlRange: { min: 0, max: 100 }
-        }
-      } as Partial<DType> as DType,
+      value: newDType({ doubleValue: 50 }, undefined, undefined, {
+        units: "mm",
+        alarmRange: { min: 10, max: 90 },
+        warningRange: { min: 20, max: 80 },
+        controlRange: { min: 0, max: 100 }
+      }),
       effectivePvName: "test:pv",
       connected: true
     });

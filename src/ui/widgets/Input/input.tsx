@@ -14,9 +14,18 @@ import {
   StringPropOpt,
   IntPropOpt
 } from "../propTypes";
-import { AlarmQuality, DType } from "../../../types/dtypes";
+import {
+  dTypeByteArrToString,
+  dTypeCoerceDouble,
+  dTypeCoerceString,
+  dTypeGetAlarm,
+  dTypeGetArrayValue,
+  dTypeGetDisplay,
+  newDType
+} from "../../../types/dtypes/dType";
 import { TextField as MuiTextField, styled, useTheme } from "@mui/material";
 import { getPvValueAndName } from "../utils";
+import { AlarmQuality } from "../../../types/dtypes/dAlarm";
 
 const InputComponentProps = {
   pvName: StringPropOpt,
@@ -93,7 +102,7 @@ export const SmartInputComponent = (
   const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
 
   // Decide what to display.
-  const display = value?.getDisplay();
+  const display = dTypeGetDisplay(value);
   // In Phoebus, default precision -1 seems to usually be 3. The toFixed functions
   // cannot accept -1 as a valid answer
   let prec = precisionFromPv ? (display?.precision ?? precision) : precision;
@@ -105,23 +114,23 @@ export const SmartInputComponent = (
   } else {
     if (value.display.choices) {
       // Enum PV so use string representation.
-      displayedValue = DType.coerceString(value);
-    } else if (prec !== undefined && !isNaN(DType.coerceDouble(value))) {
+      displayedValue = dTypeCoerceString(value);
+    } else if (prec !== undefined && !isNaN(dTypeCoerceDouble(value))) {
       if (formatType === "exponential") {
-        displayedValue = DType.coerceDouble(value).toExponential(prec);
+        displayedValue = dTypeCoerceDouble(value).toExponential(prec);
       } else {
-        displayedValue = DType.coerceDouble(value).toFixed(prec);
+        displayedValue = dTypeCoerceDouble(value).toFixed(prec);
       }
     } else if (formatType === "string") {
-      const valarr = value.getArrayValue();
+      const valarr = dTypeGetArrayValue(value);
       if (valarr !== undefined) {
-        displayedValue = DType.byteArrToString(valarr);
+        displayedValue = dTypeByteArrToString(valarr);
       } else {
-        displayedValue = DType.coerceString(value);
+        displayedValue = dTypeCoerceString(value);
       }
-    } else if (value.getArrayValue() !== undefined && prec !== undefined) {
+    } else if (dTypeGetArrayValue(value) !== undefined && prec !== undefined) {
       displayedValue = "";
-      const array = Array.prototype.slice.call(value.getArrayValue());
+      const array = Array.prototype.slice.call(dTypeGetArrayValue(value));
       for (let i = 0; i < array.length; i++) {
         displayedValue = displayedValue.concat(array[i].toFixed(prec));
         if (i < array.length - 1) {
@@ -129,7 +138,7 @@ export const SmartInputComponent = (
         }
       }
     } else {
-      displayedValue = DType.coerceString(value);
+      displayedValue = dTypeCoerceString(value);
     }
   }
 
@@ -147,7 +156,7 @@ export const SmartInputComponent = (
   let borderStyle = props.border?.css().borderStyle ?? "solid";
   let borderWidth = props.border?.width ?? "0px";
 
-  const alarmQuality = value?.getAlarm().quality ?? AlarmQuality.VALID;
+  const alarmQuality = dTypeGetAlarm(value).quality ?? AlarmQuality.VALID;
   if (alarmSensitive) {
     switch (alarmQuality) {
       case AlarmQuality.UNDEFINED:
@@ -192,12 +201,12 @@ export const SmartInputComponent = (
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (multiLine) {
       if (event.key === "Enter" && event.ctrlKey) {
-        writePv(pvName, new DType({ stringValue: inputValue }));
+        writePv(pvName, newDType({ stringValue: inputValue }));
         event.currentTarget.blur();
       }
     } else {
       if (event.key === "Enter") {
-        writePv(pvName, new DType({ stringValue: inputValue }));
+        writePv(pvName, newDType({ stringValue: inputValue }));
         event.currentTarget.blur();
       }
     }

@@ -9,8 +9,8 @@ import {
   ThermometerComponent
 } from "./thermometer";
 import { Color } from "../../../types/color";
-import { DType } from "../../../types";
 import { PvDatum } from "../../../redux/csState";
+import { newDType, DType } from "../../../types/dtypes/dType";
 
 // Mock d3 functionality
 vi.mock("d3", () => {
@@ -43,7 +43,7 @@ describe("Thermometer Component", () => {
     effectivePvName: "PV:Test",
     connected: true,
     readonly: true,
-    value: new DType({ stringValue: "1234" })
+    value: newDType({ stringValue: "1234" })
   } as Partial<PvDatum> as PvDatum;
 
   const mandatoryProps = {
@@ -188,17 +188,13 @@ describe("Thermometer Component", () => {
     const topOfStemY = 50;
 
     // Mock DType class
-    const mockDType = (value: number) => {
-      return {
-        getDoubleValue: vi.fn().mockReturnValue(value),
-        display: {
-          controlRange: {
-            min: 0,
-            max: 100
-          }
+    const mockDType = (value: number) =>
+      newDType({ doubleValue: value }, undefined, undefined, {
+        controlRange: {
+          min: 0,
+          max: 100
         }
-      } as Partial<DType> as DType;
-    };
+      });
 
     it("should calculate correct mercury height for a value in range", () => {
       const value = mockDType(50);

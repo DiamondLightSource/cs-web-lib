@@ -4,7 +4,7 @@ import { AnyProps } from "../widgets/widgetProps";
 import { Rule } from "../../types/props";
 import { PV } from "../../types/pv";
 import { contextRender, ddouble } from "../../testResources";
-import { DType } from "../../types/dtypes";
+import { DType } from "../../types/dtypes/dType";
 import { CsState } from "../../redux/csState";
 
 function getRuleTester(props: any): JSX.Element {

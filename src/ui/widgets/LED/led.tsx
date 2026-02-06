@@ -10,10 +10,14 @@ import {
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import classes from "./led.module.css";
-import { DAlarm } from "../../../types/dtypes";
 import { Color } from "../../../types";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { getPvValueAndName } from "../utils";
+import { DAlarmNONE } from "../../../types/dtypes/dAlarm";
+import {
+  dTypeGetAlarm,
+  dTypeGetDoubleValue
+} from "../../../types/dtypes/dType";
 
 /**
  * width: the diameter of the LED
@@ -55,7 +59,7 @@ export const LedComponent = (props: LedComponentProps): JSX.Element => {
   const style: CSSProperties = {};
 
   let ledOn = false;
-  const doubleValue = value?.getDoubleValue();
+  const doubleValue = dTypeGetDoubleValue(value);
   if (doubleValue !== undefined) {
     if (bit < 0) {
       // Off if vlaue is 0, on otherwise.
@@ -76,7 +80,7 @@ export const LedComponent = (props: LedComponentProps): JSX.Element => {
 
   let className = classes.Led;
   if (alarmSensitive) {
-    const alarm = value?.getAlarm() || DAlarm.NONE;
+    const alarm = dTypeGetAlarm(value) || DAlarmNONE();
     className += ` ${classes[alarm.quality]}`;
   }
 

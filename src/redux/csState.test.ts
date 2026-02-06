@@ -9,10 +9,18 @@ import csReducer, {
   fileChanged,
   refreshFile
 } from "./csState";
-import { AlarmQuality, DAlarm, DType } from "../types/dtypes";
+import {
+  DType,
+  dTypeGetAlarm,
+  dTypeGetArrayValue,
+  dTypeGetDoubleValue,
+  dTypeGetStringValue,
+  newDType
+} from "../types/dtypes/dType";
 import { ddouble, dstring, ddoubleArray } from "../testResources";
 import { WidgetDescription } from "../ui/widgets/createComponent";
 import { AbsolutePosition } from "../types";
+import { AlarmQuality, DAlarmMAJOR, newDAlarm } from "../types/dtypes/dAlarm";
 
 const initialState: CsState = {
   valueCache: {
@@ -52,7 +60,10 @@ describe("VALUES_CHANGED", (): void => {
     };
     const newState = csReducer(initialState, action);
     // expect the latter value
-    expect(newState.valueCache["PV"].value?.getDoubleValue()).toEqual(2);
+    expect(newState.valueCache["PV"].value).not.toBeUndefined();
+    expect(
+      dTypeGetDoubleValue(newState.valueCache["PV"].value as DType)
+    ).toEqual(2);
   });
   test("csReducer merges multiple value updates", (): void => {
     const action: ReturnType<typeof valuesChanged> = {
@@ -66,9 +77,9 @@ describe("VALUES_CHANGED", (): void => {
           type: "cs/valueChanged",
           payload: {
             pvName: "PV",
-            value: new DType(
+            value: newDType(
               {},
-              new DAlarm(AlarmQuality.ALARM, ""),
+              newDAlarm(AlarmQuality.ALARM, ""),
               undefined,
               undefined,
               true
@@ -79,10 +90,12 @@ describe("VALUES_CHANGED", (): void => {
     };
     const newState = csReducer(initialState, action);
     // value from first update and alarm from second update
-    expect(newState.valueCache["PV"].value?.getDoubleValue()).toEqual(1);
-    expect(newState.valueCache["PV"].value?.getAlarm().quality).toEqual(
-      AlarmQuality.ALARM
-    );
+    expect(
+      dTypeGetDoubleValue(newState.valueCache["PV"].value as DType)
+    ).toEqual(1);
+    expect(
+      dTypeGetAlarm(newState.valueCache["PV"].value as DType).quality
+    ).toEqual(AlarmQuality.ALARM);
   });
 });
 
@@ -93,11 +106,13 @@ describe("VALUE_CHANGED", (): void => {
       payload: { pvName: "PV", value: ddouble(1) }
     };
     const newState = csReducer(initialState, action);
-    expect(newState?.valueCache["PV"].value?.getDoubleValue()).toEqual(1);
+    expect(
+      dTypeGetDoubleValue(newState.valueCache["PV"].value as DType)
+    ).toEqual(1);
   });
 
   test("csReducer handles alarm update", (): void => {
-    const majorAlarm = DAlarm.MAJOR;
+    const majorAlarm = DAlarmMAJOR();
     const action: ReturnType<typeof valueChanged> = {
       type: "cs/valueChanged",
       payload: {
@@ -107,7 +122,7 @@ describe("VALUE_CHANGED", (): void => {
     };
     const newState = csReducer(initialState, action);
     const newValue = newState.valueCache["PV"].value;
-    expect(newValue?.getAlarm()).toEqual(majorAlarm);
+    expect(dTypeGetAlarm(newValue)).toEqual(majorAlarm);
   });
 
   test("csReducer handles type update", (): void => {
@@ -120,7 +135,7 @@ describe("VALUE_CHANGED", (): void => {
     };
     const newState = csReducer(initialState, action);
     const newValue = newState.valueCache["PV"].value;
-    expect(newValue?.getStringValue()).toEqual("hello");
+    expect(dTypeGetStringValue(newValue as DType)).toEqual("hello");
   });
 
   test("csReducer handles array type update", (): void => {
@@ -133,7 +148,9 @@ describe("VALUE_CHANGED", (): void => {
     };
     const newState = csReducer(initialState, action);
     const newValue = newState.valueCache["PV"].value;
-    expect(newValue?.getArrayValue()).toEqual(Float64Array.from([1, 2, 3]));
+    expect(dTypeGetArrayValue(newValue as DType)).toEqual(
+      Float64Array.from([1, 2, 3])
+    );
   });
 });
 
@@ -150,7 +167,7 @@ describe("CONNECTION_CHANGED", (): void => {
 
 describe("DEVICE_QUERIED", (): void => {
   test("csReducer adds device to deviceCache", (): void => {
-    const dtype = new DType({ stringValue: "42" });
+    const dtype = newDType({ stringValue: "42" });
     const deviceName = "testDevice";
     const action: ReturnType<typeof deviceQueried> = {
       type: "cs/deviceQueried",

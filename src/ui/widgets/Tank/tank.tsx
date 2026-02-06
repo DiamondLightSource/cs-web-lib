@@ -16,6 +16,7 @@ import {
 import { Color } from "../../../types/color";
 import { XAxis, YAxis } from "@mui/x-charts";
 import { getPvValueAndName } from "../utils";
+import { dTypeGetDoubleValue } from "../../../types/dtypes/dType";
 
 export const TankProps = {
   minimum: FloatPropOpt,
@@ -66,7 +67,7 @@ export const TankComponent = (
   }
 
   const units = value?.display.units ?? "";
-  const numValue = value?.getDoubleValue() ?? 0;
+  const numValue = dTypeGetDoubleValue(value) ?? 0;
 
   // Show a warning if min is bigger than max and apply precision if provided
   let label = "";

@@ -12,7 +12,7 @@ import {
   StringArrayPropOpt,
   StringPropOpt
 } from "../propTypes";
-import { DType } from "../../../types/dtypes";
+import { dTypeGetDoubleValue, newDType } from "../../../types/dtypes/dType";
 import { writePv } from "../../hooks/useSubscription";
 import {
   ToggleButton as MuiToggleButton,
@@ -84,7 +84,9 @@ export const ChoiceButtonComponent = (
   const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
 
   const font = props.font?.css() ?? theme.typography;
-  const [selected, setSelected] = useState(value?.getDoubleValue());
+  const [selected, setSelected] = useState(
+    value ? dTypeGetDoubleValue(value) : value
+  );
 
   // Use items from file, unless itemsFRomPv set
   let options = items;
@@ -96,7 +98,7 @@ export const ChoiceButtonComponent = (
   // of the component as it causes too many re-renders error
   useEffect(() => {
     if (value) {
-      setSelected(value.getDoubleValue());
+      setSelected(dTypeGetDoubleValue(value));
     }
   }, [value]);
 
@@ -112,7 +114,7 @@ export const ChoiceButtonComponent = (
   ) => {
     // Write to PV
     if (pvName) {
-      writePv(pvName, new DType({ doubleValue: newSelect }));
+      writePv(pvName, newDType({ doubleValue: newSelect }));
     }
     setSelected(newSelect);
   };

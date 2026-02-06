@@ -12,6 +12,7 @@ import classes from "./byteMonitor.module.css";
 import { Color } from "../../../types/color";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { getPvValueAndName } from "../utils";
+import { dTypeGetDoubleValue } from "../../../types/dtypes/dType";
 
 export const ByteMonitorProps = {
   width: IntPropOpt,
@@ -58,7 +59,7 @@ export const ByteMonitorComponent = (
   const { value } = getPvValueAndName(pvData);
 
   // Check for a value, otherwise set to 0
-  const doubleValue = value?.getDoubleValue() || 0;
+  const doubleValue = dTypeGetDoubleValue(value) || 0;
   // Check numBits isn't out of bounds
   let numBits = props.numBits || 8;
   if (numBits < 1) numBits = 1;

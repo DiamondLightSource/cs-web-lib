@@ -14,6 +14,7 @@ import { Color } from "../../../types/color";
 import { Box } from "@mui/material";
 import { DType } from "../../../types";
 import { getPvValueAndName } from "../utils";
+import { dTypeGetDoubleValue } from "../../../types/dtypes/dType";
 
 // This is the angle between vertical and the line from the center of the bulb to the intersection of the stem and bulb
 export const bulbStemAngle = Math.PI / 5;
@@ -270,7 +271,7 @@ export const calculateMercuryHeight = (
   verticalStemHeight: number,
   topOfStemY: number
 ) => {
-  const numValue = value?.getDoubleValue() ?? 0;
+  const numValue = dTypeGetDoubleValue(value) ?? 0;
   const safeValue = Math.max(minimum, Math.min(maximum, numValue));
 
   const emptyFractionOfStem = (maximum - safeValue) / (maximum - minimum);

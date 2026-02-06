@@ -1,10 +1,12 @@
 import React from "react";
 import { ReadbackComponent } from "./readback";
-import { DType, DDisplay, DAlarm, AlarmQuality } from "../../../types/dtypes";
+import { DDisplay } from "../../../types/dtypes";
+import { DType, newDType } from "../../../types/dtypes/dType";
 import { render } from "@testing-library/react";
 import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
 import { PvDatum } from "../../../redux/csState";
+import { AlarmQuality, newDAlarm } from "../../../types/dtypes/dAlarm";
 
 const BASE_PROPS = {
   pvData: [
@@ -40,7 +42,7 @@ describe("<Readback />", (): void => {
           effectivePvName: "TEST:PV",
           connected: true,
           readonly: true,
-          value: new DType({
+          value: newDType({
             stringValue: "3.14159265359",
             doubleValue: 3.1415926539
           })
@@ -60,7 +62,7 @@ describe("<Readback />", (): void => {
           effectivePvName: "TEST:PV",
           connected: true,
           readonly: true,
-          value: new DType(
+          value: newDType(
             { stringValue: "hello" },
             undefined,
             undefined,
@@ -83,9 +85,9 @@ describe("<Readback />", (): void => {
           effectivePvName: "TEST:PV",
           connected: true,
           readonly: true,
-          value: new DType(
+          value: newDType(
             { stringValue: "hello" },
-            new DAlarm(AlarmQuality.ALARM, "")
+            newDAlarm(AlarmQuality.ALARM, "")
           )
         } as Partial<PvDatum> as PvDatum
       ],
@@ -104,9 +106,9 @@ describe("<Readback />", (): void => {
           effectivePvName: "TEST:PV",
           connected: true,
           readonly: true,
-          value: new DType(
+          value: newDType(
             { stringValue: "hello" },
-            new DAlarm(AlarmQuality.ALARM, "")
+            newDAlarm(AlarmQuality.ALARM, "")
           )
         } as Partial<PvDatum> as PvDatum
       ],

@@ -1,4 +1,4 @@
-import { DType } from "../types/dtypes";
+import { DType } from "../types/dtypes/dType";
 
 export interface SubscriptionType {
   double?: boolean;

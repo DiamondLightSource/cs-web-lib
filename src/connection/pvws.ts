@@ -11,14 +11,9 @@ import {
   SubscriptionType
 } from "./plugin";
 
-import {
-  DType,
-  DTime,
-  DAlarm,
-  AlarmQuality,
-  DDisplay,
-  DRange
-} from "../types/dtypes";
+import { DTime, DDisplay, DRange } from "../types/dtypes";
+import { DType, newDType } from "../types/dtypes/dType";
+import { AlarmQuality, newDAlarm } from "../types/dtypes/dAlarm";
 import log from "loglevel";
 
 export interface PvwsStatus {
@@ -65,11 +60,11 @@ function pvwsToDType(data: any): DType {
   let ddisplay = undefined;
   if (data.severity !== undefined) {
     if (data.severity === "MAJOR") {
-      alarm = new DAlarm(AlarmQuality.ALARM, "");
+      alarm = newDAlarm(AlarmQuality.ALARM, "");
     } else if (data.severity === "MINOR") {
-      alarm = new DAlarm(AlarmQuality.WARNING, "");
+      alarm = newDAlarm(AlarmQuality.WARNING, "");
     } else {
-      alarm = new DAlarm(AlarmQuality.VALID, "");
+      alarm = newDAlarm(AlarmQuality.VALID, "");
     }
   }
   ddisplay = new DDisplay({
@@ -115,7 +110,7 @@ function pvwsToDType(data: any): DType {
   } else if (data.value !== undefined) {
     stringVal = data.value.toString();
   }
-  return new DType(
+  return newDType(
     {
       stringValue: stringVal,
       doubleValue: data.value,

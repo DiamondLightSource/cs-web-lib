@@ -1,13 +1,14 @@
 import React from "react";
 import { BoolButtonComponent, getDimensions } from "./boolButton";
 import { act, fireEvent, render } from "@testing-library/react";
-import { DAlarm, DType } from "../../../types/dtypes";
+import { newDType } from "../../../types/dtypes/dType";
 import { Color } from "../../../types";
 import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
 import { PvDatum } from "../../../redux/csState";
 import { vi } from "vitest";
 import * as useSubscription from "../../hooks/useSubscription";
+import { DAlarmNONE } from "../../../types/dtypes/dAlarm";
 
 const mockWritePv = vi
   .spyOn(useSubscription, "writePv")
@@ -29,10 +30,7 @@ const TEST_PVDATUM = {
   effectivePvName: "TEST:PV",
   connected: true,
   readonly: false,
-  value: {
-    getDoubleValue: () => 1,
-    alarm: DAlarm.NONE
-  } as Partial<DType> as DType
+  value: newDType({ doubleValue: 1 }, DAlarmNONE())
 } as Partial<PvDatum> as PvDatum;
 
 const TEST_PROPS = {
@@ -97,7 +95,7 @@ describe("<BoolButton />", (): void => {
 
   test("no text if showboolean is false", (): void => {
     const boolButtonProps = {
-      pvData: [{ ...TEST_PVDATUM, value: new DType({ doubleValue: 0 }) }],
+      pvData: [{ ...TEST_PVDATUM, value: newDType({ doubleValue: 0 }) }],
       showBooleanLabel: false,
       onState: 1,
       offState: 0
@@ -140,7 +138,7 @@ describe("<BoolButton />", (): void => {
 
     expect(mockWritePv).toHaveBeenCalledWith(
       "TEST:PV",
-      new DType({ doubleValue: 0 })
+      newDType({ doubleValue: 0 })
     );
   });
 });

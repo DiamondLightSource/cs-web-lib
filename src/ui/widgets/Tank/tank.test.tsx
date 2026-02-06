@@ -3,8 +3,9 @@ import { render, screen } from "@testing-library/react";
 import { describe, test, expect, beforeEach, vi } from "vitest";
 import { TankComponent } from "./tank";
 import { Font } from "../../../types/font";
-import { Color, DType } from "../../../types";
+import { Color } from "../../../types";
 import { PvDatum } from "../../../redux/csState";
+import { newDType } from "../../../types/dtypes/dType";
 
 // Mock the MUI X-Charts components
 vi.mock("@mui/x-charts/BarChart", () => ({
@@ -39,13 +40,10 @@ describe("TankComponent", () => {
   const defaultProps = {
     pvData: [
       {
-        value: {
-          getDoubleValue: () => 50,
-          display: {
-            units: "mm",
-            controlRange: { min: 0, max: 100 }
-          }
-        } as Partial<DType> as DType
+        value: newDType({ doubleValue: 50 }, undefined, undefined, {
+          units: "mm",
+          controlRange: { min: 0, max: 100 }
+        })
       } as Partial<PvDatum> as PvDatum
     ],
     connected: true,
@@ -151,13 +149,10 @@ describe("TankComponent", () => {
         ...defaultProps,
         pvData: [
           {
-            value: {
-              getDoubleValue: () => 100,
-              display: {
-                units: "mm",
-                controlRange: { min: 0, max: 100 }
-              }
-            } as Partial<DType> as DType
+            value: newDType({ doubleValue: 100 }, undefined, undefined, {
+              units: "mm",
+              controlRange: { min: 0, max: 100 }
+            })
           } as Partial<PvDatum> as PvDatum
         ]
       };
@@ -176,13 +171,10 @@ describe("TankComponent", () => {
         ...defaultProps,
         pvData: [
           {
-            value: {
-              getDoubleValue: () => -10,
-              display: {
-                units: "mm",
-                controlRange: { min: 0, max: 100 }
-              }
-            } as Partial<DType> as DType
+            value: newDType({ doubleValue: -10 }, undefined, undefined, {
+              units: "mm",
+              controlRange: { min: 0, max: 100 }
+            })
           } as Partial<PvDatum> as PvDatum
         ]
       };

@@ -1,13 +1,13 @@
 import { Axis } from "../../../types/axis";
 import { Color } from "../../../types/color";
-import { DType } from "../../../types/dtypes";
+import { newDType } from "../../../types/dtypes/dType";
 import { Font, FontStyle } from "../../../types/font";
 import { Trace } from "../../../types/trace";
 import { roundValue } from "../utils";
 import { calculateAxisLimits, createAxes, createTraces } from "./xyPlotOptions";
 
 const DATA = [0, 3, 4, 8];
-const ARRAY_DATA = new DType({
+const ARRAY_DATA = newDType({
   arrayValue: new Float32Array(DATA)
 });
 
@@ -99,7 +99,7 @@ describe("calculate axis limits", (): void => {
 describe("Create trace options object", (): void => {
   test("Return empty array if no data", (): void => {
     const traces: Trace[] = [];
-    const val = new DType({ stringValue: "3.141", arrayValue: undefined });
+    const val = newDType({ stringValue: "3.141", arrayValue: undefined });
     const bytesPerElement = 4;
     const traceOptions = createTraces(traces, val, bytesPerElement);
 

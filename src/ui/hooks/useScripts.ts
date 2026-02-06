@@ -5,7 +5,10 @@ import { useSelector } from "react-redux";
 import { CsState } from "../../redux/csState";
 
 import { PvArrayResults, pvStateSelector, pvStateComparator } from "./utils";
-import { DType } from "../../types/dtypes";
+import {
+  dTypeCoerceString,
+  dTypeGetDoubleValue
+} from "../../types/dtypes/dType";
 import { SubscriptionType } from "../../connection/plugin";
 import {
   executeDynamicScriptInSandbox,
@@ -55,8 +58,8 @@ export const useScripts = (
       };
 
       if (pvDatum?.value) {
-        const doubleValue = pvDatum.value.getDoubleValue();
-        const stringValue = DType.coerceString(pvDatum.value);
+        const doubleValue = dTypeGetDoubleValue(pvDatum.value);
+        const stringValue = dTypeCoerceString(pvDatum.value);
         value = { number: doubleValue, string: stringValue };
       }
       pvValues.push(value);

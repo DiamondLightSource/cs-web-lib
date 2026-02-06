@@ -14,7 +14,7 @@ import {
   IntPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
-import { DType } from "../../../types/dtypes";
+import { dTypeGetDoubleValue, newDType } from "../../../types/dtypes/dType";
 import { Slider, useTheme } from "@mui/material";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { getPvValueAndName } from "../utils";
@@ -126,19 +126,19 @@ export const SlideControlComponent = (
   }
 
   const [inputValue, setInputValue] = useState<number>(
-    value?.getDoubleValue() ?? 0
+    dTypeGetDoubleValue(value) ?? 0
   );
 
   useEffect(() => {
     if (value) {
-      setInputValue(value?.getDoubleValue() ?? 0);
+      setInputValue(dTypeGetDoubleValue(value) ?? 0);
     }
   }, [value]);
 
   function onMouseUp(value: number): void {
     if (pvName !== undefined) {
       try {
-        writePv(pvName, new DType({ doubleValue: value }));
+        writePv(pvName, newDType({ doubleValue: value }));
       } catch (error) {
         log.warn(`Unexpected value ${value} set to slider.`);
       }

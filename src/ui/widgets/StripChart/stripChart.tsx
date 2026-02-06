@@ -20,6 +20,7 @@ import { Color, Font } from "../../../types";
 import { convertStringTimePeriod } from "../utils";
 import { Trace } from "../../../types/trace";
 import { Axis } from "../../../types/axis";
+import { dTypeGetDoubleValue, dTypeGetTime } from "../../../types/dtypes/dType";
 
 const MARKER_STYLES: any[] = [
   undefined,
@@ -116,7 +117,7 @@ export const StripChartComponent = (
       // Add check for update period here
       if (pvData) {
         const allDates = Object.values(pvData)
-          .map(pvItem => pvItem?.value?.getTime()?.datetime)
+          .map(pvItem => dTypeGetTime(pvItem?.value)?.datetime)
           .filter(date => !!date);
 
         if (allDates.length < 1) {
@@ -164,7 +165,7 @@ export const StripChartComponent = (
           const { effectivePvName, value } = pvItem;
           newTimeseriesPoint = {
             ...newTimeseriesPoint,
-            [effectivePvName]: value?.getDoubleValue() ?? null
+            [effectivePvName]: dTypeGetDoubleValue(value) ?? null
           };
         });
 

@@ -15,7 +15,6 @@ import {
 } from "./widgetProps";
 import { Border, BorderStyle } from "../../types/border";
 import { Color } from "../../types/color";
-import { AlarmQuality } from "../../types/dtypes";
 import { Font } from "../../types/font";
 import { OutlineContext } from "../../misc/outlineContext";
 import { ExitFileContext, FileContext } from "../../misc/fileContext";
@@ -26,6 +25,8 @@ import { useScripts } from "../hooks/useScripts";
 import { ScriptResponse } from "./EmbeddedDisplay/scripts/scriptExecutor";
 import { OPI_SIMPLE_PARSERS } from "./EmbeddedDisplay/opiParser";
 import { PositionPropNames } from "../../types/position";
+import { AlarmQuality } from "../../types/dtypes/dAlarm";
+import { dTypeGetAlarm } from "../../types/dtypes/dType";
 
 const ALARM_SEVERITY_MAP = {
   [AlarmQuality.ALARM]: 1,
@@ -187,7 +188,7 @@ export const ConnectingComponent = (props: {
 
     if (alarmBorder && pvData) {
       alarmSeverity = pvData
-        .map(x => x.value?.getAlarm()?.quality ?? AlarmQuality.VALID)
+        .map(x => dTypeGetAlarm(x.value)?.quality ?? AlarmQuality.VALID)
         .reduce(
           (mostSevereSoFar, currentItem) =>
             ALARM_SEVERITY_MAP[mostSevereSoFar] <

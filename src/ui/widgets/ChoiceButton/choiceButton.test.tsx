@@ -1,7 +1,8 @@
 import React from "react";
 import { ChoiceButtonComponent } from "./choiceButton";
 import { fireEvent, render } from "@testing-library/react";
-import { DDisplay, DType } from "../../../types/dtypes";
+import { DDisplay } from "../../../types/dtypes";
+import { newDType } from "../../../types/dtypes/dType";
 import { Color, Font } from "../../../types";
 import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
@@ -50,7 +51,7 @@ describe("<ChoiceButton />", (): void => {
           effectivePvName: "TEST:PV",
           connected: true,
           readonly: true,
-          value: new DType({ doubleValue: 0 })
+          value: newDType({ doubleValue: 0 })
         } as Partial<PvDatum> as PvDatum
       ],
       width: 60,
@@ -88,7 +89,7 @@ describe("<ChoiceButton />", (): void => {
           effectivePvName: "TEST:PV",
           connected: true,
           readonly: true,
-          value: new DType(
+          value: newDType(
             { doubleValue: 0 },
             undefined,
             undefined,

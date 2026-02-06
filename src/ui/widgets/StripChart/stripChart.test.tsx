@@ -1,13 +1,14 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { describe, test, expect, beforeEach, vi } from "vitest";
-import { Color, DType } from "../../../types";
+import { Color } from "../../../types";
 import { StripChartComponent } from "./stripChart";
 import { Trace } from "../../../types/trace";
 import { Axis } from "../../../types/axis";
 import { convertStringTimePeriod } from "../utils";
 import { PvDatum } from "../../../redux/csState";
 import { DTime } from "../../../types/dtypes";
+import { newDType } from "../../../types/dtypes/dType";
 
 // Mock the MUI X-Charts components
 vi.mock("@mui/x-charts", () => ({
@@ -46,10 +47,10 @@ describe("StripChartComponent", () => {
       effectivePvName: pvName,
       connected: true,
       readonly: true,
-      value: {
-        getDoubleValue: () => value,
-        getTime: () => new DTime(date)
-      } as Partial<DType> as DType
+      value: newDType({ doubleValue: value }, undefined, new DTime(date), {
+        units: "mm",
+        controlRange: { min: 0, max: 100 }
+      })
     } as Partial<PvDatum> as PvDatum;
   };
 

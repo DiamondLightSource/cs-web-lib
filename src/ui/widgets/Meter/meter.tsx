@@ -22,6 +22,7 @@ import {
   NumberFormatEnum
 } from "./meterUtilities";
 import { getPvValueAndName } from "../utils";
+import { dTypeGetDoubleValue } from "../../../types/dtypes/dType";
 
 export const MeterProps = {
   minimum: FloatPropOpt,
@@ -60,7 +61,7 @@ export const MeterComponent = (
   const { value } = getPvValueAndName(pvData);
 
   const units = value?.display.units ?? "";
-  const numValue = value?.getDoubleValue() ?? 0;
+  const numValue = dTypeGetDoubleValue(value) ?? 0;
 
   const getFormattedValue = useMemo(
     () => formatValue(numValue, format, precision ?? 3, units, showUnits),

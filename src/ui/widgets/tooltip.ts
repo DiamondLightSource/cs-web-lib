@@ -1,11 +1,17 @@
 import { PvDatum } from "../../redux/csState";
-import { AlarmQuality, DType } from "../../types/dtypes";
+import {
+  DType,
+  dTypeCoerceString,
+  dTypeGetAlarm,
+  dTypeGetTime
+} from "../../types/dtypes/dType";
+import { AlarmQuality } from "../../types/dtypes/dAlarm";
 import { getPvValueAndName } from "./utils";
 
 function tooltipValue(connected?: boolean, value?: DType): string {
   if (value) {
-    const time = value.getTime();
-    const alarm = value.getAlarm();
+    const time = dTypeGetTime(value);
+    const alarm = dTypeGetAlarm(value);
     let displayValue = "";
     if (!connected) {
       displayValue = "WARNING: Not Connected";
@@ -13,7 +19,7 @@ function tooltipValue(connected?: boolean, value?: DType): string {
       if (!value) {
         displayValue = "Warning: Waiting for value";
       } else {
-        displayValue = DType.coerceString(value);
+        displayValue = dTypeCoerceString(value);
         if (alarm.quality !== AlarmQuality.VALID) {
           displayValue += ` [${alarm.quality}]`;
         }
