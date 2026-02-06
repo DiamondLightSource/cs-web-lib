@@ -195,17 +195,17 @@ export const EmbeddedDisplay = (
             resolvedProps.groupName)
     );
     if (matchingGroup && matchingGroup?.position) {
-      const position = matchingGroup.position.clone();
-      position.x = 0;
-      position.y = 0;
+      const position = { ...matchingGroup.position };
+      position.x = "0";
+      position.y = "0";
 
       matchingGroup = { ...matchingGroup, styleOpt: 3, position };
       if (selectedDescription.position) {
-        const displayPosition = selectedDescription.position.clone();
+        const displayPosition = { ...selectedDescription.position };
         displayPosition.height = matchingGroup.position.height;
         displayPosition.width = matchingGroup.position.width;
-        displayPosition.x = 0;
-        displayPosition.y = 0;
+        displayPosition.x = "0";
+        displayPosition.y = "0";
         selectedDescription = {
           ...selectedDescription,
           position: displayPosition

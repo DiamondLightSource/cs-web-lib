@@ -2,7 +2,7 @@ import React from "react";
 
 import { Widget } from "./widget";
 import { LabelComponent } from "./Label/label";
-import { RelativePosition } from "../../types/position";
+import { newRelativePosition } from "../../types/position";
 import { PV } from "../../types/pv";
 import { contextRender } from "../../testResources";
 import { fireEvent } from "@testing-library/react";
@@ -26,7 +26,7 @@ const TestLabel = (): JSX.Element => {
 describe("<Widget />", (): void => {
   test("it shows label text", (): void => {
     const { queryByText } = contextRender(
-      <Widget baseWidget={TestLabel} position={new RelativePosition()} />
+      <Widget baseWidget={TestLabel} position={newRelativePosition()} />
     );
     expect(queryByText("Test")).toBeInTheDocument();
   });
@@ -48,7 +48,7 @@ describe("<Widget />", (): void => {
       <Widget
         pvMetadataList={[{ pvName: pv }]}
         baseWidget={TestLabel}
-        position={new RelativePosition()}
+        position={newRelativePosition()}
         tooltip="hi there"
       />,
       {},

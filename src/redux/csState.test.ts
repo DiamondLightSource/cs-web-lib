@@ -19,8 +19,8 @@ import {
 } from "../types/dtypes/dType";
 import { ddouble, dstring, ddoubleArray } from "../testResources";
 import { WidgetDescription } from "../ui/widgets/createComponent";
-import { AbsolutePosition } from "../types";
 import { AlarmQuality, DAlarmMAJOR, newDAlarm } from "../types/dtypes/dAlarm";
+import { newAbsolutePosition } from "../types/position";
 
 const initialState: CsState = {
   valueCache: {
@@ -38,7 +38,7 @@ const initialState: CsState = {
   fileCache: {
     "mySecondFile.bob": {
       type: "ellipse",
-      position: new AbsolutePosition("0", "0", "0", "0")
+      position: newAbsolutePosition("0", "0", "0", "0")
     }
   }
 };
@@ -222,7 +222,7 @@ describe("FILE_CHANGED", (): void => {
   test("csReducer adds file to fileCache", (): void => {
     const contents: WidgetDescription = {
       type: "shape",
-      position: new AbsolutePosition("0", "0", "0", "0")
+      position: newAbsolutePosition("0", "0", "0", "0")
     };
     const fileName = "myfile.bob";
     const action: ReturnType<typeof fileChanged> = {

@@ -24,7 +24,7 @@ import { resolveTooltip } from "./tooltip";
 import { useScripts } from "../hooks/useScripts";
 import { ScriptResponse } from "./EmbeddedDisplay/scripts/scriptExecutor";
 import { OPI_SIMPLE_PARSERS } from "./EmbeddedDisplay/opiParser";
-import { PositionPropNames } from "../../types/position";
+import { PositionPropNames, positionToCss } from "../../types/position";
 import { AlarmQuality } from "../../types/dtypes/dAlarm";
 import { dTypeGetAlarm } from "../../types/dtypes/dType";
 
@@ -352,7 +352,7 @@ export const Widget = (props: PVWidgetComponent): JSX.Element => {
   // Calculate the inner div style here as it doesn't update frequently.
   const { showOutlines } = useContext(OutlineContext);
   const containerStyle = {
-    ...position.css(),
+    ...positionToCss(position),
     outline: showOutlines ? "1px dashed grey" : undefined,
     outlineOffset: showOutlines ? "-2px" : undefined
   };

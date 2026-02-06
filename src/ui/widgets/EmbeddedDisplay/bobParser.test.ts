@@ -1,5 +1,5 @@
 import { Color } from "../../../types/color";
-import { AbsolutePosition } from "../../../types/position";
+import { newAbsolutePosition } from "../../../types/position";
 import { BOB_SIMPLE_PARSERS, parseBob } from "./bobParser";
 import { PV } from "../../../types/pv";
 import { ensureWidgetsRegistered } from "..";
@@ -54,7 +54,7 @@ describe("bob widget parser", (): void => {
     expect(widget.text).toEqual("Hello");
     // Position type
     expect(widget.position).toEqual(
-      new AbsolutePosition("10px", "20px", "550px", "31px")
+      newAbsolutePosition("10px", "20px", "550px", "31px")
     );
     // Color type
     expect(widget.foregroundColor).toEqual(Color.RED);

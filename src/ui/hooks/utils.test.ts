@@ -1,6 +1,7 @@
 import { CsState, PvState, FullPvState } from "../../redux/csState";
-import { AbsolutePosition, Color } from "../../types";
+import { Color } from "../../types";
 import { newDType } from "../../types/dtypes/dType";
+import { newAbsolutePosition } from "../../types/position";
 import { WidgetDescription } from "../widgets/createComponent";
 import {
   pvStateSelector,
@@ -121,11 +122,11 @@ describe("fileComparator", (): void => {
   it("returns false if string contents don't match", (): void => {
     const contents1: WidgetDescription = {
       type: "shape",
-      position: new AbsolutePosition("0", "0", "0", "0")
+      position: newAbsolutePosition("0", "0", "0", "0")
     };
     const contents2: WidgetDescription = {
       type: "shape",
-      position: new AbsolutePosition("1", "0", "0", "0")
+      position: newAbsolutePosition("1", "0", "0", "0")
     };
     expect(fileComparator(contents1, contents2)).toBe(false);
   });
@@ -133,12 +134,12 @@ describe("fileComparator", (): void => {
   it("returns false if number of keys changed", (): void => {
     const contents1: WidgetDescription = {
       type: "shape",
-      position: new AbsolutePosition("0", "0", "0", "0"),
+      position: newAbsolutePosition("0", "0", "0", "0"),
       backgroundColor: Color.TRANSPARENT
     };
     const contents2: WidgetDescription = {
       type: "shape",
-      position: new AbsolutePosition("0", "0", "0", "0")
+      position: newAbsolutePosition("0", "0", "0", "0")
     };
 
     expect(fileComparator(contents1, contents2)).toBe(false);
@@ -147,7 +148,7 @@ describe("fileComparator", (): void => {
   it("returns true if matches", (): void => {
     const contents: WidgetDescription = {
       type: "shape",
-      position: new AbsolutePosition("0", "0", "0", "0")
+      position: newAbsolutePosition("0", "0", "0", "0")
     };
     expect(fileComparator(contents, { ...contents })).toBe(true);
   });
@@ -157,7 +158,7 @@ describe("fileSelector", (): void => {
   it("finds file in fileCache", (): void => {
     const contents: WidgetDescription = {
       type: "shape",
-      position: new AbsolutePosition("0", "0", "0", "0")
+      position: newAbsolutePosition("0", "0", "0", "0")
     };
     state.fileCache["test.bob"] = contents;
 

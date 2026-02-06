@@ -20,7 +20,7 @@ import {
   StringProp
 } from "../propTypes";
 import { EmbeddedDisplay } from "../EmbeddedDisplay/embeddedDisplay";
-import { RelativePosition } from "../../../types/position";
+import { newRelativePosition } from "../../../types/position";
 
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 import { TabBar } from "./tabs";
@@ -59,7 +59,7 @@ export const DynamicTabsComponent = (
     const children = Object.values(openTabs).map(([name, description]) => [
       // Choose dimensions to avoid additional scroll bars appearing.
       <EmbeddedDisplay
-        position={new RelativePosition("99%", "96%")}
+        position={newRelativePosition("99%", "96%")}
         file={{
           path: description?.path || "",
           defaultProtocol: description?.defaultProtocol ?? "ca",

@@ -6,8 +6,8 @@ import { parseWidget, ParserDict, ComplexParserDict } from "./parser";
 import { Border, BorderStyle } from "../../../types/border";
 import {
   Position,
-  AbsolutePosition,
-  RelativePosition
+  newAbsolutePosition,
+  newRelativePosition
 } from "../../../types/position";
 import { PV } from "../../../types/pv";
 import { WidgetDescription } from "../createComponent";
@@ -29,30 +29,34 @@ interface JsonFont {
 function jsonParsePvName(pvName: string, defaultProtocol: string): PV {
   return PV.parse(pvName, defaultProtocol);
 }
+
+const toString = (value: undefined | string | number): string =>
+  value != null ? `${value}` : "";
+
 function jsonParsePosition(props: Record<string, string>): Position {
   if (props.position === "absolute") {
-    return new AbsolutePosition(
-      props.x,
-      props.y,
-      props.width,
-      props.height,
-      props.margin,
-      props.padding,
-      props.minWidth,
-      props.maxWidth,
-      props.minHeight
+    return newAbsolutePosition(
+      toString(props.x),
+      toString(props.y),
+      toString(props.width),
+      toString(props.height),
+      toString(props.margin),
+      toString(props.padding),
+      toString(props.minWidth),
+      toString(props.maxWidth),
+      toString(props.minHeight)
     );
   } else {
-    return new RelativePosition(
-      props.x,
-      props.y,
-      props.width,
-      props.height,
-      props.margin,
-      props.padding,
-      props.minWidth,
-      props.maxWidth,
-      props.minHeight
+    return newRelativePosition(
+      toString(props.x),
+      toString(props.y),
+      toString(props.width),
+      toString(props.height),
+      toString(props.margin),
+      toString(props.padding),
+      toString(props.minWidth),
+      toString(props.maxWidth),
+      toString(props.minHeight)
     );
   }
 }

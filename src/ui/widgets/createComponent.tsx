@@ -4,7 +4,7 @@ import { checkPropTypes } from "./checkPropTypes";
 
 import { Color } from "../../types/color";
 import { REGISTERED_WIDGETS } from "./register";
-import { Position, RelativePosition } from "../../types/position";
+import { newRelativePosition, Position } from "../../types/position";
 import { Font, FontStyle } from "../../types/font";
 import { Border, BorderStyle } from "../../types/border";
 
@@ -16,7 +16,7 @@ export interface WidgetDescription {
 }
 const ERROR_WIDGET: WidgetDescription = {
   type: "label",
-  position: new RelativePosition(),
+  position: newRelativePosition(),
   font: new Font(16, FontStyle.Bold),
   backgroundColor: Color.TRANSPARENT,
   border: new Border(BorderStyle.Line, Color.RED, 2),
@@ -34,7 +34,7 @@ export function errorWidget(
     ...ERROR_WIDGET,
     text: message,
     tooltip: message,
-    position: position ?? new RelativePosition()
+    position: position ?? newRelativePosition()
   };
 }
 

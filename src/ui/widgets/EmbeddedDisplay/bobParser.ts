@@ -21,9 +21,9 @@ import {
 import { xml2js, ElementCompact } from "xml-js";
 import log from "loglevel";
 import {
-  Position,
-  AbsolutePosition,
-  RelativePosition
+  newAbsolutePosition,
+  newRelativePosition,
+  Position
 } from "../../../types/position";
 import { PV } from "../../../types/pv";
 import { OpiFile, Rule, Script } from "../../../types/props";
@@ -131,7 +131,7 @@ export function bobParseNumber(jsonProp: ElementCompact): number | undefined {
 function bobParsePosition(props: any): Position {
   // Find type of widget and map to default width and height for that widget
   const widget = props._attributes.type;
-  return new AbsolutePosition(
+  return newAbsolutePosition(
     `${bobParseNumber(props.x) ?? 0}px`,
     `${bobParseNumber(props.y) ?? 0}px`,
     `${bobParseNumber(props.width) ?? WIDGET_DEFAULT_SIZES[widget][0]}px`,
@@ -552,7 +552,7 @@ export async function parseBob(
     macros
   );
 
-  displayWidget.position = new RelativePosition(
+  displayWidget.position = newRelativePosition(
     displayWidget.position.x,
     displayWidget.position.y,
     displayWidget.position.width,

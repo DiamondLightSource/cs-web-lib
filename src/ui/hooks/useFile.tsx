@@ -8,17 +8,17 @@ import { fileComparator, fileSelector } from "./utils";
 import { MacroMap } from "../../types/macros";
 import { errorWidget, WidgetDescription } from "../widgets/createComponent";
 import { useEffect } from "react";
-import { AbsolutePosition } from "../../types";
 import { httpRequest } from "../../misc";
 import log from "loglevel";
 import { parseBob } from "../widgets/EmbeddedDisplay/bobParser";
 import { parseJson } from "../widgets/EmbeddedDisplay/jsonParser";
 import { parseOpi } from "../widgets/EmbeddedDisplay/opiParser";
 import { Store } from "redux";
+import { newAbsolutePosition } from "../../types/position";
 
 const EMPTY_WIDGET: WidgetDescription = {
   type: "shape",
-  position: new AbsolutePosition("0", "0", "0", "0")
+  position: newAbsolutePosition("0", "0", "0", "0")
 };
 
 export interface File {
@@ -84,6 +84,7 @@ export function useFile(file: File, macros?: MacroMap): WidgetDescription {
         macros
       );
       const contents = await fetchPromise;
+
       // Populate the file cache.
       if (isMounted) {
         dispatch(fileChanged({ file: file.path, contents: contents }));

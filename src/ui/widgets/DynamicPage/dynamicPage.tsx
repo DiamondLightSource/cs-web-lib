@@ -23,7 +23,7 @@ import {
   EmbeddedDisplayPropsExtra
 } from "../EmbeddedDisplay/embeddedDisplay";
 import { Color } from "../../../types/color";
-import { RelativePosition } from "../../../types/position";
+import { newRelativePosition } from "../../../types/position";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 import { phoebusTheme } from "../../../phoebusTheme";
 
@@ -71,7 +71,7 @@ export const DynamicPageComponent = (
         <div style={style}>
           <EmbeddedDisplay
             file={file}
-            position={new RelativePosition()}
+            position={newRelativePosition()}
             scalingOrigin={"0 0"}
             scroll={props.scroll ?? false}
             theme={theme}
@@ -87,7 +87,7 @@ export const DynamicPageComponent = (
             }}
           >
             <ActionButton
-              position={new RelativePosition("25px", "25px")}
+              position={newRelativePosition("25px", "25px")}
               backgroundColor={new Color("var(--light-background)")}
               foregroundColor={new Color("#000000")}
               text={"\u2715"}
@@ -118,7 +118,7 @@ export const DynamicPageComponent = (
         <div style={style}>
           <EmbeddedDisplay
             file={file}
-            position={new RelativePosition()}
+            position={newRelativePosition()}
             scalingOrigin={"0 0"}
             scroll={props.scroll ?? false}
             theme={theme}

@@ -1,11 +1,14 @@
 import { Label } from "..";
 import { parseJson } from "./jsonParser";
-import { RelativePosition, AbsolutePosition } from "../../../types/position";
 import { Font, FontStyle } from "../../../types/font";
 import { Border, BorderStyle } from "../../../types/border";
 import { Color } from "../../../types/color";
 import { PV } from "../../../types/pv";
 import { WidgetDescription } from "../createComponent";
+import {
+  newAbsolutePosition,
+  newRelativePosition
+} from "../../../types/position";
 
 const PREFIX = "prefix";
 
@@ -33,7 +36,7 @@ describe("json widget parser", (): void => {
     const widget = await parseJson(displayString, "ca", PREFIX);
     expect((await widget).type).toEqual("display");
     // Position type
-    expect(widget.position).toEqual(new RelativePosition());
+    expect(widget.position).toEqual(newRelativePosition());
     // Font type not present on Display widget.
     expect(widget.font).toBeUndefined();
   });
@@ -60,7 +63,7 @@ describe("json widget parser", (): void => {
       .children?.[0] as WidgetDescription;
     expect(widget.font).toEqual(new Font(13, FontStyle.Bold));
     expect(widget.position).toEqual(
-      new AbsolutePosition("10", "20", "30", "40")
+      newAbsolutePosition("10", "20", "30", "40")
     );
   });
   const ruleString = `{

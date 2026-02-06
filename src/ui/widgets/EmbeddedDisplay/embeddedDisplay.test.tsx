@@ -1,8 +1,8 @@
 import React from "react";
 import log from "loglevel";
 import { EmbeddedDisplay } from "./embeddedDisplay";
-import { waitFor } from "@testing-library/react";
-import { RelativePosition } from "../../../types/position";
+import { waitFor, screen } from "@testing-library/react";
+import { newRelativePosition } from "../../../types/position";
 import { contextRender } from "../../../testResources";
 import { ensureWidgetsRegistered } from "..";
 import { vi } from "vitest";
@@ -47,7 +47,7 @@ describe("<EmbeddedDisplay>", (): void => {
       );
 
       const props = {
-        position: new RelativePosition(),
+        position: newRelativePosition(),
         file: {
           path: inputFile,
           defaultProtocol: "ca",
@@ -94,7 +94,7 @@ describe("<EmbeddedDisplay>", (): void => {
     log.setLevel("error");
     const { queryByText } = contextRender(
       <EmbeddedDisplay
-        position={new RelativePosition()}
+        position={newRelativePosition()}
         file={{
           path: "/TestFile1.bob",
           defaultProtocol: "ca",
@@ -140,7 +140,7 @@ describe("<EmbeddedDisplay>", (): void => {
 
     const { queryByText } = contextRender(
       <EmbeddedDisplay
-        position={new RelativePosition()}
+        position={newRelativePosition()}
         file={{
           path: "/TestFile2.bob",
           defaultProtocol: "ca",
@@ -173,7 +173,7 @@ describe("<EmbeddedDisplay>", (): void => {
 
     const { queryByText } = contextRender(
       <EmbeddedDisplay
-        position={new RelativePosition()}
+        position={newRelativePosition()}
         file={{
           path: "/TestFile3.json",
           defaultProtocol: "ca",
@@ -248,7 +248,7 @@ describe("<EmbeddedDisplay>", (): void => {
 
     const { container, queryByText } = contextRender(
       <EmbeddedDisplay
-        position={new RelativePosition()}
+        position={newRelativePosition()}
         name={"Top_Display"}
         groupName={"group_name_2"}
         file={{
@@ -264,31 +264,31 @@ describe("<EmbeddedDisplay>", (): void => {
     expect(globalWithFetch.fetch).toHaveBeenCalledTimes(1);
     expect(globalWithFetch.fetch).toHaveBeenCalledWith("/TestFile3.json");
 
-    await waitFor((): void => {
-      const display = container.querySelector(".display");
-      expect(display).not.toBeNull();
-      const innerDisplayWidgetWrapper = display?.firstChild;
-      expect(innerDisplayWidgetWrapper).toHaveStyle("position: absolute");
-      // This should match the size of the selected group
-      expect(innerDisplayWidgetWrapper).toHaveStyle("height: 250px");
-      expect(innerDisplayWidgetWrapper).toHaveStyle("width: 240px");
-      expect(innerDisplayWidgetWrapper).toHaveStyle("top: 0px");
-      expect(innerDisplayWidgetWrapper).toHaveStyle("left: 0px");
+    await screen.findByText("Test group 2");
+    // Second group should not be present
+    expect(queryByText("Test group 1")).not.toBeInTheDocument();
 
-      const displayInner = display?.querySelector(".display");
-      expect(displayInner).not.toBeNull();
-      const groupBoxWidgetWrapper = displayInner?.firstChild;
-      expect(groupBoxWidgetWrapper).toHaveStyle("position: absolute");
-      expect(groupBoxWidgetWrapper).toHaveStyle("height: 250px");
-      expect(groupBoxWidgetWrapper).toHaveStyle("width: 240px");
-      // Positioned at top left irrespective of specified coordinates
-      expect(groupBoxWidgetWrapper).toHaveStyle("top: 0");
-      expect(groupBoxWidgetWrapper).toHaveStyle("left: 0");
+    const display = container.querySelector(".display");
+    expect(display).not.toBeNull();
+    const innerDisplayWidgetWrapper = display?.firstElementChild;
+    expect(innerDisplayWidgetWrapper).toHaveStyle("position: absolute");
 
-      expect(queryByText("Test group 2")).toBeInTheDocument();
-      // Second group should not be present
-      expect(queryByText("Test group 1")).not.toBeInTheDocument();
-    });
+    // This should match the size of the selected group
+    expect(innerDisplayWidgetWrapper).not.toBeNull();
+    expect(innerDisplayWidgetWrapper).toHaveStyle("top: 0px");
+    expect(innerDisplayWidgetWrapper).toHaveStyle("left: 0px");
+    expect(innerDisplayWidgetWrapper).toHaveStyle("height: 250px");
+    expect(innerDisplayWidgetWrapper).toHaveStyle("width: 240px");
+
+    const displayInner = display?.querySelector(".display");
+    expect(displayInner).not.toBeNull();
+    const groupBoxWidgetWrapper = displayInner?.firstChild;
+    expect(groupBoxWidgetWrapper).toHaveStyle("position: absolute");
+    expect(groupBoxWidgetWrapper).toHaveStyle("height: 250px");
+    expect(groupBoxWidgetWrapper).toHaveStyle("width: 240px");
+    // Positioned at top left irrespective of specified coordinates
+    expect(groupBoxWidgetWrapper).toHaveStyle("top: 0");
+    expect(groupBoxWidgetWrapper).toHaveStyle("left: 0");
   });
 
   it("selects specific group from fetched children, when group is specified by macro name", async (): Promise<void> => {
@@ -349,7 +349,7 @@ describe("<EmbeddedDisplay>", (): void => {
 
     const { queryByText } = contextRender(
       <EmbeddedDisplay
-        position={new RelativePosition()}
+        position={newRelativePosition()}
         name={"Top_Display"}
         groupName={"$(MACRO_GROUP_NAME)"}
         file={{
@@ -397,7 +397,7 @@ describe("<EmbeddedDisplay>", (): void => {
 
     contextRender(
       <EmbeddedDisplay
-        position={new RelativePosition()}
+        position={newRelativePosition()}
         name={"Top_Display"}
         groupName={"group_name_2"}
         file={{

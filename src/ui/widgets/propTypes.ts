@@ -2,13 +2,13 @@ import PropTypes, { InferProps } from "prop-types";
 import { Color } from "../../types/color";
 import { Font } from "../../types/font";
 import { Border } from "../../types/border";
-import { RelativePosition, AbsolutePosition } from "../../types/position";
 import { PV } from "../../types/pv";
 import { FileDescription } from "../../misc/fileContext";
 import { Trace } from "../../types/trace";
 import { Axis } from "../../types/axis";
 import { Points } from "../../types/points";
 import { Plt } from "../../types/plt";
+import { PositionType } from "../../types/position";
 
 export type ExcludeNulls<T> = {
   [P in keyof T]: Exclude<T[P], null>;
@@ -73,10 +73,22 @@ export const FuncProp = FuncPropOpt.isRequired;
 export const PointsProp = PropTypes.instanceOf(Points).isRequired;
 export const PointsPropOpt = PropTypes.instanceOf(Points);
 
-export const PositionProp = PropTypes.oneOfType([
-  PropTypes.instanceOf(AbsolutePosition),
-  PropTypes.instanceOf(RelativePosition)
-]).isRequired;
+export const PositionTypeProp = PropTypes.oneOf(
+  Object.values(PositionType)
+).isRequired;
+
+export const PositionProp = PropTypes.shape({
+  x: StringProp,
+  y: StringProp,
+  width: StringProp,
+  height: StringProp,
+  margin: StringProp,
+  padding: StringProp,
+  minWidth: StringProp,
+  maxWidth: StringProp,
+  minHeight: StringProp,
+  positionType: PositionTypeProp
+}).isRequired;
 
 export const MacrosProp = PropTypes.objectOf(
   PropTypes.string.isRequired

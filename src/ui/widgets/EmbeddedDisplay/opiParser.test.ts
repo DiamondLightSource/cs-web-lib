@@ -9,7 +9,10 @@ import {
   opiPatchRules,
   parseOpi
 } from "./opiParser";
-import { AbsolutePosition, RelativePosition } from "../../../types/position";
+import {
+  newAbsolutePosition,
+  newRelativePosition
+} from "../../../types/position";
 import { ensureWidgetsRegistered } from "..";
 import { WidgetDescription } from "../createComponent";
 import { ElementCompact } from "xml-js";
@@ -30,7 +33,7 @@ describe("opi widget parser", (): void => {
   it("parses a display widget", async (): Promise<void> => {
     const displayWidget = await parseOpi(displayString, "ca", PREFIX);
     expect(displayWidget.position).toEqual(
-      new RelativePosition("0px", "0px", "30px", "40px")
+      newRelativePosition("0px", "0px", "30px", "40px")
     );
   });
   const labelString = `
@@ -91,7 +94,7 @@ describe("opi widget parser", (): void => {
     expect(widget.text).toEqual("Hello");
     // Position type
     expect(widget.position).toEqual(
-      new AbsolutePosition("370px", "20px", "120px", "20px")
+      newAbsolutePosition("370px", "20px", "120px", "20px")
     );
     // Color type
     expect(widget.foregroundColor).toEqual(Color.BLACK);

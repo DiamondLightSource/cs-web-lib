@@ -9,8 +9,8 @@ import { FontStyle, Font } from "../../../types/font";
 import { Border, BorderStyle } from "../../../types/border";
 import {
   Position,
-  AbsolutePosition,
-  RelativePosition
+  newAbsolutePosition,
+  newRelativePosition
 } from "../../../types/position";
 import { Trace } from "../../../types/trace";
 import { Axis } from "../../../types/axis";
@@ -432,7 +432,7 @@ function opiParseType(props: any): string {
 function opiParsePosition(props: any): Position {
   const { x, y, width, height } = props;
   try {
-    return new AbsolutePosition(
+    return newAbsolutePosition(
       `${opiParseNumber(x)}px`,
       `${opiParseNumber(y)}px`,
       `${opiParseNumber(width)}px`,
@@ -1003,7 +1003,7 @@ export async function parseOpi(
     filepath
   );
 
-  displayWidget.position = new RelativePosition(
+  displayWidget.position = newRelativePosition(
     // Handle generated display widgets with no width or height.
     displayWidget.position?.x,
     displayWidget.position?.y,

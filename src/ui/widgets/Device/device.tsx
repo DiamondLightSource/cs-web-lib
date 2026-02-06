@@ -11,7 +11,7 @@ import {
   WidgetDescription,
   widgetDescriptionToComponent
 } from "../createComponent";
-import { RelativePosition } from "../../../types/position";
+import { newRelativePosition } from "../../../types/position";
 import { BorderStyle, Border } from "../../../types/border";
 import { Color } from "../../../types/color";
 import { MacroContext } from "../../../types/macros";
@@ -49,7 +49,7 @@ export const DeviceComponent = (
         } else {
           componentDescription = errorWidget(
             `No device ${replacedDeviceName} found.`,
-            new RelativePosition("100%", "50px")
+            newRelativePosition("100%", "50px")
           );
         }
       } catch {
@@ -59,7 +59,7 @@ export const DeviceComponent = (
       }
       setComponent(
         widgetDescriptionToComponent({
-          position: new RelativePosition("100%", "100%"),
+          position: newRelativePosition("100%", "100%"),
           type: "display",
           children: [componentDescription]
         })
