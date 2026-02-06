@@ -342,33 +342,34 @@ async function bobParseTabs(
   filepath?: string,
   macros?: MacroMap
 ): Promise<any> {
-  const tabs: any[] = [];
-  await props.tab.forEach(async (tab: any, idx: number) => {
-    // We have to parse file separately because it already exists as a complex parser
-    const tabProps = parseChildProps(tab, {
-      file: ["file", opiParseString],
-      ...BOB_SIMPLE_PARSERS
-    });
-    tabs.push(tabProps);
-    if (tab.children) {
-      const childWidgets = toArray(tab.children["widget"]);
-      tabs[idx].children = await Promise.all(
-        childWidgets.map(async (child: any) => {
-          return await parseWidget(
-            child,
-            bobGetTargetWidget,
-            "widget",
-            simpleParsers,
-            complexParsers,
-            false,
-            OPI_PATCHERS(BOB_SIMPLE_PARSERS, BOB_COMPLEX_PARSERS),
-            filepath,
-            macros
-          );
-        })
-      );
-    }
-  });
+  const tabs = await Promise.all(
+    props.tab.map(async (tab: any) => {
+      // We have to parse file separately because it already exists as a complex parser
+      const tabProps = parseChildProps(tab, {
+        file: ["file", opiParseString],
+        ...BOB_SIMPLE_PARSERS
+      });
+      if (tab.children) {
+        const childWidgets = toArray(tab.children["widget"]);
+        tabProps.children = await Promise.all(
+          childWidgets.map(async (child: any) => {
+            return await parseWidget(
+              child,
+              bobGetTargetWidget,
+              "widget",
+              simpleParsers,
+              complexParsers,
+              false,
+              OPI_PATCHERS(BOB_SIMPLE_PARSERS, BOB_COMPLEX_PARSERS),
+              filepath,
+              macros
+            );
+          })
+        );
+      }
+      return tabProps;
+    })
+  );
   return tabs;
 }
 
