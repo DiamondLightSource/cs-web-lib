@@ -13,7 +13,12 @@ import {
   ConnectingComponentWidgetProps,
   PVWidgetComponent
 } from "./widgetProps";
-import { Border, BorderStyle } from "../../types/border";
+import {
+  Border,
+  BorderStyle,
+  borderToCss,
+  newBorder
+} from "../../types/border";
 import { Color } from "../../types/color";
 import { Font } from "../../types/font";
 import { OutlineContext } from "../../misc/outlineContext";
@@ -115,7 +120,7 @@ export function commonCss(props: {
   const cursor =
     props.actions && props.actions.actions.length > 0 ? "pointer" : undefined;
   return {
-    ...props.border?.css(),
+    ...borderToCss(props.border),
     ...props.font?.css(),
     color: props.foregroundColor?.toString(),
     backgroundColor,
@@ -200,9 +205,9 @@ export const ConnectingComponent = (props: {
     }
 
     if (alarmSeverity !== AlarmQuality.VALID) {
-      border = new Border(BorderStyle.Line, AlarmColorsMap[alarmSeverity], 2);
+      border = newBorder(BorderStyle.Line, AlarmColorsMap[alarmSeverity], 2);
     } else if (pvData && !pvData.every(x => x.connected)) {
-      border = new Border(BorderStyle.Dotted, Color.DISCONNECTED, 3);
+      border = newBorder(BorderStyle.Dotted, Color.DISCONNECTED, 3);
     }
   }
 

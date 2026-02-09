@@ -14,6 +14,7 @@ import {
   ColorPropOpt,
   BorderPropOpt
 } from "../propTypes";
+import { borderToCss } from "../../../types/border";
 
 export const DrawerProps = {
   anchor: ChoicePropOpt(["left", "right", "top", "bottom"]),
@@ -43,7 +44,7 @@ export const DrawerComponent = (
           height: "100%",
           width: "100%",
           ...props.font?.css(),
-          ...props.border?.css(),
+          ...borderToCss(props.border),
           color: props.foregroundColor?.toString(),
           backgroundColor: props.backgroundColor?.toString()
         }}

@@ -5,7 +5,7 @@ import log from "loglevel";
 
 import { errorWidget, widgetDescriptionToComponent } from "../createComponent";
 import { Color } from "../../../types/color";
-import { Border, BorderStyle } from "../../../types/border";
+import { BorderStyle, newBorder } from "../../../types/border";
 import {
   MacroContext,
   MacroContextType,
@@ -250,7 +250,7 @@ export const EmbeddedDisplay = (
         selectedDescription.backgroundColor ?? new Color("rgb(255,255,255"),
       border:
         resolvedProps.border ??
-        new Border(BorderStyle.Line, new Color("white"), 0),
+        newBorder(BorderStyle.Line, new Color("white"), 0),
       overflow: overflow,
       children: [selectedDescription],
       scaling: [scaleFactorX, scaleFactorY],

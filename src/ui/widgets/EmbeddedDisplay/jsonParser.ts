@@ -3,7 +3,7 @@ import { Rule } from "../../../types/props";
 import { Font, FontStyle } from "../../../types/font";
 import { Color } from "../../../types/color";
 import { parseWidget, ParserDict, ComplexParserDict } from "./parser";
-import { Border, BorderStyle } from "../../../types/border";
+import { Border, BorderStyle, newBorder } from "../../../types/border";
 import {
   Position,
   newAbsolutePosition,
@@ -73,7 +73,7 @@ function jsonParseBorder(jsonBorder: JsonBorder): Border {
     dotted: BorderStyle.Dotted,
     groupbox: BorderStyle.GroupBox
   };
-  return new Border(
+  return newBorder(
     styles[jsonBorder.style.toLowerCase()],
     jsonParseColor(jsonBorder.color),
     jsonBorder.width,

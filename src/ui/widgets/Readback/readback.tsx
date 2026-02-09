@@ -28,6 +28,7 @@ import { TextField as MuiTextField, styled, useTheme } from "@mui/material";
 import { calculateRotationTransform, getPvValueAndName } from "../utils";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { AlarmQuality } from "../../../types/dtypes/dAlarm";
+import { borderToCss } from "../../../types/border";
 
 const ReadbackProps = {
   precision: IntPropOpt,
@@ -156,7 +157,7 @@ export const ReadbackComponent = (
   let foregroundColor =
     props.foregroundColor?.toString() ?? theme.palette.primary.contrastText;
   let borderColor = props.border?.color.toString() ?? "#000000";
-  let borderStyle = props.border?.css().borderStyle ?? "solid";
+  let borderStyle = borderToCss(props.border)?.borderStyle ?? "solid";
   let borderWidth = props.border?.width ?? "0px";
 
   const alarmQuality = dTypeGetAlarm(value).quality ?? AlarmQuality.VALID;

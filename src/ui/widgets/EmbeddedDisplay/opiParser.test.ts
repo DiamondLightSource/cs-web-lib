@@ -1,6 +1,6 @@
 import log from "loglevel";
 import { Color } from "../../../types/color";
-import { Border } from "../../../types/border";
+import { borderNONE } from "../../../types/border";
 import { Rule } from "../../../types/props";
 import {
   normalisePath,
@@ -101,7 +101,7 @@ describe("opi widget parser", (): void => {
     // Unrecognised property not passed on.
     expect(widget.wuid).toEqual(undefined);
     // No border
-    expect(widget.border).toEqual(Border.NONE);
+    expect(widget.border).toEqual(borderNONE);
     // No actions
     expect(widget.actions.actions.length).toEqual(0);
     // One rule

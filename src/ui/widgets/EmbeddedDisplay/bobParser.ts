@@ -35,7 +35,12 @@ import {
   WRITE_PV
 } from "../widgetActions";
 import { Font, FontStyle } from "../../../types/font";
-import { Border, BorderStyle } from "../../../types/border";
+import {
+  Border,
+  borderNONE,
+  BorderStyle,
+  newBorder
+} from "../../../types/border";
 import { Color } from "../../../types/color";
 import { WidgetDescription } from "../createComponent";
 import { Point, Points } from "../../../types/points";
@@ -171,9 +176,9 @@ function bobParseBorder(props: any): Border {
     // Default to width 0 -> no border
   }
   if (width) {
-    return new Border(BorderStyle.Line, borderColor, width);
+    return newBorder(BorderStyle.Line, borderColor, width);
   } else {
-    return Border.NONE;
+    return borderNONE;
   }
 }
 

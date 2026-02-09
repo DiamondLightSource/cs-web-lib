@@ -14,6 +14,7 @@ import {
   BorderPropOpt,
   ColorPropOpt
 } from "../propTypes";
+import { borderToCss } from "../../../types/border";
 
 const DropDownContainerProps = {
   title: StringProp,
@@ -38,7 +39,7 @@ export const DropDownComponent = (
     className={classes.Detail}
     open={props.open ?? false}
     style={{
-      ...props.border?.css(),
+      ...borderToCss(props.border),
       color: props.foregroundColor?.toString() ?? "",
       backgroundColor: props.backgroundColor?.toString() ?? "",
       minHeight: props.minHeight ?? ""

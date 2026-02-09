@@ -26,6 +26,7 @@ import {
 import { TextField as MuiTextField, styled, useTheme } from "@mui/material";
 import { getPvValueAndName } from "../utils";
 import { AlarmQuality } from "../../../types/dtypes/dAlarm";
+import { borderToCss } from "../../../types/border";
 
 const InputComponentProps = {
   pvName: StringPropOpt,
@@ -152,8 +153,8 @@ export const SmartInputComponent = (
   let foregroundColor =
     props.foregroundColor?.toString() ?? theme.palette.primary.contrastText;
 
-  let borderColor = props.border?.css().borderColor ?? "#000000";
-  let borderStyle = props.border?.css().borderStyle ?? "solid";
+  let borderColor = borderToCss(props.border)?.borderColor ?? "#000000";
+  let borderStyle = borderToCss(props.border)?.borderStyle ?? "solid";
   let borderWidth = props.border?.width ?? "0px";
 
   const alarmQuality = dTypeGetAlarm(value).quality ?? AlarmQuality.VALID;

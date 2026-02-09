@@ -1,7 +1,7 @@
 import { Label } from "..";
 import { parseJson } from "./jsonParser";
 import { Font, FontStyle } from "../../../types/font";
-import { Border, BorderStyle } from "../../../types/border";
+import { BorderStyle, newBorder } from "../../../types/border";
 import { Color } from "../../../types/color";
 import { PV } from "../../../types/pv";
 import { WidgetDescription } from "../createComponent";
@@ -112,7 +112,7 @@ describe("json widget parser", (): void => {
             width: 1,
             color: "red"
           },
-          convertedValue: new Border(BorderStyle.Line, new Color("red"), 1)
+          convertedValue: newBorder(BorderStyle.Line, new Color("red"), 1)
         }
       ]
     };

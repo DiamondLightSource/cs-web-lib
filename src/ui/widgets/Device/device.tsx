@@ -12,7 +12,7 @@ import {
   widgetDescriptionToComponent
 } from "../createComponent";
 import { newRelativePosition } from "../../../types/position";
-import { BorderStyle, Border } from "../../../types/border";
+import { BorderStyle, newBorder, borderNONE } from "../../../types/border";
 import { Color } from "../../../types/color";
 import { MacroContext } from "../../../types/macros";
 
@@ -30,7 +30,7 @@ export const DeviceComponent = (
   const deviceName = props.deviceName ?? (displayMacros["DESC"] || "");
   const [component, setComponent] = useState<JSX.Element>();
   const [border, setBorder] = useState(
-    new Border(BorderStyle.Dotted, Color.DISCONNECTED, 3)
+    newBorder(BorderStyle.Dotted, Color.DISCONNECTED, 3)
   );
   const replacedDeviceName = `dev://${deviceName.replace(/\s/g, "")}`;
   const description = useDevice(replacedDeviceName);
@@ -42,7 +42,7 @@ export const DeviceComponent = (
         let jsonResponse = {};
         if (description && description.value) {
           jsonResponse = JSON.parse(description?.value?.stringValue || "");
-          setBorder(Border.NONE);
+          setBorder(borderNONE);
           const jsonObject = parseResponse(jsonResponse as any);
 
           componentDescription = await parseObject(jsonObject, "ca");

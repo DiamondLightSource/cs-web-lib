@@ -6,7 +6,7 @@ import { Rule, Expression, OpiFile } from "../../../types/props";
 import { MacroMap, resolveMacros } from "../../../types/macros";
 import { Color } from "../../../types/color";
 import { FontStyle, Font } from "../../../types/font";
-import { Border, BorderStyle } from "../../../types/border";
+import { Border, BorderStyle, newBorder } from "../../../types/border";
 import {
   Position,
   newAbsolutePosition,
@@ -408,7 +408,7 @@ function opiParseBorder(props: any): Border {
   }
   const actualColor = width < 2 && lineColor ? lineColor : borderColor;
   const actualStyle = width < 2 && lineColor ? BorderStyle.Line : style;
-  return new Border(actualStyle, actualColor, width);
+  return newBorder(actualStyle, actualColor, width);
 }
 
 /**

@@ -6,7 +6,7 @@ import { Color } from "../../types/color";
 import { REGISTERED_WIDGETS } from "./register";
 import { newRelativePosition, Position } from "../../types/position";
 import { Font, FontStyle } from "../../types/font";
-import { Border, BorderStyle } from "../../types/border";
+import { BorderStyle, newBorder } from "../../types/border";
 
 export interface WidgetDescription {
   type: string;
@@ -19,7 +19,7 @@ const ERROR_WIDGET: WidgetDescription = {
   position: newRelativePosition(),
   font: new Font(16, FontStyle.Bold),
   backgroundColor: Color.TRANSPARENT,
-  border: new Border(BorderStyle.Line, Color.RED, 2),
+  border: newBorder(BorderStyle.Line, Color.RED, 2),
   text: "Error",
   tooltip: "Error",
   width: "auto",

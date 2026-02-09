@@ -12,7 +12,7 @@ import {
   dTypeGetDoubleValue
 } from "../../types/dtypes/dType";
 import { SubscriptionType } from "../../connection/plugin";
-import { Border, BorderStyle } from "../../types/border";
+import { BorderStyle, newBorder } from "../../types/border";
 import { Color } from "../../types/color";
 import { opiParseColor } from "../widgets/EmbeddedDisplay/opiParser";
 import { parseArrayString } from "../../misc/stringUtils";
@@ -102,7 +102,7 @@ export function useRules(props: AnyProps): AnyProps {
                 if (newProps.border) {
                   newProps["border"]["width"] = Number(exp.value._text);
                 } else {
-                  newProps.border = new Border(
+                  newProps.border = newBorder(
                     BorderStyle.None,
                     Color.BLACK,
                     Number(exp.value._text)
@@ -113,7 +113,7 @@ export function useRules(props: AnyProps): AnyProps {
                 if (newProps.border) {
                   newProps["border"]["color"] = opiParseColor(exp.value);
                 } else {
-                  newProps.border = new Border(
+                  newProps.border = newBorder(
                     BorderStyle.None,
                     opiParseColor(exp.value),
                     0
@@ -160,7 +160,7 @@ export function useRules(props: AnyProps): AnyProps {
       }
       // If any PV does not connect, add a disconnected border.
       if (pvNotConnected) {
-        newProps.border = new Border(BorderStyle.Dotted, Color.DISCONNECTED, 3);
+        newProps.border = newBorder(BorderStyle.Dotted, Color.DISCONNECTED, 3);
       }
     } catch (error) {
       log.warn(`Failed to evaluate rule ${name}: ${error}`);

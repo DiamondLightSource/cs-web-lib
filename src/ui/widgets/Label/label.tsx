@@ -17,6 +17,7 @@ import {
 import { Typography as MuiTypography, styled, useTheme } from "@mui/material";
 import { calculateRotationTransform } from "../utils";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
+import { borderToCss } from "../../../types/border";
 
 const LabelProps = {
   macros: MacrosPropOpt,
@@ -71,9 +72,9 @@ export const LabelComponent = (
     ? "transparent"
     : (props.backgroundColor?.toString() ?? theme.palette.primary.main);
   const font = props.font?.css() ?? theme.typography;
-  const borderWidth = props.border?.css().borderWidth ?? "0px";
-  const borderColor = props.border?.css().borderColor ?? "#000000";
-  const borderStyle = props.border?.css().borderStyle ?? "solid";
+  const borderWidth = borderToCss(props.border)?.borderWidth ?? "0px";
+  const borderColor = borderToCss(props.border)?.borderColor ?? "#000000";
+  const borderStyle = borderToCss(props.border)?.borderStyle ?? "solid";
 
   const [inputWidth, inputHeight, transform] = calculateRotationTransform(
     rotationStep,
