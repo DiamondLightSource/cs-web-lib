@@ -1,17 +1,11 @@
-export class Point {
-  public x: number;
-  public y: number;
-
-  public constructor(x: number, y: number) {
-    this.x = x;
-    this.y = y;
-  }
+export interface Point {
+  x: number;
+  y: number;
 }
 
-export class Points {
-  public values: Array<Point>;
-
-  public constructor(values: Array<Point>) {
-    this.values = values;
-  }
+export interface Points {
+  values: Array<Point>;
 }
+
+export const newPoint = (x: number, y: number): Point => ({ x, y });
+export const newPoints = (values: Array<Point>): Points => ({ values });

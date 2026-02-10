@@ -32,7 +32,7 @@ import {
   EXIT
 } from "../widgetActions";
 import { snakeCaseToCamelCase } from "../utils";
-import { Point, Points } from "../../../types/points";
+import { newPoint, newPoints, Point, Points } from "../../../types/points";
 import { buildUrl, isFullyQualifiedUrl } from "../../../misc/urlUtils";
 import { parseArrayString } from "../../../misc/stringUtils";
 
@@ -578,10 +578,10 @@ function opiParsePoints(props: any): Points {
   props.points?.point.forEach((point: any) => {
     const pointData = point._attributes;
     points.push(
-      new Point(Number(pointData["x"]) - x, Number(pointData["y"]) - y)
+      newPoint(Number(pointData["x"]) - x, Number(pointData["y"]) - y)
     );
   });
-  return new Points(points);
+  return newPoints(points);
 }
 
 /**

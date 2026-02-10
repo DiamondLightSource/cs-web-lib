@@ -5,7 +5,6 @@ import { PV } from "../../types/pv";
 import { FileDescription } from "../../misc/fileContext";
 import { Trace } from "../../types/trace";
 import { Axis } from "../../types/axis";
-import { Points } from "../../types/points";
 import { Plt } from "../../types/plt";
 import { PositionType } from "../../types/position";
 
@@ -80,8 +79,17 @@ export const PltPropOpt = PropTypes.instanceOf(Plt);
 export const FuncPropOpt = PropTypes.instanceOf(Function);
 export const FuncProp = FuncPropOpt.isRequired;
 
-export const PointsProp = PropTypes.instanceOf(Points).isRequired;
-export const PointsPropOpt = PropTypes.instanceOf(Points);
+PropTypes.arrayOf(PropTypes.string.isRequired);
+
+const PointPropOpt = PropTypes.shape({
+  x: FloatProp,
+  y: FloatProp
+});
+
+export const PointsPropOpt = PropTypes.shape({
+  values: PropTypes.arrayOf(PointPropOpt.isRequired).isRequired
+});
+export const PointsProp = PointsPropOpt.isRequired;
 
 export const PositionTypeProp = PropTypes.oneOf(
   Object.values(PositionType)

@@ -43,7 +43,7 @@ import {
 } from "../../../types/border";
 import { ColorUtils } from "../../../types/color";
 import { WidgetDescription } from "../createComponent";
-import { Point, Points } from "../../../types/points";
+import { newPoint, newPoints, Point, Points } from "../../../types/points";
 import { Axis } from "../../../types/axis";
 import { Trace } from "../../../types/trace";
 import { parsePlt } from "./pltParser";
@@ -227,9 +227,9 @@ function bobParsePoints(props: any): Points {
   const points: Array<Point> = [];
   props.point.forEach((point: any) => {
     const pointData = point._attributes;
-    points.push(new Point(Number(pointData["x"]), Number(pointData["y"])));
+    points.push(newPoint(Number(pointData["x"]), Number(pointData["y"])));
   });
-  return new Points(points);
+  return newPoints(points);
 }
 
 /**
