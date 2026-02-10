@@ -19,10 +19,11 @@ import {
 } from "../propTypes";
 
 import { TabBar } from "./tabs";
-import { Color, RelativePosition } from "../../../types";
+import { newRelativePosition } from "../../../types";
 import { errorWidget, widgetDescriptionToComponent } from "../createComponent";
 import log from "loglevel";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
+import { ColorUtils, newColor } from "../../../types/color";
 
 export const TabContainerProps = {
   tabs: PropTypes.array.isRequired,
@@ -53,14 +54,14 @@ export const TabContainerComponent = (
           name: tab.name,
           children: widgetDescriptionToComponent({
             type: "display",
-            position: new RelativePosition(
+            position: newRelativePosition(
               "0px",
               `${tabHeight}px`,
               `${width}px`,
               `${height - tabHeight}px`
             ),
             backgroundColor:
-              props.backgroundColor ?? new Color("rgb(255,255,255"),
+              props.backgroundColor ?? newColor("rgb(255,255,255"),
             children: tab.children
           })
         };
@@ -79,8 +80,12 @@ export const TabContainerComponent = (
   return (
     <TabBar
       direction={0}
-      selectedColor={props.backgroundColor || Color.fromRgba(255, 255, 255)}
-      deselectedColor={props.backgroundColor || Color.fromRgba(255, 255, 255)}
+      selectedColor={
+        props.backgroundColor || ColorUtils.fromRgba(255, 255, 255)
+      }
+      deselectedColor={
+        props.backgroundColor || ColorUtils.fromRgba(255, 255, 255)
+      }
       {...props}
       tabs={tabChildren}
     ></TabBar>

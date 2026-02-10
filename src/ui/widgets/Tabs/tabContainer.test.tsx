@@ -6,7 +6,7 @@ import { TabContainerComponent } from "./tabContainer";
 import { Provider } from "react-redux";
 import { store } from "../../../redux/store";
 import { ensureWidgetsRegistered } from "..";
-import { RelativePosition } from "../../../types";
+import { newRelativePosition } from "../../../types";
 ensureWidgetsRegistered();
 
 describe("<TabContainer>", (): void => {
@@ -14,7 +14,7 @@ describe("<TabContainer>", (): void => {
     const child = [
       {
         type: "label",
-        position: new RelativePosition(),
+        position: newRelativePosition(),
         text: "hello"
       }
     ];
@@ -31,7 +31,7 @@ describe("<TabContainer>", (): void => {
     const child = [
       {
         type: "image",
-        position: new RelativePosition()
+        position: newRelativePosition()
       }
     ];
     // Suppress logging for expected error.
@@ -50,14 +50,14 @@ describe("<TabContainer>", (): void => {
     const child1 = [
       {
         type: "label",
-        position: new RelativePosition(),
+        position: newRelativePosition(),
         text: "hello"
       }
     ];
     const child2 = [
       {
         type: "label",
-        position: new RelativePosition(),
+        position: newRelativePosition(),
         text: "bye"
       }
     ];

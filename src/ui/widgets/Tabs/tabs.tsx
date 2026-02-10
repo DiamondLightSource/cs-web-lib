@@ -8,7 +8,7 @@ import {
   Tabs,
   useTheme
 } from "@mui/material";
-import { Color, Font } from "../../../types";
+import { ColorUtils, Font } from "../../../types";
 import { Close } from "@mui/icons-material";
 import PropTypes from "prop-types";
 import {
@@ -60,8 +60,8 @@ export const TabBar = (
     tabWidth = 100,
     tabHeight = 30,
     tabSpacing = 0,
-    selectedColor = Color.fromRgba(236, 236, 236),
-    deselectedColor = Color.fromRgba(200, 200, 200),
+    selectedColor = ColorUtils.fromRgba(236, 236, 236),
+    deselectedColor = ColorUtils.fromRgba(200, 200, 200),
     activeTab = 0,
     visible = true
   } = props;
@@ -136,11 +136,11 @@ export const TabBar = (
               }
               sx={{
                 "&.Mui-selected": {
-                  backgroundColor: selectedColor.toString(),
+                  backgroundColor: selectedColor.colorString,
                   color: "black"
                 },
                 boxShadow: 3,
-                backgroundColor: deselectedColor.toString(),
+                backgroundColor: deselectedColor.colorString,
                 marginRight: direction ? "0px" : `${tabSpacing}px`,
                 marginBottom: direction ? `${tabSpacing}px` : "0px",
                 "&.MuiTab-root": {

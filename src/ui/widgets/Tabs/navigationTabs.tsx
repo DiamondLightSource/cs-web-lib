@@ -19,7 +19,7 @@ import {
 } from "../propTypes";
 
 import { TabBar } from "./tabs";
-import { Color, RelativePosition } from "../../../types";
+import { ColorUtils, newRelativePosition } from "../../../types";
 import { EmbeddedDisplay } from "../EmbeddedDisplay/embeddedDisplay";
 
 export const NavigationTabsProps = {
@@ -46,7 +46,7 @@ export const NavigationTabsComponent = (
           <EmbeddedDisplay
             height={"100%"}
             width={"100%"}
-            position={new RelativePosition()}
+            position={newRelativePosition()}
             scroll={true}
             resize={0}
             file={{
@@ -65,8 +65,8 @@ export const NavigationTabsComponent = (
       direction={1}
       tabWidth={100}
       tabSpacing={2}
-      selectedColor={Color.fromRgba(236, 236, 236)}
-      deselectedColor={Color.fromRgba(200, 200, 200)}
+      selectedColor={ColorUtils.fromRgba(236, 236, 236)}
+      deselectedColor={ColorUtils.fromRgba(200, 200, 200)}
       {...props}
       tabs={tabChildren}
     ></TabBar>

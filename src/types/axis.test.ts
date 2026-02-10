@@ -24,7 +24,6 @@ describe("Axis", () => {
       ...testValues,
       color: testValues.color.colorString
     });
-    //    expect(axis.color.toString()).toEqual(testValues.color.toString());
     expect(axis).toBeInstanceOf(Axis);
   });
 
