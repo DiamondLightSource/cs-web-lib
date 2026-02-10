@@ -32,6 +32,7 @@ import { OPI_SIMPLE_PARSERS } from "./EmbeddedDisplay/opiParser";
 import { PositionPropNames, positionToCss } from "../../types/position";
 import { AlarmQuality } from "../../types/dtypes/dAlarm";
 import { dTypeGetAlarm } from "../../types/dtypes/dType";
+import { pvQualifiedName } from "../../types/pv";
 
 const ALARM_SEVERITY_MAP = {
   [AlarmQuality.ALARM]: 1,
@@ -164,7 +165,7 @@ export const ConnectingComponent = (props: {
         (e.currentTarget as HTMLDivElement).classList.add(
           tooltipClasses.Copying
         );
-        copyToClipboard(pvName.toString());
+        copyToClipboard(pvQualifiedName(pvName));
       }
       // Stop regular middle-click behaviour if showing tooltip.
       e.preventDefault();
@@ -184,7 +185,7 @@ export const ConnectingComponent = (props: {
 
   const { pvData } = useConnectionMultiplePv(
     id,
-    pvNames.map(x => x.qualifiedName())
+    pvNames.map(x => pvQualifiedName(x))
   );
 
   let border = props.widgetProps.border;

@@ -23,7 +23,7 @@ import {
 } from "./parser";
 import { REGISTERED_WIDGETS } from "../register";
 import { WidgetDescription } from "../createComponent";
-import { PV } from "../../../types/pv";
+import { PV, pvQualifiedName, PVUtils } from "../../../types/pv";
 import {
   WRITE_PV,
   OPEN_WEBPAGE,
@@ -218,10 +218,9 @@ export function opiParseActions(
         processedActions.actions.push({
           type: WRITE_PV,
           writePvInfo: {
-            pvName: opiParsePvName(
-              action.pv_name,
-              defaultProtocol
-            ).qualifiedName(),
+            pvName: pvQualifiedName(
+              opiParsePvName(action.pv_name, defaultProtocol)
+            ),
             value: action.value._text,
             description:
               (action.description && action.description._text) || undefined
@@ -329,7 +328,7 @@ export function opiParsePvName(
   defaultProtocol: string
 ): PV {
   const rawPv = opiParseString(jsonProp);
-  return PV.parse(rawPv, defaultProtocol);
+  return PVUtils.parse(rawPv, defaultProtocol);
 }
 
 /**

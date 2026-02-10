@@ -9,7 +9,7 @@ import {
   newAbsolutePosition,
   newRelativePosition
 } from "../../../types/position";
-import { PV } from "../../../types/pv";
+import { PV, PVUtils } from "../../../types/pv";
 import { WidgetDescription } from "../createComponent";
 
 interface JsonBorder {
@@ -27,7 +27,7 @@ interface JsonFont {
 }
 
 function jsonParsePvName(pvName: string, defaultProtocol: string): PV {
-  return PV.parse(pvName, defaultProtocol);
+  return PVUtils.parse(pvName, defaultProtocol);
 }
 
 const toString = (value: undefined | string | number): string =>

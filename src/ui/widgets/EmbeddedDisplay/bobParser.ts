@@ -25,7 +25,7 @@ import {
   newRelativePosition,
   Position
 } from "../../../types/position";
-import { PV } from "../../../types/pv";
+import { PV, pvQualifiedName } from "../../../types/pv";
 import { OpiFile, Rule, Script } from "../../../types/props";
 import {
   OPEN_PAGE,
@@ -425,10 +425,9 @@ export function bobParseActions(
         processedActions.actions.push({
           type: WRITE_PV,
           writePvInfo: {
-            pvName: opiParsePvName(
-              action.pv_name,
-              defaultProtocol
-            ).qualifiedName(),
+            pvName: pvQualifiedName(
+              opiParsePvName(action.pv_name, defaultProtocol)
+            ),
             value: action.value._text,
             description:
               (action.description && action.description._text) || undefined

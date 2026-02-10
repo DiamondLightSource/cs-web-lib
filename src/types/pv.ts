@@ -1,17 +1,16 @@
-export class PV {
+export interface PV {
+  name: string;
+  protocol: string;
+}
+
+export const newPV = (name: string, protocol?: string) => ({
+  name,
+  protocol: protocol ?? PVUtils.defaultProtocol
+});
+
+export class PVUtils {
   public static DELIMITER = "://";
-  public name: string;
-  public protocol = "ca";
-
-  public constructor(name: string, protocol?: string) {
-    this.name = name;
-
-    // default protocol of "ca" so only change if protocol is
-    // passed in
-    if (protocol !== undefined) {
-      this.protocol = protocol;
-    }
-  }
+  public static defaultProtocol = "ca";
 
   /**
    * Creates a new PV object with the protocol extracted if present
@@ -25,50 +24,43 @@ export class PV {
    */
   public static parse(pvName: string, defaultProtocol = "ca"): PV {
     if (pvName.startsWith("=")) {
-      return new PV(pvName.slice(1), "eq");
+      return newPV(pvName.slice(1), "eq");
     }
-    if (pvName.includes(PV.DELIMITER)) {
+    if (pvName.includes(PVUtils.DELIMITER)) {
       // "protocol://name" -> ["protocol://name", "protocol", "name"]
       const parts = /^(.*):\/\/(.*)$/.exec(pvName);
       if (parts) {
-        return new PV(parts[2], parts[1]);
+        return newPV(parts[2], parts[1]);
       }
-      return new PV(pvName, defaultProtocol);
+      return newPV(pvName, defaultProtocol);
     } else {
-      return new PV(pvName, defaultProtocol);
+      return newPV(pvName, defaultProtocol);
     }
-  }
-
-  /**
-   * Create qualifiedName from properties on PV
-   * @returns protocol://name
-   * @example const pv = new PV("name", "loc")
-   * pv.qualifiedName() -> "loc://name"
-   */
-  public qualifiedName(): string {
-    // This can happen if the name is substituted by a macro
-    // after the PV object has been created.
-    // Need to make sure that the PV.DELIMITER is not associated with a nested PV.
-    if (
-      this.name.includes(PV.DELIMITER) &&
-      !this.name.includes("`") &&
-      !this.name.includes("'")
-    ) {
-      return this.name;
-      // In case the name has been substituted with another formula
-    } else if (this.name.startsWith("eq://")) {
-      return this.name;
-    } else if (this.name.startsWith("=")) {
-      return this.name.replace("=", "eq://");
-    } else {
-      return `${this.protocol}${PV.DELIMITER}${this.name}`;
-    }
-  }
-
-  /**
-   * Wrapper function for qualifiedName
-   */
-  public toString(): string {
-    return this.qualifiedName();
   }
 }
+
+/**
+ * Create qualifiedName from properties on PV
+ * @returns protocol://name
+ * @example const pv = newPV("name", "loc")
+ * pv.qualifiedName() -> "loc://name"
+ */
+export const pvQualifiedName = (pv: PV): string => {
+  // This can happen if the name is substituted by a macro
+  // after the PV object has been created.
+  // Need to make sure that the PV.DELIMITER is not associated with a nested PV.
+  if (
+    pv.name.includes(PVUtils.DELIMITER) &&
+    !pv.name.includes("`") &&
+    !pv.name.includes("'")
+  ) {
+    return pv.name;
+    // In case the name has been substituted with another formula
+  } else if (pv.name.startsWith("eq://")) {
+    return pv.name;
+  } else if (pv.name.startsWith("=")) {
+    return pv.name.replace("=", "eq://");
+  } else {
+    return `${pv.protocol}${PVUtils.DELIMITER}${pv.name}`;
+  }
+};

@@ -17,6 +17,7 @@ import { ensureWidgetsRegistered } from "..";
 import { WidgetDescription } from "../createComponent";
 import { ElementCompact } from "xml-js";
 import { ComplexParserDict, ParserDict } from "./parser";
+import { pvQualifiedName } from "../../../types/pv";
 
 ensureWidgetsRegistered();
 
@@ -149,7 +150,7 @@ describe("opi widget parser", (): void => {
     expect(rule.name).toEqual("Rule");
     expect(rule.prop).toEqual("text");
     expect(rule.outExp).toEqual(true);
-    expect(rule.pvs[0].pvName.qualifiedName()).toEqual("loc://test");
+    expect(pvQualifiedName(rule.pvs[0].pvName)).toEqual("loc://test");
     expect(rule.pvs[0].trigger).toEqual(true);
     expect(rule.expressions[0].value).toEqual({ _text: "pv0" });
     expect(rule.expressions[0].convertedValue).toEqual("pv0");
@@ -262,7 +263,7 @@ describe("opi widget parser", (): void => {
       .children?.[0] as WidgetDescription;
     expect(widget.textAlign).toEqual("right");
     // Adds ca:// prefix.
-    expect(widget.pvName.qualifiedName()).toEqual("ca://SR-CS-RFFB-01:RFSTEP");
+    expect(pvQualifiedName(widget.pvName)).toEqual("ca://SR-CS-RFFB-01:RFSTEP");
   });
 
   const invalidString = `
@@ -555,17 +556,17 @@ describe("opiParseRules", () => {
     expect(result[0].pvs).toHaveLength(3);
 
     expect(result[0].pvs[0]?.trigger).toBe(true);
-    expect(result[0].pvs[0]?.pvName?.toString()).toBe(
+    expect(pvQualifiedName(result[0].pvs[0]?.pvName)).toBe(
       `${defaultProtocol}://SYS:PV1`
     );
 
     expect(result[0].pvs[1]?.trigger).toBe(false);
-    expect(result[0].pvs[1]?.pvName?.toString()).toBe(
+    expect(pvQualifiedName(result[0].pvs[1]?.pvName)).toBe(
       `${defaultProtocol}://SYS:PV2`
     );
 
     expect(result[0].pvs[2]?.trigger).toBe(false);
-    expect(result[0].pvs[2]?.pvName?.toString()).toBe(
+    expect(pvQualifiedName(result[0].pvs[2]?.pvName)).toBe(
       `${defaultProtocol}://SYS:PV3`
     );
 
@@ -602,7 +603,7 @@ describe("opiParseRules", () => {
     expect(result[0].pvs).toHaveLength(1);
 
     expect(result[0].pvs[0]?.trigger).toBe(true);
-    expect(result[0].pvs[0]?.pvName?.toString()).toBe(
+    expect(pvQualifiedName(result[0].pvs[0]?.pvName)).toBe(
       `${defaultProtocol}://DEV:STAT`
     );
 
@@ -652,7 +653,7 @@ describe("opiParseRules", () => {
     });
     expect(result[0].pvs).toHaveLength(1);
     expect(result[0].pvs[0]?.trigger).toBe(false);
-    expect(result[0].pvs[0]?.pvName?.toString()).toBe(
+    expect(pvQualifiedName(result[0].pvs[0]?.pvName)).toBe(
       `${defaultProtocol}://A:PV`
     );
     expect(result[0].expressions).toEqual([{ boolExp: "pv0 > 5", value: 100 }]);
@@ -664,11 +665,11 @@ describe("opiParseRules", () => {
     });
     expect(result[1].pvs).toHaveLength(2);
     expect(result[1].pvs[0]?.trigger).toBe(false);
-    expect(result[1].pvs[0]?.pvName?.toString()).toBe(
+    expect(pvQualifiedName(result[1].pvs[0]?.pvName)).toBe(
       `${defaultProtocol}://B:PV1`
     );
     expect(result[1].pvs[1]?.trigger).toBe(false);
-    expect(result[1].pvs[1]?.pvName?.toString()).toBe(
+    expect(pvQualifiedName(result[1].pvs[1]?.pvName)).toBe(
       `${defaultProtocol}://B:PV2`
     );
     expect(result[1].expressions).toEqual([

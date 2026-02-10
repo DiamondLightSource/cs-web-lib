@@ -17,6 +17,7 @@ import { ColorUtils } from "../../types/color";
 import { opiParseColor } from "../widgets/EmbeddedDisplay/opiParser";
 import { parseArrayString } from "../../misc/stringUtils";
 import { AlarmQuality } from "../../types/dtypes/dAlarm";
+import { pvQualifiedName } from "../../types/pv";
 
 // See https://stackoverflow.com/questions/54542318/using-an-enum-as-a-dictionary-key
 type EnumDictionary<T extends string | symbol | number, U> = {
@@ -40,7 +41,7 @@ export function useRules(props: AnyProps): AnyProps {
   let pvNotConnected = false;
   for (const rule of rules) {
     for (const pv of rule.pvs) {
-      allPvs.push(pv.pvName.qualifiedName());
+      allPvs.push(pvQualifiedName(pv.pvName));
       allTypes.push({ string: true, double: true });
     }
   }
@@ -57,7 +58,7 @@ export function useRules(props: AnyProps): AnyProps {
     const pvVars: { [pvName: string]: number | string | undefined } = {};
     for (let i = 0; i < pvs.length; i++) {
       // Set up variables that might be used.
-      const pvState = results[pvs[i].pvName.qualifiedName()][0];
+      const pvState = results[pvQualifiedName(pvs[i].pvName)][0];
       if (!pvState?.connected) {
         log.debug(`Rule ${name}: pv ${pvs[i].pvName} not connected`);
         pvNotConnected = true;

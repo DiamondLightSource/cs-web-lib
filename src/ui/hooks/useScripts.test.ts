@@ -4,7 +4,7 @@ import { useScripts } from "./useScripts";
 import { useSubscription } from "./useSubscription";
 import { useSelector } from "react-redux";
 import { executeDynamicScriptInSandbox } from "../widgets/EmbeddedDisplay/scripts/scriptExecutor";
-import { PV } from "../../types/pv";
+import { newPV } from "../../types/pv";
 import { Script } from "../../types/props";
 import { newDType } from "../../types/dtypes/dType";
 
@@ -56,8 +56,8 @@ describe("useScripts", () => {
       {
         text: "return pvs[0] + pvs[1]",
         pvs: [
-          { pvName: new PV("pv1"), trigger: true },
-          { pvName: new PV("pv2"), trigger: true }
+          { pvName: newPV("pv1"), trigger: true },
+          { pvName: newPV("pv2"), trigger: true }
         ]
       } as Partial<Script> as Script
     ];
@@ -78,7 +78,7 @@ describe("useScripts", () => {
     const scripts = [
       {
         text: "return pvs[0] + pvs[1]",
-        pvs: [{ pvName: new PV("pv1") }, { pvName: new PV("pv2") }]
+        pvs: [{ pvName: newPV("pv1") }, { pvName: newPV("pv2") }]
       } as Partial<Script> as Script
     ];
 
@@ -113,7 +113,7 @@ describe("useScripts", () => {
     const scripts = [
       {
         text: "return pvs[0]",
-        pvs: [{ pvName: new PV("pv3") }]
+        pvs: [{ pvName: newPV("pv3") }]
       } as Partial<Script> as Script
     ];
 
@@ -132,11 +132,11 @@ describe("useScripts", () => {
     const scripts = [
       {
         text: "return pvs[0]",
-        pvs: [{ pvName: new PV("pv1") }]
+        pvs: [{ pvName: newPV("pv1") }]
       } as Partial<Script> as Script,
       {
         text: "return pvs[0]",
-        pvs: [{ pvName: new PV("pv2") }]
+        pvs: [{ pvName: newPV("pv2") }]
       } as Partial<Script> as Script
     ];
 

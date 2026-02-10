@@ -15,6 +15,7 @@ import {
   ScriptResponse
 } from "../widgets/EmbeddedDisplay/scripts/scriptExecutor";
 import { Script } from "../../types/props";
+import { pvQualifiedName } from "../../types/pv";
 
 export const useScripts = (
   scriptsProp: Script[],
@@ -27,7 +28,7 @@ export const useScripts = (
 
   for (const script of scripts) {
     for (const pvMetadata of script.pvs) {
-      allPvs.push(pvMetadata.pvName.qualifiedName());
+      allPvs.push(pvQualifiedName(pvMetadata.pvName));
       allTypes.push({ string: true, double: true });
     }
   }
@@ -50,7 +51,7 @@ export const useScripts = (
       string: string | undefined;
     }[] = [];
     for (const pvMetadata of pvMetadataList) {
-      const pvDatum = pvDataMap[pvMetadata.pvName.qualifiedName()][0];
+      const pvDatum = pvDataMap[pvQualifiedName(pvMetadata.pvName)][0];
 
       let value: { number: number | undefined; string: string | undefined } = {
         number: undefined,

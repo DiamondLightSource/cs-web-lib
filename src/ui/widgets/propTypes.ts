@@ -1,7 +1,6 @@
 import PropTypes, { InferProps } from "prop-types";
 import { Font } from "../../types/font";
 import { BorderStyle } from "../../types/border";
-import { PV } from "../../types/pv";
 import { FileDescription } from "../../misc/fileContext";
 import { Trace } from "../../types/trace";
 import { Axis } from "../../types/axis";
@@ -28,8 +27,11 @@ export const FloatPropOpt = PropTypes.number;
 export const BoolProp = PropTypes.bool.isRequired;
 export const BoolPropOpt = PropTypes.bool;
 
-export const PvProp = PropTypes.instanceOf(PV).isRequired;
-export const PvPropOpt = PropTypes.instanceOf(PV);
+export const PvPropOpt = PropTypes.shape({
+  name: StringProp,
+  protocol: StringProp
+});
+export const PvProp = PvPropOpt.isRequired;
 
 export const PVMetadataType = PropTypes.shape({
   pvName: PvPropOpt

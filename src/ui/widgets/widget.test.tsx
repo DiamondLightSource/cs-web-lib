@@ -3,7 +3,7 @@ import React from "react";
 import { Widget } from "./widget";
 import { LabelComponent } from "./Label/label";
 import { newRelativePosition } from "../../types/position";
-import { PV } from "../../types/pv";
+import { newPV, pvQualifiedName } from "../../types/pv";
 import { contextRender } from "../../testResources";
 import { fireEvent } from "@testing-library/react";
 import copyToClipboard from "clipboard-copy";
@@ -42,7 +42,7 @@ describe("<Widget />", (): void => {
       deviceCache: {},
       fileCache: {}
     };
-    const pv = new PV("pv");
+    const pv = newPV("pv");
 
     const { getByText } = contextRender(
       <Widget
@@ -59,6 +59,6 @@ describe("<Widget />", (): void => {
     // simulate middle click
     fireEvent.mouseDown(label, { button: 1 });
     expect(getByText(/.*hi.*/)).toBeInTheDocument();
-    expect(copyToClipboard).toHaveBeenCalledWith(pv.toString());
+    expect(copyToClipboard).toHaveBeenCalledWith(pvQualifiedName(pv));
   });
 });

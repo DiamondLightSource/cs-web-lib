@@ -2,7 +2,7 @@ import { Label } from "..";
 import { parseJson } from "./jsonParser";
 import { Font, FontStyle } from "../../../types/font";
 import { BorderStyle, newBorder } from "../../../types/border";
-import { PV } from "../../../types/pv";
+import { PVUtils } from "../../../types/pv";
 import { WidgetDescription } from "../createComponent";
 import {
   newAbsolutePosition,
@@ -99,7 +99,7 @@ describe("json widget parser", (): void => {
       outExp: false,
       pvs: [
         {
-          pvName: PV.parse("loc://rulepv"),
+          pvName: PVUtils.parse("loc://rulepv"),
           trigger: true
         }
       ],

@@ -2,7 +2,7 @@ import React from "react";
 import { useRules } from "./useRules";
 import { AnyProps } from "../widgets/widgetProps";
 import { Rule } from "../../types/props";
-import { PV } from "../../types/pv";
+import { newPV } from "../../types/pv";
 import { contextRender, ddouble } from "../../testResources";
 import { DType } from "../../types/dtypes/dType";
 import { CsState } from "../../redux/csState";
@@ -42,7 +42,7 @@ const rule: Rule = {
   name: "rule",
   prop: "text",
   outExp: false,
-  pvs: [{ pvName: new PV("PV1"), trigger: true }],
+  pvs: [{ pvName: newPV("PV1"), trigger: true }],
   expressions: [
     {
       boolExp: "pv0 > 1",
@@ -61,7 +61,7 @@ const ruleWithArrayElementProp: Rule = {
   name: "ruleWithArrayElementProp",
   prop: "object[2]",
   outExp: false,
-  pvs: [{ pvName: new PV("PV1"), trigger: true }],
+  pvs: [{ pvName: newPV("PV1"), trigger: true }],
   expressions: [
     {
       boolExp: "pv0 > 1",
@@ -75,7 +75,7 @@ const outExpRule: Rule = {
   name: "outexprule",
   prop: "text",
   outExp: true,
-  pvs: [{ pvName: new PV("PV1"), trigger: true }],
+  pvs: [{ pvName: newPV("PV1"), trigger: true }],
   expressions: [
     {
       boolExp: "pv0 > 1",

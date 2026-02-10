@@ -2,7 +2,7 @@ export type { Position } from "./position";
 export { newRelativePosition } from "./position";
 export type { Color } from "./color";
 export { ColorUtils } from "./color";
-export { PV } from "./pv";
+export type { PV } from "./pv";
 export { Font, FontStyle } from "./font";
 export { BorderStyle } from "./border";
 export type { Border } from "./border";

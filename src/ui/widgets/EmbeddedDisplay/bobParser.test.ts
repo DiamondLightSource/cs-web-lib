@@ -1,7 +1,7 @@
 import { ColorUtils } from "../../../types/color";
 import { newAbsolutePosition } from "../../../types/position";
 import { BOB_SIMPLE_PARSERS, parseBob } from "./bobParser";
-import { PV } from "../../../types/pv";
+import { PVUtils } from "../../../types/pv";
 import { ensureWidgetsRegistered } from "..";
 import { WidgetDescription } from "../createComponent";
 import { ElementCompact } from "xml-js";
@@ -107,7 +107,7 @@ describe("bob widget parser", (): void => {
     const widget = (
       await parseBob(readbackStringWithEmbeddedScript, "xxx", PREFIX)
     ).children?.[0] as WidgetDescription;
-    expect(widget.pvMetadataList[0].pvName).toEqual(PV.parse("xxx://abc"));
+    expect(widget.pvMetadataList[0].pvName).toEqual(PVUtils.parse("xxx://abc"));
   });
 
   it("parses an embeded script in a widget", async (): Promise<void> => {
