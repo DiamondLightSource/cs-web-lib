@@ -82,6 +82,7 @@ To make use of PVs in cs-web-lib widgets, you need to connect to PVWS. The basic
 
 ```
 {
+  storeMode: "DEV" | PROD"
   PVWS_SOCKET: string
   PVWS_SSL: boolean,
   THROTTLE_PERIOD: integer
@@ -92,6 +93,7 @@ The configuration parameters are:
 
 | Parameter | type | Description |
 |- | -| - |
+| storeMode | string | Either DEV or PROD, default is PROD. In DEV mode the redux store devTools, immutable & serializable checks are switched on; in prod mode they are switch off to improve performance. |
 | PVWS_SOCKET | string | The fully qualified hostname and port of the instance of the PVWS web service |
 | PVWS_SSL | boolean | If true use https, if false use http for connecting to the PVWS web service |
 | THROTTLE_PERIOD | integer | The period in milliseconds between updates of the PV state variables |

@@ -2,23 +2,24 @@ import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import typescript from "@rollup/plugin-typescript";
 import dts from "rollup-plugin-dts";
-
 import postcss from "rollup-plugin-postcss";
 import peerDepsExternal from "rollup-plugin-peer-deps-external";
-import preserveDirectives from 'rollup-preserve-directives'
+import preserveDirectives from 'rollup-preserve-directives';
 
 const config = [
   {
     input: "src/index.ts",
     output: [
       {
-        file: "dist/cjs/index.js",
+        dir: "dist",
         format: "cjs",
+        entryFileNames: "index.cjs",        
         sourcemap: true
       },
       {
-        file: "dist/esm/index.js",
+        dir: "dist",
         format: "esm",
+        entryFileNames: "index.js",        
         sourcemap: true
       }
     ],
@@ -27,19 +28,19 @@ const config = [
       resolve({ preferBuiltins: true }),
       commonjs(),
       typescript({
-        tsconfig: "./tsconfig.json",
-        compilerOptions: { outDir: "dist" }
+        tsconfig: "./tsconfig.build.json",
+        outDir: "dist",
+        declarationDir: "dist"
       }),
       postcss(),
       preserveDirectives()
     ]
   },
   {
-    input: "dist/esm/index.d.ts",
+    input: "dist/index.d.ts",
     output: [{ file: "dist/index.d.ts", format: "esm" }],
     plugins: [dts()],
-
-    external: [/\.css$/]
+    external: [/\.css$/, '@reduxjs/toolkit']
   }
 ];
 

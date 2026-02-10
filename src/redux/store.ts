@@ -1,4 +1,4 @@
-import { createStore, applyMiddleware, compose } from "redux";
+import { configureStore } from "@reduxjs/toolkit";
 
 import { csReducer } from "./csState";
 import { connectionMiddleware } from "./connectionMiddleware";
@@ -9,16 +9,16 @@ import { PvwsPlugin } from "../connection/pvws";
 import { ConnectionForwarder } from "../connection/forwarder";
 
 export type CsWebLibConfig = {
+  storeMode: "DEV" | "PROD" | undefined;
   PVWS_SOCKET: string | undefined;
   PVWS_SSL: boolean | undefined;
   THROTTLE_PERIOD: number | undefined;
 };
 
 // Store singleton
-let storeInstance: ReturnType<typeof createStore> | null = null;
-let connectionInstance: ConnectionForwarder | null = null;
+let storeInstance: ReturnType<typeof configureStore> | null = null;
 
-const buildConnection = (config?: CsWebLibConfig) => {
+const buildConnection = (config?: CsWebLibConfig): Connection => {
   const PVWS_SOCKET =
     config?.PVWS_SOCKET ??
     process.env.VITE_PVWS_SOCKET ??
@@ -45,16 +45,9 @@ const buildConnection = (config?: CsWebLibConfig) => {
   return new ConnectionForwarder(plugins);
 };
 
-const composeEnhancers =
-  (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-
 export const store = (config?: CsWebLibConfig) => {
   if (storeInstance) {
     return storeInstance;
-  }
-
-  if (!connectionInstance) {
-    connectionInstance = buildConnection(config);
   }
 
   const THROTTLE_PERIOD: number = parseFloat(
@@ -64,15 +57,19 @@ export const store = (config?: CsWebLibConfig) => {
       "100"
   );
 
-  storeInstance = createStore(
-    csReducer,
-    /* preloadedState, */ composeEnhancers(
-      applyMiddleware(
-        connectionMiddleware(connectionInstance),
-        throttleMiddleware(new UpdateThrottle(THROTTLE_PERIOD))
-      )
-    )
-  );
+  const isDevMode = config?.storeMode === "DEV";
+
+  storeInstance = configureStore({
+    reducer: csReducer,
+    middleware: getDefaultMiddleware =>
+      getDefaultMiddleware({
+        immutableCheck: isDevMode,
+        serializableCheck: isDevMode
+      })
+        .concat(throttleMiddleware(new UpdateThrottle(THROTTLE_PERIOD)))
+        .concat(connectionMiddleware(buildConnection(config))),
+    devTools: isDevMode
+  });
 
   return storeInstance;
 };
@@ -80,5 +77,4 @@ export const store = (config?: CsWebLibConfig) => {
 // Reset store (for testing)
 export const resetStore = () => {
   storeInstance = null;
-  connectionInstance = null;
 };

@@ -1,5 +1,6 @@
 import { DType } from "../types/dtypes";
 import { ConnectionState, SubscriptionType } from "../connection/plugin";
+import { createAction } from "@reduxjs/toolkit";
 
 export const CONNECTION_CHANGED = "connection_changed";
 export const SUBSCRIBE = "subscribe";
@@ -29,6 +30,11 @@ export interface ConnectionChanged {
   };
 }
 
+export const connectionChangedAction = createAction<{
+  pvName: string;
+  value: ConnectionState;
+}>(CONNECTION_CHANGED);
+
 export interface Subscribe {
   type: typeof SUBSCRIBE;
   payload: {
@@ -39,6 +45,13 @@ export interface Subscribe {
   };
 }
 
+export const subscribeAction = createAction<{
+  componentId: string;
+  pvName: string;
+  effectivePvName?: string;
+  type: SubscriptionType;
+}>(SUBSCRIBE);
+
 export interface Unsubscribe {
   type: typeof UNSUBSCRIBE;
   payload: {
@@ -46,6 +59,11 @@ export interface Unsubscribe {
     pvName: string;
   };
 }
+
+export const unsubscribeAction = createAction<{
+  componentId: string;
+  pvName: string;
+}>(UNSUBSCRIBE);
 
 export interface ValueChanged {
   type: typeof VALUE_CHANGED;
@@ -55,10 +73,17 @@ export interface ValueChanged {
   };
 }
 
+export const valueChangedAction = createAction<{
+  pvName: string;
+  value: DType;
+}>(VALUE_CHANGED);
+
 export interface ValuesChanged {
   type: typeof VALUES_CHANGED;
   payload: ValueChanged[];
 }
+
+export const valuesChangedAction = createAction<ValueChanged[]>(VALUES_CHANGED);
 
 export interface WritePv {
   type: typeof WRITE_PV;
@@ -68,6 +93,11 @@ export interface WritePv {
   };
 }
 
+export const writePvAction = createAction<{
+  pvName: string;
+  value: DType;
+}>(WRITE_PV);
+
 export interface DeviceQueried {
   type: typeof DEVICE_QUERIED;
   payload: {
@@ -76,12 +106,22 @@ export interface DeviceQueried {
   };
 }
 
+export const deviceQueriedAction = createAction<{
+  device: string;
+  value: DType;
+}>(DEVICE_QUERIED);
+
 export interface QueryDevice {
   type: typeof QUERY_DEVICE;
   payload: {
     device: string;
   };
 }
+
+export const queryDeviceAction = createAction<{
+  device: string;
+  value: DType;
+}>(QUERY_DEVICE);
 
 export interface FileChanged {
   type: typeof FILE_CHANGED;
@@ -91,12 +131,21 @@ export interface FileChanged {
   };
 }
 
+export const fileChangedAction = createAction<{
+  file: string;
+  contents: any;
+}>(FILE_CHANGED);
+
 export interface RefreshFile {
   type: typeof REFRESH_FILE;
   payload: {
     file: string;
   };
 }
+
+export const refreshFileAction = createAction<{
+  file: string;
+}>(REFRESH_FILE);
 
 export type Action =
   | ConnectionChanged

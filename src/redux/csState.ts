@@ -115,11 +115,10 @@ export function csReducer(state = initialState, action: Action): CsState {
       const { componentId, effectivePvName } = action.payload;
       const newEffectivePvMap = { ...state.effectivePvNameMap };
       const newSubscriptions = { ...state.subscriptions };
-      if (newSubscriptions.hasOwnProperty(effectivePvName)) {
-        newSubscriptions[effectivePvName].push(componentId);
-      } else {
-        newSubscriptions[effectivePvName] = [componentId];
-      }
+
+      const existingList = state.subscriptions[effectivePvName] || [];
+
+      newSubscriptions[effectivePvName] = [...existingList, componentId];
 
       if (action.payload.pvName !== action.payload.effectivePvName) {
         newEffectivePvMap[action.payload.pvName] =
@@ -149,10 +148,10 @@ export function csReducer(state = initialState, action: Action): CsState {
       }
 
       const newSubscriptions = { ...state.subscriptions };
-      const newPvSubs = state.subscriptions[effectivePvName].filter(
+      const newPvSubs = state.subscriptions[effectivePvName]?.filter(
         (id): boolean => id !== componentId
       );
-      newSubscriptions[effectivePvName] = newPvSubs;
+      newSubscriptions[effectivePvName] = newPvSubs ?? [];
 
       return {
         ...state,
