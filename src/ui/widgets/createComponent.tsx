@@ -5,7 +5,7 @@ import { checkPropTypes } from "./checkPropTypes";
 import { ColorUtils } from "../../types/color";
 import { REGISTERED_WIDGETS } from "./register";
 import { newRelativePosition, Position } from "../../types/position";
-import { Font, FontStyle } from "../../types/font";
+import { FontStyle, newFont } from "../../types/font";
 import { BorderStyle, newBorder } from "../../types/border";
 
 export interface WidgetDescription {
@@ -17,7 +17,7 @@ export interface WidgetDescription {
 const ERROR_WIDGET: WidgetDescription = {
   type: "label",
   position: newRelativePosition(),
-  font: new Font(16, FontStyle.Bold),
+  font: newFont(16, FontStyle.Bold),
   backgroundColor: ColorUtils.TRANSPARENT,
   border: newBorder(BorderStyle.Line, ColorUtils.RED, 2),
   text: "Error",

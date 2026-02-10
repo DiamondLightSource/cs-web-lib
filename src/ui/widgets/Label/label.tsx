@@ -18,6 +18,7 @@ import { Typography as MuiTypography, styled, useTheme } from "@mui/material";
 import { calculateRotationTransform } from "../utils";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { borderToCss } from "../../../types/border";
+import { fontToCss } from "../../../types/font";
 
 const LabelProps = {
   macros: MacrosPropOpt,
@@ -72,7 +73,7 @@ export const LabelComponent = (
   const backgroundColor = transparent
     ? "transparent"
     : (props.backgroundColor?.colorString ?? theme.palette.primary.main);
-  const font = props.font?.css() ?? theme.typography;
+  const font = fontToCss(props.font) ?? theme.typography;
   const borderWidth = borderToCss(props.border)?.borderWidth ?? "0px";
   const borderColor = borderToCss(props.border)?.borderColor ?? "#000000";
   const borderStyle = borderToCss(props.border)?.borderStyle ?? "solid";

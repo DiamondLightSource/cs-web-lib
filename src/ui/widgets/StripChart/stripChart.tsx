@@ -16,13 +16,13 @@ import {
 import { registerWidget } from "../register";
 import { Box, Typography } from "@mui/material";
 import { CurveType, LineChart, XAxis, YAxis } from "@mui/x-charts";
-import { Font } from "../../../types";
 import { convertStringTimePeriod } from "../utils";
 import { Trace } from "../../../types/trace";
 import { Axis } from "../../../types/axis";
 import { dTypeGetDoubleValue, dTypeGetTime } from "../../../types/dtypes/dType";
 import { dTimeToDate } from "../../../types/dtypes/dTime";
 import { ColorUtils } from "../../../types/color";
+import { fontToCss, newFont } from "../../../types/font";
 
 const MARKER_STYLES: any[] = [
   undefined,
@@ -73,9 +73,9 @@ export const StripChartComponent = (
     axes,
     pvData,
     title,
-    titleFont = new Font(),
-    scaleFont = new Font(),
-    labelFont = new Font(),
+    titleFont = newFont(),
+    scaleFont = newFont(),
+    labelFont = newFont(),
     showGrid = false,
     showLegend = false,
     foregroundColor = ColorUtils.fromRgba(0, 0, 0, 1),
@@ -206,17 +206,17 @@ export const StripChartComponent = (
         label: item.title,
         color: item.color?.colorString,
         labelStyle: {
-          fontSize: item.titleFont.css().fontSize,
-          fontStyle: item.titleFont.css().fontStyle,
-          fontFamily: item.titleFont.css().fontFamily,
-          fontWeight: item.titleFont.css().fontWeight,
+          fontSize: fontToCss(item.titleFont)?.fontSize,
+          fontStyle: fontToCss(item.titleFont)?.fontStyle,
+          fontFamily: fontToCss(item.titleFont)?.fontFamily,
+          fontWeight: fontToCss(item.titleFont)?.fontWeight,
           fill: item.color.colorString
         },
         tickLabelStyle: {
-          fontSize: item.scaleFont.css().fontSize,
-          fontStyle: item.scaleFont.css().fontStyle,
-          fontFamily: item.scaleFont.css().fontFamily,
-          fontWeight: item.scaleFont.css().fontWeight,
+          fontSize: fontToCss(item.scaleFont)?.fontSize,
+          fontStyle: fontToCss(item.scaleFont)?.fontStyle,
+          fontFamily: fontToCss(item.scaleFont)?.fontFamily,
+          fontWeight: fontToCss(item.scaleFont)?.fontWeight,
           fill: item.color.colorString,
           angle: item.onRight ? 90 : -90
         },
@@ -291,7 +291,7 @@ export const StripChartComponent = (
     <Box sx={{ width: "100%", height: "100%" }}>
       <Typography
         sx={{
-          font: titleFont.css(),
+          font: fontToCss(titleFont) as React.CSSProperties,
           width: "100%",
           height: "5%",
           textAlign: "center",
@@ -314,11 +314,11 @@ export const StripChartComponent = (
               stroke: foregroundColor.colorString
             },
             ".MuiChartsAxis-label": {
-              font: labelFont.css()
+              font: fontToCss(labelFont)
             },
             ".MuiChartsAxis-tickLabel": {
               fill: foregroundColor.colorString,
-              font: scaleFont.css()
+              font: fontToCss(scaleFont)
             },
             ".MuiChartsAxis-tick": {
               stroke: foregroundColor.colorString

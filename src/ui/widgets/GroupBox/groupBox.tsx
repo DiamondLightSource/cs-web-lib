@@ -13,7 +13,7 @@ import {
   StringPropOpt,
   MacrosPropOpt
 } from "../propTypes";
-import { Font } from "../../../types/font";
+import { fontToCss, newFont } from "../../../types/font";
 import { ColorUtils } from "../../../types/color";
 import Box from "@mui/material/Box";
 import { MacroContext, MacroContextType } from "../../../types/macros";
@@ -47,7 +47,7 @@ export const GroupBoxComponent = (
     backgroundColor = ColorUtils.fromRgba(240, 240, 240),
     foregroundColor = ColorUtils.fromRgba(0, 0, 0),
     lineColor = ColorUtils.fromRgba(0, 0, 0),
-    font = new Font(14),
+    font = newFont(14),
     styleOpt = 0,
     transparent = false,
     visible = true
@@ -71,7 +71,7 @@ export const GroupBoxComponent = (
     backgroundColor: transparent ? "transparent" : backgroundColor.colorString,
     color: foregroundColor.colorString,
     visibility: visible ? "visible" : "hidden",
-    ...font.css()
+    ...fontToCss(font)
   };
 
   if (styleOpt === 0) {
@@ -108,7 +108,7 @@ export const GroupBoxComponent = (
                 height: "20px",
                 width: "100%",
                 backgroundColor: lineColor.colorString,
-                ...font.css(),
+                ...fontToCss(font),
                 textAlign: "left",
                 color: foregroundColor.colorString
               }}

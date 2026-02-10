@@ -1,5 +1,5 @@
 import PropTypes, { InferProps } from "prop-types";
-import { Font } from "../../types/font";
+import { FontStyle } from "../../types/font";
 import { BorderStyle } from "../../types/border";
 import { FileDescription } from "../../misc/fileContext";
 import { Trace } from "../../types/trace";
@@ -48,8 +48,15 @@ export const ColorPropOpt = PropTypes.shape({
 });
 export const ColorProp = ColorPropOpt.isRequired;
 
-export const FontProp = PropTypes.instanceOf(Font).isRequired;
-export const FontPropOpt = PropTypes.instanceOf(Font);
+const FontStyleProp = PropTypes.oneOf(Object.values(FontStyle)).isRequired;
+
+export const FontPropOpt = PropTypes.shape({
+  size: IntPropOpt,
+  style: FontStyleProp,
+  typeface: StringProp,
+  name: StringPropOpt
+});
+export const FontProp = FontPropOpt.isRequired;
 
 export const BorderStyleProp = PropTypes.oneOf(
   Object.values(BorderStyle)

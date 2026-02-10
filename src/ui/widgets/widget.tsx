@@ -20,7 +20,7 @@ import {
   newBorder
 } from "../../types/border";
 import { Color, ColorUtils, newColor } from "../../types/color";
-import { Font } from "../../types/font";
+import { Font, fontToCss } from "../../types/font";
 import { OutlineContext } from "../../misc/outlineContext";
 import { ExitFileContext, FileContext } from "../../misc/fileContext";
 import { executeAction, WidgetAction, WidgetActions } from "./widgetActions";
@@ -122,7 +122,7 @@ export function commonCss(props: {
     props.actions && props.actions.actions.length > 0 ? "pointer" : undefined;
   return {
     ...borderToCss(props.border),
-    ...props.font?.css(),
+    ...fontToCss(props.font),
     color: props.foregroundColor?.colorString,
     backgroundColor,
     cursor,

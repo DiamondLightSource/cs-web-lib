@@ -1,6 +1,6 @@
 import { Axis } from "./axis";
 import { ColorUtils } from "./color";
-import { Font } from "./font";
+import { newFont } from "./font";
 import { Plt } from "./plt";
 import { Trace } from "./trace";
 
@@ -17,10 +17,10 @@ describe("Plt", () => {
       scrollStep: 5,
       updatePeriod: 10,
       bufferSize: 2000,
-      titleFont: new Font(14),
-      labelFont: new Font(8),
-      legendFont: new Font(8),
-      scaleFont: new Font(6),
+      titleFont: newFont(14),
+      labelFont: newFont(8),
+      legendFont: newFont(8),
+      scaleFont: newFont(6),
       start: "10 minutes",
       end: "now"
     };
@@ -36,10 +36,10 @@ describe("Plt", () => {
       scrollStep: 5,
       updatePeriod: 10,
       bufferSize: 2000,
-      titleFont: new Font(14),
-      labelFont: new Font(8),
-      legendFont: new Font(8),
-      scaleFont: new Font(6),
+      titleFont: newFont(14),
+      labelFont: newFont(8),
+      legendFont: newFont(8),
+      scaleFont: newFont(6),
       start: "10 minutes",
       end: "now"
     };
@@ -76,10 +76,10 @@ describe("Plt", () => {
       scrollStep: 5,
       updatePeriod: 0,
       bufferSize: 5000,
-      titleFont: new Font(),
-      labelFont: new Font(),
-      legendFont: new Font(),
-      scaleFont: new Font(),
+      titleFont: newFont(),
+      labelFont: newFont(),
+      legendFont: newFont(),
+      scaleFont: newFont(),
       start: "1 minute",
       end: "now"
     });

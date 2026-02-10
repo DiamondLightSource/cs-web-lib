@@ -24,6 +24,7 @@ import { ColorUtils } from "../../../types/color";
 import { getPvValueAndName, trimFromString } from "../utils";
 import { Trace } from "../../../types/trace";
 import { Axis } from "../../../types/axis";
+import { fontToCss } from "../../../types/font";
 
 export const XYPlotProps = {
   height: FloatPropOpt,
@@ -79,9 +80,9 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
     if (showPlotBorder) {
       style = { border: "1px solid black", padding: "1px" };
     }
-    const font = titleFont?.css();
+    const font = fontToCss(titleFont) as React.CSSProperties;
     // Sometimes font is a string with "px" on the end
-    if (typeof font.fontSize === "string")
+    if (typeof font?.fontSize === "string")
       font.fontSize = trimFromString(font.fontSize);
 
     const newAxisOptions = createAxes(axes, font);

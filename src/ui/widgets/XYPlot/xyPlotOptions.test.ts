@@ -1,7 +1,7 @@
 import { Axis } from "../../../types/axis";
 import { newColor } from "../../../types/color";
 import { newDType } from "../../../types/dtypes/dType";
-import { Font, FontStyle } from "../../../types/font";
+import { FontStyle, fontToCss, newFont } from "../../../types/font";
 import { Trace } from "../../../types/trace";
 import { roundValue } from "../utils";
 import { calculateAxisLimits, createAxes, createTraces } from "./xyPlotOptions";
@@ -280,8 +280,11 @@ describe("Create axis options object", (): void => {
         maximum: 10
       })
     ];
-    const font = new Font(10, FontStyle.Regular, "sans");
-    const axisOptions = createAxes(axes, font.css());
+    const font = newFont(10, FontStyle.Regular, "sans");
+    const axisOptions = createAxes(
+      axes,
+      fontToCss(font) as React.CSSProperties
+    );
 
     expect(axisOptions).toEqual([
       {
@@ -325,8 +328,11 @@ describe("Create axis options object", (): void => {
       new Axis({ ...axis, ...{ minimum: -5, xAxis: false } }),
       new Axis({ ...axis, ...{ maximum: 50, xAxis: false } })
     ];
-    const font = new Font(10, FontStyle.Regular, "sans");
-    const axisOptions = createAxes(axes, font.css());
+    const font = newFont(10, FontStyle.Regular, "sans");
+    const axisOptions = createAxes(
+      axes,
+      fontToCss(font) as React.CSSProperties
+    );
 
     // Check that third axis has shifted
     expect(axisOptions[2]).toEqual({
@@ -374,8 +380,11 @@ describe("Create axis options object", (): void => {
       new Axis({ ...axis, ...{ minimum: -5, xAxis: false } }),
       new Axis({ ...axis, ...{ maximum: 50, onRight: true } })
     ];
-    const font = new Font(10, FontStyle.Regular, "sans");
-    const axisOptions = createAxes(axes, font.css());
+    const font = newFont(10, FontStyle.Regular, "sans");
+    const axisOptions = createAxes(
+      axes,
+      fontToCss(font) as React.CSSProperties
+    );
 
     // Check that third axis has shifted
     expect(axisOptions[2]).toEqual({

@@ -22,6 +22,7 @@ import { styled, Button as MuiButton, useTheme } from "@mui/material";
 import { calculateRotationTransform } from "../utils";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { borderToCss } from "../../../types/border";
+import { fontToCss } from "../../../types/font";
 
 export interface ActionButtonProps {
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
@@ -81,7 +82,7 @@ export const ActionButtonComponent = (
   const backgroundColor = transparent
     ? "transparent"
     : (props.backgroundColor?.colorString ?? theme.palette.primary.main);
-  const font = props.font?.css() ?? theme.typography;
+  const font = fontToCss(props.font) ?? theme.typography;
   const border = borderToCss(props.border) ?? null;
 
   const [inputWidth, inputHeight, transform] = calculateRotationTransform(

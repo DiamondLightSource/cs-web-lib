@@ -1,6 +1,6 @@
 import { REGISTERED_WIDGETS } from "../register";
 import { Rule } from "../../../types/props";
-import { Font, FontStyle } from "../../../types/font";
+import { Font, FontStyle, newFont } from "../../../types/font";
 import { Color, newColor } from "../../../types/color";
 import { parseWidget, ParserDict, ComplexParserDict } from "./parser";
 import { Border, BorderStyle, newBorder } from "../../../types/border";
@@ -89,7 +89,7 @@ function jsonParseFont(jsonFont: JsonFont): Font {
     bold: FontStyle.Bold,
     "bold italic": FontStyle.BoldItalic
   };
-  return new Font(
+  return newFont(
     jsonFont.size,
     jsonFont.style ? styles[jsonFont.style] : undefined,
     jsonFont.typeface

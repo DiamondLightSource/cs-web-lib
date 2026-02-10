@@ -34,7 +34,7 @@ import {
   WidgetActions,
   WRITE_PV
 } from "../widgetActions";
-import { Font, FontStyle } from "../../../types/font";
+import { Font, FontStyle, newFont } from "../../../types/font";
 import {
   Border,
   borderNONE,
@@ -167,7 +167,7 @@ export function bobParseFont(jsonProp: ElementCompact): Font {
   };
   const fontAttributes = jsonProp["font"]._attributes;
   const { family, size, style } = fontAttributes;
-  return new Font(Number(size), opiStyles[style], family);
+  return newFont(Number(size), opiStyles[style], family);
 }
 
 function bobParseBorder(props: any): Border {

@@ -5,7 +5,7 @@ import { ElementCompact, xml2js } from "xml-js";
 import { Rule, Expression, OpiFile } from "../../../types/props";
 import { MacroMap, resolveMacros } from "../../../types/macros";
 import { Color, ColorUtils } from "../../../types/color";
-import { FontStyle, Font } from "../../../types/font";
+import { FontStyle, Font, newFont } from "../../../types/font";
 import { Border, BorderStyle, newBorder } from "../../../types/border";
 import {
   Position,
@@ -154,7 +154,7 @@ export function opiParseFont(jsonProp: ElementCompact): Font {
     fontAttributes = jsonProp["opifont.name"]._attributes;
   }
   const { fontName, height, style } = fontAttributes;
-  return new Font(height, opiStyles[style], fontName);
+  return newFont(height, opiStyles[style], fontName);
 }
 
 /**

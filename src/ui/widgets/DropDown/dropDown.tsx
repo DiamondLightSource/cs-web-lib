@@ -15,6 +15,7 @@ import {
   ColorPropOpt
 } from "../propTypes";
 import { borderToCss } from "../../../types/border";
+import { fontToCss } from "../../../types/font";
 
 const DropDownContainerProps = {
   title: StringProp,
@@ -45,7 +46,7 @@ export const DropDownComponent = (
       minHeight: props.minHeight ?? ""
     }}
   >
-    <summary className={classes.Summary} style={{ ...props.font?.css() }}>
+    <summary className={classes.Summary} style={{ ...fontToCss(props.font) }}>
       {props.title}
     </summary>
     <div

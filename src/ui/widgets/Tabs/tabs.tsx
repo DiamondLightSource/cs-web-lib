@@ -8,7 +8,7 @@ import {
   Tabs,
   useTheme
 } from "@mui/material";
-import { ColorUtils, Font } from "../../../types";
+import { ColorUtils } from "../../../types";
 import { Close } from "@mui/icons-material";
 import PropTypes from "prop-types";
 import {
@@ -19,6 +19,7 @@ import {
   FuncPropOpt,
   InferWidgetProps
 } from "../propTypes";
+import { fontToCss, newFont } from "../../../types/font";
 
 const Tab = styled(MuiTab)({
   padding: 0,
@@ -69,7 +70,7 @@ export const TabBar = (
 
   const font =
     props.font ??
-    new Font(theme.typography.fontSize, undefined, theme.typography.fontFamily);
+    newFont(theme.typography.fontSize, undefined, theme.typography.fontFamily);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     const element = event.target as HTMLElement;
@@ -99,7 +100,7 @@ export const TabBar = (
           minHeight: direction ? "100%" : tabHeight,
           minWidth: direction ? tabWidth : "100%",
           display: "flex",
-          font: font.css(),
+          font: fontToCss(font) as React.CSSProperties,
           "& .MuiTabs-indicator": {
             backgroundColor: "transparent"
           }

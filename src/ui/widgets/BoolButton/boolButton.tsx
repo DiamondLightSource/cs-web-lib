@@ -19,6 +19,7 @@ import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { Button as MuiButton, styled, useTheme } from "@mui/material";
 import { getPvValueAndName } from "../utils";
 import { LedComponent } from "../LED/led";
+import { fontToCss } from "../../../types/font";
 
 const BoolButtonProps = {
   pvName: StringPropOpt,
@@ -105,7 +106,7 @@ export const BoolButtonComponent = (
   const backgroundColor =
     props.backgroundColor?.colorString ?? theme.palette.primary.main;
 
-  const font = props.font?.css() ?? theme.typography;
+  const font = fontToCss(props.font) ?? theme.typography;
 
   // These could be overwritten by  PV labels
   let { onLabel = "On", offLabel = "Off" } = props;

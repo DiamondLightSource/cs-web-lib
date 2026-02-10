@@ -18,6 +18,7 @@ import { dTypeGetDoubleValue, newDType } from "../../../types/dtypes/dType";
 import { Slider, useTheme } from "@mui/material";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { getPvValueAndName } from "../utils";
+import { fontToCss } from "../../../types/font";
 
 export const SliderControlProps = {
   minimum: FloatPropOpt,
@@ -79,7 +80,7 @@ export const SlideControlComponent = (
   let { minimum = 0, maximum = 100 } = props;
   const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
 
-  const font = props.font?.css() ?? theme.typography;
+  const font = fontToCss(props.font) ?? theme.typography;
 
   if (limitsFromPv && value?.display.controlRange) {
     minimum = value.display.controlRange?.min;

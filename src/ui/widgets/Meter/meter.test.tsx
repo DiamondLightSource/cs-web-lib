@@ -8,6 +8,7 @@ import * as meterUtilities from "./meterUtilities";
 import { Font } from "../../../types";
 import { PvDatum } from "../../../redux/csState";
 import { newDType } from "../../../types/dtypes/dType";
+import * as FontModule from "../../../types/font";
 
 vi.mock("react-gauge-component", () => ({
   GaugeComponent: vi.fn(({ value, minValue, maxValue, labels, style }) => (
@@ -191,9 +192,14 @@ describe("MeterComponent", () => {
   });
 
   it("applies font styles correctly", () => {
-    const font = {
-      css: () => ({ fontFamily: "Arial" })
-    } as Partial<Font> as Font;
+    vi.spyOn(FontModule, "fontToCss").mockReturnValue({
+      fontFamily: "Arial",
+      fontWeight: "normal",
+      fontStyle: "normal",
+      fontSize: "1rem"
+    });
+
+    const font = {} as Partial<Font> as Font;
 
     render(<MeterComponent {...defaultProps} font={font} />);
 

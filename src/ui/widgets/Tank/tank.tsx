@@ -17,6 +17,7 @@ import { ColorUtils } from "../../../types/color";
 import { XAxis, YAxis } from "@mui/x-charts";
 import { getPvValueAndName } from "../utils";
 import { dTypeGetDoubleValue } from "../../../types/dtypes/dType";
+import { fontToCss } from "../../../types/font";
 
 export const TankProps = {
   minimum: FloatPropOpt,
@@ -170,7 +171,7 @@ export const TankComponent = (
           width: "100%",
           color: "#000000",
           alignContent: "center",
-          ...font?.css()
+          ...fontToCss(font)
         }}
       >
         {label}

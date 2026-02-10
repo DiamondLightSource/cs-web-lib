@@ -29,6 +29,7 @@ import { calculateRotationTransform, getPvValueAndName } from "../utils";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { AlarmQuality } from "../../../types/dtypes/dAlarm";
 import { borderToCss } from "../../../types/border";
+import { fontToCss } from "../../../types/font";
 
 const ReadbackProps = {
   precision: IntPropOpt,
@@ -180,7 +181,7 @@ export const ReadbackComponent = (
     }
   }
 
-  const font = props.font?.css() ?? theme.typography;
+  const font = fontToCss(props.font) ?? theme.typography;
 
   const backgroundColor = transparent
     ? "transparent"

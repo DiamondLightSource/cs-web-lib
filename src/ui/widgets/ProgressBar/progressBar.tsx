@@ -15,6 +15,7 @@ import { LinearProgress } from "@mui/material";
 import { ColorUtils } from "../../../types/color";
 import { getPvValueAndName } from "../utils";
 import { dTypeGetDoubleValue } from "../../../types/dtypes/dType";
+import { fontToCss } from "../../../types/font";
 
 export const ProgressBarProps = {
   min: FloatPropOpt,
@@ -108,7 +109,7 @@ export const ProgressBarComponent = (
           color: "#000000",
           alignContent: "center",
           transform: horizontal ? undefined : "rotate(-90deg)",
-          ...font?.css()
+          ...fontToCss(font)
         }}
       >
         {label}

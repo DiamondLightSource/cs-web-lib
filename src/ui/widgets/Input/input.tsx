@@ -27,6 +27,7 @@ import { TextField as MuiTextField, styled, useTheme } from "@mui/material";
 import { getPvValueAndName } from "../utils";
 import { AlarmQuality } from "../../../types/dtypes/dAlarm";
 import { borderToCss } from "../../../types/border";
+import { fontToCss } from "../../../types/font";
 
 const InputComponentProps = {
   pvName: StringPropOpt,
@@ -148,7 +149,7 @@ export const SmartInputComponent = (
     displayedValue = displayedValue + ` ${display.units}`;
   }
 
-  const font = props.font?.css() ?? theme.typography;
+  const font = fontToCss(props.font) ?? theme.typography;
 
   let foregroundColor =
     props.foregroundColor?.colorString ?? theme.palette.primary.contrastText;

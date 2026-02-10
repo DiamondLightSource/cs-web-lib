@@ -1,5 +1,5 @@
 import { Color, newColor } from "./color";
-import { Font, FontStyle } from "./font";
+import { Font, FontStyle, newFont } from "./font";
 
 export class Axis {
   public xAxis: boolean;
@@ -30,8 +30,8 @@ export class Axis {
     autoscale = false,
     minimum = 0,
     maximum = 100,
-    titleFont = new Font(14, FontStyle.Bold),
-    scaleFont = new Font(12, FontStyle.Regular),
+    titleFont = newFont(14, FontStyle.Bold),
+    scaleFont = newFont(12, FontStyle.Regular),
     onRight = false,
     fromOpi = false
   } = {}) {

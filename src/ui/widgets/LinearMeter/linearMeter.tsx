@@ -34,6 +34,7 @@ import {
 } from "./trianglePointer";
 import { buildStatusRegions } from "./linearMeterUtilities";
 import { dTypeGetDoubleValue } from "../../../types/dtypes/dType";
+import { fontToCss } from "../../../types/font";
 
 export const LinearMeterComponentProps = {
   minimum: FloatPropOpt,
@@ -113,12 +114,12 @@ export const LinearMeterComponent = (
     maximum = pvMax ?? maximum;
   }
 
-  const fontCss = font?.css() ?? theme.typography;
+  const fontCss = fontToCss(font) ?? theme.typography;
   const labelFontStyle = {
     fontSize: fontCss.fontSize,
-    fontStyle: font?.css().fontStyle,
+    fontStyle: fontToCss(font)?.fontStyle,
     fontFamily: fontCss.fontFamily,
-    fontWeight: font?.css().fontWeight,
+    fontWeight: fontToCss(font)?.fontWeight,
     fill: foregroundColor
   };
 

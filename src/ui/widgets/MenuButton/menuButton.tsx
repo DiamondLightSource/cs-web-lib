@@ -18,6 +18,7 @@ import { MenuItem, Select, SelectChangeEvent, useTheme } from "@mui/material";
 import { getPvValueAndName } from "../utils";
 import log from "loglevel";
 import { dTypeGetStringValue } from "../../../types/dtypes/dType";
+import { fontToCss } from "../../../types/font";
 
 export const MenuButtonProps = {
   foregroundColor: ColorPropOpt,
@@ -117,7 +118,7 @@ export const MenuButtonComponent = (
         key={index}
         value={text}
         sx={{
-          fontFamily: props.font?.css() ?? "",
+          fontFamily: fontToCss(props.font) ?? "",
           color: foregroundColor
         }}
       >
@@ -178,7 +179,7 @@ export const MenuButtonComponent = (
           borderColor: "#1976d2"
         },
         "& .MuiSelect-outlined": {
-          fontFamily: props.font?.css() ?? "",
+          fontFamily: fontToCss(props.font) ?? "",
           color: foregroundColor
         }
       }}

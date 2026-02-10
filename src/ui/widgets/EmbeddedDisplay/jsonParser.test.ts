@@ -1,6 +1,6 @@
 import { Label } from "..";
 import { parseJson } from "./jsonParser";
-import { Font, FontStyle } from "../../../types/font";
+import { FontStyle, newFont } from "../../../types/font";
 import { BorderStyle, newBorder } from "../../../types/border";
 import { PVUtils } from "../../../types/pv";
 import { WidgetDescription } from "../createComponent";
@@ -60,7 +60,7 @@ describe("json widget parser", (): void => {
   it("handles font and position on a label widget", async (): Promise<void> => {
     const widget = (await parseJson(fontLabelString, "ca", PREFIX))
       .children?.[0] as WidgetDescription;
-    expect(widget.font).toEqual(new Font(13, FontStyle.Bold));
+    expect(widget.font).toEqual(newFont(13, FontStyle.Bold));
     expect(widget.position).toEqual(
       newAbsolutePosition("10", "20", "30", "40")
     );

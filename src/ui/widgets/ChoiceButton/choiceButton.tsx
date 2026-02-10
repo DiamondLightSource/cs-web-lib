@@ -22,6 +22,7 @@ import {
 } from "@mui/material";
 import { getPvValueAndName } from "../utils";
 import { ColorUtils } from "../../../types/color";
+import { fontToCss } from "../../../types/font";
 
 const ChoiceButtonProps = {
   pvName: StringPropOpt,
@@ -86,7 +87,7 @@ export const ChoiceButtonComponent = (
   const backgroundColor =
     props.backgroundColor?.colorString ?? theme.palette.primary.main;
 
-  const font = props.font?.css() ?? theme.typography;
+  const font = fontToCss(props.font) ?? theme.typography;
   const [selected, setSelected] = useState(
     value ? dTypeGetDoubleValue(value) : value
   );

@@ -18,6 +18,7 @@ import {
 import { writePv } from "../../hooks/useSubscription";
 import { getPvValueAndName } from "../utils";
 import { newDType, DType } from "../../../types/dtypes/dType";
+import { fontToCss } from "../../../types/font";
 
 export const CheckboxProps = {
   label: StringPropOpt,
@@ -84,7 +85,7 @@ export const CheckboxComponent = (
           props.foregroundColor?.colorString ??
           theme.palette.primary.contrastText,
         ".MuiFormControlLabel-label": {
-          fontFamily: props.font?.css() ?? theme.typography
+          fontFamily: fontToCss(props.font) ?? theme.typography
         }
       }}
       control={
@@ -95,7 +96,8 @@ export const CheckboxComponent = (
           sx={{
             padding: 0,
             "&.MuiSvgIcon-root": {
-              fontSize: props.font?.css().fontSize ?? theme.typography.fontSize
+              fontSize:
+                fontToCss(props.font)?.fontSize ?? theme.typography.fontSize
             }
           }}
         />

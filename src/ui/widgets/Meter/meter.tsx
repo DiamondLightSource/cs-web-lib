@@ -23,6 +23,7 @@ import {
 } from "./meterUtilities";
 import { getPvValueAndName } from "../utils";
 import { dTypeGetDoubleValue } from "../../../types/dtypes/dType";
+import { fontToCss } from "../../../types/font";
 
 export const MeterProps = {
   minimum: FloatPropOpt,
@@ -154,7 +155,7 @@ export const MeterComponent = (
         labels={{
           valueLabel: {
             style: {
-              fontFamily: font?.css().fontFamily,
+              fontFamily: fontToCss(font)?.fontFamily,
               fill: foregroundColor.colorString,
               textShadow: "none"
             },
@@ -183,7 +184,7 @@ export const MeterComponent = (
                 fill: foregroundColor.colorString,
                 fontSize: `${scaledWidth * 0.04}px`,
                 textShadow: "none",
-                fontFamily: font?.css().fontFamily
+                fontFamily: fontToCss(font)?.fontFamily
               }
             },
             defaultTickLineConfig: {

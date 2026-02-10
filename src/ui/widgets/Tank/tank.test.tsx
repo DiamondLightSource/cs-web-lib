@@ -6,6 +6,7 @@ import { Font } from "../../../types/font";
 import { PvDatum } from "../../../redux/csState";
 import { newDType } from "../../../types/dtypes/dType";
 import { ColorUtils } from "../../../types/color";
+import * as FontModule from "../../../types/font";
 
 // Mock the MUI X-Charts components
 vi.mock("@mui/x-charts/BarChart", () => ({
@@ -29,12 +30,6 @@ vi.mock("@mui/material", () => ({
   Box: vi.fn(({ children }) => <div data-testid="mui-box">{children}</div>)
 }));
 
-// Mock for font.css() function
-const mockFontCss = vi.fn().mockReturnValue({
-  fontFamily: "Arial",
-  fontSize: "12px"
-});
-
 describe("TankComponent", () => {
   // Basic test setup
   const defaultProps = {
@@ -51,7 +46,7 @@ describe("TankComponent", () => {
     pvName: "TEST:PV",
     minimum: 0,
     maximum: 100,
-    font: { css: mockFontCss } as Partial<Font> as Font
+    font: {} as Partial<Font> as Font
   };
 
   beforeEach(() => {
@@ -239,6 +234,13 @@ describe("TankComponent", () => {
     });
 
     test("applies font styling to label", () => {
+      vi.spyOn(FontModule, "fontToCss").mockReturnValue({
+        fontFamily: "Arial",
+        fontWeight: "normal",
+        fontStyle: "normal",
+        fontSize: "12px"
+      });
+
       render(<TankComponent {...defaultProps} showLabel={true} />);
 
       const labelContainer = screen.getByText("50");

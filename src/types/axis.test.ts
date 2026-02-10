@@ -1,6 +1,6 @@
 import { newColor } from "./color";
 import { Axis } from "./axis";
-import { Font, FontStyle } from "./font";
+import { FontStyle, newFont } from "./font";
 
 describe("Axis", () => {
   it("constructs the x axis with values", (): void => {
@@ -13,8 +13,8 @@ describe("Axis", () => {
       minimum: 100,
       maximum: 200,
       visible: false,
-      scaleFont: new Font(20, FontStyle.Italic),
-      titleFont: new Font(40),
+      scaleFont: newFont(20, FontStyle.Italic),
+      titleFont: newFont(40),
       onRight: true,
       xAxis: true
     };
@@ -39,8 +39,8 @@ describe("Axis", () => {
       autoscale: false,
       minimum: 0,
       maximum: 100,
-      scaleFont: new Font(12),
-      titleFont: new Font(14, FontStyle.Bold),
+      scaleFont: newFont(12),
+      titleFont: newFont(14, FontStyle.Bold),
       onRight: false,
       xAxis: false
     });
