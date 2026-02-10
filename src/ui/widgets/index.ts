@@ -39,6 +39,7 @@ export { StripChart } from "./StripChart/stripChart";
 export { Symbol } from "./Symbol/symbol";
 export { TabBar } from "./Tabs/tabs";
 export { TabContainer } from "./Tabs/tabContainer";
+export { NavigationTabs } from "./Tabs/navigationTabs";
 export { DynamicTabs } from "./Tabs/dynamicTabs";
 export { XYPlot } from "./XYPlot/xyPlot";
 export { Webcam } from "./Webcam/webcam";

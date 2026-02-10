@@ -21,7 +21,14 @@ import { snakeCaseToCamelCase } from "../utils";
 import { MacroMap } from "../../../types/macros";
 
 // Specific widgets we should allow empty string parsing for
-const PARSE_EMPTY_STRINGS = ["text", "label", "on_label", "off_label", "title"];
+const PARSE_EMPTY_STRINGS = [
+  "text",
+  "label",
+  "on_label",
+  "off_label",
+  "title",
+  "group_name"
+];
 
 function isEmpty(obj: any): boolean {
   for (const prop in obj) {
