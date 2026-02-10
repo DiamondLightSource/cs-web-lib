@@ -1,7 +1,7 @@
 import { Axis } from "../../../types/axis";
 import { PlotData } from "plotly.js";
 import { Trace } from "../../../types/trace";
-import type { DType } from "../../../types/dtypes/dType";
+import { dTypeGetArrayValue, type DType } from "../../../types/dtypes/dType";
 import React from "react";
 import { roundValue } from "../utils";
 
@@ -49,7 +49,7 @@ export function createTraces(
   value: DType,
   bytesPerElement: number
 ): Partial<PlotData>[] {
-  const arrayValue = value.value.arrayValue;
+  const arrayValue = dTypeGetArrayValue(value);
   // TO DO - can format this better once I figure out confusing types
   if (!arrayValue) return [];
   const dataSet: Partial<PlotData>[] = [];

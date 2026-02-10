@@ -1,5 +1,20 @@
-import { ChannelRole, DisplayForm } from "../dtypes";
 import { DRange } from "./dRange";
+
+enum ChannelRole {
+  RO,
+  WO,
+  RW
+}
+
+enum DisplayForm {
+  DEFAULT,
+  STRING,
+  BINARY,
+  DECIMAL,
+  HEX,
+  EXPONENTIAL,
+  ENGINEERING
+}
 
 export interface DDisplay {
   description?: string;

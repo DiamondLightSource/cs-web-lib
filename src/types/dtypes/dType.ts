@@ -1,4 +1,4 @@
-import { DTypeValue, NumberArray } from "../dtypes";
+import { DTypeValue, NumberArray } from "./dTypeValue";
 import { mergeDDisplay, DDisplay, dDisplayNONE } from "./dDisplay";
 import { DTime } from "./dTime";
 import { DAlarm, DAlarmNONE } from "./dAlarm";

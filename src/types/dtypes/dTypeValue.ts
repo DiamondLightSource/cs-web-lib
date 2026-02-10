@@ -1,19 +1,3 @@
-export enum ChannelRole {
-  RO,
-  WO,
-  RW
-}
-
-export enum DisplayForm {
-  DEFAULT,
-  STRING,
-  BINARY,
-  DECIMAL,
-  HEX,
-  EXPONENTIAL,
-  ENGINEERING
-}
-
 export type NumberArray =
   | Int8Array
   | Uint8Array

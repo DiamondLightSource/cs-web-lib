@@ -1,4 +1,4 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore, isPlainObject } from "@reduxjs/toolkit";
 
 import csReducer from "./csState";
 import { connectionMiddleware } from "./connectionMiddleware";
@@ -45,11 +45,29 @@ const buildConnection = (config?: CsWebLibConfig): Connection => {
   return new ConnectionForwarder(plugins);
 };
 
-const createStoreInstance = (config?: CsWebLibConfig) =>
-  configureStore({
+const createStoreInstance = (config?: CsWebLibConfig) => {
+  const isDevMode = config?.storeMode === "DEV";
+
+  return configureStore({
     reducer: csReducer,
-    middleware: getDefaultMiddleware =>
-      getDefaultMiddleware()
+    middleware: getDefaultMiddleware => {
+      const mw = getDefaultMiddleware({
+        immutableCheck: isDevMode,
+        serializableCheck: !isDevMode ? false : {
+          isSerializable: (value: any) => 
+            (value === null ||
+              typeof value === "string" ||
+              typeof value === "number" ||
+              typeof value === "boolean" ||
+              Array.isArray(value) ||
+              isPlainObject(value) ||
+              // allow all typed arrays and undefined
+              ArrayBuffer.isView(value) ||
+              value === undefined)
+        }
+      });
+
+      return mw
         .concat(connectionMiddleware(buildConnection(config)))
         .concat(
           throttleMiddleware(
@@ -62,9 +80,11 @@ const createStoreInstance = (config?: CsWebLibConfig) =>
               )
             )
           )
-        ),
-    devTools: true
+        );
+    },
+    devTools: isDevMode
   });
+};
 
 export const store = (config?: CsWebLibConfig) => {
   if (!storeInstance) {
