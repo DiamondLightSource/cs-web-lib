@@ -13,7 +13,7 @@ import {
 } from "../createComponent";
 import { newRelativePosition } from "../../../types/position";
 import { BorderStyle, newBorder, borderNONE } from "../../../types/border";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 import { MacroContext } from "../../../types/macros";
 
 const DeviceProps = {
@@ -30,7 +30,7 @@ export const DeviceComponent = (
   const deviceName = props.deviceName ?? (displayMacros["DESC"] || "");
   const [component, setComponent] = useState<JSX.Element>();
   const [border, setBorder] = useState(
-    newBorder(BorderStyle.Dotted, Color.DISCONNECTED, 3)
+    newBorder(BorderStyle.Dotted, ColorUtils.DISCONNECTED, 3)
   );
   const replacedDeviceName = `dev://${deviceName.replace(/\s/g, "")}`;
   const description = useDevice(replacedDeviceName);

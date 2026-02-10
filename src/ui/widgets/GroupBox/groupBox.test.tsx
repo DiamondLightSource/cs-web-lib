@@ -1,6 +1,6 @@
 import React from "react";
 import { GroupBoxComponent } from "./groupBox";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 import { render } from "@testing-library/react";
 
 describe("<GroupBoxComponent /> snapshots", (): void => {
@@ -8,7 +8,7 @@ describe("<GroupBoxComponent /> snapshots", (): void => {
     const { asFragment } = render(
       <GroupBoxComponent
         name={"Test"}
-        backgroundColor={Color.WHITE}
+        backgroundColor={ColorUtils.WHITE}
         styleOpt={0}
       />
     );

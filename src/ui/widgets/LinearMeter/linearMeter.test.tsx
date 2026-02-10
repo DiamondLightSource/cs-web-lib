@@ -7,12 +7,12 @@ import { LinearMeterComponent } from "./linearMeter";
 import * as utils from "../utils";
 import * as meterUtilities from "../Meter/meterUtilities";
 import * as linearMeterUtilities from "./linearMeterUtilities";
-import { Color } from "../../../types";
 import { PvDatum } from "../../../redux/csState";
 import { TriangleProps } from "./trianglePointer";
 import { RectangleAreaProps } from "./rectangleArea";
 import { ChartsReferenceLineProps } from "@mui/x-charts";
 import { newDType } from "../../../types/dtypes/dType";
+import { ColorUtils } from "../../../types/color";
 
 vi.mock("@mui/x-charts/BarChart", () => {
   const MockBarChart: React.FC<any> = ({ children, ...props }) => (
@@ -169,10 +169,10 @@ describe("LinearMeterComponent", () => {
     needleWidth: 1,
     knobSize: 8,
     colors: {
-      foregroundColor: Color.BLACK,
-      backgroundColor: Color.WHITE,
-      needleColor: Color.RED,
-      knobColor: Color.BLUE
+      foregroundColor: ColorUtils.BLACK,
+      backgroundColor: ColorUtils.WHITE,
+      needleColor: ColorUtils.RED,
+      knobColor: ColorUtils.BLUE
     }
   };
 
@@ -308,10 +308,10 @@ describe("LinearMeterComponent", () => {
 
   it("applies custom colors correctly", () => {
     const customColors = {
-      foregroundColor: Color.BLACK,
-      backgroundColor: Color.WHITE,
-      needleColor: Color.RED,
-      knobColor: Color.YELLOW
+      foregroundColor: ColorUtils.BLACK,
+      backgroundColor: ColorUtils.WHITE,
+      needleColor: ColorUtils.RED,
+      knobColor: ColorUtils.YELLOW
     };
 
     render(
@@ -322,7 +322,7 @@ describe("LinearMeterComponent", () => {
 
     expect(screen.getByTestId("triangle-pointer-horizontal")).toHaveAttribute(
       "data-fill",
-      Color.YELLOW.toString()
+      ColorUtils.YELLOW.colorString
     );
   });
 });

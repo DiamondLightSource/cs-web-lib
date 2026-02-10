@@ -1,7 +1,7 @@
 import { REGISTERED_WIDGETS } from "../register";
 import { Rule } from "../../../types/props";
 import { Font, FontStyle } from "../../../types/font";
-import { Color } from "../../../types/color";
+import { Color, newColor } from "../../../types/color";
 import { parseWidget, ParserDict, ComplexParserDict } from "./parser";
 import { Border, BorderStyle, newBorder } from "../../../types/border";
 import {
@@ -61,8 +61,10 @@ function jsonParsePosition(props: Record<string, string>): Position {
   }
 }
 
-function jsonParseColor(jsonColor: string): Color {
-  return new Color(jsonColor);
+function jsonParseColor(jsonColor: string | { colorString: string }): Color {
+  return typeof jsonColor === "string" || jsonColor instanceof String
+    ? newColor(jsonColor as string)
+    : newColor(jsonColor.colorString);
 }
 
 function jsonParseBorder(jsonBorder: JsonBorder): Border {

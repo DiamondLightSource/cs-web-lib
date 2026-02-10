@@ -10,7 +10,7 @@ import {
   IntPropOpt,
   MacrosPropOpt
 } from "../propTypes";
-import { Color } from "../../../types/color";
+import { Color, ColorUtils } from "../../../types/color";
 import classes from "./ellipse.module.css";
 
 export type FillOptions = {
@@ -47,7 +47,7 @@ export const EllipseComponent = (
     height: "100%",
     borderWidth: 3,
     borderColor:
-      props.lineColor?.toString() || Color.fromRgba(0, 0, 255).toString()
+      props.lineColor?.colorString || ColorUtils.fromRgba(0, 0, 255).colorString
   };
 
   style.borderStyle = (function () {
@@ -73,7 +73,7 @@ export const EllipseComponent = (
     gradient: props.gradient ?? false,
     bgGradientColor: props.bgGradientColor,
     fgGradientColor: props.fgGradientColor,
-    bgColor: props.backgroundColor ?? Color.fromRgba(30, 144, 255),
+    bgColor: props.backgroundColor ?? ColorUtils.fromRgba(30, 144, 255),
     level: props.fillLevel ?? 0
   };
   style = setFillOptions(style, fillOptions);
@@ -90,16 +90,16 @@ export function setFillOptions(
   } else if (fillOpts.gradient) {
     let fillDirection = "left";
     let firstGradientColor: string | undefined =
-      fillOpts.bgGradientColor?.toString();
-    let secondGradientColor: string | undefined = fillOpts.bgColor.toString();
+      fillOpts.bgGradientColor?.colorString;
+    let secondGradientColor: string | undefined = fillOpts.bgColor.colorString;
     if (fillOpts.horizontalFill) {
       fillDirection = "bottom";
-      firstGradientColor = fillOpts.bgColor.toString();
-      secondGradientColor = fillOpts.bgGradientColor?.toString();
+      firstGradientColor = fillOpts.bgColor.colorString;
+      secondGradientColor = fillOpts.bgGradientColor?.colorString;
     }
     style.background = `-webkit-linear-gradient(${fillDirection}, ${firstGradientColor} ${fillOpts.level}%, ${secondGradientColor})`;
   } else {
-    style.background = fillOpts.bgColor.toString();
+    style.background = fillOpts.bgColor.colorString;
   }
   return style;
 }

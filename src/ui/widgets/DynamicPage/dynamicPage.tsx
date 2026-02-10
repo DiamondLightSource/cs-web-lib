@@ -22,7 +22,7 @@ import {
   EmbeddedDisplay,
   EmbeddedDisplayPropsExtra
 } from "../EmbeddedDisplay/embeddedDisplay";
-import { Color } from "../../../types/color";
+import { newColor } from "../../../types/color";
 import { newRelativePosition } from "../../../types/position";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 import { phoebusTheme } from "../../../phoebusTheme";
@@ -88,8 +88,8 @@ export const DynamicPageComponent = (
           >
             <ActionButton
               position={newRelativePosition("25px", "25px")}
-              backgroundColor={new Color("var(--light-background)")}
-              foregroundColor={new Color("#000000")}
+              backgroundColor={newColor("var(--light-background)")}
+              foregroundColor={newColor("#000000")}
               text={"\u2715"}
               actions={{
                 executeAsOne: false,

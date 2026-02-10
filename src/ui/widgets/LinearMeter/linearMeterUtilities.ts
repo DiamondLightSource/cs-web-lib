@@ -1,4 +1,11 @@
-import { Color } from "../../../types";
+import { Color, colorChangeAlpha, ColorUtils } from "../../../types/color";
+
+interface Colors {
+  normalStatusColor?: Color | null;
+  minorWarningColor?: Color | null;
+  majorWarningColor?: Color | null;
+  isHighlightingOfActiveRegionsEnabled?: boolean | null;
+}
 
 export const buildStatusRegions = (
   levelLolo: number | undefined,
@@ -7,16 +14,18 @@ export const buildStatusRegions = (
   levelHihi: number | undefined,
   minimum: number,
   maximum: number,
-  colors: any,
+  colors: Colors,
   showLimits: boolean,
   numValue: number
 ): { minimum: number; maximum: number; fill: string }[] => {
-  const {
-    normalStatusColor = Color.fromRgba(194, 198, 195, 1),
-    minorWarningColor = Color.fromRgba(242, 148, 141, 1),
-    majorWarningColor = Color.fromRgba(240, 60, 46, 1),
-    isHighlightingOfActiveRegionsEnabled = true
-  } = colors;
+  const normalStatusColor =
+    colors?.normalStatusColor ?? ColorUtils.fromRgba(194, 198, 195, 1);
+  const minorWarningColor =
+    colors?.minorWarningColor ?? ColorUtils.fromRgba(242, 148, 141, 1);
+  const majorWarningColor =
+    colors?.majorWarningColor ?? ColorUtils.fromRgba(240, 60, 46, 1);
+  const isHighlightingOfActiveRegionsEnabled =
+    colors?.isHighlightingOfActiveRegionsEnabled ?? true;
 
   const statusRegions: { minimum: number; maximum: number; fill: string }[] =
     [];
@@ -25,7 +34,7 @@ export const buildStatusRegions = (
     statusRegions.push({
       minimum,
       maximum,
-      fill: normalStatusColor.toString()
+      fill: normalStatusColor.colorString
     });
     return statusRegions;
   }
@@ -64,7 +73,7 @@ const createRegion = (
   regionLimit: number | undefined,
   lowerBound: number,
   maximum: number,
-  regionColor: any,
+  regionColor: Color,
   isHighlightingOfActiveRegionsEnabled: any,
   numValue: number
 ): { minimum: number; maximum: number; fill: string } | null => {
@@ -76,7 +85,7 @@ const createRegion = (
       isHighlightingOfActiveRegionsEnabled &&
       (numValue > regionLimit || numValue <= lowerBound)
     ) {
-      color = color.changeAlpha(alpha);
+      color = colorChangeAlpha(color, alpha);
     }
 
     const upperBound = Math.min(maximum, regionLimit);
@@ -84,7 +93,7 @@ const createRegion = (
     return {
       minimum: lowerBound,
       maximum: upperBound,
-      fill: color.toString()
+      fill: color.colorString
     };
   }
 

@@ -1,7 +1,6 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { describe, test, expect, beforeEach, vi } from "vitest";
-import { Color } from "../../../types";
 import { StripChartComponent } from "./stripChart";
 import { Trace } from "../../../types/trace";
 import { Axis } from "../../../types/axis";
@@ -9,6 +8,7 @@ import { convertStringTimePeriod } from "../utils";
 import { PvDatum } from "../../../redux/csState";
 import { newDTime } from "../../../types/dtypes/dTime";
 import { newDType } from "../../../types/dtypes/dType";
+import { ColorUtils } from "../../../types/color";
 
 // Mock the MUI X-Charts components
 vi.mock("@mui/x-charts", () => ({
@@ -97,16 +97,16 @@ describe("StripChartComponent", () => {
 
     test("renders with 2 y axes", () => {
       const axes = [
-        new Axis({ color: Color.RED }),
-        new Axis({ color: Color.BLUE })
+        new Axis({ color: ColorUtils.RED }),
+        new Axis({ color: ColorUtils.BLUE })
       ];
       render(<StripChartComponent {...defaultProps} axes={axes} />);
 
       const lineChart = screen.getByTestId("line-chart");
       const yAxisData = JSON.parse(lineChart.getAttribute("data-yaxis") ?? "");
 
-      expect(yAxisData[0].color).toBe(Color.RED.toString());
-      expect(yAxisData[1].color).toBe(Color.BLUE.toString());
+      expect(yAxisData[0].color).toBe(ColorUtils.RED.colorString);
+      expect(yAxisData[1].color).toBe(ColorUtils.BLUE.colorString);
     });
 
     test("renders with 5 minute x axis period", () => {
@@ -126,8 +126,8 @@ describe("StripChartComponent", () => {
 
     test("renders with 2 traces", () => {
       const traces = [
-        new Trace({ color: Color.ORANGE, yPv: "TEST:PV" }),
-        new Trace({ color: Color.PINK, yPv: "TEST:PV" })
+        new Trace({ color: ColorUtils.ORANGE, yPv: "TEST:PV" }),
+        new Trace({ color: ColorUtils.PINK, yPv: "TEST:PV" })
       ];
       render(<StripChartComponent {...defaultProps} traces={traces} />);
       const lineChart = screen.getByTestId("line-chart");
@@ -135,8 +135,8 @@ describe("StripChartComponent", () => {
         lineChart.getAttribute("data-series") ?? ""
       );
 
-      expect(seriesData[0].color).toBe(Color.ORANGE.toString());
-      expect(seriesData[1].color).toBe(Color.PINK.toString());
+      expect(seriesData[0].color).toBe(ColorUtils.ORANGE.colorString);
+      expect(seriesData[1].color).toBe(ColorUtils.PINK.colorString);
     });
 
     test("renders with a title", () => {
@@ -147,9 +147,9 @@ describe("StripChartComponent", () => {
 
     test("renders multiple PVs with multiple traces, with rerender to add second set of PV data", () => {
       const traces = [
-        new Trace({ color: Color.ORANGE, yPv: "PV1" }),
-        new Trace({ color: Color.PINK, yPv: "PV2" }),
-        new Trace({ color: Color.BLUE, yPv: "PV3" })
+        new Trace({ color: ColorUtils.ORANGE, yPv: "PV1" }),
+        new Trace({ color: ColorUtils.PINK, yPv: "PV2" }),
+        new Trace({ color: ColorUtils.BLUE, yPv: "PV3" })
       ];
 
       const renderedObject = render(
@@ -183,11 +183,11 @@ describe("StripChartComponent", () => {
         lineChart.getAttribute("data-series") ?? ""
       );
 
-      expect(seriesData[0].color).toBe(Color.ORANGE.toString());
+      expect(seriesData[0].color).toBe(ColorUtils.ORANGE.colorString);
       expect(seriesData[0].dataKey).toBe("TEST:PV1");
-      expect(seriesData[1].color).toBe(Color.PINK.toString());
+      expect(seriesData[1].color).toBe(ColorUtils.PINK.colorString);
       expect(seriesData[1].dataKey).toBe("TEST:PV2");
-      expect(seriesData[2].color).toBe(Color.BLUE.toString());
+      expect(seriesData[2].color).toBe(ColorUtils.BLUE.colorString);
       expect(seriesData[2].dataKey).toBe("TEST:PV3");
 
       // Render again to check that new data values are added
@@ -310,7 +310,10 @@ describe("StripChartComponent", () => {
 
     test("applies background colour", () => {
       render(
-        <StripChartComponent {...defaultProps} backgroundColor={Color.PURPLE} />
+        <StripChartComponent
+          {...defaultProps}
+          backgroundColor={ColorUtils.PURPLE}
+        />
       );
 
       const lineChart = screen.getByTestId("line-chart");
@@ -319,7 +322,10 @@ describe("StripChartComponent", () => {
 
     test("applies custom x axis colour", () => {
       render(
-        <StripChartComponent {...defaultProps} foregroundColor={Color.YELLOW} />
+        <StripChartComponent
+          {...defaultProps}
+          foregroundColor={ColorUtils.YELLOW}
+        />
       );
 
       const lineChart = screen.getByTestId("line-chart");

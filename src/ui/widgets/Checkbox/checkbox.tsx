@@ -81,7 +81,7 @@ export const CheckboxComponent = (
       disabled={!enabled}
       sx={{
         color:
-          props.foregroundColor?.toString() ??
+          props.foregroundColor?.colorString ??
           theme.palette.primary.contrastText,
         ".MuiFormControlLabel-label": {
           fontFamily: props.font?.css() ?? theme.typography

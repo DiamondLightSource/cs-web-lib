@@ -11,6 +11,7 @@ import { phoebusTheme } from "../../../phoebusTheme";
 import { PvDatum } from "../../../redux/csState";
 import * as useSubscription from "../../hooks/useSubscription";
 import { DAlarmNONE } from "../../../types/dtypes/dAlarm";
+import { newColor } from "../../../types/color";
 
 const mockWritePv = vi
   .spyOn(useSubscription, "writePv")
@@ -71,8 +72,8 @@ describe("<MenuButton />", (): void => {
   test("it renders with style from props", (): void => {
     const props = {
       ...BASE_PROPS,
-      backgroundColor: "rgb(10, 240, 60)",
-      foregroundColor: "rgb(11, 16, 11)",
+      backgroundColor: newColor("rgb(10, 240, 60)"),
+      foregroundColor: newColor("rgb(11, 16, 11)"),
       itemsFromPv: false
     };
     const { getAllByRole, getByRole } = render(MenuButtonRenderer(props));

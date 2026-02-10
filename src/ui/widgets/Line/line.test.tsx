@@ -2,7 +2,7 @@ import React from "react";
 import renderer, { ReactTestRendererJSON } from "react-test-renderer";
 import { render } from "@testing-library/react";
 import { LineComponent } from "./line";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 
 const LineRenderer = (lineProps: any): ReactTestRendererJSON => {
   return renderer
@@ -15,7 +15,7 @@ describe("<LineComponent />", (): void => {
     const { asFragment } = render(
       <LineComponent
         {...({
-          backgroundColor: Color.fromRgba(0, 255, 255),
+          backgroundColor: ColorUtils.fromRgba(0, 255, 255),
           width: 20,
           height: 15,
           lineWidth: 4,
@@ -38,7 +38,7 @@ describe("<LineComponent />", (): void => {
     const lineProps = {
       width: 20,
       height: 25,
-      backgroundColor: Color.fromRgba(0, 255, 255),
+      backgroundColor: ColorUtils.fromRgba(0, 255, 255),
       points: {
         values: [
           { x: 1, y: 10 },
@@ -64,7 +64,7 @@ describe("<LineComponent />", (): void => {
       width: 30,
       height: 20,
       lineWidth: 15,
-      backgroundColor: Color.fromRgba(0, 254, 250),
+      backgroundColor: ColorUtils.fromRgba(0, 254, 250),
       transparent: true,
       rotationAngle: 45,
       visible: true,
@@ -94,7 +94,7 @@ describe("<LineComponent />", (): void => {
       width: 30,
       height: 20,
       lineWidth: 15,
-      backgroundColor: Color.fromRgba(0, 254, 250),
+      backgroundColor: ColorUtils.fromRgba(0, 254, 250),
       transparent: true,
       rotationAngle: 45,
       visible: true,
@@ -132,7 +132,7 @@ describe("<LineComponent />", (): void => {
       width: 30,
       height: 20,
       lineWidth: 2,
-      backgroundColor: Color.fromRgba(0, 254, 250),
+      backgroundColor: ColorUtils.fromRgba(0, 254, 250),
       transparent: true,
       rotationAngle: 45,
       visible: true,
@@ -171,7 +171,7 @@ describe("<LineComponent />", (): void => {
       width: 20,
       height: 25,
       lineWidth: 4,
-      backgroundColor: Color.fromRgba(0, 255, 255),
+      backgroundColor: ColorUtils.fromRgba(0, 255, 255),
       points: {
         values: [
           { x: 40, y: 10 },
@@ -192,7 +192,7 @@ describe("<LineComponent />", (): void => {
     const lineProps = {
       width: 20,
       height: 25,
-      backgroundColor: Color.fromRgba(0, 255, 255)
+      backgroundColor: ColorUtils.fromRgba(0, 255, 255)
     };
 
     const svg = LineRenderer(lineProps);

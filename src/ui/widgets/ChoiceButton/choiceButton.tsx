@@ -20,8 +20,8 @@ import {
   ToggleButtonGroup,
   useTheme
 } from "@mui/material";
-import { Color } from "../../../types";
 import { getPvValueAndName } from "../utils";
+import { ColorUtils } from "../../../types/color";
 
 const ChoiceButtonProps = {
   pvName: StringPropOpt,
@@ -77,11 +77,14 @@ export const ChoiceButtonComponent = (
     itemsFromPv = true,
     items = ["Item 1", "Item 2"],
     horizontal = true,
-    foregroundColor = theme.palette.primary.contrastText,
-    backgroundColor = theme.palette.primary.main,
-    selectedColor = Color.fromRgba(200, 200, 200)
+    selectedColor = ColorUtils.fromRgba(200, 200, 200)
   } = props;
   const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
+
+  const foregroundColor =
+    props.foregroundColor?.colorString ?? theme.palette.primary.contrastText;
+  const backgroundColor =
+    props.backgroundColor?.colorString ?? theme.palette.primary.main;
 
   const font = props.font?.css() ?? theme.typography;
   const [selected, setSelected] = useState(
@@ -143,17 +146,17 @@ export const ChoiceButtonComponent = (
               width: buttonWidth,
               height: buttonHeight,
               fontFamily: font,
-              color: foregroundColor.toString(),
-              backgroundColor: backgroundColor.toString(),
+              color: foregroundColor,
+              backgroundColor: backgroundColor,
               "&.Mui-selected": {
-                backgroundColor: selectedColor.toString()
+                backgroundColor: selectedColor.colorString
               },
               "&.Mui-selected:hover": {
-                backgroundColor: selectedColor.toString(),
+                backgroundColor: selectedColor.colorString,
                 opacity: 0.6
               },
               "&:hover": {
-                backgroundColor: backgroundColor.toString(),
+                backgroundColor: backgroundColor,
                 opacity: 0.6
               }
             }}

@@ -13,7 +13,7 @@ import {
 } from "../../types/dtypes/dType";
 import { SubscriptionType } from "../../connection/plugin";
 import { BorderStyle, newBorder } from "../../types/border";
-import { Color } from "../../types/color";
+import { ColorUtils } from "../../types/color";
 import { opiParseColor } from "../widgets/EmbeddedDisplay/opiParser";
 import { parseArrayString } from "../../misc/stringUtils";
 import { AlarmQuality } from "../../types/dtypes/dAlarm";
@@ -104,7 +104,7 @@ export function useRules(props: AnyProps): AnyProps {
                 } else {
                   newProps.border = newBorder(
                     BorderStyle.None,
-                    Color.BLACK,
+                    ColorUtils.BLACK,
                     Number(exp.value._text)
                   );
                 }
@@ -160,7 +160,11 @@ export function useRules(props: AnyProps): AnyProps {
       }
       // If any PV does not connect, add a disconnected border.
       if (pvNotConnected) {
-        newProps.border = newBorder(BorderStyle.Dotted, Color.DISCONNECTED, 3);
+        newProps.border = newBorder(
+          BorderStyle.Dotted,
+          ColorUtils.DISCONNECTED,
+          3
+        );
       }
     } catch (error) {
       log.warn(`Failed to evaluate rule ${name}: ${error}`);

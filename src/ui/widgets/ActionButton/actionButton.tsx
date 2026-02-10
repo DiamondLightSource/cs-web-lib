@@ -69,7 +69,6 @@ export const ActionButtonComponent = (
   const theme = useTheme();
   const {
     enabled = true,
-    foregroundColor = theme.palette.primary.contrastText,
     rotationStep = 0,
     transparent = false,
     visible = true,
@@ -77,9 +76,11 @@ export const ActionButtonComponent = (
     width = WIDGET_DEFAULT_SIZES["action_button"][0]
   } = props;
 
+  const foregroundColor =
+    props?.foregroundColor?.colorString ?? theme.palette.primary.contrastText;
   const backgroundColor = transparent
     ? "transparent"
-    : (props.backgroundColor?.toString() ?? theme.palette.primary.main);
+    : (props.backgroundColor?.colorString ?? theme.palette.primary.main);
   const font = props.font?.css() ?? theme.typography;
   const border = borderToCss(props.border) ?? null;
 
@@ -101,7 +102,7 @@ export const ActionButtonComponent = (
           height: typeof height === "string" ? "100%" : inputHeight,
           width: typeof width === "string" ? "100%" : inputWidth
         },
-        color: foregroundColor.toString(),
+        color: foregroundColor,
         backgroundColor: backgroundColor,
         border: border,
         fontFamily: font,

@@ -12,6 +12,7 @@ import {
 import classes from "./arc.module.css";
 import { Color } from "../../../types";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
+import { ColorUtils } from "../../../types/color";
 
 const ArcProps = {
   macros: MacrosPropOpt,
@@ -33,7 +34,7 @@ export const ArcComponent = (
   const {
     width = WIDGET_DEFAULT_SIZES["arc"][0],
     height = WIDGET_DEFAULT_SIZES["arc"][1],
-    backgroundColor = Color.fromRgba(30, 144, 255),
+    backgroundColor = ColorUtils.fromRgba(30, 144, 255),
     startAngle = 0,
     totalAngle = 90,
     lineWidth = 3
@@ -45,8 +46,8 @@ export const ArcComponent = (
   const borderColor = findLineColor(
     props.lineColor,
     props.foregroundColor
-  ).toString();
-  const fillColor = fillOpt ? backgroundColor?.toString() : "transparent";
+  ).colorString;
+  const fillColor = fillOpt ? backgroundColor?.colorString : "transparent";
 
   const radiusX = Math.floor(width / 2);
   const radiusY = Math.floor(height / 2);
@@ -138,7 +139,7 @@ export const ArcComponent = (
       <path
         className={classes.BorderPath}
         d={border.join("\n")}
-        stroke={borderColor.toString()}
+        stroke={borderColor}
         fill="transparent"
         key={`border${idx}`}
         strokeWidth={lineWidth}
@@ -182,7 +183,7 @@ export function findLineColor(
     return opiColor;
   }
   // If neither present, use Phoebus default
-  return Color.fromRgba(0, 0, 255);
+  return ColorUtils.fromRgba(0, 0, 255);
 }
 
 /**

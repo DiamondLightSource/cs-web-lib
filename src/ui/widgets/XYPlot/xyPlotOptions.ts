@@ -60,7 +60,7 @@ export function createTraces(
       ...traceStyle
     };
     data.marker = {
-      color: options.color.toString(),
+      color: options.color.colorString,
       symbol: POINT_STYLE[options.pointType],
       size: options.pointSize
     };
@@ -68,13 +68,13 @@ export function createTraces(
     if (traceStyle.type === "scatter") {
       // different trace layout for bar and line
       data.line = {
-        color: options.color.toString(),
+        color: options.color.colorString,
         width: options.lineWidth
       };
       // if area plot, fill in with same colour as line
       if (traceStyle.fill) {
         data.fill = traceStyle.fill;
-        data.fillcolor = options.color.toString();
+        data.fillcolor = options.color.colorString;
       }
     }
 
@@ -134,8 +134,8 @@ export function createAxes(
       showgrid: axis.showGrid,
       griddash: false,
       gridwidth: 0.5,
-      gridcolor: axis.color.toString(),
-      tickcolor: axis.color.toString(),
+      gridcolor: axis.color.colorString,
+      tickcolor: axis.color.colorString,
       zeroline: false,
       automargin: true,
       minor: {

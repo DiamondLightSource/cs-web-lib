@@ -2,13 +2,13 @@ import React from "react";
 import { BoolButtonComponent, getDimensions } from "./boolButton";
 import { act, fireEvent, render } from "@testing-library/react";
 import { newDType } from "../../../types/dtypes/dType";
-import { Color } from "../../../types";
 import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
 import { PvDatum } from "../../../redux/csState";
 import { vi } from "vitest";
 import * as useSubscription from "../../hooks/useSubscription";
 import { DAlarmNONE } from "../../../types/dtypes/dAlarm";
+import { ColorUtils } from "../../../types/color";
 
 const mockWritePv = vi
   .spyOn(useSubscription, "writePv")
@@ -37,13 +37,13 @@ const TEST_PROPS = {
   pvData: [TEST_PVDATUM],
   width: 45,
   height: 20,
-  onColor: Color.fromRgba(0, 235, 10),
-  offColor: Color.fromRgba(0, 100, 0),
+  onColor: ColorUtils.fromRgba(0, 235, 10),
+  offColor: ColorUtils.fromRgba(0, 100, 0),
   onLabel: "Enabled",
   offLabel: "Disabled",
   squareButton: true,
-  backgroundColor: Color.fromRgba(20, 20, 200),
-  foregroundColor: Color.fromRgba(10, 60, 40),
+  backgroundColor: ColorUtils.fromRgba(20, 20, 200),
+  foregroundColor: ColorUtils.fromRgba(10, 60, 40),
   showBooleanLabel: true,
   onState: 1,
   offState: 0

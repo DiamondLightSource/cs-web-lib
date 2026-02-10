@@ -1,9 +1,9 @@
 import { BorderStyle, borderToCss, newBorder } from "./border";
-import { Color } from "./color";
+import { ColorUtils } from "./color";
 
 describe("Border", () => {
   it("creates the correct style", (): void => {
-    const border = newBorder(BorderStyle.Line, Color.RED, 1);
+    const border = newBorder(BorderStyle.Line, ColorUtils.RED, 1);
     expect(borderToCss(border)).toEqual({
       borderStyle: "solid",
       borderWidth: "1px",
@@ -11,7 +11,7 @@ describe("Border", () => {
     });
   });
   it("sets border radius if defined", (): void => {
-    const border = newBorder(BorderStyle.Line, Color.RED, 1, 2);
+    const border = newBorder(BorderStyle.Line, ColorUtils.RED, 1, 2);
     expect(borderToCss(border)).toEqual({
       borderStyle: "solid",
       borderWidth: "1px",

@@ -3,6 +3,7 @@ import { LabelComponent } from "./label";
 import { render } from "@testing-library/react";
 import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
+import { newColor } from "../../../types/color";
 
 const BASE_PROPS = {
   text: "hello"
@@ -34,8 +35,8 @@ describe("<Label />", (): void => {
       textAlign: "right",
       textAlignV: "bottom",
       transparent: false,
-      backgroundColor: "rgb(10, 60, 40)",
-      foregroundColor: "rgb(240, 240, 50)"
+      backgroundColor: newColor("rgb(10, 60, 40)"),
+      foregroundColor: newColor("rgb(240, 240, 50)")
     };
     const { getByText } = render(LabelRenderer(props));
     const label = getByText("hello");

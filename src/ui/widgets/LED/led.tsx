@@ -10,7 +10,6 @@ import {
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import classes from "./led.module.css";
-import { Color } from "../../../types";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { getPvValueAndName } from "../utils";
 import { DAlarmNONE } from "../../../types/dtypes/dAlarm";
@@ -18,6 +17,7 @@ import {
   dTypeGetAlarm,
   dTypeGetDoubleValue
 } from "../../../types/dtypes/dType";
+import { ColorUtils } from "../../../types/color";
 
 /**
  * width: the diameter of the LED
@@ -44,9 +44,9 @@ export type LedComponentProps = InferWidgetProps<typeof LedProps> & PVComponent;
 export const LedComponent = (props: LedComponentProps): JSX.Element => {
   const {
     pvData,
-    onColor = Color.fromRgba(0, 255, 0),
-    offColor = Color.fromRgba(60, 100, 60),
-    lineColor = Color.fromRgba(50, 50, 50, 178),
+    onColor = ColorUtils.fromRgba(0, 255, 0),
+    offColor = ColorUtils.fromRgba(60, 100, 60),
+    lineColor = ColorUtils.fromRgba(50, 50, 50, 178),
     width = WIDGET_DEFAULT_SIZES["led"][0],
     height = WIDGET_DEFAULT_SIZES["led"][1],
     alarmSensitive = false,
@@ -69,8 +69,10 @@ export const LedComponent = (props: LedComponentProps): JSX.Element => {
       ledOn = ((1 << doubleValue) & bit) === bit;
     }
   }
-  style["backgroundColor"] = ledOn ? onColor?.toString() : offColor?.toString();
-  style["border"] = `2px solid ${lineColor.toString()}`;
+  style["backgroundColor"] = ledOn
+    ? onColor?.colorString
+    : offColor?.colorString;
+  style["border"] = `2px solid ${lineColor.colorString}`;
   style["borderRadius"] = square ? "0%" : "50%";
 
   // make sizes similar to size in CS-Studio, five taken

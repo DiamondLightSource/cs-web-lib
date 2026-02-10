@@ -17,7 +17,7 @@ import {
 import { registerWidget } from "../register";
 import { ImageComponent } from "../Image/image";
 import { LabelComponent } from "../Label/label";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 import { executeActions, WidgetActions } from "../widgetActions";
 import { MacroContext } from "../../../types/macros";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
@@ -80,13 +80,13 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
     initialIndex = 0,
     fallbackSymbol = "https://cs-web-symbol.diamond.ac.uk/catalogue/default_symbol.png",
     transparent = true,
-    backgroundColor = "white",
     showBooleanLabel = false,
     enabled = true,
     preserveRatio = true,
     pvData
   } = props;
   const { value } = getPvValueAndName(pvData);
+  const backgroundColor = props.backgroundColor?.colorString ?? "white";
 
   const style = commonCss(props as any);
   // If symbols and not imagefile, we're in a bob file
@@ -178,9 +178,7 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
             onClick={onClick}
             style={{
               ...style,
-              backgroundColor: transparent
-                ? "transparent"
-                : backgroundColor.toString(),
+              backgroundColor: transparent ? "transparent" : backgroundColor,
               alignItems: alignItems,
               justifyContent: justifyContent
             }}
@@ -189,7 +187,7 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
               <LabelComponent
                 {...props}
                 textAlignV="bottom"
-                backgroundColor={Color.TRANSPARENT}
+                backgroundColor={ColorUtils.TRANSPARENT}
                 text={dTypeGetStringValue(value)}
               ></LabelComponent>
             </div>

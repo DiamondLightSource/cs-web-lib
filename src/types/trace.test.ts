@@ -1,4 +1,4 @@
-import { Color } from "./color";
+import { ColorUtils } from "./color";
 import { Trace } from "./trace";
 
 describe("Trace", () => {
@@ -9,7 +9,7 @@ describe("Trace", () => {
       lineWidth: 5,
       lineStyle: 2,
       traceType: 1,
-      color: Color.fromRgba(200, 10, 200),
+      color: ColorUtils.fromRgba(200, 10, 200),
       pointType: 2,
       pointSize: 10,
       visible: false,
@@ -28,13 +28,13 @@ describe("Trace", () => {
 
   it("construct the trace with only defaults", (): void => {
     const trace = new Trace();
-    expect(trace).toEqual({
+    expect({ ...trace, color: "" }).toEqual({
       name: "",
       axis: 0,
       lineWidth: 0,
       lineStyle: 0,
       traceType: 2,
-      color: Color.fromRgba(0, 0, 255),
+      color: "",
       pointType: 0,
       pointSize: 1,
       visible: true,
@@ -44,6 +44,9 @@ describe("Trace", () => {
         url: ""
       }
     });
+    expect(trace.color.colorString).toEqual(
+      ColorUtils.fromRgba(0, 0, 255).colorString
+    );
     expect(trace).toBeInstanceOf(Trace);
   });
 });

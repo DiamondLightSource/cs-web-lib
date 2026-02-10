@@ -12,7 +12,7 @@ import {
   BorderPropOpt
 } from "../propTypes";
 import { LinearProgress } from "@mui/material";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 import { getPvValueAndName } from "../utils";
 import { dTypeGetDoubleValue } from "../../../types/dtypes/dType";
 
@@ -40,7 +40,7 @@ export const ProgressBarComponent = (
     showLabel = false,
     font,
     horizontal = true,
-    fillColor = Color.fromRgba(60, 255, 60),
+    fillColor = ColorUtils.fromRgba(60, 255, 60),
     precision = undefined,
     logScale = false,
     transparent = false // This property only exists in CSStudio, so default to false
@@ -50,7 +50,7 @@ export const ProgressBarComponent = (
 
   const backgroundColor = transparent
     ? "transparent"
-    : (props.backgroundColor?.toString() ?? "rgba(250, 250, 250, 255)");
+    : (props.backgroundColor?.colorString ?? "rgba(250, 250, 250, 255)");
 
   let { min = 0, max = 100 } = props;
   if (limitsFromPv && value?.display.controlRange) {
@@ -96,7 +96,7 @@ export const ProgressBarComponent = (
             transform: horizontal
               ? null
               : `translateY(${100 - percent}%)!important`.toString(),
-            backgroundColor: fillColor.toString()
+            backgroundColor: fillColor.colorString
           }
         }}
       />

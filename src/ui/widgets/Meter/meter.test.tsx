@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { MeterComponent } from "./meter";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 import { NumberFormatEnum } from "./meterUtilities";
 import * as meterUtilities from "./meterUtilities";
 import { Font } from "../../../types";
@@ -55,9 +55,9 @@ describe("MeterComponent", () => {
         })
       } as Partial<PvDatum> as PvDatum
     ],
-    foregroundColor: Color.fromRgba(0, 0, 0, 1),
-    needleColor: Color.fromRgba(255, 5, 7, 1),
-    backgroundColor: Color.fromRgba(250, 250, 250, 1)
+    foregroundColor: ColorUtils.fromRgba(0, 0, 0, 1),
+    needleColor: ColorUtils.fromRgba(255, 5, 7, 1),
+    backgroundColor: ColorUtils.fromRgba(250, 250, 250, 1)
   };
 
   beforeEach(() => {

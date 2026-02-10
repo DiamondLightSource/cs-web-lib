@@ -1,5 +1,5 @@
 import { Axis } from "../../../types/axis";
-import { Color } from "../../../types/color";
+import { newColor } from "../../../types/color";
 import { newDType } from "../../../types/dtypes/dType";
 import { Font, FontStyle } from "../../../types/font";
 import { Trace } from "../../../types/trace";
@@ -109,7 +109,7 @@ describe("Create trace options object", (): void => {
   test("Create bar chart trace", (): void => {
     const traces: Trace[] = [
       new Trace({
-        color: new Color("rgb(255, 0, 0)"),
+        color: newColor("rgb(255, 0, 0)"),
         pointType: 0,
         pointSize: 2,
         traceType: 3
@@ -135,7 +135,7 @@ describe("Create trace options object", (): void => {
   test("Create line plot trace", (): void => {
     const traces: Trace[] = [
       new Trace({
-        color: new Color("rgb(250, 0, 0)"),
+        color: newColor("rgb(250, 0, 0)"),
         lineWidth: 2,
         pointType: 3,
         pointSize: 6,
@@ -167,7 +167,7 @@ describe("Create trace options object", (): void => {
   test("Create area plot trace", (): void => {
     const traces: Trace[] = [
       new Trace({
-        color: new Color("rgb(250, 0, 0)"),
+        color: newColor("rgb(250, 0, 0)"),
         lineWidth: 2,
         pointType: 6,
         pointSize: 6,
@@ -202,7 +202,7 @@ describe("Create trace options object", (): void => {
     const traces: Trace[] = [
       new Trace({
         fromOpi: true,
-        color: new Color("rgb(250, 0, 0)"),
+        color: newColor("rgb(250, 0, 0)"),
         lineWidth: 2,
         pointSize: 6,
         traceType: 2,
@@ -236,7 +236,7 @@ describe("Create trace options object", (): void => {
     const traces: Trace[] = [
       new Trace({
         fromOpi: true,
-        color: new Color("rgb(250, 0, 0)"),
+        color: newColor("rgb(250, 0, 0)"),
         lineWidth: 2,
         pointType: 3,
         pointSize: 6,
@@ -275,7 +275,7 @@ describe("Create axis options object", (): void => {
         title: "Test Plot",
         visible: true,
         showGrid: true,
-        color: new Color("rgb(255, 255, 255"),
+        color: newColor("rgb(255, 255, 255"),
         minimum: 1,
         maximum: 10
       })
@@ -314,7 +314,7 @@ describe("Create axis options object", (): void => {
       title: "Test Plot",
       visible: true,
       showGrid: true,
-      color: new Color("rgb(255, 255, 255"),
+      color: newColor("rgb(255, 255, 255"),
       minimum: 1,
       maximum: 10,
       onRight: false,
@@ -362,7 +362,7 @@ describe("Create axis options object", (): void => {
       title: "Test Plot",
       visible: true,
       showGrid: true,
-      color: new Color("rgb(255, 255, 255"),
+      color: newColor("rgb(255, 255, 255"),
       minimum: 1,
       maximum: 10,
       xAxis: true,

@@ -12,7 +12,7 @@ import {
   MacrosPropOpt
 } from "../propTypes";
 import { Point } from "../../../types/points";
-import { Color } from "../../../types";
+import { ColorUtils } from "../../../types/color";
 
 const PolygonProps = {
   macros: MacrosPropOpt,
@@ -30,8 +30,8 @@ export const PolygonComponent = (
 ): JSX.Element => {
   const {
     lineWidth = 3,
-    lineColor = Color.fromRgba(0, 0, 255),
-    backgroundColor = Color.fromRgba(50, 50, 255),
+    lineColor = ColorUtils.fromRgba(0, 0, 255),
+    backgroundColor = ColorUtils.fromRgba(50, 50, 255),
     points,
     rotationAngle = 0,
     transparent = false
@@ -52,9 +52,9 @@ export const PolygonComponent = (
     >
       <polygon
         overflow={"visible"}
-        stroke={lineColor.toString()}
+        stroke={lineColor.colorString}
         strokeWidth={lineWidth}
-        fill={transparent ? "transparent" : backgroundColor.toString()} // background colour
+        fill={transparent ? "transparent" : backgroundColor.colorString} // background colour
         transform={`rotation(${rotationAngle},0,0)`}
         points={coordinates}
       />

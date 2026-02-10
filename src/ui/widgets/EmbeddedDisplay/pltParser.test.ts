@@ -1,6 +1,6 @@
 import { vi } from "vitest";
-import { Color } from "../../../types";
 import { parsePlt } from "./pltParser";
+import { ColorUtils } from "../../../types/color";
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -102,7 +102,9 @@ describe("plt parser", (): void => {
       "fakeDir",
       "databrowser"
     );
-    expect(plt.backgroundColor).toEqual(Color.fromRgba(204, 204, 204));
+    expect(plt.backgroundColor.colorString).toEqual(
+      ColorUtils.fromRgba(204, 204, 204).colorString
+    );
     // Check custom props parsed correctly
     expect(plt.axes.length).toEqual(1);
     expect(plt.pvlist[0].archive).toEqual({

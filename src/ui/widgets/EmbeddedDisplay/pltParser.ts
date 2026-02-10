@@ -1,5 +1,5 @@
 import { xml2js, ElementCompact } from "xml-js";
-import { Color, Font, FontStyle } from "../../../types";
+import { Font, FontStyle } from "../../../types";
 import {
   XmlDescription,
   opiParseBoolean,
@@ -13,6 +13,7 @@ import { Archiver, Trace } from "../../../types/trace";
 import { Plt } from "../../../types/plt";
 import { httpRequest } from "../../../misc/httpClient";
 import { isFullyQualifiedUrl } from "../../../misc";
+import { ColorUtils } from "../../../types/color";
 
 const PLT_PARSERS: ParserDict = {
   start: ["start", opiParseString],
@@ -174,7 +175,7 @@ function pltParseAxes(props: ElementCompact, pvAxes: any) {
  * @returns Color object
  */
 function pltParseColor(jsonProp: ElementCompact) {
-  return Color.fromRgba(
+  return ColorUtils.fromRgba(
     parseInt(jsonProp.red._text),
     parseInt(jsonProp.green._text),
     parseInt(jsonProp.blue._text),

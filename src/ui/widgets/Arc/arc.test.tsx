@@ -6,7 +6,7 @@ import {
   findFillOption,
   findLineColor
 } from "./arc";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 
 const ArcRenderer = (arcProps: any): ReactTestRendererJSON => {
   return renderer
@@ -19,7 +19,7 @@ describe("<ArcComponent />", (): void => {
     const arcProps = {
       height: 100,
       width: 100,
-      backgroundColor: Color.fromRgba(200, 1, 60)
+      backgroundColor: ColorUtils.fromRgba(200, 1, 60)
     };
 
     const svg = ArcRenderer(arcProps);
@@ -49,8 +49,8 @@ describe("<ArcComponent />", (): void => {
       startAngle: 34,
       totalAngle: 201,
       transparent: false,
-      lineColor: Color.fromRgba(0, 100, 200),
-      backgroundColor: Color.fromRgba(45, 1, 180)
+      lineColor: ColorUtils.fromRgba(0, 100, 200),
+      backgroundColor: ColorUtils.fromRgba(45, 1, 180)
     };
 
     const svg = ArcRenderer(arcProps);
@@ -81,8 +81,8 @@ describe("<ArcComponent />", (): void => {
       startAngle: -60,
       totalAngle: 40,
       fill: true,
-      foregroundColor: Color.fromRgba(0, 100, 200),
-      backgroundColor: Color.fromRgba(45, 1, 180)
+      foregroundColor: ColorUtils.fromRgba(0, 100, 200),
+      backgroundColor: ColorUtils.fromRgba(45, 1, 180)
     };
 
     const svg = ArcRenderer(arcProps);
@@ -103,8 +103,8 @@ describe("<ArcComponent />", (): void => {
       startAngle: -100,
       totalAngle: -90,
       transparent: true,
-      lineColor: Color.fromRgba(0, 101, 200),
-      backgroundColor: Color.fromRgba(45, 1, 180)
+      lineColor: ColorUtils.fromRgba(0, 101, 200),
+      backgroundColor: ColorUtils.fromRgba(45, 1, 180)
     };
 
     const svg = ArcRenderer(arcProps);
@@ -123,8 +123,8 @@ describe("<ArcComponent />", (): void => {
       startAngle: 40,
       totalAngle: -120,
       fill: false,
-      foregroundColor: Color.fromRgba(0, 100, 200),
-      backgroundColor: Color.fromRgba(45, 1, 180)
+      foregroundColor: ColorUtils.fromRgba(0, 100, 200),
+      backgroundColor: ColorUtils.fromRgba(45, 1, 180)
     };
 
     const svg = ArcRenderer(arcProps);
@@ -161,15 +161,27 @@ describe("findFillOption()", (): void => {
 
 describe("findLineColor()", (): void => {
   test("Use Phoebus line color", (): void => {
-    const lineColor = findLineColor(Color.fromRgba(20, 15, 100), undefined);
-    expect(lineColor).toEqual(Color.fromRgba(20, 15, 100));
+    const lineColor = findLineColor(
+      ColorUtils.fromRgba(20, 15, 100),
+      undefined
+    );
+    expect(lineColor.colorString).toEqual(
+      ColorUtils.fromRgba(20, 15, 100).colorString
+    );
   });
   test("Use CSStudio foreground color", (): void => {
-    const lineColor = findLineColor(undefined, Color.fromRgba(40, 250, 100));
-    expect(lineColor).toEqual(Color.fromRgba(40, 250, 100));
+    const lineColor = findLineColor(
+      undefined,
+      ColorUtils.fromRgba(40, 250, 100)
+    );
+    expect(lineColor.colorString).toEqual(
+      ColorUtils.fromRgba(40, 250, 100).colorString
+    );
   });
   test("Use default line color", (): void => {
     const lineColor = findLineColor(undefined, undefined);
-    expect(lineColor).toEqual(Color.fromRgba(0, 0, 255, 1));
+    expect(lineColor.colorString).toEqual(
+      ColorUtils.fromRgba(0, 0, 255, 1).colorString
+    );
   });
 });

@@ -1,14 +1,14 @@
 import { CSSProperties } from "react";
 import { FillOptions, setFillOptions } from "./ellipse";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 
 const DEFAULT_FILL_OPTIONS = {
   transparent: false,
   horizontalFill: false,
   gradient: false,
-  bgGradientColor: Color.fromRgba(0, 0, 0),
-  fgGradientColor: Color.fromRgba(0, 0, 255),
-  bgColor: Color.fromRgba(30, 144, 255),
+  bgGradientColor: ColorUtils.fromRgba(0, 0, 0),
+  fgGradientColor: ColorUtils.fromRgba(0, 0, 255),
+  bgColor: ColorUtils.fromRgba(30, 144, 255),
   level: 0
 };
 

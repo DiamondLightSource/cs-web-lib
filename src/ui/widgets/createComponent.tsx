@@ -2,7 +2,7 @@ import React from "react";
 import log from "loglevel";
 import { checkPropTypes } from "./checkPropTypes";
 
-import { Color } from "../../types/color";
+import { ColorUtils } from "../../types/color";
 import { REGISTERED_WIDGETS } from "./register";
 import { newRelativePosition, Position } from "../../types/position";
 import { Font, FontStyle } from "../../types/font";
@@ -18,8 +18,8 @@ const ERROR_WIDGET: WidgetDescription = {
   type: "label",
   position: newRelativePosition(),
   font: new Font(16, FontStyle.Bold),
-  backgroundColor: Color.TRANSPARENT,
-  border: newBorder(BorderStyle.Line, Color.RED, 2),
+  backgroundColor: ColorUtils.TRANSPARENT,
+  border: newBorder(BorderStyle.Line, ColorUtils.RED, 2),
   text: "Error",
   tooltip: "Error",
   width: "auto",

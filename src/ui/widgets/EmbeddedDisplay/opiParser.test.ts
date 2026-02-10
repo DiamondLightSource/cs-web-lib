@@ -1,5 +1,5 @@
 import log from "loglevel";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 import { borderNONE } from "../../../types/border";
 import { Rule } from "../../../types/props";
 import {
@@ -97,11 +97,19 @@ describe("opi widget parser", (): void => {
       newAbsolutePosition("370px", "20px", "120px", "20px")
     );
     // Color type
-    expect(widget.foregroundColor).toEqual(Color.BLACK);
+    expect(widget.foregroundColor.colorString).toEqual(
+      ColorUtils.BLACK.colorString
+    );
     // Unrecognised property not passed on.
     expect(widget.wuid).toEqual(undefined);
     // No border
-    expect(widget.border).toEqual(borderNONE);
+    expect({
+      ...widget.border,
+      color: widget.border.color.colorString
+    }).toEqual({
+      ...borderNONE,
+      color: borderNONE.color.colorString
+    });
     // No actions
     expect(widget.actions.actions.length).toEqual(0);
     // One rule

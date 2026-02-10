@@ -4,7 +4,7 @@ import log from "loglevel";
 import { ElementCompact, xml2js } from "xml-js";
 import { Rule, Expression, OpiFile } from "../../../types/props";
 import { MacroMap, resolveMacros } from "../../../types/macros";
-import { Color } from "../../../types/color";
+import { Color, ColorUtils } from "../../../types/color";
 import { FontStyle, Font } from "../../../types/font";
 import { Border, BorderStyle, newBorder } from "../../../types/border";
 import {
@@ -128,7 +128,7 @@ export interface OpiColor {
  */
 export function opiParseColor(jsonProp: ElementCompact): Color {
   const color = jsonProp.color as OpiColor;
-  return Color.fromRgba(
+  return ColorUtils.fromRgba(
     parseInt(color._attributes.red),
     parseInt(color._attributes.green),
     parseInt(color._attributes.blue),
@@ -390,7 +390,7 @@ function opiParseBorder(props: any): Border {
   };
   let style = BorderStyle.None;
   let width = 0;
-  let borderColor = Color.BLACK;
+  let borderColor = ColorUtils.BLACK;
   /* Line color can override border for certain widgets. */
   let lineColor;
   try {
@@ -404,7 +404,7 @@ function opiParseBorder(props: any): Border {
   // Raised border in opis hard-codes width and color.
   if (style === BorderStyle.Outset) {
     width = 1;
-    borderColor = Color.GREY;
+    borderColor = ColorUtils.GREY;
   }
   const actualColor = width < 2 && lineColor ? lineColor : borderColor;
   const actualStyle = width < 2 && lineColor ? BorderStyle.Line : style;

@@ -19,7 +19,7 @@ import {
   borderToCss,
   newBorder
 } from "../../types/border";
-import { Color } from "../../types/color";
+import { Color, ColorUtils, newColor } from "../../types/color";
 import { Font } from "../../types/font";
 import { OutlineContext } from "../../misc/outlineContext";
 import { ExitFileContext, FileContext } from "../../misc/fileContext";
@@ -43,12 +43,12 @@ const ALARM_SEVERITY_MAP = {
 };
 
 const AlarmColorsMap = {
-  [AlarmQuality.VALID]: Color.BLACK,
-  [AlarmQuality.WARNING]: Color.WARNING,
-  [AlarmQuality.ALARM]: Color.ALARM,
-  [AlarmQuality.INVALID]: Color.INVALID,
-  [AlarmQuality.UNDEFINED]: Color.UNDEFINED,
-  [AlarmQuality.CHANGING]: Color.CHANGING
+  [AlarmQuality.VALID]: ColorUtils.BLACK,
+  [AlarmQuality.WARNING]: ColorUtils.WARNING,
+  [AlarmQuality.ALARM]: ColorUtils.ALARM,
+  [AlarmQuality.INVALID]: ColorUtils.INVALID,
+  [AlarmQuality.UNDEFINED]: ColorUtils.UNDEFINED,
+  [AlarmQuality.CHANGING]: ColorUtils.CHANGING
 };
 
 const scriptResponseCallback =
@@ -69,7 +69,7 @@ const scriptResponseCallback =
       propKeys.forEach(propName => {
         const rawValue = scriptResponse.widgetProps[propName];
         const propValue =
-          rawValue?.type === "rgbaColor" ? new Color(rawValue?.text) : rawValue;
+          rawValue?.type === "rgbaColor" ? newColor(rawValue?.text) : rawValue;
 
         // remap to the correct internal property name in cs-web-lib
         const jsonPropName =
@@ -116,13 +116,13 @@ export function commonCss(props: {
   const visible = props.visible === undefined || props.visible;
   const backgroundColor = props.transparent
     ? "transparent"
-    : props.backgroundColor?.toString();
+    : props.backgroundColor?.colorString;
   const cursor =
     props.actions && props.actions.actions.length > 0 ? "pointer" : undefined;
   return {
     ...borderToCss(props.border),
     ...props.font?.css(),
-    color: props.foregroundColor?.toString(),
+    color: props.foregroundColor?.colorString,
     backgroundColor,
     cursor,
     visibility: visible ? undefined : "hidden"
@@ -207,7 +207,7 @@ export const ConnectingComponent = (props: {
     if (alarmSeverity !== AlarmQuality.VALID) {
       border = newBorder(BorderStyle.Line, AlarmColorsMap[alarmSeverity], 2);
     } else if (pvData && !pvData.every(x => x.connected)) {
-      border = newBorder(BorderStyle.Dotted, Color.DISCONNECTED, 3);
+      border = newBorder(BorderStyle.Dotted, ColorUtils.DISCONNECTED, 3);
     }
   }
 

@@ -10,7 +10,7 @@ import {
   InferWidgetProps,
   ColorPropOpt
 } from "../propTypes";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 import { Box } from "@mui/material";
 import { DType } from "../../../types";
 import { getPvValueAndName } from "../utils";
@@ -53,15 +53,15 @@ export const ThermometerComponent = (
     limitsFromPv = false,
     height = 160,
     width = 40,
-    fillColor = Color.fromRgba(60, 255, 60, 1)
+    fillColor = ColorUtils.fromRgba(60, 255, 60, 1)
   } = props;
   const { value } = getPvValueAndName(pvData);
 
   const colors = useMemo(
     () => ({
       mercuryColor: fillColor,
-      backgroundColor: Color.fromRgba(230, 230, 230, 1),
-      borderColor: Color.fromRgba(75, 75, 75, 1)
+      backgroundColor: ColorUtils.fromRgba(230, 230, 230, 1),
+      borderColor: ColorUtils.fromRgba(75, 75, 75, 1)
     }),
     [fillColor]
   );
@@ -92,14 +92,14 @@ export const ThermometerComponent = (
     thermometerSvgGroup
       .append("path")
       .attr("d", thermometerPath.toString())
-      .attr("fill", colors.backgroundColor.toString())
-      .attr("stroke", colors.borderColor.toString())
+      .attr("fill", colors.backgroundColor.colorString)
+      .attr("stroke", colors.borderColor.colorString)
       .style("stroke-width", thermometerOutlineWidth);
 
     thermometerSvgGroup
       .append("path")
       .attr("d", mercuryBulbPath.toString())
-      .attr("fill", colors.mercuryColor.toString());
+      .attr("fill", colors.mercuryColor.colorString);
   }, [thermometerDimensions, colors]);
 
   useEffect(() => {
@@ -128,7 +128,7 @@ export const ThermometerComponent = (
         2 * thermometerDimensions.stemHalfWidth - thermometerOutlineWidth
       )
       .attr("height", mercuryHeight + thermometerOutlineWidth)
-      .attr("fill", colors.mercuryColor.toString());
+      .attr("fill", colors.mercuryColor.colorString);
   }, [value, maximum, minimum, thermometerDimensions, colors]);
 
   return (

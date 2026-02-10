@@ -49,10 +49,12 @@ export const MenuButtonComponent = (
     itemsFromPv = true,
     pvData,
     label,
-    foregroundColor = theme.palette.primary.contrastText,
-    backgroundColor = theme.palette.primary.main,
     items = ["Item 1", "Item 2"]
   } = props;
+  const foregroundColor =
+    props.foregroundColor?.colorString ?? theme.palette.primary.contrastText;
+  const backgroundColor =
+    props.backgroundColor?.colorString ?? theme.palette.primary.main;
   const files = useContext(FileContext);
   const fromPv = actionsFromPv && itemsFromPv;
   let actions: any[] = props.actions?.actions ?? [];
@@ -116,7 +118,7 @@ export const MenuButtonComponent = (
         value={text}
         sx={{
           fontFamily: props.font?.css() ?? "",
-          color: foregroundColor.toString()
+          color: foregroundColor
         }}
       >
         {text}
@@ -155,7 +157,7 @@ export const MenuButtonComponent = (
         slotProps: {
           paper: {
             sx: {
-              backgroundColor: backgroundColor.toString()
+              backgroundColor: backgroundColor
             }
           }
         }
@@ -166,7 +168,7 @@ export const MenuButtonComponent = (
         height: "100%",
         width: "100%",
         textAlignLast: "center",
-        backgroundColor: backgroundColor.toString(),
+        backgroundColor: backgroundColor,
         "&:hover .MuiOutlinedInput-notchedOutline": {
           borderWidth: "1px",
           borderColor: "#1976d2"
@@ -177,7 +179,7 @@ export const MenuButtonComponent = (
         },
         "& .MuiSelect-outlined": {
           fontFamily: props.font?.css() ?? "",
-          color: foregroundColor.toString()
+          color: foregroundColor
         }
       }}
     >

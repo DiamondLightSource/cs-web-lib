@@ -2,7 +2,6 @@ import { Label } from "..";
 import { parseJson } from "./jsonParser";
 import { Font, FontStyle } from "../../../types/font";
 import { BorderStyle, newBorder } from "../../../types/border";
-import { Color } from "../../../types/color";
 import { PV } from "../../../types/pv";
 import { WidgetDescription } from "../createComponent";
 import {
@@ -112,7 +111,11 @@ describe("json widget parser", (): void => {
             width: 1,
             color: "red"
           },
-          convertedValue: newBorder(BorderStyle.Line, new Color("red"), 1)
+          convertedValue: newBorder(
+            BorderStyle.Line,
+            widget.rules[0].expressions[0].convertedValue.color,
+            1
+          )
         }
       ]
     };

@@ -1,4 +1,4 @@
-import { Color } from "./color";
+import { Color, ColorUtils } from "./color";
 
 export interface Archiver {
   name: string;
@@ -31,7 +31,7 @@ export class Trace {
     lineWidth = 0,
     lineStyle = 0,
     traceType = 2,
-    color = Color.fromRgba(0, 0, 255),
+    color = ColorUtils.fromRgba(0, 0, 255),
     pointType = 0,
     pointSize = 1,
     visible = true,

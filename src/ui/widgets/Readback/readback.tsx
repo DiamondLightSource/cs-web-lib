@@ -155,8 +155,8 @@ export const ReadbackComponent = (
   }
 
   let foregroundColor =
-    props.foregroundColor?.toString() ?? theme.palette.primary.contrastText;
-  let borderColor = props.border?.color.toString() ?? "#000000";
+    props.foregroundColor?.colorString ?? theme.palette.primary.contrastText;
+  let borderColor = props.border?.color.colorString ?? "#000000";
   let borderStyle = borderToCss(props.border)?.borderStyle ?? "solid";
   let borderWidth = props.border?.width ?? "0px";
 
@@ -184,7 +184,7 @@ export const ReadbackComponent = (
 
   const backgroundColor = transparent
     ? "transparent"
-    : (props.backgroundColor?.toString() ?? theme.palette.primary.main);
+    : (props.backgroundColor?.colorString ?? theme.palette.primary.main);
 
   let alignmentV = "center";
   if (textAlignV === "top") {

@@ -1,5 +1,4 @@
 import PropTypes, { InferProps } from "prop-types";
-import { Color } from "../../types/color";
 import { Font } from "../../types/font";
 import { BorderStyle } from "../../types/border";
 import { PV } from "../../types/pv";
@@ -43,8 +42,10 @@ export const ChildrenPropOpt = PropTypes.node;
 export const ObjectProp = PropTypes.object.isRequired;
 export const ObjectPropOpt = PropTypes.object;
 
-export const ColorProp = PropTypes.instanceOf(Color).isRequired;
-export const ColorPropOpt = PropTypes.instanceOf(Color);
+export const ColorPropOpt = PropTypes.shape({
+  colorString: StringProp
+});
+export const ColorProp = ColorPropOpt.isRequired;
 
 export const FontProp = PropTypes.instanceOf(Font).isRequired;
 export const FontPropOpt = PropTypes.instanceOf(Font);

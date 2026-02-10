@@ -58,7 +58,6 @@ export const LabelComponent = (
   // Default labels to transparent.
   const {
     transparent = true,
-    foregroundColor = theme.palette.primary.contrastText,
     textAlign = "left",
     textAlignV = "top",
     text = "",
@@ -68,9 +67,11 @@ export const LabelComponent = (
     height = WIDGET_DEFAULT_SIZES["label"][1],
     width = WIDGET_DEFAULT_SIZES["label"][0]
   } = props;
+  const foregroundColor =
+    props.foregroundColor?.colorString ?? theme.palette.primary.contrastText;
   const backgroundColor = transparent
     ? "transparent"
-    : (props.backgroundColor?.toString() ?? theme.palette.primary.main);
+    : (props.backgroundColor?.colorString ?? theme.palette.primary.main);
   const font = props.font?.css() ?? theme.typography;
   const borderWidth = borderToCss(props.border)?.borderWidth ?? "0px";
   const borderColor = borderToCss(props.border)?.borderColor ?? "#000000";
@@ -113,7 +114,7 @@ export const LabelComponent = (
         textAlign: textAlign,
         wordBreak: wrapWords ? "break-word" : null,
         whiteSpace: wrapWords ? "pre-wrap" : "pre",
-        color: foregroundColor.toString(),
+        color: foregroundColor,
         backgroundColor: backgroundColor,
         fontFamily: font,
         transform: transform.toString(),

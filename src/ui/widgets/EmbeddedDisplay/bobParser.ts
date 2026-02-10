@@ -41,7 +41,7 @@ import {
   BorderStyle,
   newBorder
 } from "../../../types/border";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 import { WidgetDescription } from "../createComponent";
 import { Point, Points } from "../../../types/points";
 import { Axis } from "../../../types/axis";
@@ -168,7 +168,7 @@ export function bobParseFont(jsonProp: ElementCompact): Font {
 
 function bobParseBorder(props: any): Border {
   let width: number | undefined = 0;
-  let borderColor = Color.BLACK;
+  let borderColor = ColorUtils.BLACK;
   try {
     width = bobParseNumber(props.border_width);
     borderColor = opiParseColor(props.border_color);

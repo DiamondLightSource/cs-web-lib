@@ -1,5 +1,5 @@
 import { CsState, PvState, FullPvState } from "../../redux/csState";
-import { Color } from "../../types";
+import { ColorUtils } from "../../types/color";
 import { newDType } from "../../types/dtypes/dType";
 import { newAbsolutePosition } from "../../types/position";
 import { WidgetDescription } from "../widgets/createComponent";
@@ -135,7 +135,7 @@ describe("fileComparator", (): void => {
     const contents1: WidgetDescription = {
       type: "shape",
       position: newAbsolutePosition("0", "0", "0", "0"),
-      backgroundColor: Color.TRANSPARENT
+      backgroundColor: ColorUtils.TRANSPARENT
     };
     const contents2: WidgetDescription = {
       type: "shape",

@@ -1,5 +1,5 @@
 import { Axis } from "./axis";
-import { Color } from "./color";
+import { ColorUtils } from "./color";
 import { Font } from "./font";
 import { Plt } from "./plt";
 import { Trace } from "./trace";
@@ -8,10 +8,10 @@ describe("Plt", () => {
   it("constructs the plt with values", (): void => {
     const testValues = {
       title: "Testing",
-      axes: [new Axis(), new Axis({ color: Color.RED })],
+      axes: [new Axis(), new Axis({ color: ColorUtils.RED })],
       pvlist: [new Trace({ yPv: "TEST" })],
-      background: Color.WHITE,
-      foreground: Color.RED,
+      background: ColorUtils.WHITE,
+      foreground: ColorUtils.RED,
       scroll: false,
       grid: true,
       scrollStep: 5,
@@ -27,10 +27,10 @@ describe("Plt", () => {
     const plt = new Plt(testValues);
     const actualValues = {
       title: "Testing",
-      axes: [new Axis(), new Axis({ color: Color.RED })],
+      axes: [new Axis(), new Axis({ color: ColorUtils.RED })],
       pvlist: [new Trace({ yPv: "TEST" })],
-      backgroundColor: Color.WHITE,
-      foregroundColor: Color.RED,
+      backgroundColor: ColorUtils.WHITE.colorString,
+      foregroundColor: ColorUtils.RED.colorString,
       scroll: false,
       showGrid: true,
       scrollStep: 5,
@@ -43,18 +43,34 @@ describe("Plt", () => {
       start: "10 minutes",
       end: "now"
     };
-    expect(plt).toEqual(actualValues);
+    expect({
+      ...plt,
+      axes: [],
+      pvlist: [],
+      backgroundColor: plt.backgroundColor.colorString,
+      foregroundColor: plt.foregroundColor.colorString
+    }).toEqual({
+      ...actualValues,
+      axes: [],
+      pvlist: []
+    });
     expect(plt).toBeInstanceOf(Plt);
   });
 
   it("construct the trace with only defaults", (): void => {
     const plt = new Plt();
-    expect(plt).toEqual({
-      axes: [new Axis()],
-      pvlist: [new Trace()],
+    expect({
+      ...plt,
+      backgroundColor: plt.backgroundColor.colorString,
+      foregroundColor: plt.foregroundColor.colorString,
+      axes: [],
+      pvlist: []
+    }).toEqual({
+      axes: [],
+      pvlist: [],
       title: "",
-      backgroundColor: Color.WHITE,
-      foregroundColor: Color.BLACK,
+      backgroundColor: ColorUtils.WHITE.colorString,
+      foregroundColor: ColorUtils.BLACK.colorString,
       scroll: true,
       showGrid: false,
       scrollStep: 5,

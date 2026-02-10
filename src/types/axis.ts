@@ -1,4 +1,4 @@
-import { Color } from "./color";
+import { Color, newColor } from "./color";
 import { Font, FontStyle } from "./font";
 
 export class Axis {
@@ -22,7 +22,7 @@ export class Axis {
    */
   public constructor({
     xAxis = false,
-    color = new Color("rgb(0, 0, 0"),
+    color = newColor("rgb(0, 0, 0)"),
     title = "",
     showGrid = false,
     visible = true,

@@ -40,8 +40,8 @@ export const DropDownComponent = (
     open={props.open ?? false}
     style={{
       ...borderToCss(props.border),
-      color: props.foregroundColor?.toString() ?? "",
-      backgroundColor: props.backgroundColor?.toString() ?? "",
+      color: props.foregroundColor?.colorString ?? "",
+      backgroundColor: props.backgroundColor?.colorString ?? "",
       minHeight: props.minHeight ?? ""
     }}
   >

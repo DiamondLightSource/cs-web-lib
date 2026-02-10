@@ -151,7 +151,7 @@ export const SmartInputComponent = (
   const font = props.font?.css() ?? theme.typography;
 
   let foregroundColor =
-    props.foregroundColor?.toString() ?? theme.palette.primary.contrastText;
+    props.foregroundColor?.colorString ?? theme.palette.primary.contrastText;
 
   let borderColor = borderToCss(props.border)?.borderColor ?? "#000000";
   let borderStyle = borderToCss(props.border)?.borderStyle ?? "solid";
@@ -189,7 +189,7 @@ export const SmartInputComponent = (
 
   const backgroundColor = transparent
     ? "transparent"
-    : (props.backgroundColor?.toString() ?? "#80FFFF");
+    : (props.backgroundColor?.colorString ?? "#80FFFF");
 
   const [inputValue, setInputValue] = useState(displayedValue ?? "");
 

@@ -3,9 +3,9 @@ import { render, screen } from "@testing-library/react";
 import { describe, test, expect, beforeEach, vi } from "vitest";
 import { TankComponent } from "./tank";
 import { Font } from "../../../types/font";
-import { Color } from "../../../types";
 import { PvDatum } from "../../../redux/csState";
 import { newDType } from "../../../types/dtypes/dType";
+import { ColorUtils } from "../../../types/color";
 
 // Mock the MUI X-Charts components
 vi.mock("@mui/x-charts/BarChart", () => ({
@@ -190,9 +190,9 @@ describe("TankComponent", () => {
 
   describe("Styling", () => {
     test("applies custom colors", () => {
-      const fillColor = Color.fromRgba(100, 150, 200);
-      const emptyColor = Color.fromRgba(200, 200, 200);
-      const backgroundColor = Color.fromRgba(240, 240, 240);
+      const fillColor = ColorUtils.fromRgba(100, 150, 200);
+      const emptyColor = ColorUtils.fromRgba(200, 200, 200);
+      const backgroundColor = ColorUtils.fromRgba(240, 240, 240);
 
       render(
         <TankComponent
@@ -206,8 +206,8 @@ describe("TankComponent", () => {
       const barChart = screen.getByTestId("bar-chart");
       const seriesData = JSON.parse(barChart.getAttribute("data-series") ?? "");
 
-      expect(seriesData[0].color).toBe(fillColor.toString());
-      expect(seriesData[1].color).toBe(emptyColor.toString());
+      expect(seriesData[0].color).toBe(fillColor.colorString);
+      expect(seriesData[1].color).toBe(emptyColor.colorString);
 
       // Check background color is applied
       expect(barChart.style.backgroundColor).toBe("rgb(240, 240, 240)");

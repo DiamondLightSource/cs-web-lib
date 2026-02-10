@@ -14,7 +14,7 @@ import {
   MacrosPropOpt
 } from "../propTypes";
 import { Font } from "../../../types/font";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 import Box from "@mui/material/Box";
 import { MacroContext, MacroContextType } from "../../../types/macros";
 
@@ -44,9 +44,9 @@ export const GroupBoxComponent = (
   props: InferWidgetProps<typeof GroupBoxProps>
 ): JSX.Element => {
   const {
-    backgroundColor = Color.fromRgba(240, 240, 240),
-    foregroundColor = Color.fromRgba(0, 0, 0),
-    lineColor = Color.fromRgba(0, 0, 0),
+    backgroundColor = ColorUtils.fromRgba(240, 240, 240),
+    foregroundColor = ColorUtils.fromRgba(0, 0, 0),
+    lineColor = ColorUtils.fromRgba(0, 0, 0),
     font = new Font(14),
     styleOpt = 0,
     transparent = false,
@@ -65,11 +65,11 @@ export const GroupBoxComponent = (
     width: "100%",
     height: "100%",
     padding: "0px",
-    border: "1px solid " + lineColor.toString(),
+    border: "1px solid " + lineColor.colorString,
     whiteSpace: "nowrap",
     overflow: "visible",
-    backgroundColor: transparent ? "transparent" : backgroundColor.toString(),
-    color: foregroundColor.toString(),
+    backgroundColor: transparent ? "transparent" : backgroundColor.colorString,
+    color: foregroundColor.colorString,
     visibility: visible ? "visible" : "hidden",
     ...font.css()
   };
@@ -107,10 +107,10 @@ export const GroupBoxComponent = (
               style={{
                 height: "20px",
                 width: "100%",
-                backgroundColor: lineColor.toString(),
+                backgroundColor: lineColor.colorString,
                 ...font.css(),
                 textAlign: "left",
-                color: foregroundColor.toString()
+                color: foregroundColor.colorString
               }}
             >
               {name}

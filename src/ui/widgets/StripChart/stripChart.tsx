@@ -16,12 +16,13 @@ import {
 import { registerWidget } from "../register";
 import { Box, Typography } from "@mui/material";
 import { CurveType, LineChart, XAxis, YAxis } from "@mui/x-charts";
-import { Color, Font } from "../../../types";
+import { Font } from "../../../types";
 import { convertStringTimePeriod } from "../utils";
 import { Trace } from "../../../types/trace";
 import { Axis } from "../../../types/axis";
 import { dTypeGetDoubleValue, dTypeGetTime } from "../../../types/dtypes/dType";
 import { dTimeToDate } from "../../../types/dtypes/dTime";
+import { ColorUtils } from "../../../types/color";
 
 const MARKER_STYLES: any[] = [
   undefined,
@@ -77,8 +78,8 @@ export const StripChartComponent = (
     labelFont = new Font(),
     showGrid = false,
     showLegend = false,
-    foregroundColor = Color.fromRgba(0, 0, 0, 1),
-    backgroundColor = Color.fromRgba(255, 255, 255, 1),
+    foregroundColor = ColorUtils.fromRgba(0, 0, 0, 1),
+    backgroundColor = ColorUtils.fromRgba(255, 255, 255, 1),
     start = "1 minute",
     visible = true,
     archivedData = [],
@@ -190,10 +191,10 @@ export const StripChartComponent = (
     localAxes.forEach((item, idx) => {
       yAxesStyle[`.MuiChartsAxis-id-${idx}`] = {
         ".MuiChartsAxis-line": {
-          stroke: item.color.toString()
+          stroke: item.color.colorString
         },
         ".MuiChartsAxis-tick": {
-          stroke: item.color.toString()
+          stroke: item.color.colorString
         }
       };
     });
@@ -203,20 +204,20 @@ export const StripChartComponent = (
         width: 55,
         id: idx,
         label: item.title,
-        color: item.color?.toString(),
+        color: item.color?.colorString,
         labelStyle: {
           fontSize: item.titleFont.css().fontSize,
           fontStyle: item.titleFont.css().fontStyle,
           fontFamily: item.titleFont.css().fontFamily,
           fontWeight: item.titleFont.css().fontWeight,
-          fill: item.color.toString()
+          fill: item.color.colorString
         },
         tickLabelStyle: {
           fontSize: item.scaleFont.css().fontSize,
           fontStyle: item.scaleFont.css().fontStyle,
           fontFamily: item.scaleFont.css().fontFamily,
           fontWeight: item.scaleFont.css().fontWeight,
-          fill: item.color.toString(),
+          fill: item.color.colorString,
           angle: item.onRight ? 90 : -90
         },
         valueFormatter: (value: any, context: any) =>
@@ -238,7 +239,7 @@ export const StripChartComponent = (
   const xAxis: ReadonlyArray<XAxis<any>> = useMemo(
     () => [
       {
-        color: foregroundColor.toString(),
+        color: foregroundColor.colorString,
         dataKey: "dateTime",
         min: dateRange.minX,
         max: dateRange.maxX,
@@ -267,7 +268,7 @@ export const StripChartComponent = (
             id: index,
             dataKey: effectivePvName,
             label: item.name,
-            color: visible ? item.color.toString() : "transparent",
+            color: visible ? item.color.colorString : "transparent",
             showMark: item.pointType === 0 ? false : true,
             shape: MARKER_STYLES[item.pointType],
             line: {
@@ -294,8 +295,8 @@ export const StripChartComponent = (
           width: "100%",
           height: "5%",
           textAlign: "center",
-          backgroundColor: backgroundColor.toString(),
-          color: foregroundColor.toString()
+          backgroundColor: backgroundColor.colorString,
+          color: foregroundColor.colorString
         }}
       >
         {title}
@@ -307,20 +308,20 @@ export const StripChartComponent = (
         sx={{
           width: "100%",
           height: "95%",
-          backgroundColor: backgroundColor.toString(),
+          backgroundColor: backgroundColor.colorString,
           ".MuiChartsAxis-id-xaxis": {
             ".MuiChartsAxis-line": {
-              stroke: foregroundColor.toString()
+              stroke: foregroundColor.colorString
             },
             ".MuiChartsAxis-label": {
               font: labelFont.css()
             },
             ".MuiChartsAxis-tickLabel": {
-              fill: foregroundColor.toString(),
+              fill: foregroundColor.colorString,
               font: scaleFont.css()
             },
             ".MuiChartsAxis-tick": {
-              stroke: foregroundColor.toString()
+              stroke: foregroundColor.colorString
             }
           },
           ...yAxesStyle
@@ -328,7 +329,7 @@ export const StripChartComponent = (
         xAxis={xAxis}
         yAxis={yAxes}
         series={series}
-        slotProps={{ legend: { sx: { color: foregroundColor.toString() } } }}
+        slotProps={{ legend: { sx: { color: foregroundColor.colorString } } }}
       />
     </Box>
   );

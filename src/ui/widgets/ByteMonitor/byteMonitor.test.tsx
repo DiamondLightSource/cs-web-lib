@@ -4,10 +4,10 @@ import {
   recalculateDimensions,
   getBytes
 } from "./byteMonitor";
-import { Color } from "../../../types";
 import renderer, { ReactTestRendererJSON } from "react-test-renderer";
 import { newDType } from "../../../types/dtypes/dType";
 import { PvDatum } from "../../../redux/csState";
+import { ColorUtils } from "../../../types/color";
 
 const ByteMonitorRenderer = (byteMonitorProps: any): ReactTestRendererJSON => {
   return renderer
@@ -57,10 +57,10 @@ describe("<ByteMonitorComponent />", (): void => {
       square: true,
       bitReverse: true,
       effect3d: false,
-      onColor: Color.fromRgba(200, 200, 200),
-      offColor: Color.fromRgba(100, 100, 100),
+      onColor: ColorUtils.fromRgba(200, 200, 200),
+      offColor: ColorUtils.fromRgba(100, 100, 100),
       ledBorder: 1,
-      ledBorderColor: Color.fromRgba(150, 150, 150)
+      ledBorderColor: ColorUtils.fromRgba(150, 150, 150)
     };
 
     const byteMonitor = ByteMonitorRenderer(byteMonitorProps);

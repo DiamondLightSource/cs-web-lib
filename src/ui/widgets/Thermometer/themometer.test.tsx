@@ -8,7 +8,7 @@ import {
   calculateThermometerDimensions,
   ThermometerComponent
 } from "./thermometer";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 import { PvDatum } from "../../../redux/csState";
 import { newDType, DType } from "../../../types/dtypes/dType";
 
@@ -338,7 +338,7 @@ describe("Thermometer Component", () => {
           maximum={90}
           height={200}
           width={50}
-          fillColor={Color.fromRgba(255, 0, 0, 1)}
+          fillColor={ColorUtils.fromRgba(255, 0, 0, 1)}
           pvData={[{ ...pvDatum, value: mockValue }]}
         />
       );

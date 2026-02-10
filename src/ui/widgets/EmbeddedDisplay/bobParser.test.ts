@@ -1,4 +1,4 @@
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 import { newAbsolutePosition } from "../../../types/position";
 import { BOB_SIMPLE_PARSERS, parseBob } from "./bobParser";
 import { PV } from "../../../types/pv";
@@ -57,7 +57,9 @@ describe("bob widget parser", (): void => {
       newAbsolutePosition("10px", "20px", "550px", "31px")
     );
     // Color type
-    expect(widget.foregroundColor).toEqual(Color.RED);
+    expect(widget.foregroundColor.colorString).toEqual(
+      ColorUtils.RED.colorString
+    );
     // Unrecognised property not passed on.
     expect(widget.not_a_property).toEqual(undefined);
     expect(widget.wrapWords).toEqual(false);

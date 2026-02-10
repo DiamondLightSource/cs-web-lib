@@ -1,5 +1,5 @@
 import { CSSProperties } from "react";
-import { Color } from "./color";
+import { Color, ColorUtils } from "./color";
 
 export enum BorderStyle {
   None = "None",
@@ -44,9 +44,9 @@ export const borderToCss = (
     ? {
         borderStyle: CssBorders[border.style],
         borderWidth: `${border.width}px`,
-        borderColor: border.color.toString(),
+        borderColor: border.color.colorString,
         borderRadius: border.radius ? `${border.radius}px` : undefined
       }
     : undefined;
 
-export const borderNONE = newBorder(BorderStyle.None, Color.BLACK, 0);
+export const borderNONE = newBorder(BorderStyle.None, ColorUtils.BLACK, 0);

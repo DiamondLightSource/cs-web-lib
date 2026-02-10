@@ -3,10 +3,11 @@ import { ChoiceButtonComponent } from "./choiceButton";
 import { fireEvent, render } from "@testing-library/react";
 import { newDDisplay } from "../../../types/dtypes/dDisplay";
 import { newDType } from "../../../types/dtypes/dType";
-import { Color, Font } from "../../../types";
+import { Font } from "../../../types";
 import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
 import { PvDatum } from "../../../redux/csState";
+import { ColorUtils } from "../../../types/color";
 
 const ChoiceButtonRenderer = (choiceButtonProps: any): JSX.Element => {
   return (
@@ -59,8 +60,8 @@ describe("<ChoiceButton />", (): void => {
       font: new Font(12),
       items: ["Choice", "Option", "Setting", "Custom"],
       horizontal: false,
-      backgroundColor: Color.fromRgba(20, 20, 200),
-      selectedColor: Color.fromRgba(10, 60, 40),
+      backgroundColor: ColorUtils.fromRgba(20, 20, 200),
+      selectedColor: ColorUtils.fromRgba(10, 60, 40),
       itemsFromPv: false,
       enabled: false
     };
