@@ -53,18 +53,20 @@ const createStoreInstance = (config?: CsWebLibConfig) => {
     middleware: getDefaultMiddleware => {
       const mw = getDefaultMiddleware({
         immutableCheck: isDevMode,
-        serializableCheck: !isDevMode ? false : {
-          isSerializable: (value: any) => 
-            (value === null ||
-              typeof value === "string" ||
-              typeof value === "number" ||
-              typeof value === "boolean" ||
-              Array.isArray(value) ||
-              isPlainObject(value) ||
-              // allow all typed arrays and undefined
-              ArrayBuffer.isView(value) ||
-              value === undefined)
-        }
+        serializableCheck: !isDevMode
+          ? false
+          : {
+              isSerializable: (value: any) =>
+                value === null ||
+                typeof value === "string" ||
+                typeof value === "number" ||
+                typeof value === "boolean" ||
+                Array.isArray(value) ||
+                isPlainObject(value) ||
+                // allow all typed arrays and undefined
+                ArrayBuffer.isView(value) ||
+                value === undefined
+            }
       });
 
       return mw
