@@ -919,6 +919,14 @@ export function opiPatchPaths(
       });
   }
 
+  // When a tab widget contains a file
+  if (widgetDescription["tabs"] && parentDir) {
+    widgetDescription["tabs"].forEach((tab: any) => {
+      if (isFullyQualifiedUrl(tab.file)) return;
+      tab.file = normalisePath(tab.file, parentDir, macros);
+    });
+  }
+
   return widgetDescription;
 }
 

@@ -51,7 +51,7 @@ export const NavigationTabsComponent = (
             resize={0}
             file={{
               path: tab.file,
-              macros: { ...tab.macros },
+              macros: tab.macros,
               defaultProtocol: tab.protocol ?? "ca"
             }}
           />
