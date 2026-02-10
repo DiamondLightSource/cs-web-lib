@@ -82,7 +82,7 @@ To make use of PVs in cs-web-lib widgets, you need to connect to PVWS. The basic
 
 ```
 {
-  storeMode: "DEV" | "PRDO"
+  storeMode: "DEV" | PROD"
   PVWS_SOCKET: string
   PVWS_SSL: boolean,
   THROTTLE_PERIOD: integer

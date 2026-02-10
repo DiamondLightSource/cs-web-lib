@@ -720,6 +720,7 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   arrowLength: ["arrow_length", opiParseNumber],
   fillArrow: ["fill_arrow", opiParseBoolean],
   selectedColor: ["selected_color", opiParseColor],
+  deselectedColor: ["deselected_color", opiParseColor],
   enabled: ["enabled", opiParseBoolean],
   resize: ["resize_behaviour", opiParseResizing],
   labelsFromPv: ["labels_from_pv", opiParseBoolean],
@@ -916,6 +917,14 @@ export function opiPatchPaths(
             );
           });
       });
+  }
+
+  // When a tab widget contains a file
+  if (widgetDescription["tabs"] && parentDir) {
+    widgetDescription["tabs"].forEach((tab: any) => {
+      if (isFullyQualifiedUrl(tab.file)) return;
+      tab.file = normalisePath(tab.file, parentDir, macros);
+    });
   }
 
   return widgetDescription;

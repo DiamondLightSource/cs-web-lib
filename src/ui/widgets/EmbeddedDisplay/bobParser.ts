@@ -74,6 +74,8 @@ const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   progressbar: "progressbar",
   rectangle: "shape",
   tank: "tank",
+  navtabs: "navigationtabs",
+  tabs: "tabcontainer",
   thermometer: "thermometer",
   meter: "meter",
   choice: "choicebutton",
@@ -108,6 +110,8 @@ export const WIDGET_DEFAULT_SIZES: { [key: string]: [number, number] } = {
   progressbar: [100, 20],
   rectangle: [100, 20],
   tank: [150, 200],
+  navtabs: [500, 300],
+  tabs: [400, 300],
   thermometer: [40, 160],
   meter: [240, 120],
   scaledslider: [400, 55],
@@ -328,6 +332,53 @@ function bobParseXAxis(props: any): Axis {
 }
 
 /**
+ * Parses the tabs object, and any child widgets it may have
+ * @param props tab object
+ * @param simpleParsers object, property parser for children
+ * @param complexParsers object, complex property parser for children
+ * @param filepath string, path of current file
+ * @param macros macro map associated with this file
+ * @returns a tab object, with attached children
+ */
+async function bobParseTabs(
+  props: any,
+  simpleParsers: ParserDict,
+  complexParsers: ComplexParserDict,
+  filepath?: string,
+  macros?: MacroMap
+): Promise<any> {
+  const tabs = await Promise.all(
+    props.tab.map(async (tab: any) => {
+      // We have to parse file separately because it already exists as a complex parser
+      const tabProps = parseChildProps(tab, {
+        file: ["file", opiParseString],
+        ...BOB_SIMPLE_PARSERS
+      });
+      if (tab.children) {
+        const childWidgets = toArray(tab.children["widget"]);
+        tabProps.children = await Promise.all(
+          childWidgets.map(async (child: any) => {
+            return await parseWidget(
+              child,
+              bobGetTargetWidget,
+              "widget",
+              simpleParsers,
+              complexParsers,
+              false,
+              OPI_PATCHERS(BOB_SIMPLE_PARSERS, BOB_COMPLEX_PARSERS),
+              filepath,
+              macros
+            );
+          })
+        );
+      }
+      return tabProps;
+    })
+  );
+  return tabs;
+}
+
+/**
  * Creates a WidgetActions object from the actions tied to the json object
  * @param jsonProp
  * @param defaultProtocol
@@ -490,7 +541,12 @@ export const BOB_SIMPLE_PARSERS: ParserDict = {
   scaleFont: ["scale_font", bobParseFont],
   start: ["start", opiParseString],
   end: ["end", opiParseString],
-  arrayIndex: ["array_index", bobParseNumber]
+  arrayIndex: ["array_index", bobParseNumber],
+  direction: ["direction", bobParseNumber],
+  tabWidth: ["tab_width", bobParseNumber],
+  tabHeight: ["tab_height", bobParseNumber],
+  tabSpacing: ["tab_spacing", bobParseNumber],
+  activeTab: ["active_tab", bobParseNumber]
 };
 
 const BOB_COMPLEX_PARSERS: ComplexParserDict = {
@@ -542,7 +598,15 @@ export async function parseBob(
     plt: async (props: ElementCompact) =>
       await parsePlt(props["file"], filepath, props._attributes?.type),
     colors: (props: ElementCompact) =>
-      parseChildProps(props["colors"], BOB_SIMPLE_PARSERS)
+      parseChildProps(props["colors"], BOB_SIMPLE_PARSERS),
+    tabs: async (props: ElementCompact) =>
+      bobParseTabs(
+        props["tabs"],
+        simpleParsers,
+        complexParsers,
+        filepath,
+        macros
+      )
   };
 
   const displayWidget = await parseWidget(
