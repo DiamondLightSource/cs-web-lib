@@ -56,20 +56,25 @@ export const DynamicTabsComponent = (
     const openTabs = tabState.fileDetails;
     const selectedTab = tabState.selectedTab;
 
-    const children = Object.values(openTabs).map(([name, description]) => [
+    const tabs = Object.values(openTabs).map(([name, description]) => {
       // Choose dimensions to avoid additional scroll bars appearing.
-      <EmbeddedDisplay
-        position={new RelativePosition("99%", "96%")}
-        file={{
-          path: description?.path || "",
-          defaultProtocol: description?.defaultProtocol ?? "ca",
-          macros: description?.macros || {}
-        }}
-        key={name}
-        scroll={true}
-      />
-    ]);
-    const tabNames = openTabs.map(([name]) => name);
+      return {
+        name: name,
+        children: (
+          <EmbeddedDisplay
+            position={new RelativePosition("99%", "96%")}
+            file={{
+              path: description?.path || "",
+              defaultProtocol: description?.defaultProtocol ?? "ca",
+              macros: description?.macros || {}
+            }}
+            key={name}
+            scroll={true}
+          />
+        )
+      };
+    });
+
     const onTabSelected = (index: number): void => {
       fileContext.selectTab(props.location, index);
     };
@@ -86,12 +91,11 @@ export const DynamicTabsComponent = (
       <ExitFileContext.Provider value={() => closeCurrentTab()}>
         <div style={containerStyle}>
           <TabBar
-            tabNames={tabNames}
-            selectedTab={selectedTab}
+            tabs={tabs}
+            activeTab={selectedTab}
             onTabSelected={onTabSelected}
             onTabClosed={onTabClosed}
           ></TabBar>
-          {children[selectedTab]}
         </div>
       </ExitFileContext.Provider>
     );

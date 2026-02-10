@@ -2,81 +2,88 @@
  * A widget that displays widgets in a number of pre-defined
  * tabs.
  *
- * Previously we had a 'navigation tabs' widget that displayed
- * an embedded display in each tab, but that is easy to recreate
- * with this widget if needed.
- *
  * See also the dynamic tabs widget.
  */
-import React, { useEffect, useState } from "react";
+import React, { useMemo } from "react";
 import PropTypes from "prop-types";
-import log from "loglevel";
 
 import { Widget } from "../widget";
 import { WidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import {
   InferWidgetProps,
-  StringOrNumPropOpt,
-  BorderPropOpt,
-  ColorPropOpt
+  ColorPropOpt,
+  IntPropOpt,
+  FontPropOpt,
+  ChildrenPropOpt
 } from "../propTypes";
-import { parseObject } from "../EmbeddedDisplay/jsonParser";
-import { errorWidget, widgetDescriptionToComponent } from "../createComponent";
 
 import { TabBar } from "./tabs";
+import { Color, RelativePosition } from "../../../types";
+import { errorWidget, widgetDescriptionToComponent } from "../createComponent";
+import log from "loglevel";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 export const TabContainerProps = {
-  tabs: PropTypes.objectOf(PropTypes.object).isRequired,
-  maxHeight: StringOrNumPropOpt,
-  maxWidth: StringOrNumPropOpt,
-  minHeight: StringOrNumPropOpt,
-  border: BorderPropOpt,
-  backgroundColor: ColorPropOpt
+  tabs: PropTypes.array.isRequired,
+  backgroundColor: ColorPropOpt,
+  activeTab: IntPropOpt,
+  direction: IntPropOpt,
+  tabHeight: IntPropOpt,
+  font: FontPropOpt,
+  children: ChildrenPropOpt,
+  width: IntPropOpt,
+  height: IntPropOpt
 };
 
 export const TabContainerComponent = (
   props: InferWidgetProps<typeof TabContainerProps>
 ): JSX.Element => {
-  const [childIndex, setIndex] = useState(0);
-  const [children, setChildren] = useState<JSX.Element[]>([]);
+  const {
+    tabHeight = 30,
+    width = WIDGET_DEFAULT_SIZES["tabs"][0],
+    height = WIDGET_DEFAULT_SIZES["tabs"][1]
+  } = props;
 
-  // TODO: Find out if this repeated calculation can be done in the useMemo hook for measurable performance gains
-  useEffect(() => {
-    const loadChildren = async () => {
-      const nodes = await Promise.all(
-        Object.values(props.tabs).map(async (child, index) => {
-          try {
-            const childObject = await parseObject(child, "ca");
-            childObject["scroll"] = true;
-            return widgetDescriptionToComponent(childObject, index);
-          } catch (e) {
-            const message = `Error transforming children into components`;
-            log.warn(message);
-            log.warn(e);
-            return widgetDescriptionToComponent(errorWidget(message), index);
-          }
-        })
-      );
-      setChildren(nodes);
-    };
-    loadChildren();
-  }, [props.tabs]);
-
-  const tabNames = Object.keys(props.tabs);
-  const onTabSelected = (index: number): void => {
-    setIndex(index);
-  };
+  // Convert tabs into React components from widget descriptions
+  const tabChildren = useMemo(() => {
+    return props.tabs.map((tab, idx) => {
+      try {
+        return {
+          name: tab.name,
+          children: widgetDescriptionToComponent({
+            type: "display",
+            position: new RelativePosition(
+              "0px",
+              `${tabHeight}px`,
+              `${width}px`,
+              `${height - tabHeight}px`
+            ),
+            backgroundColor:
+              props.backgroundColor ?? new Color("rgb(255,255,255"),
+            children: tab.children
+          })
+        };
+      } catch (e) {
+        const message = `Error transforming children into components`;
+        log.warn(message);
+        log.warn(e);
+        return {
+          name: tab.name,
+          children: widgetDescriptionToComponent(errorWidget(message), idx)
+        };
+      }
+    });
+  }, [props.tabs, props.backgroundColor, tabHeight, width, height]);
 
   return (
-    <div>
-      <TabBar
-        tabNames={tabNames}
-        selectedTab={childIndex}
-        onTabSelected={onTabSelected}
-      ></TabBar>
-      {children[childIndex]}
-    </div>
+    <TabBar
+      direction={0}
+      selectedColor={props.backgroundColor || Color.fromRgba(255, 255, 255)}
+      deselectedColor={props.backgroundColor || Color.fromRgba(255, 255, 255)}
+      {...props}
+      tabs={tabChildren}
+    ></TabBar>
   );
 };
 
