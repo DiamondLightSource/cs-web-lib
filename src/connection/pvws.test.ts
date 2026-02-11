@@ -1,8 +1,7 @@
 import { PvwsPlugin } from "./pvws";
 import WS from "vitest-websocket-mock";
-import { newDType } from "../types/dtypes/dType";
 import { vi, describe, beforeEach, afterEach, it, Mock } from "vitest";
-import { dTimeToDate } from "../types/dtypes/dTime";
+import { dTimeToDate, newDType } from "../types/dtypes";
 
 describe("PvwsPlugin", (): void => {
   let cp: PvwsPlugin;

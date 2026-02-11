@@ -3,9 +3,9 @@ import {
   DType,
   dTypeCoerceString,
   dTypeGetAlarm,
-  dTypeGetTime
-} from "../../types/dtypes/dType";
-import { AlarmQuality } from "../../types/dtypes/dAlarm";
+  dTypeGetTime,
+  AlarmQuality
+} from "../../types/dtypes";
 import { getPvValueAndName } from "./utils";
 
 function tooltipValue(connected?: boolean, value?: DType): string {

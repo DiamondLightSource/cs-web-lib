@@ -7,22 +7,20 @@ import {
   nullConnCallback,
   nullValueCallback
 } from "./plugin";
-import { newDDisplay } from "../types/dtypes/dDisplay";
-import { dtimeNow } from "../types/dtypes/dTime";
 import {
+  newDDisplay,
+  dTimeNow,
   DType,
   dTypeCoerceDouble,
   dTypeGetDoubleValue,
   dTypeGetStringValue,
-  newDType
-} from "../types/dtypes/dType";
-import {
+  newDType,
   AlarmQuality,
   DAlarmMAJOR,
   DAlarmMINOR,
   DAlarmNONE,
   newDAlarm
-} from "../types/dtypes/dAlarm";
+} from "../types/dtypes";
 
 type SimArgs = [
   string,
@@ -180,7 +178,7 @@ class SimEnumPv extends SimPv {
   private value: DType = newDType(
     { doubleValue: 0, stringValue: "one" },
     DAlarmNONE(),
-    dtimeNow(),
+    dTimeNow(),
     newDDisplay({ choices: ["one", "two", "three", "four"] })
   );
   public constructor(...args: SimArgs) {
@@ -199,7 +197,7 @@ class SimEnumPv extends SimPv {
         stringValue: (this.value.display?.choices as string[])[newIndex]
       },
       DAlarmNONE(),
-      dtimeNow(),
+      dTimeNow(),
       newDDisplay({
         choices: this.value.display?.choices
       })
@@ -213,7 +211,7 @@ class EnumPv extends SimPv {
   private value: DType = newDType(
     { doubleValue: 0 },
     DAlarmNONE(),
-    dtimeNow(),
+    dTimeNow(),
     newDDisplay({ choices: ["one", "two", "three", "four"] })
   );
 
@@ -316,7 +314,7 @@ class LimitData extends SimPv {
       this.value = newDType(
         { doubleValue: v },
         newDAlarm(alarmSeverity, ""),
-        dtimeNow()
+        dTimeNow()
       );
       this.publish();
     }
@@ -329,7 +327,7 @@ class LimitData extends SimPv {
 
 class FlipFlopPv extends SimPv {
   // Switches between true and false on a loop
-  private value: DType = newDType({ doubleValue: 1 }, DAlarmNONE(), dtimeNow());
+  private value: DType = newDType({ doubleValue: 1 }, DAlarmNONE(), dTimeNow());
 
   public constructor(...args: SimArgs) {
     super(...args);
@@ -434,7 +432,7 @@ export class SimulatorPlugin implements Connection {
               doubleValue: initial[0] - 1
             },
             DAlarmNONE(),
-            dtimeNow(),
+            dTimeNow(),
             newDDisplay({ choices: initial.slice(1) })
           );
         } else if (initial.length === 1) {

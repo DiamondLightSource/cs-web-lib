@@ -3,7 +3,7 @@ import { SmartInputComponent } from "./input";
 import { render } from "@testing-library/react";
 import { dstring } from "../../../testResources";
 import { PvDatum } from "../../../redux/csState";
-import { DAlarmMINOR } from "../../../types/dtypes/dAlarm";
+import { DAlarmMINOR } from "../../../types/dtypes";
 
 let input: JSX.Element;
 beforeEach((): void => {

@@ -5,10 +5,7 @@ import { useSelector } from "react-redux";
 import { CsState } from "../../redux/csState";
 
 import { PvArrayResults, pvStateSelector, pvStateComparator } from "./utils";
-import {
-  dTypeCoerceString,
-  dTypeGetDoubleValue
-} from "../../types/dtypes/dType";
+import { dTypeCoerceString, dTypeGetDoubleValue } from "../../types/dtypes";
 import { SubscriptionType } from "../../connection/plugin";
 import {
   executeDynamicScriptInSandbox,

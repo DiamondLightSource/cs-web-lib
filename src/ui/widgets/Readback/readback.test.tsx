@@ -1,12 +1,16 @@
 import React from "react";
 import { ReadbackComponent } from "./readback";
-import { newDDisplay } from "../../../types/dtypes/dDisplay";
-import { DType, newDType } from "../../../types/dtypes/dType";
+import {
+  newDDisplay,
+  DType,
+  newDType,
+  AlarmQuality,
+  newDAlarm
+} from "../../../types/dtypes";
 import { render } from "@testing-library/react";
 import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
 import { PvDatum } from "../../../redux/csState";
-import { AlarmQuality, newDAlarm } from "../../../types/dtypes/dAlarm";
 
 const BASE_PROPS = {
   pvData: [

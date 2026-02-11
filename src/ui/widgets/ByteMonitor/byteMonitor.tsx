@@ -12,7 +12,7 @@ import classes from "./byteMonitor.module.css";
 import { ColorUtils } from "../../../types/color";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { getPvValueAndName } from "../utils";
-import { dTypeGetDoubleValue } from "../../../types/dtypes/dType";
+import { dTypeGetDoubleValue } from "../../../types/dtypes";
 
 export const ByteMonitorProps = {
   width: IntPropOpt,

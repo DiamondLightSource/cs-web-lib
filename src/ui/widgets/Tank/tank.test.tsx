@@ -4,7 +4,7 @@ import { describe, test, expect, beforeEach, vi } from "vitest";
 import { TankComponent } from "./tank";
 import { Font } from "../../../types/font";
 import { PvDatum } from "../../../redux/csState";
-import { newDType } from "../../../types/dtypes/dType";
+import { newDType } from "../../../types/dtypes";
 import { ColorUtils } from "../../../types/color";
 import * as FontModule from "../../../types/font";
 

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { DType } from "../../types/dtypes/dType";
+import { DType } from "../../types/dtypes";
 import { SubscriptionType } from "../../connection/plugin";
 import { store } from "../../redux/store";
 import {

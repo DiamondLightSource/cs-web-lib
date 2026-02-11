@@ -11,11 +11,15 @@ import {
   SubscriptionType
 } from "./plugin";
 
-import { newDRange } from "../types/dtypes/dRange";
-import { newDDisplay } from "../types/dtypes/dDisplay";
-import { newDTime } from "../types/dtypes/dTime";
-import { DType, newDType } from "../types/dtypes/dType";
-import { AlarmQuality, newDAlarm } from "../types/dtypes/dAlarm";
+import {
+  newDRange,
+  newDDisplay,
+  newDTime,
+  DType,
+  newDType,
+  AlarmQuality,
+  newDAlarm
+} from "../types/dtypes";
 import log from "loglevel";
 
 export interface PvwsStatus {

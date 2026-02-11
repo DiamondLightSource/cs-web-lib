@@ -12,7 +12,7 @@ import {
   dTypeGetArrayValue,
   dTypeGetDoubleValue,
   dTypeGetStringValue
-} from "../types/dtypes/dType";
+} from "../types/dtypes";
 
 let simulator: SimulatorPlugin;
 beforeEach((): void => {

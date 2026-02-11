@@ -22,12 +22,12 @@ import {
   dTypeCoerceString,
   dTypeGetAlarm,
   dTypeGetArrayValue,
-  dTypeGetDisplay
-} from "../../../types/dtypes/dType";
+  dTypeGetDisplay,
+  AlarmQuality
+} from "../../../types/dtypes";
 import { TextField as MuiTextField, styled, useTheme } from "@mui/material";
 import { calculateRotationTransform, getPvValueAndName } from "../utils";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
-import { AlarmQuality } from "../../../types/dtypes/dAlarm";
 import { borderToCss } from "../../../types/border";
 import { fontToCss } from "../../../types/font";
 

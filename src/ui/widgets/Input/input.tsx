@@ -21,11 +21,11 @@ import {
   dTypeGetAlarm,
   dTypeGetArrayValue,
   dTypeGetDisplay,
-  newDType
-} from "../../../types/dtypes/dType";
+  newDType,
+  AlarmQuality
+} from "../../../types/dtypes";
 import { TextField as MuiTextField, styled, useTheme } from "@mui/material";
 import { getPvValueAndName } from "../utils";
-import { AlarmQuality } from "../../../types/dtypes/dAlarm";
 import { borderToCss } from "../../../types/border";
 import { fontToCss } from "../../../types/font";
 

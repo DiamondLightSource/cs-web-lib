@@ -17,7 +17,7 @@ import { FileContext } from "../../../misc/fileContext";
 import { MenuItem, Select, SelectChangeEvent, useTheme } from "@mui/material";
 import { getPvValueAndName } from "../utils";
 import log from "loglevel";
-import { dTypeGetStringValue } from "../../../types/dtypes/dType";
+import { dTypeGetStringValue } from "../../../types/dtypes";
 import { fontToCss } from "../../../types/font";
 
 export const MenuButtonProps = {

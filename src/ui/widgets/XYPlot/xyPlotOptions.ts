@@ -1,7 +1,7 @@
 import { Axis } from "../../../types/axis";
 import { PlotData } from "plotly.js";
 import { Trace } from "../../../types/trace";
-import { dTypeGetArrayValue, type DType } from "../../../types/dtypes/dType";
+import { dTypeGetArrayValue, type DType } from "../../../types/dtypes";
 import React from "react";
 import { roundValue } from "../utils";
 

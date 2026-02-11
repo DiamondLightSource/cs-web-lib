@@ -1,7 +1,7 @@
 import React from "react";
 import { useConnection } from "./useConnection";
 import { contextRender, ddouble } from "../../testResources";
-import { DType, dTypeToString } from "../../types/dtypes/dType";
+import { DType, dTypeToString } from "../../types/dtypes";
 import { CsState } from "../../redux/csState";
 
 // Helper component to allow calling the useConnection hook.

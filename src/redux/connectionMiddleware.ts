@@ -1,6 +1,6 @@
 import log from "loglevel";
 import { Connection, ConnectionState } from "../connection/plugin";
-import { DType } from "../types/dtypes/dType";
+import { DType } from "../types/dtypes";
 import { Middleware, MiddlewareAPI } from "@reduxjs/toolkit";
 import {
   connectionChanged,

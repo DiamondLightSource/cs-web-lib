@@ -1,8 +1,7 @@
 import React from "react";
 import { ChoiceButtonComponent } from "./choiceButton";
 import { fireEvent, render } from "@testing-library/react";
-import { newDDisplay } from "../../../types/dtypes/dDisplay";
-import { newDType } from "../../../types/dtypes/dType";
+import { newDDisplay, newDType } from "../../../types/dtypes";
 import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
 import { PvDatum } from "../../../redux/csState";

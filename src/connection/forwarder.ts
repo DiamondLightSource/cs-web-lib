@@ -1,4 +1,4 @@
-import { DType } from "../types/dtypes/dType";
+import { DType } from "../types/dtypes";
 import {
   Connection,
   ConnectionChangedCallback,

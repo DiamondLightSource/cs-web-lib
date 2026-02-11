@@ -12,11 +12,11 @@ import { registerWidget } from "../register";
 import classes from "./led.module.css";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { getPvValueAndName } from "../utils";
-import { DAlarmNONE } from "../../../types/dtypes/dAlarm";
 import {
   dTypeGetAlarm,
-  dTypeGetDoubleValue
-} from "../../../types/dtypes/dType";
+  dTypeGetDoubleValue,
+  DAlarmNONE
+} from "../../../types/dtypes";
 import { ColorUtils } from "../../../types/color";
 
 /**

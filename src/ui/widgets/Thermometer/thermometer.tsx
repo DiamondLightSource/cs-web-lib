@@ -12,9 +12,8 @@ import {
 } from "../propTypes";
 import { ColorUtils } from "../../../types/color";
 import { Box } from "@mui/material";
-import { DType } from "../../../types";
 import { getPvValueAndName } from "../utils";
-import { dTypeGetDoubleValue } from "../../../types/dtypes/dType";
+import { dTypeGetDoubleValue, DType } from "../../../types/dtypes";
 
 // This is the angle between vertical and the line from the center of the bulb to the intersection of the stem and bulb
 export const bulbStemAngle = Math.PI / 5;

@@ -12,7 +12,7 @@ import {
   StringArrayPropOpt,
   StringPropOpt
 } from "../propTypes";
-import { dTypeGetDoubleValue, newDType } from "../../../types/dtypes/dType";
+import { dTypeGetDoubleValue, newDType } from "../../../types/dtypes";
 import { writePv } from "../../hooks/useSubscription";
 import {
   ToggleButton as MuiToggleButton,

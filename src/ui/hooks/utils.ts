@@ -1,5 +1,5 @@
 import { PvState, CsState } from "../../redux/csState";
-import { DType } from "../../types/dtypes/dType";
+import { DType } from "../../types/dtypes";
 import { WidgetDescription } from "../widgets/createComponent";
 
 export interface PvArrayResults {

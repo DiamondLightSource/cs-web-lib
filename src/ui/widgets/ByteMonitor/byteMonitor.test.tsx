@@ -5,7 +5,7 @@ import {
   getBytes
 } from "./byteMonitor";
 import renderer, { ReactTestRendererJSON } from "react-test-renderer";
-import { newDType } from "../../../types/dtypes/dType";
+import { newDType } from "../../../types/dtypes";
 import { PvDatum } from "../../../redux/csState";
 import { ColorUtils } from "../../../types/color";
 

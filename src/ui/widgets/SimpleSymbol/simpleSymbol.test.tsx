@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { SimpleSymbolComponent } from "./simpleSymbol";
-import { newDType } from "../../../types/dtypes/dType";
+import { newDType } from "../../../types/dtypes";
 
 const fakeValue = newDType({ stringValue: "Fake value" });
 

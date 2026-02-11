@@ -15,11 +15,13 @@ import {
   dTypeGetArrayValue,
   dTypeGetDoubleValue,
   dTypeGetStringValue,
-  newDType
-} from "../types/dtypes/dType";
+  newDType,
+  AlarmQuality,
+  DAlarmMAJOR,
+  newDAlarm
+} from "../types/dtypes";
 import { ddouble, dstring, ddoubleArray } from "../testResources";
 import { WidgetDescription } from "../ui/widgets/createComponent";
-import { AlarmQuality, DAlarmMAJOR, newDAlarm } from "../types/dtypes/dAlarm";
 import { newAbsolutePosition } from "../types/position";
 
 const initialState: CsState = {

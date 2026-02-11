@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import { writePv } from "../../hooks/useSubscription";
 import { getPvValueAndName } from "../utils";
-import { newDType, DType } from "../../../types/dtypes/dType";
+import { newDType, dTypeGetDoubleValue } from "../../../types/dtypes";
 import { fontToCss } from "../../../types/font";
 
 export const CheckboxProps = {
@@ -69,7 +69,7 @@ export const CheckboxComponent = (
   const theme = useTheme();
   const { enabled = true, label = "Label", pvData } = props;
   const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
-  const checked = Boolean(dTyepGetDoubleValue(value));
+  const checked = Boolean(dTypeGetDoubleValue(value));
 
   const handleChange = (event: any): void => {
     if (pvName) {
@@ -117,6 +117,3 @@ export const Checkbox = (
 ): JSX.Element => <Widget baseWidget={CheckboxComponent} {...props} />;
 
 registerWidget(Checkbox, CheckboxWidgetProps, "checkbox");
-function dTyepGetDoubleValue(value: DType | undefined): any {
-  throw new Error("Function not implemented.");
-}

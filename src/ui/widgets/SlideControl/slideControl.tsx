@@ -14,7 +14,7 @@ import {
   IntPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
-import { dTypeGetDoubleValue, newDType } from "../../../types/dtypes/dType";
+import { dTypeGetDoubleValue, newDType } from "../../../types/dtypes";
 import { Slider, useTheme } from "@mui/material";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { getPvValueAndName } from "../utils";

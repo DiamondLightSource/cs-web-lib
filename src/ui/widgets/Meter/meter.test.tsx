@@ -7,7 +7,7 @@ import { NumberFormatEnum } from "./meterUtilities";
 import * as meterUtilities from "./meterUtilities";
 import { Font } from "../../../types";
 import { PvDatum } from "../../../redux/csState";
-import { newDType } from "../../../types/dtypes/dType";
+import { newDType } from "../../../types/dtypes";
 import * as FontModule from "../../../types/font";
 
 vi.mock("react-gauge-component", () => ({

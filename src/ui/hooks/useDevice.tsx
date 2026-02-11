@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from "react-redux";
 import { CsState, queryDevice } from "../../redux/csState";
 import { deviceSelector, deviceComparator } from "./utils";
-import { DType } from "../../types/dtypes/dType";
+import { DType } from "../../types/dtypes";
 import { useEffect } from "react";
 
 export function useDevice(device: string): DType | undefined {

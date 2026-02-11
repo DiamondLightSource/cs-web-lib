@@ -11,7 +11,7 @@ import { PvDatum } from "../../../redux/csState";
 import { TriangleProps } from "./trianglePointer";
 import { RectangleAreaProps } from "./rectangleArea";
 import { ChartsReferenceLineProps } from "@mui/x-charts";
-import { newDType } from "../../../types/dtypes/dType";
+import { newDType } from "../../../types/dtypes";
 import { ColorUtils } from "../../../types/color";
 
 vi.mock("@mui/x-charts/BarChart", () => {

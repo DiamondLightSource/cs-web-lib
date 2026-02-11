@@ -1,6 +1,6 @@
 import React from "react";
 import { contextRender } from "../../testResources";
-import { newDType } from "../../types/dtypes/dType";
+import { newDType } from "../../types/dtypes";
 import { CsState } from "../../redux/csState";
 import { useDevice } from "./useDevice";
 

@@ -1,6 +1,6 @@
 import { connectionMiddleware } from "./connectionMiddleware";
 import { ddouble } from "../testResources";
-import { newDType } from "../types/dtypes/dType";
+import { newDType } from "../types/dtypes";
 import { vi } from "vitest";
 import { queryDevice, subscribe, writePv } from "./csState";
 

@@ -14,7 +14,7 @@ import {
 } from "../propTypes";
 import { ColorUtils } from "../../../types/color";
 import { writePv } from "../../hooks/useSubscription";
-import { dTypeGetDoubleValue, newDType } from "../../../types/dtypes/dType";
+import { dTypeGetDoubleValue, newDType } from "../../../types/dtypes";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { Button as MuiButton, styled, useTheme } from "@mui/material";
 import { getPvValueAndName } from "../utils";

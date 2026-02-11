@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { executeDynamicScriptInSandbox } from "../widgets/EmbeddedDisplay/scripts/scriptExecutor";
 import { newPV } from "../../types/pv";
 import { Script } from "../../types/props";
-import { newDType } from "../../types/dtypes/dType";
+import { newDType } from "../../types/dtypes";
 
 vi.mock("./useSubscription");
 vi.mock("react-redux");

@@ -6,8 +6,7 @@ import { Trace } from "../../../types/trace";
 import { Axis } from "../../../types/axis";
 import { Plt } from "../../../types/plt";
 import { PvDatum } from "../../../redux/csState";
-import { newDTime } from "../../../types/dtypes/dTime";
-import { newDType } from "../../../types/dtypes/dType";
+import { newDTime, newDType } from "../../../types/dtypes";
 import { ColorUtils } from "../../../types/color";
 
 declare global {

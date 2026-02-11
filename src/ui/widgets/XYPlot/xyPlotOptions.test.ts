@@ -1,6 +1,6 @@
 import { Axis } from "../../../types/axis";
 import { newColor } from "../../../types/color";
-import { newDType } from "../../../types/dtypes/dType";
+import { newDType } from "../../../types/dtypes";
 import { FontStyle, fontToCss, newFont } from "../../../types/font";
 import { Trace } from "../../../types/trace";
 import { roundValue } from "../utils";

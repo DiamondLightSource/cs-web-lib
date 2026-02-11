@@ -10,7 +10,7 @@ import {
 } from "./thermometer";
 import { ColorUtils } from "../../../types/color";
 import { PvDatum } from "../../../redux/csState";
-import { newDType, DType } from "../../../types/dtypes/dType";
+import { newDType, DType } from "../../../types/dtypes";
 
 // Mock d3 functionality
 vi.mock("d3", () => {

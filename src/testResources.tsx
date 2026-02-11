@@ -1,5 +1,4 @@
 import React from "react";
-import { DType, newDType } from "./types/dtypes/dType";
 import { FileProvider, PageState, TabState } from "./misc/fileContext";
 import { render, RenderResult } from "@testing-library/react";
 import { Provider } from "react-redux";
@@ -14,7 +13,7 @@ import {
   WritePv,
   WRITE_PV
 } from "./ui/widgets/widgetActions";
-import { DAlarm, DAlarmNONE } from "./types/dtypes/dAlarm";
+import { DAlarm, DAlarmNONE, DType, newDType } from "./types/dtypes";
 
 // Helper functions for dtypes.
 export function ddouble(

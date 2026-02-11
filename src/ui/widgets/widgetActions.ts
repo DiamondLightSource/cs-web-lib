@@ -2,7 +2,7 @@ import { writePv } from "../hooks/useSubscription";
 import log from "loglevel";
 
 import { MacroMap } from "../../types/macros";
-import { newDType } from "../../types/dtypes/dType";
+import { newDType } from "../../types/dtypes";
 import { DynamicContent } from "./propTypes";
 import { ExitContextType, FileContextType } from "../../misc/fileContext";
 

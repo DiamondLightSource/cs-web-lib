@@ -1,13 +1,12 @@
 import React from "react";
 import { BoolButtonComponent, getDimensions } from "./boolButton";
 import { act, fireEvent, render } from "@testing-library/react";
-import { newDType } from "../../../types/dtypes/dType";
+import { newDType, DAlarmNONE } from "../../../types/dtypes";
 import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
 import { PvDatum } from "../../../redux/csState";
 import { vi } from "vitest";
 import * as useSubscription from "../../hooks/useSubscription";
-import { DAlarmNONE } from "../../../types/dtypes/dAlarm";
 import { ColorUtils } from "../../../types/color";
 
 const mockWritePv = vi

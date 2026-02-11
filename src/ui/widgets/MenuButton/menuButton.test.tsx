@@ -1,8 +1,12 @@
 import React from "react";
 import { MenuButtonComponent } from "./menuButton";
-import { newDDisplay } from "../../../types/dtypes/dDisplay";
-import { newDTime } from "../../../types/dtypes/dTime";
-import { DType, newDType } from "../../../types/dtypes/dType";
+import {
+  newDDisplay,
+  newDTime,
+  DType,
+  newDType,
+  DAlarmNONE
+} from "../../../types/dtypes";
 import { ACTIONS_EX_FIRST } from "../../../testResources";
 import { act, fireEvent, render } from "@testing-library/react";
 import { vi } from "vitest";
@@ -10,7 +14,6 @@ import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
 import { PvDatum } from "../../../redux/csState";
 import * as useSubscription from "../../hooks/useSubscription";
-import { DAlarmNONE } from "../../../types/dtypes/dAlarm";
 import { newColor } from "../../../types/color";
 
 const mockWritePv = vi

@@ -27,7 +27,7 @@ import {
   dTypeCoerceDouble,
   dTypeGetArrayValue,
   dTypeGetStringValue
-} from "../../../types/dtypes/dType";
+} from "../../../types/dtypes";
 import classes from "./symbol.module.css";
 import { getPvValueAndName } from "../utils";
 

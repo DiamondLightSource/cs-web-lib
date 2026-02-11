@@ -30,8 +30,7 @@ import { useScripts } from "../hooks/useScripts";
 import { ScriptResponse } from "./EmbeddedDisplay/scripts/scriptExecutor";
 import { OPI_SIMPLE_PARSERS } from "./EmbeddedDisplay/opiParser";
 import { PositionPropNames, positionToCss } from "../../types/position";
-import { AlarmQuality } from "../../types/dtypes/dAlarm";
-import { dTypeGetAlarm } from "../../types/dtypes/dType";
+import { AlarmQuality, dTypeGetAlarm } from "../../types/dtypes";
 import { pvQualifiedName } from "../../types/pv";
 
 const ALARM_SEVERITY_MAP = {

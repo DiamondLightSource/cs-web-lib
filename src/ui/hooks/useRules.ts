@@ -9,14 +9,14 @@ import { AnyProps } from "../widgets/widgetProps";
 import {
   dTypeCoerceString,
   dTypeGetAlarm,
-  dTypeGetDoubleValue
-} from "../../types/dtypes/dType";
+  dTypeGetDoubleValue,
+  AlarmQuality
+} from "../../types/dtypes";
 import { SubscriptionType } from "../../connection/plugin";
 import { BorderStyle, newBorder } from "../../types/border";
 import { ColorUtils } from "../../types/color";
 import { opiParseColor } from "../widgets/EmbeddedDisplay/opiParser";
 import { parseArrayString } from "../../misc/stringUtils";
-import { AlarmQuality } from "../../types/dtypes/dAlarm";
 import { pvQualifiedName } from "../../types/pv";
 
 // See https://stackoverflow.com/questions/54542318/using-an-enum-as-a-dictionary-key

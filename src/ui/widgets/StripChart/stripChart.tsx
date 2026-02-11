@@ -19,8 +19,11 @@ import { CurveType, LineChart, XAxis, YAxis } from "@mui/x-charts";
 import { convertStringTimePeriod } from "../utils";
 import { Trace } from "../../../types/trace";
 import { Axis } from "../../../types/axis";
-import { dTypeGetDoubleValue, dTypeGetTime } from "../../../types/dtypes/dType";
-import { dTimeToDate } from "../../../types/dtypes/dTime";
+import {
+  dTypeGetDoubleValue,
+  dTypeGetTime,
+  dTimeToDate
+} from "../../../types/dtypes";
 import { ColorUtils } from "../../../types/color";
 import { fontToCss, newFont } from "../../../types/font";
 

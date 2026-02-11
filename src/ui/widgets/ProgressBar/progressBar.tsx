@@ -14,7 +14,7 @@ import {
 import { LinearProgress } from "@mui/material";
 import { ColorUtils } from "../../../types/color";
 import { getPvValueAndName } from "../utils";
-import { dTypeGetDoubleValue } from "../../../types/dtypes/dType";
+import { dTypeGetDoubleValue } from "../../../types/dtypes";
 import { fontToCss } from "../../../types/font";
 
 export const ProgressBarProps = {

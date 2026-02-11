@@ -1,6 +1,6 @@
 import { CsState, PvState, FullPvState } from "../../redux/csState";
 import { ColorUtils } from "../../types/color";
-import { newDType } from "../../types/dtypes/dType";
+import { newDType } from "../../types/dtypes";
 import { newAbsolutePosition } from "../../types/position";
 import { WidgetDescription } from "../widgets/createComponent";
 import {

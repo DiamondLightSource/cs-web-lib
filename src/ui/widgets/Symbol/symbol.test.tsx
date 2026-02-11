@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { SymbolComponent } from "./symbol";
-import { newDType } from "../../../types/dtypes/dType";
+import { newDType } from "../../../types/dtypes";
 import { PvDatum } from "../../../redux/csState";
 
 const fakeValue = newDType({ stringValue: "Fake value" });
