@@ -1,6 +1,7 @@
 import { CsState, PvState, FullPvState } from "../../redux/csState";
-import { AbsolutePosition, Color } from "../../types";
-import { DType } from "../../types/dtypes";
+import { ColorUtils } from "../../types/color";
+import { newDType } from "../../types/dtypes";
+import { newAbsolutePosition } from "../../types/position";
 import { WidgetDescription } from "../widgets/createComponent";
 import {
   pvStateSelector,
@@ -92,20 +93,20 @@ describe("pvStateComparator", (): void => {
 
 describe("deviceComparator", (): void => {
   it("returns false if string values don't match", (): void => {
-    const dtype1 = new DType({ stringValue: "42" });
-    const dtype2 = new DType({ stringValue: "43" });
+    const dtype1 = newDType({ stringValue: "42" });
+    const dtype2 = newDType({ stringValue: "43" });
     expect(deviceComparator(dtype1, dtype2)).toBe(false);
   });
 
   it("returns true if string values do match", (): void => {
-    const dtype = new DType({ stringValue: "42" });
+    const dtype = newDType({ stringValue: "42" });
     expect(deviceComparator(dtype, dtype)).toBe(true);
   });
 });
 
 describe("deviceSelector", (): void => {
   it("finds device in deviceCache", (): void => {
-    const dtype = new DType({ stringValue: "testDeviceValue" });
+    const dtype = newDType({ stringValue: "testDeviceValue" });
     state.deviceCache["testDevice"] = dtype;
 
     expect(deviceSelector("testDevice", state)).toEqual(dtype);
@@ -121,11 +122,11 @@ describe("fileComparator", (): void => {
   it("returns false if string contents don't match", (): void => {
     const contents1: WidgetDescription = {
       type: "shape",
-      position: new AbsolutePosition("0", "0", "0", "0")
+      position: newAbsolutePosition("0", "0", "0", "0")
     };
     const contents2: WidgetDescription = {
       type: "shape",
-      position: new AbsolutePosition("1", "0", "0", "0")
+      position: newAbsolutePosition("1", "0", "0", "0")
     };
     expect(fileComparator(contents1, contents2)).toBe(false);
   });
@@ -133,12 +134,12 @@ describe("fileComparator", (): void => {
   it("returns false if number of keys changed", (): void => {
     const contents1: WidgetDescription = {
       type: "shape",
-      position: new AbsolutePosition("0", "0", "0", "0"),
-      backgroundColor: Color.TRANSPARENT
+      position: newAbsolutePosition("0", "0", "0", "0"),
+      backgroundColor: ColorUtils.TRANSPARENT
     };
     const contents2: WidgetDescription = {
       type: "shape",
-      position: new AbsolutePosition("0", "0", "0", "0")
+      position: newAbsolutePosition("0", "0", "0", "0")
     };
 
     expect(fileComparator(contents1, contents2)).toBe(false);
@@ -147,7 +148,7 @@ describe("fileComparator", (): void => {
   it("returns true if matches", (): void => {
     const contents: WidgetDescription = {
       type: "shape",
-      position: new AbsolutePosition("0", "0", "0", "0")
+      position: newAbsolutePosition("0", "0", "0", "0")
     };
     expect(fileComparator(contents, { ...contents })).toBe(true);
   });
@@ -157,7 +158,7 @@ describe("fileSelector", (): void => {
   it("finds file in fileCache", (): void => {
     const contents: WidgetDescription = {
       type: "shape",
-      position: new AbsolutePosition("0", "0", "0", "0")
+      position: newAbsolutePosition("0", "0", "0", "0")
     };
     state.fileCache["test.bob"] = contents;
 

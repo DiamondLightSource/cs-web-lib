@@ -1,6 +1,26 @@
 import { CSSProperties } from "react";
 
-export type Position = AbsolutePosition | RelativePosition;
+export enum PositionType {
+  ABSOLUTE = "ABSOLUTE",
+  RELATIVE = "RELATIVE"
+}
+
+export interface Position {
+  x: string;
+  y: string;
+  width: string;
+  height: string;
+  margin: string;
+  padding: string;
+  minWidth: string;
+  maxWidth: string;
+  minHeight: string;
+  positionType: PositionType;
+}
+
+const invalidSize = (size?: string): boolean =>
+  size === "" || size === undefined;
+
 export type PositionPropNames =
   | "x"
   | "y"
@@ -10,150 +30,113 @@ export type PositionPropNames =
   | "padding"
   | "minWidth"
   | "maxWidth"
-  | "minHeight";
+  | "minHeight"
+  | "positionType";
 
-function invalidSize(size?: string): boolean {
-  return size === "" || size === undefined;
-}
-
-export class AbsolutePosition {
-  public x: string;
-  public y: string;
-  public width: string;
-  public height: string;
-  public margin: string;
-  public padding: string;
-  public minWidth: string;
-  public maxWidth: string;
-  public minHeight: string;
-
-  public constructor(
-    x: string,
-    y: string,
-    width: string,
-    height: string,
-    margin = "",
-    padding = "",
-    minWidth = "",
-    maxWidth = "",
-    minHeight = ""
+export const newAbsolutePosition = (
+  x: string,
+  y: string,
+  width: string,
+  height: string,
+  margin = "",
+  padding = "",
+  minWidth = "",
+  maxWidth = "",
+  minHeight = ""
+): Position => {
+  if (
+    invalidSize(x) ||
+    invalidSize(y) ||
+    invalidSize(width) ||
+    invalidSize(height)
   ) {
-    if (
-      invalidSize(x) ||
-      invalidSize(y) ||
-      invalidSize(width) ||
-      invalidSize(height)
-    ) {
-      throw new Error(
-        `Invalid AbsolutePosition (${x},${y},${width},${height})`
-      );
-    }
-    this.x = x;
-    this.y = y;
-    this.width = width;
-    this.height = height;
-    this.margin = margin;
-    this.padding = padding;
-    this.minWidth = minWidth;
-    this.maxWidth = maxWidth;
-    this.minHeight = minHeight;
+    throw new Error(`Invalid AbsolutePosition (${x},${y},${width},${height})`);
+  }
+  return {
+    x,
+    y,
+    width,
+    height,
+    margin,
+    padding,
+    minWidth,
+    maxWidth,
+    minHeight,
+    positionType: PositionType.ABSOLUTE
+  };
+};
+
+export const newRelativePosition = (
+  x = "",
+  y = "",
+  width = "",
+  height = "",
+  margin = "",
+  padding = "",
+  minWidth = "",
+  maxWidth = "",
+  minHeight = ""
+): Position => ({
+  x,
+  y,
+  width,
+  height,
+  margin,
+  padding,
+  minWidth,
+  maxWidth,
+  minHeight,
+  positionType: PositionType.RELATIVE
+});
+
+export const positionToString = (position: Position): string => {
+  if (position.positionType === PositionType.RELATIVE) {
+    return `RelativePosition (${position.width},${position.height})`;
   }
 
-  public css(): CSSProperties {
-    return {
-      position: "absolute",
-      top: this.y,
-      left: this.x,
-      width: this.width,
-      height: this.height,
-      margin: this.margin,
-      padding: this.padding,
-      minWidth: this.minWidth,
-      maxWidth: this.maxWidth,
-      minHeight: this.minHeight
-    };
-  }
+  return `AbsolutePosition (${position.x},${position.y},${position.width},${position.height})`;
+};
 
-  public toString(): string {
-    return `AbsolutePosition (${this.x},${this.y},${this.width},${this.height})`;
-  }
-
-  public clone(): AbsolutePosition {
-    return new AbsolutePosition(
-      this.x,
-      this.y,
-      this.width,
-      this.height,
-      this.margin,
-      this.padding,
-      this.minWidth,
-      this.maxWidth,
-      this.minHeight
-    );
-  }
-}
-
-export class RelativePosition {
-  public x: string;
-  public y: string;
-  public width: string;
-  public height: string;
-  public margin: string;
-  public padding: string;
-  public minWidth: string;
-  public maxWidth: string;
-  public minHeight: string;
-
-  public constructor(
-    x = "",
-    y = "",
-    width = "",
-    height = "",
-    margin = "",
-    padding = "",
-    minWidth = "",
-    maxWidth = "",
-    minHeight = ""
-  ) {
-    this.x = x;
-    this.y = y;
-    this.width = width;
-    this.height = height;
-    this.margin = margin;
-    this.padding = padding;
-    this.minWidth = minWidth;
-    this.maxWidth = maxWidth;
-    this.minHeight = minHeight;
-  }
-
-  public css(): CSSProperties {
+export const positionToCss = (position: Position): CSSProperties => {
+  if (position.positionType === PositionType.RELATIVE) {
     return {
       position: "relative",
-      width: this.width,
-      height: this.height,
-      margin: this.margin,
-      padding: this.padding,
-      minWidth: this.minWidth,
-      maxWidth: this.maxWidth,
-      minHeight: this.minHeight
+      width: toCssUnit(position.width),
+      height: toCssUnit(position.height),
+      margin: toCssUnit(position.margin),
+      padding: toCssUnit(position.padding),
+      minWidth: toCssUnit(position.minWidth),
+      maxWidth: toCssUnit(position.maxWidth),
+      minHeight: toCssUnit(position.minHeight)
     };
   }
 
-  public toString(): string {
-    return `RelativePosition (${this.width},${this.height})`;
+  return {
+    position: "absolute",
+    top: toCssUnit(position.y),
+    left: toCssUnit(position.x),
+    width: toCssUnit(position.width),
+    height: toCssUnit(position.height),
+    margin: toCssUnit(position.margin),
+    padding: toCssUnit(position.padding),
+    minWidth: toCssUnit(position.minWidth),
+    maxWidth: toCssUnit(position.maxWidth),
+    minHeight: toCssUnit(position.minHeight)
+  };
+};
+
+const toCssUnit = (value: string | undefined): string => {
+  if (value === undefined || value === null || value === "") {
+    return "";
   }
 
-  public clone(): RelativePosition {
-    return new RelativePosition(
-      this.x,
-      this.y,
-      this.width,
-      this.height,
-      this.margin,
-      this.padding,
-      this.minWidth,
-      this.maxWidth,
-      this.minHeight
-    );
+  if (value === "0") {
+    return "0";
   }
-}
+
+  if (!isNaN(Number(value))) {
+    return `${value}px`;
+  }
+
+  return value;
+};

@@ -2,10 +2,11 @@ import React from "react";
 import { contextRender } from "../../testResources";
 import { CsState } from "../../redux/csState";
 import { File, useFile } from "./useFile";
-import { AbsolutePosition, Color } from "../../types";
 import { vi } from "vitest";
 import { act, screen } from "@testing-library/react";
 import { ensureWidgetsRegistered } from "../widgets";
+import { newAbsolutePosition, PositionType } from "../../types/position";
+import { ColorUtils } from "../../types/color";
 ensureWidgetsRegistered();
 
 declare global {
@@ -51,7 +52,7 @@ describe("useFile", (): void => {
 
     const responseContent = JSON.stringify({
       type: "shape",
-      position: new AbsolutePosition("0", "0", "0", "0")
+      position: newAbsolutePosition("0", "0", "0", "0")
     });
 
     expect(getByText(`contents: ${responseContent}`)).toBeInTheDocument();
@@ -60,8 +61,8 @@ describe("useFile", (): void => {
   it("returns contents if file in cache", async (): Promise<void> => {
     const mockSuccessResponse = JSON.stringify({
       type: "ellipse",
-      backgroundColor: Color.GREEN,
-      position: new AbsolutePosition("0", "0", "0", "0")
+      backgroundColor: ColorUtils.GREEN,
+      position: undefined
     });
     const mockJsonPromise = Promise.resolve(mockSuccessResponse);
     const mockFetchPromise = Promise.resolve({
@@ -92,9 +93,10 @@ describe("useFile", (): void => {
         padding: "",
         minWidth: "",
         maxWidth: "",
-        minHeight: ""
+        minHeight: "",
+        positionType: PositionType.RELATIVE
       },
-      backgroundColor: { text: { text: "rgba(0,128,0,1)" } },
+      backgroundColor: { colorString: "rgba(0,128,0,1)" },
       children: [],
       precisionFromPv: true,
       showUnits: true,

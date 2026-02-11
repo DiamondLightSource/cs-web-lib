@@ -1,6 +1,12 @@
 import React from "react";
 import { ReadbackComponent } from "./readback";
-import { DType, DDisplay, DAlarm, AlarmQuality } from "../../../types/dtypes";
+import {
+  newDDisplay,
+  DType,
+  newDType,
+  AlarmQuality,
+  newDAlarm
+} from "../../../types/dtypes";
 import { render } from "@testing-library/react";
 import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
@@ -40,7 +46,7 @@ describe("<Readback />", (): void => {
           effectivePvName: "TEST:PV",
           connected: true,
           readonly: true,
-          value: new DType({
+          value: newDType({
             stringValue: "3.14159265359",
             doubleValue: 3.1415926539
           })
@@ -60,11 +66,11 @@ describe("<Readback />", (): void => {
           effectivePvName: "TEST:PV",
           connected: true,
           readonly: true,
-          value: new DType(
+          value: newDType(
             { stringValue: "hello" },
             undefined,
             undefined,
-            new DDisplay({ units: "xyz" })
+            newDDisplay({ units: "xyz" })
           )
         } as Partial<PvDatum> as PvDatum
       ],
@@ -83,9 +89,9 @@ describe("<Readback />", (): void => {
           effectivePvName: "TEST:PV",
           connected: true,
           readonly: true,
-          value: new DType(
+          value: newDType(
             { stringValue: "hello" },
-            new DAlarm(AlarmQuality.ALARM, "")
+            newDAlarm(AlarmQuality.ALARM, "")
           )
         } as Partial<PvDatum> as PvDatum
       ],
@@ -104,9 +110,9 @@ describe("<Readback />", (): void => {
           effectivePvName: "TEST:PV",
           connected: true,
           readonly: true,
-          value: new DType(
+          value: newDType(
             { stringValue: "hello" },
-            new DAlarm(AlarmQuality.ALARM, "")
+            newDAlarm(AlarmQuality.ALARM, "")
           )
         } as Partial<PvDatum> as PvDatum
       ],

@@ -12,7 +12,7 @@ import {
   BobColorsPropOpt,
   IntPropOpt
 } from "../propTypes";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 import {
   ChartsReferenceLine,
   chartsTooltipClasses,
@@ -33,6 +33,8 @@ import {
   TrianglePointerVertical
 } from "./trianglePointer";
 import { buildStatusRegions } from "./linearMeterUtilities";
+import { dTypeGetDoubleValue } from "../../../types/dtypes";
+import { fontToCss } from "../../../types/font";
 
 export const LinearMeterComponentProps = {
   minimum: FloatPropOpt,
@@ -74,18 +76,20 @@ export const LinearMeterComponent = (
     format = 1
   } = props;
 
-  const {
-    foregroundColor = theme.palette.primary.contrastText,
-    needleColor = theme.palette.primary.contrastText,
-    knobColor = theme.palette.primary.contrastText
-  } = props?.colors ?? {};
-
   const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
   const units = value?.display.units ?? "";
-  const numValue = value?.getDoubleValue() ?? 0;
+  const numValue = dTypeGetDoubleValue(value) ?? 0;
 
+  const foregroundColor =
+    props?.colors?.foregroundColor?.colorString ??
+    theme.palette.primary.contrastText;
+  const needleColor =
+    props?.colors?.needleColor?.colorString ??
+    theme.palette.primary.contrastText;
+  const knobColor =
+    props?.colors?.knobColor?.colorString ?? theme.palette.primary.contrastText;
   const backgroundColor =
-    props?.colors?.backgroundColor?.toString() ?? theme.palette.primary.main;
+    props?.colors?.backgroundColor?.colorString ?? theme.palette.primary.main;
 
   // Set the maximum, minimum and alarm levels.
   let alarmRangeMin: number | undefined = levelLolo;
@@ -110,13 +114,13 @@ export const LinearMeterComponent = (
     maximum = pvMax ?? maximum;
   }
 
-  const fontCss = font?.css() ?? theme.typography;
+  const fontCss = fontToCss(font) ?? theme.typography;
   const labelFontStyle = {
     fontSize: fontCss.fontSize,
-    fontStyle: font?.css().fontStyle,
+    fontStyle: fontToCss(font)?.fontStyle,
     fontFamily: fontCss.fontFamily,
-    fontWeight: font?.css().fontWeight,
-    fill: foregroundColor?.toString()
+    fontWeight: fontToCss(font)?.fontWeight,
+    fill: foregroundColor
   };
 
   const scaleAxisProps: XAxis<any> = {
@@ -174,7 +178,7 @@ export const LinearMeterComponent = (
     {
       data: [minimum],
       stack: "total",
-      color: Color.fromRgba(194, 198, 195, 0).toString(),
+      color: ColorUtils.fromRgba(194, 198, 195, 0).colorString,
       label: undefined,
       type: "bar",
       valueFormatter: () =>
@@ -264,7 +268,7 @@ export const LinearMeterComponent = (
           border: 1,
           borderColor: "#D2D2D2",
           borderRadius: "4px",
-          backgroundColor: backgroundColor.toString()
+          backgroundColor: backgroundColor
         }}
         slotProps={{
           tooltip: {
@@ -291,14 +295,14 @@ export const LinearMeterComponent = (
               x={numValue}
               axisId="x"
               lineStyle={{
-                stroke: needleColor?.toString(),
+                stroke: needleColor,
                 strokeWidth: needleWidth
               }}
             />
             <TrianglePointerHorizontal
               value={numValue}
               size={knobSize}
-              fill={knobColor?.toString()}
+              fill={knobColor}
             />
           </>
         ) : (
@@ -315,14 +319,14 @@ export const LinearMeterComponent = (
               y={numValue}
               axisId="y"
               lineStyle={{
-                stroke: needleColor?.toString(),
+                stroke: needleColor,
                 strokeWidth: needleWidth
               }}
             />
             <TrianglePointerVertical
               value={numValue}
               size={knobSize}
-              fill={knobColor?.toString()}
+              fill={knobColor}
             />
           </>
         )}

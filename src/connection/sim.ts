@@ -8,11 +8,18 @@ import {
   nullValueCallback
 } from "./plugin";
 import {
+  newDDisplay,
+  dTimeNow,
   DType,
-  dtimeNow,
-  DAlarm,
-  DDisplay,
-  AlarmQuality
+  dTypeCoerceDouble,
+  dTypeGetDoubleValue,
+  dTypeGetStringValue,
+  newDType,
+  AlarmQuality,
+  DAlarmMAJOR,
+  DAlarmMINOR,
+  DAlarmNONE,
+  newDAlarm
 } from "../types/dtypes";
 
 type SimArgs = [
@@ -91,11 +98,11 @@ class SinePv extends SimPv {
     const val = Math.sin(
       new Date().getSeconds() + new Date().getMilliseconds() * 0.001
     );
-    return new DType(
+    return newDType(
       { doubleValue: val },
       undefined,
       undefined,
-      new DDisplay({
+      newDDisplay({
         units: "yoonits!"
       })
     );
@@ -115,7 +122,7 @@ class SineArrayPv extends SimPv {
     if (this.val.length > 100) {
       this.val.shift();
     }
-    return new DType({ arrayValue: Float64Array.from(this.val) });
+    return newDType({ arrayValue: Float64Array.from(this.val) });
   }
 }
 
@@ -130,13 +137,13 @@ class RampPv extends SimPv {
     const d = new Date();
     const val =
       (d.getSeconds() % 10) * 10 + Math.floor(d.getMilliseconds() / 100);
-    let rampAlarm = DAlarm.NONE;
+    let rampAlarm = DAlarmNONE();
     if (val > 90 || val < 10) {
-      rampAlarm = DAlarm.MAJOR;
+      rampAlarm = DAlarmMAJOR();
     } else if (val > 80 || val < 20) {
-      rampAlarm = DAlarm.MINOR;
+      rampAlarm = DAlarmMINOR();
     }
-    return new DType({ doubleValue: val }, rampAlarm);
+    return newDType({ doubleValue: val }, rampAlarm);
   }
 }
 
@@ -146,7 +153,7 @@ class RandomPv extends SimPv {
     this.maybeSetInterval(this.publish.bind(this));
   }
   public getValue(): DType {
-    return new DType({ doubleValue: Math.random() });
+    return newDType({ doubleValue: Math.random() });
   }
 }
 
@@ -162,17 +169,17 @@ class Disconnector extends SimPv {
   }
 
   public getValue(): DType {
-    return new DType({ doubleValue: Math.random() });
+    return newDType({ doubleValue: Math.random() });
   }
 }
 
 class SimEnumPv extends SimPv {
   type = "VEnum";
-  private value: DType = new DType(
+  private value: DType = newDType(
     { doubleValue: 0, stringValue: "one" },
-    DAlarm.NONE,
-    dtimeNow(),
-    new DDisplay({ choices: ["one", "two", "three", "four"] })
+    DAlarmNONE(),
+    dTimeNow(),
+    newDDisplay({ choices: ["one", "two", "three", "four"] })
   );
   public constructor(...args: SimArgs) {
     super(...args);
@@ -184,14 +191,14 @@ class SimEnumPv extends SimPv {
     const newIndex = Math.floor(
       Math.random() * (this.value.display?.choices?.length || 0)
     );
-    this.value = new DType(
+    this.value = newDType(
       {
         doubleValue: newIndex,
         stringValue: (this.value.display?.choices as string[])[newIndex]
       },
-      DAlarm.NONE,
-      dtimeNow(),
-      new DDisplay({
+      DAlarmNONE(),
+      dTimeNow(),
+      newDDisplay({
         choices: this.value.display?.choices
       })
     );
@@ -201,11 +208,11 @@ class SimEnumPv extends SimPv {
 
 class EnumPv extends SimPv {
   type = "VEnum";
-  private value: DType = new DType(
+  private value: DType = newDType(
     { doubleValue: 0 },
-    DAlarm.NONE,
-    dtimeNow(),
-    new DDisplay({ choices: ["one", "two", "three", "four"] })
+    DAlarmNONE(),
+    dTimeNow(),
+    newDDisplay({ choices: ["one", "two", "three", "four"] })
   );
 
   public constructor(...args: SimArgs) {
@@ -221,8 +228,8 @@ class EnumPv extends SimPv {
   public updateValue(value: DType): void {
     // At the moment, if the value "0" arrived it won't be
     // interpreted as the index 0.
-    const dval = value.getDoubleValue();
-    const sval = value.getStringValue();
+    const dval = dTypeGetDoubleValue(value);
+    const sval = dTypeGetStringValue(value);
     // Allow updating choices?
     if (value.display?.choices) {
       this.value.display.choices = value.display.choices;
@@ -256,7 +263,7 @@ class LocalPv extends SimPv {
   public constructor(...args: SimArgs) {
     super(...args);
     this.publishConnection();
-    this.value = new DType({});
+    this.value = newDType({});
   }
 
   public getConnection(): ConnectionState {
@@ -281,7 +288,7 @@ class LimitData extends SimPv {
 
   public constructor(...args: SimArgs) {
     super(...args);
-    this.value = new DType({ doubleValue: 50 });
+    this.value = newDType({ doubleValue: 50 });
     this.publishConnection();
   }
 
@@ -292,7 +299,7 @@ class LimitData extends SimPv {
   public updateValue(value: DType): void {
     // Set alarm status
     let alarmSeverity = AlarmQuality.VALID;
-    const v = DType.coerceDouble(value);
+    const v = dTypeCoerceDouble(value);
     if (v !== undefined) {
       alarmSeverity =
         v < 10
@@ -304,10 +311,10 @@ class LimitData extends SimPv {
               : v > 80
                 ? AlarmQuality.WARNING
                 : AlarmQuality.VALID;
-      this.value = new DType(
+      this.value = newDType(
         { doubleValue: v },
-        new DAlarm(alarmSeverity, ""),
-        dtimeNow()
+        newDAlarm(alarmSeverity, ""),
+        dTimeNow()
       );
       this.publish();
     }
@@ -320,7 +327,7 @@ class LimitData extends SimPv {
 
 class FlipFlopPv extends SimPv {
   // Switches between true and false on a loop
-  private value: DType = new DType({ doubleValue: 1 }, DAlarm.NONE, dtimeNow());
+  private value: DType = newDType({ doubleValue: 1 }, DAlarmNONE(), dTimeNow());
 
   public constructor(...args: SimArgs) {
     super(...args);
@@ -332,7 +339,7 @@ class FlipFlopPv extends SimPv {
     if (this.value.value.doubleValue === 1) {
       val = 0;
     }
-    this.value = new DType({ doubleValue: val });
+    this.value = newDType({ doubleValue: val });
     return this.value;
   }
 }
@@ -420,18 +427,18 @@ export class SimulatorPlugin implements Connection {
         keyName = "loc://" + groups[1];
 
         if (typeName === "VEnum") {
-          initial = new DType(
+          initial = newDType(
             {
               doubleValue: initial[0] - 1
             },
-            DAlarm.NONE,
-            dtimeNow(),
-            new DDisplay({ choices: initial.slice(1) })
+            DAlarmNONE(),
+            dTimeNow(),
+            newDDisplay({ choices: initial.slice(1) })
           );
         } else if (initial.length === 1) {
-          initial = new DType({ doubleValue: initial[0] });
+          initial = newDType({ doubleValue: initial[0] });
         } else {
-          initial = new DType({ arrayValue: initial });
+          initial = newDType({ arrayValue: initial });
         }
       } else {
         initial = undefined;
@@ -470,7 +477,7 @@ export class SimulatorPlugin implements Connection {
       if (nameInfo.initialValue !== undefined) {
         initial = nameInfo.initialValue;
       } else {
-        initial = new DType({ doubleValue: 0 });
+        initial = newDType({ doubleValue: 0 });
       }
     } else if (nameInfo.protocol === "sim://disconnector") {
       cls = Disconnector;

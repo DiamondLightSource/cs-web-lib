@@ -1,12 +1,12 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { SymbolComponent } from "./symbol";
-import { DType } from "../../../types/dtypes";
+import { newDType } from "../../../types/dtypes";
 import { PvDatum } from "../../../redux/csState";
 
-const fakeValue = new DType({ stringValue: "Fake value" });
-const stringValue = new DType({ stringValue: "1.54" });
-const arrayValue = new DType({ arrayValue: Float64Array.from([2, 0]) });
+const fakeValue = newDType({ stringValue: "Fake value" });
+const stringValue = newDType({ stringValue: "1.54" });
+const arrayValue = newDType({ arrayValue: Float64Array.from([2, 0]) });
 
 describe("<Symbol /> from .opi file", (): void => {
   test("label is not shown if showLabel is false", (): void => {
@@ -78,7 +78,7 @@ describe("<Symbol /> from .bob file", (): void => {
   test("index is not shown if showIndex is false", (): void => {
     const symbolProps = {
       symbols: ["img 1.gif"],
-      value: new DType({ stringValue: "0" })
+      value: newDType({ stringValue: "0" })
     };
 
     render(<SymbolComponent {...(symbolProps as any)} />);
@@ -151,7 +151,7 @@ describe("<Symbol /> from .bob file", (): void => {
           effectivePvName: "TEST:PV",
           connected: true,
           readonly: true,
-          value: new DType({ stringValue: "0" })
+          value: newDType({ stringValue: "0" })
         } as Partial<PvDatum> as PvDatum
       ]
     };
@@ -171,7 +171,7 @@ describe("<Symbol /> from .bob file", (): void => {
           effectivePvName: "TEST:PV",
           connected: true,
           readonly: true,
-          value: new DType({ stringValue: "2" })
+          value: newDType({ stringValue: "2" })
         } as Partial<PvDatum> as PvDatum
       ]
     };
@@ -191,7 +191,7 @@ describe("<Symbol /> from .bob file", (): void => {
           effectivePvName: "TEST:PV",
           connected: true,
           readonly: true,
-          value: new DType({ doubleValue: 1 })
+          value: newDType({ doubleValue: 1 })
         } as Partial<PvDatum> as PvDatum
       ]
     };
@@ -205,7 +205,7 @@ describe("<Symbol /> from .bob file", (): void => {
   test("matches snapshot (with rotation)", (): void => {
     const symbolProps = {
       symbols: ["img 1.gif"],
-      value: new DType({ stringValue: "0" }),
+      value: newDType({ stringValue: "0" }),
       rotation: 45
     };
 

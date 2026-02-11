@@ -1,14 +1,11 @@
 import PropTypes, { InferProps } from "prop-types";
-import { Color } from "../../types/color";
-import { Font } from "../../types/font";
-import { Border } from "../../types/border";
-import { RelativePosition, AbsolutePosition } from "../../types/position";
-import { PV } from "../../types/pv";
+import { FontStyle } from "../../types/font";
+import { BorderStyle } from "../../types/border";
 import { FileDescription } from "../../misc/fileContext";
 import { Trace } from "../../types/trace";
 import { Axis } from "../../types/axis";
-import { Points } from "../../types/points";
 import { Plt } from "../../types/plt";
+import { PositionType } from "../../types/position";
 
 export type ExcludeNulls<T> = {
   [P in keyof T]: Exclude<T[P], null>;
@@ -30,8 +27,11 @@ export const FloatPropOpt = PropTypes.number;
 export const BoolProp = PropTypes.bool.isRequired;
 export const BoolPropOpt = PropTypes.bool;
 
-export const PvProp = PropTypes.instanceOf(PV).isRequired;
-export const PvPropOpt = PropTypes.instanceOf(PV);
+export const PvPropOpt = PropTypes.shape({
+  name: StringProp,
+  protocol: StringProp
+});
+export const PvProp = PvPropOpt.isRequired;
 
 export const PVMetadataType = PropTypes.shape({
   pvName: PvPropOpt
@@ -43,14 +43,32 @@ export const ChildrenPropOpt = PropTypes.node;
 export const ObjectProp = PropTypes.object.isRequired;
 export const ObjectPropOpt = PropTypes.object;
 
-export const ColorProp = PropTypes.instanceOf(Color).isRequired;
-export const ColorPropOpt = PropTypes.instanceOf(Color);
+export const ColorPropOpt = PropTypes.shape({
+  colorString: StringProp
+});
+export const ColorProp = ColorPropOpt.isRequired;
 
-export const FontProp = PropTypes.instanceOf(Font).isRequired;
-export const FontPropOpt = PropTypes.instanceOf(Font);
+const FontStyleProp = PropTypes.oneOf(Object.values(FontStyle)).isRequired;
 
-export const BorderProp = PropTypes.instanceOf(Border).isRequired;
-export const BorderPropOpt = PropTypes.instanceOf(Border);
+export const FontPropOpt = PropTypes.shape({
+  size: IntPropOpt,
+  style: FontStyleProp,
+  typeface: StringProp,
+  name: StringPropOpt
+});
+export const FontProp = FontPropOpt.isRequired;
+
+export const BorderStyleProp = PropTypes.oneOf(
+  Object.values(BorderStyle)
+).isRequired;
+
+export const BorderPropOpt = PropTypes.shape({
+  style: BorderStyleProp,
+  color: ColorProp,
+  width: FloatProp,
+  radius: FloatPropOpt
+});
+export const BorderProp = BorderPropOpt.isRequired;
 
 export const TraceProp = PropTypes.instanceOf(Trace).isRequired;
 export const TracePropOpt = PropTypes.instanceOf(Trace);
@@ -70,13 +88,34 @@ export const PltPropOpt = PropTypes.instanceOf(Plt);
 export const FuncPropOpt = PropTypes.instanceOf(Function);
 export const FuncProp = FuncPropOpt.isRequired;
 
-export const PointsProp = PropTypes.instanceOf(Points).isRequired;
-export const PointsPropOpt = PropTypes.instanceOf(Points);
+PropTypes.arrayOf(PropTypes.string.isRequired);
 
-export const PositionProp = PropTypes.oneOfType([
-  PropTypes.instanceOf(AbsolutePosition),
-  PropTypes.instanceOf(RelativePosition)
-]).isRequired;
+const PointPropOpt = PropTypes.shape({
+  x: FloatProp,
+  y: FloatProp
+});
+
+export const PointsPropOpt = PropTypes.shape({
+  values: PropTypes.arrayOf(PointPropOpt.isRequired).isRequired
+});
+export const PointsProp = PointsPropOpt.isRequired;
+
+export const PositionTypeProp = PropTypes.oneOf(
+  Object.values(PositionType)
+).isRequired;
+
+export const PositionProp = PropTypes.shape({
+  x: StringProp,
+  y: StringProp,
+  width: StringProp,
+  height: StringProp,
+  margin: StringProp,
+  padding: StringProp,
+  minWidth: StringProp,
+  maxWidth: StringProp,
+  minHeight: StringProp,
+  positionType: PositionTypeProp
+}).isRequired;
 
 export const MacrosProp = PropTypes.objectOf(
   PropTypes.string.isRequired

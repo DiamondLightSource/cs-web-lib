@@ -4,13 +4,13 @@ import log from "loglevel";
 import { ElementCompact, xml2js } from "xml-js";
 import { Rule, Expression, OpiFile } from "../../../types/props";
 import { MacroMap, resolveMacros } from "../../../types/macros";
-import { Color } from "../../../types/color";
-import { FontStyle, Font } from "../../../types/font";
-import { Border, BorderStyle } from "../../../types/border";
+import { Color, ColorUtils } from "../../../types/color";
+import { FontStyle, Font, newFont } from "../../../types/font";
+import { Border, BorderStyle, newBorder } from "../../../types/border";
 import {
   Position,
-  AbsolutePosition,
-  RelativePosition
+  newAbsolutePosition,
+  newRelativePosition
 } from "../../../types/position";
 import { Trace } from "../../../types/trace";
 import { Axis } from "../../../types/axis";
@@ -23,7 +23,7 @@ import {
 } from "./parser";
 import { REGISTERED_WIDGETS } from "../register";
 import { WidgetDescription } from "../createComponent";
-import { PV } from "../../../types/pv";
+import { PV, pvQualifiedName, PVUtils } from "../../../types/pv";
 import {
   WRITE_PV,
   OPEN_WEBPAGE,
@@ -32,7 +32,7 @@ import {
   EXIT
 } from "../widgetActions";
 import { snakeCaseToCamelCase } from "../utils";
-import { Point, Points } from "../../../types/points";
+import { newPoint, newPoints, Point, Points } from "../../../types/points";
 import { buildUrl, isFullyQualifiedUrl } from "../../../misc/urlUtils";
 import { parseArrayString } from "../../../misc/stringUtils";
 
@@ -128,7 +128,7 @@ export interface OpiColor {
  */
 export function opiParseColor(jsonProp: ElementCompact): Color {
   const color = jsonProp.color as OpiColor;
-  return Color.fromRgba(
+  return ColorUtils.fromRgba(
     parseInt(color._attributes.red),
     parseInt(color._attributes.green),
     parseInt(color._attributes.blue),
@@ -154,7 +154,7 @@ export function opiParseFont(jsonProp: ElementCompact): Font {
     fontAttributes = jsonProp["opifont.name"]._attributes;
   }
   const { fontName, height, style } = fontAttributes;
-  return new Font(height, opiStyles[style], fontName);
+  return newFont(height, opiStyles[style], fontName);
 }
 
 /**
@@ -218,10 +218,9 @@ export function opiParseActions(
         processedActions.actions.push({
           type: WRITE_PV,
           writePvInfo: {
-            pvName: opiParsePvName(
-              action.pv_name,
-              defaultProtocol
-            ).qualifiedName(),
+            pvName: pvQualifiedName(
+              opiParsePvName(action.pv_name, defaultProtocol)
+            ),
             value: action.value._text,
             description:
               (action.description && action.description._text) || undefined
@@ -329,7 +328,7 @@ export function opiParsePvName(
   defaultProtocol: string
 ): PV {
   const rawPv = opiParseString(jsonProp);
-  return PV.parse(rawPv, defaultProtocol);
+  return PVUtils.parse(rawPv, defaultProtocol);
 }
 
 /**
@@ -390,7 +389,7 @@ function opiParseBorder(props: any): Border {
   };
   let style = BorderStyle.None;
   let width = 0;
-  let borderColor = Color.BLACK;
+  let borderColor = ColorUtils.BLACK;
   /* Line color can override border for certain widgets. */
   let lineColor;
   try {
@@ -404,11 +403,11 @@ function opiParseBorder(props: any): Border {
   // Raised border in opis hard-codes width and color.
   if (style === BorderStyle.Outset) {
     width = 1;
-    borderColor = Color.GREY;
+    borderColor = ColorUtils.GREY;
   }
   const actualColor = width < 2 && lineColor ? lineColor : borderColor;
   const actualStyle = width < 2 && lineColor ? BorderStyle.Line : style;
-  return new Border(actualStyle, actualColor, width);
+  return newBorder(actualStyle, actualColor, width);
 }
 
 /**
@@ -432,7 +431,7 @@ function opiParseType(props: any): string {
 function opiParsePosition(props: any): Position {
   const { x, y, width, height } = props;
   try {
-    return new AbsolutePosition(
+    return newAbsolutePosition(
       `${opiParseNumber(x)}px`,
       `${opiParseNumber(y)}px`,
       `${opiParseNumber(width)}px`,
@@ -578,10 +577,10 @@ function opiParsePoints(props: any): Points {
   props.points?.point.forEach((point: any) => {
     const pointData = point._attributes;
     points.push(
-      new Point(Number(pointData["x"]) - x, Number(pointData["y"]) - y)
+      newPoint(Number(pointData["x"]) - x, Number(pointData["y"]) - y)
     );
   });
-  return new Points(points);
+  return newPoints(points);
 }
 
 /**
@@ -1012,7 +1011,7 @@ export async function parseOpi(
     filepath
   );
 
-  displayWidget.position = new RelativePosition(
+  displayWidget.position = newRelativePosition(
     // Handle generated display widgets with no width or height.
     displayWidget.position?.x,
     displayWidget.position?.y,

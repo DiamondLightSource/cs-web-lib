@@ -16,10 +16,20 @@ import {
   StringOrNumPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
-import { AlarmQuality, DType } from "../../../types/dtypes";
+import {
+  dTypeByteArrToString,
+  dTypeCoerceDouble,
+  dTypeCoerceString,
+  dTypeGetAlarm,
+  dTypeGetArrayValue,
+  dTypeGetDisplay,
+  AlarmQuality
+} from "../../../types/dtypes";
 import { TextField as MuiTextField, styled, useTheme } from "@mui/material";
 import { calculateRotationTransform, getPvValueAndName } from "../utils";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
+import { borderToCss } from "../../../types/border";
+import { fontToCss } from "../../../types/font";
 
 const ReadbackProps = {
   precision: IntPropOpt,
@@ -100,7 +110,7 @@ export const ReadbackComponent = (
   const { value } = getPvValueAndName(pvData);
 
   // Decide what to display.
-  const display = value?.getDisplay();
+  const display = dTypeGetDisplay(value);
   // In Phoebus, default precision -1 seems to usually be 3. The toFixed functions
   // cannot accept -1 as a valid answer
   let prec = precisionFromPv ? (display?.precision ?? precision) : precision;
@@ -112,23 +122,23 @@ export const ReadbackComponent = (
   } else {
     if (value.display.choices) {
       // Enum PV so use string representation.
-      displayedValue = DType.coerceString(value);
-    } else if (prec !== undefined && !isNaN(DType.coerceDouble(value))) {
+      displayedValue = dTypeCoerceString(value);
+    } else if (prec !== undefined && !isNaN(dTypeCoerceDouble(value))) {
       if (formatType === "exponential") {
-        displayedValue = DType.coerceDouble(value).toExponential(prec);
+        displayedValue = dTypeCoerceDouble(value).toExponential(prec);
       } else {
-        displayedValue = DType.coerceDouble(value).toFixed(prec);
+        displayedValue = dTypeCoerceDouble(value).toFixed(prec);
       }
     } else if (formatType === "string") {
-      const valarr = value.getArrayValue();
+      const valarr = dTypeGetArrayValue(value);
       if (valarr !== undefined) {
-        displayedValue = DType.byteArrToString(valarr);
+        displayedValue = dTypeByteArrToString(valarr);
       } else {
-        displayedValue = DType.coerceString(value);
+        displayedValue = dTypeCoerceString(value);
       }
-    } else if (value.getArrayValue() !== undefined && prec !== undefined) {
+    } else if (dTypeGetArrayValue(value) !== undefined && prec !== undefined) {
       displayedValue = "";
-      const array = Array.prototype.slice.call(value.getArrayValue());
+      const array = Array.prototype.slice.call(dTypeGetArrayValue(value));
       for (let i = 0; i < array.length; i++) {
         displayedValue = displayedValue.concat(array[i].toFixed(prec));
         if (i < array.length - 1) {
@@ -136,7 +146,7 @@ export const ReadbackComponent = (
         }
       }
     } else {
-      displayedValue = DType.coerceString(value);
+      displayedValue = dTypeCoerceString(value);
     }
   }
 
@@ -146,12 +156,12 @@ export const ReadbackComponent = (
   }
 
   let foregroundColor =
-    props.foregroundColor?.toString() ?? theme.palette.primary.contrastText;
-  let borderColor = props.border?.color.toString() ?? "#000000";
-  let borderStyle = props.border?.css().borderStyle ?? "solid";
+    props.foregroundColor?.colorString ?? theme.palette.primary.contrastText;
+  let borderColor = props.border?.color.colorString ?? "#000000";
+  let borderStyle = borderToCss(props.border)?.borderStyle ?? "solid";
   let borderWidth = props.border?.width ?? "0px";
 
-  const alarmQuality = value?.getAlarm().quality ?? AlarmQuality.VALID;
+  const alarmQuality = dTypeGetAlarm(value).quality ?? AlarmQuality.VALID;
   if (alarmSensitive) {
     switch (alarmQuality) {
       case AlarmQuality.UNDEFINED:
@@ -171,11 +181,11 @@ export const ReadbackComponent = (
     }
   }
 
-  const font = props.font?.css() ?? theme.typography;
+  const font = fontToCss(props.font) ?? theme.typography;
 
   const backgroundColor = transparent
     ? "transparent"
-    : (props.backgroundColor?.toString() ?? theme.palette.primary.main);
+    : (props.backgroundColor?.colorString ?? theme.palette.primary.main);
 
   let alignmentV = "center";
   if (textAlignV === "top") {

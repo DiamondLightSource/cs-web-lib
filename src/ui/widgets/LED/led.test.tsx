@@ -1,13 +1,18 @@
 import React from "react";
 import { LedComponent, LedComponentProps } from "./led";
-import { DAlarm, DType, AlarmQuality } from "../../../types/dtypes";
+import {
+  DType,
+  newDType,
+  AlarmQuality,
+  newDAlarm
+} from "../../../types/dtypes";
 import renderer, { ReactTestRendererJSON } from "react-test-renderer";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 import { ddouble } from "../../../testResources";
 import { PvDatum } from "../../../redux/csState";
 
 const createValue = (alarmType: AlarmQuality): DType => {
-  return new DType({ stringValue: "3.141" }, new DAlarm(alarmType, ""));
+  return newDType({ stringValue: "3.141" }, newDAlarm(alarmType, ""));
 };
 
 const UNUSED_VALUE = createValue(AlarmQuality.ALARM);
@@ -20,8 +25,8 @@ const BASE_PV = {
 
 const DEFAULT_PROPS = {
   pvData: [BASE_PV],
-  offColor: Color.RED,
-  onColor: Color.GREEN
+  offColor: ColorUtils.RED,
+  onColor: ColorUtils.GREEN
 };
 
 const renderLed = (ledProps: LedComponentProps): ReactTestRendererJSON => {
@@ -62,7 +67,9 @@ describe("background color changes depending on value", (): void => {
 
     const renderedLed = renderLed(ledProps);
 
-    expect(renderedLed.props.style.backgroundColor).toBe(Color.RED.toString());
+    expect(renderedLed.props.style.backgroundColor).toBe(
+      ColorUtils.RED.colorString
+    );
   });
 
   it("on color is applied if value not zero", (): void => {
@@ -74,7 +81,7 @@ describe("background color changes depending on value", (): void => {
     const renderedLed = renderLed(ledProps);
 
     expect(renderedLed.props.style.backgroundColor).toBe(
-      Color.GREEN.toString()
+      ColorUtils.GREEN.colorString
     );
   });
 });

@@ -2,15 +2,15 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { scriptParser } from "./scriptParser";
 import { ElementCompact } from "xml-js";
 import * as opiParserModule from "../opiParser";
-import { PV } from "../../../../types";
+import { newPV } from "../../../../types/pv";
 
 vi.mock("../opiParser", () => ({
   opiParsePvName: vi.fn()
 }));
 
 describe("scriptParser", () => {
-  const PV1 = new PV("pv1:processed", "ca");
-  const PV2 = new PV("pv2:processed", "ca");
+  const PV1 = newPV("pv1:processed", "ca");
+  const PV2 = newPV("pv2:processed", "ca");
 
   beforeEach(() => {
     vi.clearAllMocks();

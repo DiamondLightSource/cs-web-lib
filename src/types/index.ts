@@ -1,8 +1,8 @@
-export { AbsolutePosition } from "./position";
-export { RelativePosition } from "./position";
-export { Color } from "./color";
-export { PV } from "./pv";
-export { Font, FontStyle } from "./font";
-export { Border, BorderStyle } from "./border";
-export { DType } from "./dtypes";
+export { type Position, newRelativePosition } from "./position";
+export { type Color, ColorUtils } from "./color";
+export type { PV } from "./pv";
+export type { Font } from "./font";
+export { FontStyle } from "./font";
+export { BorderStyle } from "./border";
+export type { Border } from "./border";
 export { resolveMacros } from "./macros";

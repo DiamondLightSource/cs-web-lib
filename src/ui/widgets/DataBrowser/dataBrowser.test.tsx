@@ -1,13 +1,13 @@
 import React from "react";
 import { act, render, screen } from "@testing-library/react";
 import { describe, test, expect, beforeEach, vi } from "vitest";
-import { Color, DType } from "../../../types";
 import { DataBrowserComponent } from "./dataBrowser";
 import { Trace } from "../../../types/trace";
 import { Axis } from "../../../types/axis";
 import { Plt } from "../../../types/plt";
 import { PvDatum } from "../../../redux/csState";
-import { DTime } from "../../../types/dtypes";
+import { newDTime, newDType } from "../../../types/dtypes";
+import { ColorUtils } from "../../../types/color";
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -54,10 +54,10 @@ describe("DataBrowserComponent", () => {
       effectivePvName: pvName,
       connected: true,
       readonly: true,
-      value: {
-        getDoubleValue: () => value,
-        getTime: () => new DTime(date)
-      } as Partial<DType> as DType
+      value: newDType({ doubleValue: value }, undefined, newDTime(date), {
+        units: "mm",
+        controlRange: { min: 0, max: 100 }
+      })
     } as Partial<PvDatum> as PvDatum;
   };
 
@@ -123,8 +123,8 @@ describe("DataBrowserComponent", () => {
 
     test("renders with 1 y axis on either side", async () => {
       const axes = [
-        new Axis({ color: Color.RED }),
-        new Axis({ color: Color.BLUE, onRight: true })
+        new Axis({ color: ColorUtils.RED }),
+        new Axis({ color: ColorUtils.BLUE, onRight: true })
       ];
       const newProps = {
         ...defaultProps,
@@ -137,8 +137,8 @@ describe("DataBrowserComponent", () => {
       const lineChart = screen.getByTestId("line-chart");
       const yAxisData = JSON.parse(lineChart.getAttribute("data-yaxis") ?? "");
 
-      expect(yAxisData[0].color).toBe(Color.RED.toString());
-      expect(yAxisData[1].color).toBe(Color.BLUE.toString());
+      expect(yAxisData[0].color).toBe(ColorUtils.RED.colorString);
+      expect(yAxisData[1].color).toBe(ColorUtils.BLUE.colorString);
       expect(yAxisData[1].position).toBe("right");
     });
 

@@ -1,11 +1,12 @@
 import React from "react";
 import { ChoiceButtonComponent } from "./choiceButton";
 import { fireEvent, render } from "@testing-library/react";
-import { DDisplay, DType } from "../../../types/dtypes";
-import { Color, Font } from "../../../types";
+import { newDDisplay, newDType } from "../../../types/dtypes";
 import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
 import { PvDatum } from "../../../redux/csState";
+import { ColorUtils } from "../../../types/color";
+import { newFont } from "../../../types/font";
 
 const ChoiceButtonRenderer = (choiceButtonProps: any): JSX.Element => {
   return (
@@ -50,16 +51,16 @@ describe("<ChoiceButton />", (): void => {
           effectivePvName: "TEST:PV",
           connected: true,
           readonly: true,
-          value: new DType({ doubleValue: 0 })
+          value: newDType({ doubleValue: 0 })
         } as Partial<PvDatum> as PvDatum
       ],
       width: 60,
       height: 140,
-      font: new Font(12),
+      font: newFont(12),
       items: ["Choice", "Option", "Setting", "Custom"],
       horizontal: false,
-      backgroundColor: Color.fromRgba(20, 20, 200),
-      selectedColor: Color.fromRgba(10, 60, 40),
+      backgroundColor: ColorUtils.fromRgba(20, 20, 200),
+      selectedColor: ColorUtils.fromRgba(10, 60, 40),
       itemsFromPv: false,
       enabled: false
     };
@@ -88,11 +89,11 @@ describe("<ChoiceButton />", (): void => {
           effectivePvName: "TEST:PV",
           connected: true,
           readonly: true,
-          value: new DType(
+          value: newDType(
             { doubleValue: 0 },
             undefined,
             undefined,
-            new DDisplay({ choices: ["hi", "Hello"] })
+            newDDisplay({ choices: ["hi", "Hello"] })
           )
         } as Partial<PvDatum> as PvDatum
       ],

@@ -2,11 +2,13 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { MeterComponent } from "./meter";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 import { NumberFormatEnum } from "./meterUtilities";
 import * as meterUtilities from "./meterUtilities";
-import { DType, Font } from "../../../types";
+import { Font } from "../../../types";
 import { PvDatum } from "../../../redux/csState";
+import { newDType } from "../../../types/dtypes";
+import * as FontModule from "../../../types/font";
 
 vi.mock("react-gauge-component", () => ({
   GaugeComponent: vi.fn(({ value, minValue, maxValue, labels, style }) => (
@@ -46,20 +48,17 @@ describe("MeterComponent", () => {
         effectivePvName: "TEST:PV",
         connected: true,
         readonly: true,
-        value: {
-          getDoubleValue: () => 50,
-          display: {
-            units: "kW",
-            controlRange: { min: 0, max: 100 },
-            alarmRange: { min: 80, max: 100 },
-            warningRange: { min: 60, max: 80 }
-          }
-        } as Partial<DType> as DType
+        value: newDType({ doubleValue: 50 }, undefined, undefined, {
+          units: "kW",
+          controlRange: { min: 0, max: 100 },
+          alarmRange: { min: 80, max: 100 },
+          warningRange: { min: 60, max: 80 }
+        })
       } as Partial<PvDatum> as PvDatum
     ],
-    foregroundColor: Color.fromRgba(0, 0, 0, 1),
-    needleColor: Color.fromRgba(255, 5, 7, 1),
-    backgroundColor: Color.fromRgba(250, 250, 250, 1)
+    foregroundColor: ColorUtils.fromRgba(0, 0, 0, 1),
+    needleColor: ColorUtils.fromRgba(255, 5, 7, 1),
+    backgroundColor: ColorUtils.fromRgba(250, 250, 250, 1)
   };
 
   beforeEach(() => {
@@ -193,9 +192,14 @@ describe("MeterComponent", () => {
   });
 
   it("applies font styles correctly", () => {
-    const font = {
-      css: () => ({ fontFamily: "Arial" })
-    } as Partial<Font> as Font;
+    vi.spyOn(FontModule, "fontToCss").mockReturnValue({
+      fontFamily: "Arial",
+      fontWeight: "normal",
+      fontStyle: "normal",
+      fontSize: "1rem"
+    });
+
+    const font = {} as Partial<Font> as Font;
 
     render(<MeterComponent {...defaultProps} font={font} />);
 

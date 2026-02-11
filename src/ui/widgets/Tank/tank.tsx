@@ -13,9 +13,11 @@ import {
   ColorPropOpt,
   BorderPropOpt
 } from "../propTypes";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 import { XAxis, YAxis } from "@mui/x-charts";
 import { getPvValueAndName } from "../utils";
+import { dTypeGetDoubleValue } from "../../../types/dtypes";
+import { fontToCss } from "../../../types/font";
 
 export const TankProps = {
   minimum: FloatPropOpt,
@@ -44,8 +46,8 @@ export const TankComponent = (
     showLabel = false,
     font,
     horizontal = false,
-    fillColor = Color.fromRgba(0, 0, 255, 1),
-    emptyColor = Color.fromRgba(192, 192, 192, 1),
+    fillColor = ColorUtils.fromRgba(0, 0, 255, 1),
+    emptyColor = ColorUtils.fromRgba(192, 192, 192, 1),
     precision = undefined,
     scaleVisible = true,
     logScale = false,
@@ -57,7 +59,7 @@ export const TankComponent = (
 
   const backgroundColor = transparent
     ? "transparent"
-    : (props.backgroundColor?.toString() ?? "rgba(250, 250, 250, 1)");
+    : (props.backgroundColor?.colorString ?? "rgba(250, 250, 250, 1)");
 
   let { minimum = 0, maximum = 100 } = props;
   if (limitsFromPv && value?.display.controlRange) {
@@ -66,7 +68,7 @@ export const TankComponent = (
   }
 
   const units = value?.display.units ?? "";
-  const numValue = value?.getDoubleValue() ?? 0;
+  const numValue = dTypeGetDoubleValue(value) ?? 0;
 
   // Show a warning if min is bigger than max and apply precision if provided
   let label = "";
@@ -132,7 +134,7 @@ export const TankComponent = (
           {
             data: [numValue],
             stack: "total",
-            color: fillColor.toString(),
+            color: fillColor.colorString,
             label: pvName?.toString(),
             type: "bar",
             valueFormatter: val => {
@@ -145,7 +147,7 @@ export const TankComponent = (
             // This is the empty part of the tank
             data: [maximum - numValue],
             stack: "total",
-            color: emptyColor.toString(),
+            color: emptyColor.colorString,
             type: "bar",
             label: undefined,
             // Disable tooltip for this series
@@ -159,7 +161,7 @@ export const TankComponent = (
           border: 1,
           borderColor: "#D2D2D2",
           borderRadius: "4px",
-          backgroundColor: backgroundColor.toString()
+          backgroundColor: backgroundColor
         }}
       />
       <div
@@ -169,7 +171,7 @@ export const TankComponent = (
           width: "100%",
           color: "#000000",
           alignContent: "center",
-          ...font?.css()
+          ...fontToCss(font)
         }}
       >
         {label}

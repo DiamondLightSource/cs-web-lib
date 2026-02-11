@@ -14,6 +14,8 @@ import {
   BorderPropOpt,
   ColorPropOpt
 } from "../propTypes";
+import { borderToCss } from "../../../types/border";
+import { fontToCss } from "../../../types/font";
 
 const DropDownContainerProps = {
   title: StringProp,
@@ -38,13 +40,13 @@ export const DropDownComponent = (
     className={classes.Detail}
     open={props.open ?? false}
     style={{
-      ...props.border?.css(),
-      color: props.foregroundColor?.toString() ?? "",
-      backgroundColor: props.backgroundColor?.toString() ?? "",
+      ...borderToCss(props.border),
+      color: props.foregroundColor?.colorString ?? "",
+      backgroundColor: props.backgroundColor?.colorString ?? "",
       minHeight: props.minHeight ?? ""
     }}
   >
-    <summary className={classes.Summary} style={{ ...props.font?.css() }}>
+    <summary className={classes.Summary} style={{ ...fontToCss(props.font) }}>
       {props.title}
     </summary>
     <div

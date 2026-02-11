@@ -16,6 +16,7 @@ import {
   BorderPropOpt,
   ColorPropOpt
 } from "../propTypes";
+import { borderToCss } from "../../../types/border";
 
 export const SlideshowProps = {
   children: PropTypes.arrayOf(PropTypes.element),
@@ -83,8 +84,8 @@ export const SlideshowComponent = (
         maxWidth: props.maxWidth ?? "",
         maxHeight: props.maxHeight ?? "",
         minHeight: props.minHeight ?? "",
-        ...props.border?.css(),
-        backgroundColor: props.backgroundColor?.toString()
+        ...borderToCss(props.border),
+        backgroundColor: props.backgroundColor?.colorString
       }}
     >
       <button

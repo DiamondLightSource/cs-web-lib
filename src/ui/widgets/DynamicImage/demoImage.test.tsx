@@ -1,12 +1,12 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { DemoImageComponent } from "./demoImage";
-import { Color } from "../../../types/color";
+import { ColorUtils, newColor } from "../../../types/color";
 
 describe("DemoImageComponent", () => {
   it("renders an img with the expected src and alt text", () => {
     render(
-      <DemoImageComponent macros={{}} backgroundColor={new Color("#123456")} />
+      <DemoImageComponent macros={{}} backgroundColor={newColor("#123456")} />
     );
 
     const img = screen.getByRole("img", { name: /Static demo image/i });
@@ -19,7 +19,7 @@ describe("DemoImageComponent", () => {
     render(
       <DemoImageComponent
         macros={{}}
-        backgroundColor={Color.fromRgba(12, 24, 48)}
+        backgroundColor={ColorUtils.fromRgba(12, 24, 48)}
       />
     );
 

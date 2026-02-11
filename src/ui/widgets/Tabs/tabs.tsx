@@ -8,7 +8,7 @@ import {
   Tabs,
   useTheme
 } from "@mui/material";
-import { Color, Font } from "../../../types";
+import { ColorUtils } from "../../../types";
 import { Close } from "@mui/icons-material";
 import PropTypes from "prop-types";
 import {
@@ -19,6 +19,7 @@ import {
   FuncPropOpt,
   InferWidgetProps
 } from "../propTypes";
+import { fontToCss, newFont } from "../../../types/font";
 
 const Tab = styled(MuiTab)({
   padding: 0,
@@ -60,8 +61,8 @@ export const TabBar = (
     tabWidth = 100,
     tabHeight = 30,
     tabSpacing = 0,
-    selectedColor = Color.fromRgba(236, 236, 236),
-    deselectedColor = Color.fromRgba(200, 200, 200),
+    selectedColor = ColorUtils.fromRgba(236, 236, 236),
+    deselectedColor = ColorUtils.fromRgba(200, 200, 200),
     activeTab = 0,
     visible = true
   } = props;
@@ -69,7 +70,7 @@ export const TabBar = (
 
   const font =
     props.font ??
-    new Font(theme.typography.fontSize, undefined, theme.typography.fontFamily);
+    newFont(theme.typography.fontSize, undefined, theme.typography.fontFamily);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     const element = event.target as HTMLElement;
@@ -99,7 +100,7 @@ export const TabBar = (
           minHeight: direction ? "100%" : tabHeight,
           minWidth: direction ? tabWidth : "100%",
           display: "flex",
-          font: font.css(),
+          font: fontToCss(font) as React.CSSProperties,
           "& .MuiTabs-indicator": {
             backgroundColor: "transparent"
           }
@@ -136,11 +137,11 @@ export const TabBar = (
               }
               sx={{
                 "&.Mui-selected": {
-                  backgroundColor: selectedColor.toString(),
+                  backgroundColor: selectedColor.colorString,
                   color: "black"
                 },
                 boxShadow: 3,
-                backgroundColor: deselectedColor.toString(),
+                backgroundColor: deselectedColor.colorString,
                 marginRight: direction ? "0px" : `${tabSpacing}px`,
                 marginBottom: direction ? `${tabSpacing}px` : "0px",
                 "&.MuiTab-root": {

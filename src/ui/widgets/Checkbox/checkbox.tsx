@@ -16,8 +16,9 @@ import {
   useTheme
 } from "@mui/material";
 import { writePv } from "../../hooks/useSubscription";
-import { DType } from "../../../types";
 import { getPvValueAndName } from "../utils";
+import { newDType, dTypeGetDoubleValue } from "../../../types/dtypes";
+import { fontToCss } from "../../../types/font";
 
 export const CheckboxProps = {
   label: StringPropOpt,
@@ -68,11 +69,11 @@ export const CheckboxComponent = (
   const theme = useTheme();
   const { enabled = true, label = "Label", pvData } = props;
   const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
-  const checked = Boolean(value?.getDoubleValue());
+  const checked = Boolean(dTypeGetDoubleValue(value));
 
   const handleChange = (event: any): void => {
     if (pvName) {
-      writePv(pvName, new DType({ doubleValue: Number(event.target.checked) }));
+      writePv(pvName, newDType({ doubleValue: Number(event.target.checked) }));
     }
   };
 
@@ -81,10 +82,10 @@ export const CheckboxComponent = (
       disabled={!enabled}
       sx={{
         color:
-          props.foregroundColor?.toString() ??
+          props.foregroundColor?.colorString ??
           theme.palette.primary.contrastText,
         ".MuiFormControlLabel-label": {
-          fontFamily: props.font?.css() ?? theme.typography
+          fontFamily: fontToCss(props.font) ?? theme.typography
         }
       }}
       control={
@@ -95,7 +96,8 @@ export const CheckboxComponent = (
           sx={{
             padding: 0,
             "&.MuiSvgIcon-root": {
-              fontSize: props.font?.css().fontSize ?? theme.typography.fontSize
+              fontSize:
+                fontToCss(props.font)?.fontSize ?? theme.typography.fontSize
             }
           }}
         />

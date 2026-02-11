@@ -1,7 +1,7 @@
 /* eslint no-template-curly-in-string: 0 */
 import React from "react";
 import { useMacros } from "./useMacros";
-import { PV } from "../../types/pv";
+import { newPV, pvQualifiedName } from "../../types/pv";
 import { contextRender } from "../../testResources";
 import { CsState } from "../../redux/csState";
 
@@ -104,7 +104,7 @@ describe("useMacros", (): void => {
     expect(resolvedProps.prop.subprop).toEqual("Bb");
   });
   it("resolves macros in actions", (): void => {
-    const props = { pvName: new PV("hello", "loc"), actions: actionsProp };
+    const props = { pvName: newPV("hello", "loc"), actions: actionsProp };
     const resolvedProps = substituteMacros(props);
     const action1: any = resolvedProps?.actions?.actions[0];
     expect(action1.writePvInfo.pvName).toEqual("C:SUFFIX");
@@ -113,9 +113,9 @@ describe("useMacros", (): void => {
     expect(action2.writePvInfo.pvName).toEqual("hello");
   });
   it("resolves macros in PV object", (): void => {
-    const props = { pvName: new PV("PREFIX:${c}", "xxx") };
+    const props = { pvName: newPV("PREFIX:${c}", "xxx") };
     const resolvedProps = substituteMacros(props);
-    expect(resolvedProps?.pvName?.qualifiedName()).toEqual("xxx://PREFIX:C");
+    expect(pvQualifiedName(resolvedProps?.pvName)).toEqual("xxx://PREFIX:C");
   });
   it("returns empty array for empty array", (): void => {
     const props = { arrayProp: [] };

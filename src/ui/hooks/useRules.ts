@@ -6,12 +6,18 @@ import { CsState } from "../../redux/csState";
 
 import { PvArrayResults, pvStateSelector, pvStateComparator } from "./utils";
 import { AnyProps } from "../widgets/widgetProps";
-import { AlarmQuality, DType } from "../../types/dtypes";
+import {
+  dTypeCoerceString,
+  dTypeGetAlarm,
+  dTypeGetDoubleValue,
+  AlarmQuality
+} from "../../types/dtypes";
 import { SubscriptionType } from "../../connection/plugin";
-import { Border, BorderStyle } from "../../types/border";
-import { Color } from "../../types/color";
+import { BorderStyle, newBorder } from "../../types/border";
+import { ColorUtils } from "../../types/color";
 import { opiParseColor } from "../widgets/EmbeddedDisplay/opiParser";
 import { parseArrayString } from "../../misc/stringUtils";
+import { pvQualifiedName } from "../../types/pv";
 
 // See https://stackoverflow.com/questions/54542318/using-an-enum-as-a-dictionary-key
 type EnumDictionary<T extends string | symbol | number, U> = {
@@ -35,7 +41,7 @@ export function useRules(props: AnyProps): AnyProps {
   let pvNotConnected = false;
   for (const rule of rules) {
     for (const pv of rule.pvs) {
-      allPvs.push(pv.pvName.qualifiedName());
+      allPvs.push(pvQualifiedName(pv.pvName));
       allTypes.push({ string: true, double: true });
     }
   }
@@ -52,7 +58,7 @@ export function useRules(props: AnyProps): AnyProps {
     const pvVars: { [pvName: string]: number | string | undefined } = {};
     for (let i = 0; i < pvs.length; i++) {
       // Set up variables that might be used.
-      const pvState = results[pvs[i].pvName.qualifiedName()][0];
+      const pvState = results[pvQualifiedName(pvs[i].pvName)][0];
       if (!pvState?.connected) {
         log.debug(`Rule ${name}: pv ${pvs[i].pvName} not connected`);
         pvNotConnected = true;
@@ -64,12 +70,12 @@ export function useRules(props: AnyProps): AnyProps {
       let stringValue = undefined;
       let severity = undefined;
       if (val) {
-        doubleValue = val.getDoubleValue();
+        doubleValue = dTypeGetDoubleValue(val);
         intValue =
           doubleValue === undefined ? undefined : Math.round(doubleValue);
-        stringValue = DType.coerceString(val);
+        stringValue = dTypeCoerceString(val);
         value = doubleValue ?? stringValue;
-        severity = INT_SEVERITIES[val.getAlarm()?.quality || 0];
+        severity = INT_SEVERITIES[dTypeGetAlarm(val)?.quality || 0];
       }
 
       pvVars["pv" + i] = value;
@@ -97,9 +103,9 @@ export function useRules(props: AnyProps): AnyProps {
                 if (newProps.border) {
                   newProps["border"]["width"] = Number(exp.value._text);
                 } else {
-                  newProps.border = new Border(
+                  newProps.border = newBorder(
                     BorderStyle.None,
-                    Color.BLACK,
+                    ColorUtils.BLACK,
                     Number(exp.value._text)
                   );
                 }
@@ -108,7 +114,7 @@ export function useRules(props: AnyProps): AnyProps {
                 if (newProps.border) {
                   newProps["border"]["color"] = opiParseColor(exp.value);
                 } else {
-                  newProps.border = new Border(
+                  newProps.border = newBorder(
                     BorderStyle.None,
                     opiParseColor(exp.value),
                     0
@@ -155,7 +161,11 @@ export function useRules(props: AnyProps): AnyProps {
       }
       // If any PV does not connect, add a disconnected border.
       if (pvNotConnected) {
-        newProps.border = new Border(BorderStyle.Dotted, Color.DISCONNECTED, 3);
+        newProps.border = newBorder(
+          BorderStyle.Dotted,
+          ColorUtils.DISCONNECTED,
+          3
+        );
       }
     } catch (error) {
       log.warn(`Failed to evaluate rule ${name}: ${error}`);

@@ -17,6 +17,8 @@ import { FileContext } from "../../../misc/fileContext";
 import { MenuItem, Select, SelectChangeEvent, useTheme } from "@mui/material";
 import { getPvValueAndName } from "../utils";
 import log from "loglevel";
+import { dTypeGetStringValue } from "../../../types/dtypes";
+import { fontToCss } from "../../../types/font";
 
 export const MenuButtonProps = {
   foregroundColor: ColorPropOpt,
@@ -48,10 +50,12 @@ export const MenuButtonComponent = (
     itemsFromPv = true,
     pvData,
     label,
-    foregroundColor = theme.palette.primary.contrastText,
-    backgroundColor = theme.palette.primary.main,
     items = ["Item 1", "Item 2"]
   } = props;
+  const foregroundColor =
+    props.foregroundColor?.colorString ?? theme.palette.primary.contrastText;
+  const backgroundColor =
+    props.backgroundColor?.colorString ?? theme.palette.primary.main;
   const files = useContext(FileContext);
   const fromPv = actionsFromPv && itemsFromPv;
   let actions: any[] = props.actions?.actions ?? [];
@@ -71,7 +75,7 @@ export const MenuButtonComponent = (
   // Using value to dictate displayed value as described here: https://reactjs.org/docs/forms.html#the-select-tag
   // Show nothing by default where there is only one option, or warning of no PV
   const [displayValue, setDisplayValue] = useState(
-    (value?.getStringValue() ?? pvName) ? "" : "No PV"
+    (dTypeGetStringValue(value) ?? pvName) ? "" : "No PV"
   );
 
   // Disable PV if not connected, or if we requested options from PV and got none
@@ -104,7 +108,7 @@ export const MenuButtonComponent = (
 
   useEffect(() => {
     if (value) {
-      setDisplayValue(value.getStringValue() ?? "");
+      setDisplayValue(dTypeGetStringValue(value) ?? "");
     }
   }, [value]);
 
@@ -114,8 +118,8 @@ export const MenuButtonComponent = (
         key={index}
         value={text}
         sx={{
-          fontFamily: props.font?.css() ?? "",
-          color: foregroundColor.toString()
+          fontFamily: fontToCss(props.font) ?? "",
+          color: foregroundColor
         }}
       >
         {text}
@@ -154,7 +158,7 @@ export const MenuButtonComponent = (
         slotProps: {
           paper: {
             sx: {
-              backgroundColor: backgroundColor.toString()
+              backgroundColor: backgroundColor
             }
           }
         }
@@ -165,7 +169,7 @@ export const MenuButtonComponent = (
         height: "100%",
         width: "100%",
         textAlignLast: "center",
-        backgroundColor: backgroundColor.toString(),
+        backgroundColor: backgroundColor,
         "&:hover .MuiOutlinedInput-notchedOutline": {
           borderWidth: "1px",
           borderColor: "#1976d2"
@@ -175,8 +179,8 @@ export const MenuButtonComponent = (
           borderColor: "#1976d2"
         },
         "& .MuiSelect-outlined": {
-          fontFamily: props.font?.css() ?? "",
-          color: foregroundColor.toString()
+          fontFamily: fontToCss(props.font) ?? "",
+          color: foregroundColor
         }
       }}
     >

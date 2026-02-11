@@ -1,11 +1,11 @@
-import { Color } from "./color";
+import { newColor } from "./color";
 import { Axis } from "./axis";
-import { Font, FontStyle } from "./font";
+import { FontStyle, newFont } from "./font";
 
 describe("Axis", () => {
   it("constructs the x axis with values", (): void => {
     const testValues = {
-      color: new Color("rgb(24, 76, 155"),
+      color: newColor("rgb(24, 76, 155"),
       title: "Testing",
       showGrid: true,
       logScale: true,
@@ -13,22 +13,25 @@ describe("Axis", () => {
       minimum: 100,
       maximum: 200,
       visible: false,
-      scaleFont: new Font(20, FontStyle.Italic),
-      titleFont: new Font(40),
+      scaleFont: newFont(20, FontStyle.Italic),
+      titleFont: newFont(40),
       onRight: true,
       xAxis: true
     };
     const axis = new Axis(testValues);
 
-    expect(axis).toEqual(testValues);
+    expect({ ...axis, color: axis.color.colorString }).toEqual({
+      ...testValues,
+      color: testValues.color.colorString
+    });
     expect(axis).toBeInstanceOf(Axis);
   });
 
   it("constructs the y axis with only defaults", (): void => {
     const axis = new Axis({ xAxis: false });
 
-    expect(axis).toEqual({
-      color: new Color("rgb(0, 0, 0"),
+    expect({ ...axis, color: axis.color.colorString }).toEqual({
+      color: newColor("rgb(0, 0, 0)").colorString,
       title: "Y",
       showGrid: false,
       visible: true,
@@ -36,8 +39,8 @@ describe("Axis", () => {
       autoscale: false,
       minimum: 0,
       maximum: 100,
-      scaleFont: new Font(12),
-      titleFont: new Font(14, FontStyle.Bold),
+      scaleFont: newFont(12),
+      titleFont: newFont(14, FontStyle.Bold),
       onRight: false,
       xAxis: false
     });

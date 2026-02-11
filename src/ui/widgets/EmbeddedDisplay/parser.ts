@@ -16,9 +16,9 @@ import { GenericProp } from "../../../types/props";
 import { WidgetDescription } from "../createComponent";
 import { StringProp, PositionProp } from "../propTypes";
 import { ElementCompact } from "xml-js";
-import { PV } from "../../../types";
 import { snakeCaseToCamelCase } from "../utils";
 import { MacroMap } from "../../../types/macros";
+import { PVUtils } from "../../../types/pv";
 
 // Specific widgets we should allow empty string parsing for
 const PARSE_EMPTY_STRINGS = [
@@ -121,11 +121,11 @@ export async function genericParser(
   // Parse PV names out of traces for plots into pv property
   if (newProps.hasOwnProperty("traces")) {
     newProps.pvMetadataList = newProps.traces?.map((trace: any) => ({
-      pvName: PV.parse(trace.yPv)
+      pvName: PVUtils.parse(trace.yPv)
     }));
   } else if (newProps.hasOwnProperty("plt")) {
     newProps.pvMetadataList = newProps.plt.pvlist.map((trace: any) => ({
-      pvName: PV.parse(trace.yPv)
+      pvName: PVUtils.parse(trace.yPv)
     }));
   }
 

@@ -9,9 +9,10 @@ import {
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import classes from "./byteMonitor.module.css";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { getPvValueAndName } from "../utils";
+import { dTypeGetDoubleValue } from "../../../types/dtypes";
 
 export const ByteMonitorProps = {
   width: IntPropOpt,
@@ -46,10 +47,10 @@ export const ByteMonitorComponent = (
     startBit = 0,
     horizontal = true,
     bitReverse = false,
-    onColor = Color.fromRgba(0, 255, 0),
-    offColor = Color.fromRgba(0, 100, 0),
+    onColor = ColorUtils.fromRgba(0, 255, 0),
+    offColor = ColorUtils.fromRgba(0, 100, 0),
     ledBorder = 2,
-    ledBorderColor = Color.fromRgba(50, 50, 50, 178), // dark grey
+    ledBorderColor = ColorUtils.fromRgba(50, 50, 50, 178), // dark grey
     square = false,
     effect3d = false,
     width = WIDGET_DEFAULT_SIZES["byte_monitor"][0],
@@ -58,7 +59,7 @@ export const ByteMonitorComponent = (
   const { value } = getPvValueAndName(pvData);
 
   // Check for a value, otherwise set to 0
-  const doubleValue = value?.getDoubleValue() || 0;
+  const doubleValue = dTypeGetDoubleValue(value) || 0;
   // Check numBits isn't out of bounds
   let numBits = props.numBits || 8;
   if (numBits < 1) numBits = 1;
@@ -88,10 +89,10 @@ export const ByteMonitorComponent = (
     }
     // Set color based on bit
     style["backgroundColor"] = data
-      ? onColor?.toString()
-      : offColor?.toString();
+      ? onColor?.colorString
+      : offColor?.colorString;
     // Set border color and thickness
-    style["borderColor"] = ledBorderColor.toString();
+    style["borderColor"] = ledBorderColor.colorString;
     style["borderWidth"] = `${borderWidth}px`;
     // Set shape as square or circular
     if (square) {
@@ -111,7 +112,7 @@ export const ByteMonitorComponent = (
       // For ellipse, border is different in 3D. For square it is the same
       // but the LED has a shadow
       style["backgroundImage"] = `radial-gradient(circle at top left, white, ${
-        data ? onColor?.toString() : offColor?.toString()
+        data ? onColor?.colorString : offColor?.colorString
       })`;
       if (!square) {
         style["borderColor"] = "transparent";

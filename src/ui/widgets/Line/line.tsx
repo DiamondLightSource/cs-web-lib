@@ -12,7 +12,7 @@ import {
   IntPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 import { Point } from "../../../types/points";
 
 const LineProps = {
@@ -37,7 +37,7 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
   const {
     visible = true,
     transparent = false,
-    backgroundColor = Color.fromRgba(0, 0, 255),
+    backgroundColor = ColorUtils.fromRgba(0, 0, 255),
     rotationAngle = 0,
     lineWidth = 3,
     points,
@@ -49,9 +49,9 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
   } = props;
 
   let color = (function () {
-    if (lineColor) return lineColor.toString();
-    else if (backgroundColor) return backgroundColor.toString();
-    else return Color.fromRgba(0, 0, 255).toString();
+    if (lineColor) return lineColor.colorString;
+    else if (backgroundColor) return backgroundColor.colorString;
+    else return ColorUtils.fromRgba(0, 0, 255).colorString;
   })();
 
   const dashStyle = (function () {
@@ -70,7 +70,7 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
   })();
 
   if (transparent) color = "transparent";
-  // const color = transparent ? "transparent" : backgroundColor.toString();
+
   const transform = `rotation(${rotationAngle},0,0)`;
 
   // Each marker definition needs a unique ID or colours overlap

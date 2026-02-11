@@ -12,7 +12,7 @@ import {
   StringArrayPropOpt,
   StringPropOpt
 } from "../propTypes";
-import { DType } from "../../../types/dtypes";
+import { dTypeGetDoubleValue, newDType } from "../../../types/dtypes";
 import { writePv } from "../../hooks/useSubscription";
 import {
   ToggleButton as MuiToggleButton,
@@ -20,8 +20,9 @@ import {
   ToggleButtonGroup,
   useTheme
 } from "@mui/material";
-import { Color } from "../../../types";
 import { getPvValueAndName } from "../utils";
+import { ColorUtils } from "../../../types/color";
+import { fontToCss } from "../../../types/font";
 
 const ChoiceButtonProps = {
   pvName: StringPropOpt,
@@ -77,14 +78,19 @@ export const ChoiceButtonComponent = (
     itemsFromPv = true,
     items = ["Item 1", "Item 2"],
     horizontal = true,
-    foregroundColor = theme.palette.primary.contrastText,
-    backgroundColor = theme.palette.primary.main,
-    selectedColor = Color.fromRgba(200, 200, 200)
+    selectedColor = ColorUtils.fromRgba(200, 200, 200)
   } = props;
   const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
 
-  const font = props.font?.css() ?? theme.typography;
-  const [selected, setSelected] = useState(value?.getDoubleValue());
+  const foregroundColor =
+    props.foregroundColor?.colorString ?? theme.palette.primary.contrastText;
+  const backgroundColor =
+    props.backgroundColor?.colorString ?? theme.palette.primary.main;
+
+  const font = fontToCss(props.font) ?? theme.typography;
+  const [selected, setSelected] = useState(
+    value ? dTypeGetDoubleValue(value) : value
+  );
 
   // Use items from file, unless itemsFRomPv set
   let options = items;
@@ -96,7 +102,7 @@ export const ChoiceButtonComponent = (
   // of the component as it causes too many re-renders error
   useEffect(() => {
     if (value) {
-      setSelected(value.getDoubleValue());
+      setSelected(dTypeGetDoubleValue(value));
     }
   }, [value]);
 
@@ -112,7 +118,7 @@ export const ChoiceButtonComponent = (
   ) => {
     // Write to PV
     if (pvName) {
-      writePv(pvName, new DType({ doubleValue: newSelect }));
+      writePv(pvName, newDType({ doubleValue: newSelect }));
     }
     setSelected(newSelect);
   };
@@ -141,17 +147,17 @@ export const ChoiceButtonComponent = (
               width: buttonWidth,
               height: buttonHeight,
               fontFamily: font,
-              color: foregroundColor.toString(),
-              backgroundColor: backgroundColor.toString(),
+              color: foregroundColor,
+              backgroundColor: backgroundColor,
               "&.Mui-selected": {
-                backgroundColor: selectedColor.toString()
+                backgroundColor: selectedColor.colorString
               },
               "&.Mui-selected:hover": {
-                backgroundColor: selectedColor.toString(),
+                backgroundColor: selectedColor.colorString,
                 opacity: 0.6
               },
               "&:hover": {
-                backgroundColor: backgroundColor.toString(),
+                backgroundColor: backgroundColor,
                 opacity: 0.6
               }
             }}

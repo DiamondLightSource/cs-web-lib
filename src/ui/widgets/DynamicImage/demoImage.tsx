@@ -26,7 +26,7 @@ export const DemoImageComponent = (
         height: "100%",
         display: "block",
         objectFit: "contain",
-        backgroundColor: props?.backgroundColor?.toString()
+        backgroundColor: props?.backgroundColor?.colorString
       }}
     />
   );

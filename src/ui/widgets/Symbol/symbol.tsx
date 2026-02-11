@@ -17,11 +17,17 @@ import {
 import { registerWidget } from "../register";
 import { ImageComponent } from "../Image/image";
 import { LabelComponent } from "../Label/label";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 import { executeActions, WidgetActions } from "../widgetActions";
 import { MacroContext } from "../../../types/macros";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
-import { DType } from "../../../types/dtypes";
+import {
+  DType,
+  dTypeCoerceArray,
+  dTypeCoerceDouble,
+  dTypeGetArrayValue,
+  dTypeGetStringValue
+} from "../../../types/dtypes";
 import classes from "./symbol.module.css";
 import { getPvValueAndName } from "../utils";
 
@@ -74,13 +80,13 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
     initialIndex = 0,
     fallbackSymbol = "https://cs-web-symbol.diamond.ac.uk/catalogue/default_symbol.png",
     transparent = true,
-    backgroundColor = "white",
     showBooleanLabel = false,
     enabled = true,
     preserveRatio = true,
     pvData
   } = props;
   const { value } = getPvValueAndName(pvData);
+  const backgroundColor = props.backgroundColor?.colorString ?? "white";
 
   const style = commonCss(props as any);
   // If symbols and not imagefile, we're in a bob file
@@ -94,7 +100,7 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
   let imageFile = isBob ? (symbols[index] ?? symbols[0]) : props.imageFile;
   // If no provided image file
   if (!imageFile) imageFile = fallbackSymbol;
-  const intValue = DType.coerceDouble(value);
+  const intValue = dTypeCoerceDouble(value);
   if (!isNaN(intValue) && !isBob) {
     imageFile = imageFile.replace(regex, ` ${intValue.toFixed(0)}.`);
   }
@@ -172,9 +178,7 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
             onClick={onClick}
             style={{
               ...style,
-              backgroundColor: transparent
-                ? "transparent"
-                : backgroundColor.toString(),
+              backgroundColor: transparent ? "transparent" : backgroundColor,
               alignItems: alignItems,
               justifyContent: justifyContent
             }}
@@ -183,8 +187,8 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
               <LabelComponent
                 {...props}
                 textAlignV="bottom"
-                backgroundColor={Color.TRANSPARENT}
-                text={value?.getStringValue()}
+                backgroundColor={ColorUtils.TRANSPARENT}
+                text={dTypeGetStringValue(value)}
               ></LabelComponent>
             </div>
           </div>
@@ -223,14 +227,15 @@ function convertValueToIndex(
   // If no value, use initialIndex
   if (value === undefined) return initialIndex;
   // First we check if we have a string
-  const isArray = value.getArrayValue()?.length !== undefined ? true : false;
+  const isArray =
+    dTypeGetArrayValue(value)?.length !== undefined ? true : false;
   if (isArray) {
     // If is array, get index
-    const arrayValue = DType.coerceArray(value);
+    const arrayValue = dTypeCoerceArray(value);
     const idx = Number(arrayValue[arrayIndex]);
     return Math.floor(idx);
   } else {
-    const intValue = DType.coerceDouble(value);
+    const intValue = dTypeCoerceDouble(value);
     if (!isNaN(intValue)) return Math.floor(intValue);
   }
   return initialIndex;

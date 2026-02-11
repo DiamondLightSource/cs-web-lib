@@ -14,6 +14,8 @@ import {
   ColorPropOpt,
   BorderPropOpt
 } from "../propTypes";
+import { borderToCss } from "../../../types/border";
+import { fontToCss } from "../../../types/font";
 
 export const DrawerProps = {
   anchor: ChoicePropOpt(["left", "right", "top", "bottom"]),
@@ -42,10 +44,10 @@ export const DrawerComponent = (
         style={{
           height: "100%",
           width: "100%",
-          ...props.font?.css(),
-          ...props.border?.css(),
-          color: props.foregroundColor?.toString(),
-          backgroundColor: props.backgroundColor?.toString()
+          ...fontToCss(props.font),
+          ...borderToCss(props.border),
+          color: props.foregroundColor?.colorString,
+          backgroundColor: props.backgroundColor?.colorString
         }}
       >
         {props.text ?? "\u2630"}

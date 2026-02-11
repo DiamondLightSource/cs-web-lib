@@ -21,11 +21,11 @@ import {
 import { xml2js, ElementCompact } from "xml-js";
 import log from "loglevel";
 import {
-  Position,
-  AbsolutePosition,
-  RelativePosition
+  newAbsolutePosition,
+  newRelativePosition,
+  Position
 } from "../../../types/position";
-import { PV } from "../../../types/pv";
+import { PV, pvQualifiedName } from "../../../types/pv";
 import { OpiFile, Rule, Script } from "../../../types/props";
 import {
   OPEN_PAGE,
@@ -34,11 +34,16 @@ import {
   WidgetActions,
   WRITE_PV
 } from "../widgetActions";
-import { Font, FontStyle } from "../../../types/font";
-import { Border, BorderStyle } from "../../../types/border";
-import { Color } from "../../../types/color";
+import { Font, FontStyle, newFont } from "../../../types/font";
+import {
+  Border,
+  borderNONE,
+  BorderStyle,
+  newBorder
+} from "../../../types/border";
+import { ColorUtils } from "../../../types/color";
 import { WidgetDescription } from "../createComponent";
-import { Point, Points } from "../../../types/points";
+import { newPoint, newPoints, Point, Points } from "../../../types/points";
 import { Axis } from "../../../types/axis";
 import { Trace } from "../../../types/trace";
 import { parsePlt } from "./pltParser";
@@ -135,7 +140,7 @@ export function bobParseNumber(jsonProp: ElementCompact): number | undefined {
 function bobParsePosition(props: any): Position {
   // Find type of widget and map to default width and height for that widget
   const widget = props._attributes.type;
-  return new AbsolutePosition(
+  return newAbsolutePosition(
     `${bobParseNumber(props.x) ?? 0}px`,
     `${bobParseNumber(props.y) ?? 0}px`,
     `${bobParseNumber(props.width) ?? WIDGET_DEFAULT_SIZES[widget][0]}px`,
@@ -162,12 +167,12 @@ export function bobParseFont(jsonProp: ElementCompact): Font {
   };
   const fontAttributes = jsonProp["font"]._attributes;
   const { family, size, style } = fontAttributes;
-  return new Font(Number(size), opiStyles[style], family);
+  return newFont(Number(size), opiStyles[style], family);
 }
 
 function bobParseBorder(props: any): Border {
   let width: number | undefined = 0;
-  let borderColor = Color.BLACK;
+  let borderColor = ColorUtils.BLACK;
   try {
     width = bobParseNumber(props.border_width);
     borderColor = opiParseColor(props.border_color);
@@ -175,9 +180,9 @@ function bobParseBorder(props: any): Border {
     // Default to width 0 -> no border
   }
   if (width) {
-    return new Border(BorderStyle.Line, borderColor, width);
+    return newBorder(BorderStyle.Line, borderColor, width);
   } else {
-    return Border.NONE;
+    return borderNONE;
   }
 }
 
@@ -226,9 +231,9 @@ function bobParsePoints(props: any): Points {
   const points: Array<Point> = [];
   props.point.forEach((point: any) => {
     const pointData = point._attributes;
-    points.push(new Point(Number(pointData["x"]), Number(pointData["y"])));
+    points.push(newPoint(Number(pointData["x"]), Number(pointData["y"])));
   });
-  return new Points(points);
+  return newPoints(points);
 }
 
 /**
@@ -420,10 +425,9 @@ export function bobParseActions(
         processedActions.actions.push({
           type: WRITE_PV,
           writePvInfo: {
-            pvName: opiParsePvName(
-              action.pv_name,
-              defaultProtocol
-            ).qualifiedName(),
+            pvName: pvQualifiedName(
+              opiParsePvName(action.pv_name, defaultProtocol)
+            ),
             value: action.value._text,
             description:
               (action.description && action.description._text) || undefined
@@ -616,7 +620,7 @@ export async function parseBob(
     macros
   );
 
-  displayWidget.position = new RelativePosition(
+  displayWidget.position = newRelativePosition(
     displayWidget.position.x,
     displayWidget.position.y,
     displayWidget.position.width,

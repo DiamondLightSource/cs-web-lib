@@ -1,12 +1,12 @@
 import React from "react";
 import { DisplayComponent } from "./display";
 import { Label } from "../Label/label";
-import { RelativePosition } from "../../../types/position";
+import { newRelativePosition } from "../../../types/position";
 import { contextRender } from "../../../testResources";
 
 const display = (
   <DisplayComponent id="id1">
-    <Label text="hello" position={new RelativePosition()} />
+    <Label text="hello" position={newRelativePosition()} />
   </DisplayComponent>
 );
 

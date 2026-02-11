@@ -1,12 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { buildStatusRegions } from "./linearMeterUtilities";
-import { Color } from "../../../types";
+import { colorChangeAlpha, ColorUtils } from "../../../types/color";
 
 describe("buildStatusRegions", () => {
   const mockColors = () => ({
-    normalStatusColor: Color.fromRgba(194, 198, 195, 1),
-    minorWarningColor: Color.fromRgba(242, 148, 141, 1),
-    majorWarningColor: Color.fromRgba(240, 60, 46, 1),
+    normalStatusColor: ColorUtils.fromRgba(194, 198, 195, 1),
+    minorWarningColor: ColorUtils.fromRgba(242, 148, 141, 1),
+    majorWarningColor: ColorUtils.fromRgba(240, 60, 46, 1),
     isHighlightingOfActiveRegionsEnabled: true
   });
 
@@ -28,7 +28,7 @@ describe("buildStatusRegions", () => {
     expect(result[0]).toEqual({
       minimum: 0,
       maximum: 100,
-      fill: colors.normalStatusColor.toString()
+      fill: colors.normalStatusColor.colorString
     });
   });
 
@@ -41,31 +41,31 @@ describe("buildStatusRegions", () => {
     expect(result[0]).toEqual({
       minimum: 0,
       maximum: 10,
-      fill: colors.majorWarningColor.changeAlpha(0.1).toString()
+      fill: colorChangeAlpha(colors.majorWarningColor, 0.1).colorString
     });
 
     expect(result[1]).toEqual({
       minimum: 10,
       maximum: 20,
-      fill: colors.minorWarningColor.changeAlpha(0.1).toString()
+      fill: colorChangeAlpha(colors.minorWarningColor, 0.1).colorString
     });
 
     expect(result[2]).toEqual({
       minimum: 20,
       maximum: 80,
-      fill: colors.normalStatusColor.toString()
+      fill: colors.normalStatusColor.colorString
     });
 
     expect(result[3]).toEqual({
       minimum: 80,
       maximum: 90,
-      fill: colors.minorWarningColor.changeAlpha(0.1).toString()
+      fill: colorChangeAlpha(colors.minorWarningColor, 0.1).colorString
     });
 
     expect(result[4]).toEqual({
       minimum: 90,
       maximum: 100,
-      fill: colors.majorWarningColor.changeAlpha(0.1).toString()
+      fill: colorChangeAlpha(colors.majorWarningColor, 0.1).colorString
     });
   });
 
@@ -78,14 +78,14 @@ describe("buildStatusRegions", () => {
       90,
       0,
       100,
-      mockColors,
+      mockColors(),
       true,
       5
     );
 
-    expect(result[0].fill).toEqual(colors.majorWarningColor.toString());
+    expect(result[0].fill).toEqual(colors.majorWarningColor.colorString);
     expect(result[1].fill).toEqual(
-      colors.minorWarningColor.changeAlpha(0.1).toString()
+      colorChangeAlpha(colors.minorWarningColor, 0.1).colorString
     );
   });
 
@@ -99,15 +99,15 @@ describe("buildStatusRegions", () => {
       90,
       0,
       100,
-      mockColors,
+      mockColors(),
       true,
       15
     );
 
     expect(result[0].fill).toEqual(
-      colors.majorWarningColor.changeAlpha(0.1).toString()
+      colorChangeAlpha(colors.majorWarningColor, 0.1).colorString
     );
-    expect(result[1].fill).toEqual(colors.minorWarningColor.toString());
+    expect(result[1].fill).toEqual(colors.minorWarningColor.colorString);
   });
 
   it("should highlight HIGH band when value is in HIGH range", () => {
@@ -115,9 +115,9 @@ describe("buildStatusRegions", () => {
     const result = buildStatusRegions(10, 20, 80, 90, 0, 100, colors, true, 85);
 
     expect(result[2].fill).toEqual(
-      colors.normalStatusColor.changeAlpha(0.1).toString()
+      colorChangeAlpha(colors.normalStatusColor, 0.1).colorString
     );
-    expect(result[3].fill).toEqual(colors.minorWarningColor.toString());
+    expect(result[3].fill).toEqual(colors.minorWarningColor.colorString);
   });
 
   it("should highlight HIHI band when value is in HIHI range", () => {
@@ -125,9 +125,9 @@ describe("buildStatusRegions", () => {
     const result = buildStatusRegions(10, 20, 80, 90, 0, 100, colors, true, 95);
 
     expect(result[3].fill).toEqual(
-      colors.minorWarningColor.changeAlpha(0.1).toString()
+      colorChangeAlpha(colors.minorWarningColor, 0.1).colorString
     );
-    expect(result[4].fill).toEqual(colors.majorWarningColor.toString());
+    expect(result[4].fill).toEqual(colors.majorWarningColor.colorString);
   });
 
   it("should handle undefined levels correctly", () => {
@@ -139,7 +139,7 @@ describe("buildStatusRegions", () => {
       undefined,
       0,
       100,
-      mockColors,
+      mockColors(),
       true,
       50
     );
@@ -149,13 +149,13 @@ describe("buildStatusRegions", () => {
     expect(result[0]).toEqual({
       minimum: 0,
       maximum: 20,
-      fill: colors.minorWarningColor.changeAlpha(0.1).toString()
+      fill: colorChangeAlpha(colors.minorWarningColor, 0.1).colorString
     });
 
     expect(result[1]).toEqual({
       minimum: 20,
       maximum: 80,
-      fill: colors.normalStatusColor.toString()
+      fill: colors.normalStatusColor.colorString
     });
   });
 
@@ -168,33 +168,33 @@ describe("buildStatusRegions", () => {
     expect(result[0]).toEqual({
       minimum: 0,
       maximum: 20,
-      fill: colors.majorWarningColor.changeAlpha(0.1).toString()
+      fill: colorChangeAlpha(colors.majorWarningColor, 0.1).colorString
     });
 
     expect(result[1]).toEqual({
       minimum: 20,
       maximum: 80,
-      fill: colors.normalStatusColor.toString()
+      fill: colors.normalStatusColor.colorString
     });
 
     expect(result[2]).toEqual({
       minimum: 80,
       maximum: 90,
-      fill: colors.minorWarningColor.changeAlpha(0.1).toString()
+      fill: colorChangeAlpha(colors.minorWarningColor, 0.1).colorString
     });
 
     expect(result[3]).toEqual({
       minimum: 90,
       maximum: 100,
-      fill: colors.majorWarningColor.changeAlpha(0.1).toString()
+      fill: colorChangeAlpha(colors.majorWarningColor, 0.1).colorString
     });
   });
 
   it("should use custom colors when provided", () => {
     const customColors = {
-      normalStatusColor: Color.fromRgba(100, 100, 100, 1),
-      minorWarningColor: Color.fromRgba(150, 150, 150, 1),
-      majorWarningColor: Color.fromRgba(200, 200, 200, 1),
+      normalStatusColor: ColorUtils.fromRgba(100, 100, 100, 1),
+      minorWarningColor: ColorUtils.fromRgba(150, 150, 150, 1),
+      majorWarningColor: ColorUtils.fromRgba(200, 200, 200, 1),
       isHighlightingOfActiveRegionsEnabled: true
     };
 
@@ -211,12 +211,12 @@ describe("buildStatusRegions", () => {
     );
 
     expect(result[0].fill).toEqual(
-      customColors.majorWarningColor.changeAlpha(0.1).toString()
+      colorChangeAlpha(customColors.majorWarningColor, 0.1).colorString
     );
     expect(result[1].fill).toEqual(
-      customColors.minorWarningColor.changeAlpha(0.1).toString()
+      colorChangeAlpha(customColors.minorWarningColor, 0.1).colorString
     );
-    expect(result[2].fill).toEqual(customColors.normalStatusColor.toString());
+    expect(result[2].fill).toEqual(customColors.normalStatusColor.colorString);
   });
 
   it("should not change alpha when highlighting is disabled", () => {
@@ -238,13 +238,13 @@ describe("buildStatusRegions", () => {
     );
 
     expect(result[0].fill).toEqual(
-      noHighlightColors.majorWarningColor.toString()
+      noHighlightColors.majorWarningColor.colorString
     );
     expect(result[1].fill).toEqual(
-      noHighlightColors.minorWarningColor.toString()
+      noHighlightColors.minorWarningColor.colorString
     );
     expect(result[2].fill).toEqual(
-      noHighlightColors.normalStatusColor.toString()
+      noHighlightColors.normalStatusColor.colorString
     );
   });
 
@@ -260,19 +260,19 @@ describe("buildStatusRegions", () => {
     expect(result[0]).toEqual({
       minimum: 15,
       maximum: 20,
-      fill: colors.minorWarningColor.toString()
+      fill: colors.minorWarningColor.colorString
     });
 
     expect(result[1]).toEqual({
       minimum: 20,
       maximum: 80,
-      fill: colors.normalStatusColor.toString()
+      fill: colors.normalStatusColor.colorString
     });
 
     expect(result[2]).toEqual({
       minimum: 80,
       maximum: 85,
-      fill: colors.minorWarningColor.toString()
+      fill: colors.minorWarningColor.colorString
     });
   });
 
@@ -288,7 +288,7 @@ describe("buildStatusRegions", () => {
     expect(result[0]).toEqual({
       minimum: -10,
       maximum: 5,
-      fill: colors.majorWarningColor.toString()
+      fill: colors.majorWarningColor.colorString
     });
   });
 
@@ -314,13 +314,13 @@ describe("buildStatusRegions", () => {
     expect(result[0]).toEqual({
       minimum: -10,
       maximum: 10,
-      fill: colors.majorWarningColor.toString()
+      fill: colors.majorWarningColor.colorString
     });
 
     expect(result[1]).toEqual({
       minimum: 10,
       maximum: 15,
-      fill: colors.minorWarningColor.toString()
+      fill: colors.minorWarningColor.colorString
     });
   });
 
@@ -346,19 +346,19 @@ describe("buildStatusRegions", () => {
     expect(result[0]).toEqual({
       minimum: -10,
       maximum: 10,
-      fill: colors.majorWarningColor.toString()
+      fill: colors.majorWarningColor.colorString
     });
 
     expect(result[1]).toEqual({
       minimum: 10,
       maximum: 20,
-      fill: colors.minorWarningColor.toString()
+      fill: colors.minorWarningColor.colorString
     });
 
     expect(result[2]).toEqual({
       minimum: 20,
       maximum: 50,
-      fill: colors.normalStatusColor.toString()
+      fill: colors.normalStatusColor.colorString
     });
   });
 
@@ -384,25 +384,25 @@ describe("buildStatusRegions", () => {
     expect(result[0]).toEqual({
       minimum: -10,
       maximum: 10,
-      fill: colors.majorWarningColor.toString()
+      fill: colors.majorWarningColor.colorString
     });
 
     expect(result[1]).toEqual({
       minimum: 10,
       maximum: 20,
-      fill: colors.minorWarningColor.toString()
+      fill: colors.minorWarningColor.colorString
     });
 
     expect(result[2]).toEqual({
       minimum: 20,
       maximum: 80,
-      fill: colors.normalStatusColor.toString()
+      fill: colors.normalStatusColor.colorString
     });
 
     expect(result[3]).toEqual({
       minimum: 80,
       maximum: 85,
-      fill: colors.minorWarningColor.toString()
+      fill: colors.minorWarningColor.colorString
     });
   });
 
@@ -428,7 +428,7 @@ describe("buildStatusRegions", () => {
     expect(result[0]).toEqual({
       minimum: 95,
       maximum: 150,
-      fill: colors.majorWarningColor.toString()
+      fill: colors.majorWarningColor.colorString
     });
   });
 
@@ -454,13 +454,13 @@ describe("buildStatusRegions", () => {
     expect(result[0]).toEqual({
       minimum: 85,
       maximum: 90,
-      fill: colors.minorWarningColor.toString()
+      fill: colors.minorWarningColor.colorString
     });
 
     expect(result[1]).toEqual({
       minimum: 90,
       maximum: 150,
-      fill: colors.majorWarningColor.toString()
+      fill: colors.majorWarningColor.colorString
     });
   });
 
@@ -486,19 +486,19 @@ describe("buildStatusRegions", () => {
     expect(result[0]).toEqual({
       minimum: 50,
       maximum: 80,
-      fill: colors.normalStatusColor.toString()
+      fill: colors.normalStatusColor.colorString
     });
 
     expect(result[1]).toEqual({
       minimum: 80,
       maximum: 90,
-      fill: colors.minorWarningColor.toString()
+      fill: colors.minorWarningColor.colorString
     });
 
     expect(result[2]).toEqual({
       minimum: 90,
       maximum: 150,
-      fill: colors.majorWarningColor.toString()
+      fill: colors.majorWarningColor.colorString
     });
   });
 
@@ -524,25 +524,25 @@ describe("buildStatusRegions", () => {
     expect(result[0]).toEqual({
       minimum: 15,
       maximum: 20,
-      fill: colors.minorWarningColor.toString()
+      fill: colors.minorWarningColor.colorString
     });
 
     expect(result[1]).toEqual({
       minimum: 20,
       maximum: 80,
-      fill: colors.normalStatusColor.toString()
+      fill: colors.normalStatusColor.colorString
     });
 
     expect(result[2]).toEqual({
       minimum: 80,
       maximum: 90,
-      fill: colors.minorWarningColor.toString()
+      fill: colors.minorWarningColor.colorString
     });
 
     expect(result[3]).toEqual({
       minimum: 90,
       maximum: 150,
-      fill: colors.majorWarningColor.toString()
+      fill: colors.majorWarningColor.colorString
     });
   });
 });

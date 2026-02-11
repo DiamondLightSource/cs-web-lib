@@ -1,10 +1,9 @@
 import React from "react";
-import { DType, DAlarm } from "./types/dtypes";
 import { FileProvider, PageState, TabState } from "./misc/fileContext";
 import { render, RenderResult } from "@testing-library/react";
 import { Provider } from "react-redux";
 import { MacroContext } from "./types/macros";
-import { csReducer, CsState } from "./redux/csState";
+import csReducer, { CsState } from "./redux/csState";
 import { configureStore } from "@reduxjs/toolkit";
 
 import { BrowserRouter as Router } from "react-router";
@@ -14,27 +13,28 @@ import {
   WritePv,
   WRITE_PV
 } from "./ui/widgets/widgetActions";
+import { DAlarm, DAlarmNONE, DType, newDType } from "./types/dtypes";
 
 // Helper functions for dtypes.
 export function ddouble(
   doubleValue: number,
-  alarm: DAlarm = DAlarm.NONE
+  alarm: DAlarm = DAlarmNONE()
 ): DType {
-  return new DType({ doubleValue: doubleValue }, alarm);
+  return newDType({ doubleValue: doubleValue }, alarm);
 }
 
 export function ddoubleArray(
   arrayValue: number[],
-  alarm: DAlarm = DAlarm.NONE
+  alarm: DAlarm = DAlarmNONE()
 ): DType {
-  return new DType({ arrayValue: Float64Array.from(arrayValue) }, alarm);
+  return newDType({ arrayValue: Float64Array.from(arrayValue) }, alarm);
 }
 
 export function dstring(
   stringValue: string,
-  alarm: DAlarm = DAlarm.NONE
+  alarm: DAlarm = DAlarmNONE()
 ): DType {
-  return new DType({ stringValue: stringValue }, alarm);
+  return newDType({ stringValue: stringValue }, alarm);
 }
 
 // Test actions

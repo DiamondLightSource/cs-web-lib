@@ -1,10 +1,10 @@
 import log from "loglevel";
-import { PV } from "../../types";
 import { TimeSeriesPoint } from "../widgets/StripChart/stripChart";
 import { convertStringTimePeriod, trimArchiveData } from "../widgets/utils";
 import { useState, useEffect } from "react";
 import { Plt } from "../../types/plt";
 import { httpRequest } from "../../misc/httpClient";
+import { newPV, pvQualifiedName } from "../../types/pv";
 
 /**
  * Fetch archived data for each PV from archivers available
@@ -45,7 +45,7 @@ export function useArchivedData(plt: Plt): [TimeSeriesPoint[], boolean] {
           const json = await resp.json();
           json.forEach((data: any) => {
             // Trim each dataset down and push into fetchedData
-            const pvName = new PV(data.meta.name).qualifiedName();
+            const pvName = pvQualifiedName(newPV(data.meta.name));
             const trimmedData = trimArchiveData(
               plt.updatePeriod,
               plt.bufferSize,

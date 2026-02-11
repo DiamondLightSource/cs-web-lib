@@ -1,14 +1,8 @@
-import {
-  Action,
-  ValueChanged,
-  valueChangedAction,
-  VALUES_CHANGED
-} from "./actions";
 import { MiddlewareAPI, Middleware } from "@reduxjs/toolkit";
-import { CsState } from "./csState";
+import { valueChanged, valuesChanged } from "./csState";
 
 export class UpdateThrottle {
-  private queue: Action[];
+  private queue: ReturnType<typeof valueChanged>[];
   private started: boolean;
   private updateMillis: number;
 
@@ -18,7 +12,10 @@ export class UpdateThrottle {
     this.updateMillis = updateMillis;
   }
 
-  public queueUpdate(action: Action, store: MiddlewareAPI): void {
+  public queueUpdate(
+    action: ReturnType<typeof valueChanged>,
+    store: MiddlewareAPI
+  ): void {
     if (!this.started) {
       setInterval(() => this.sendQueue(store), this.updateMillis);
       this.started = true;
@@ -28,14 +25,14 @@ export class UpdateThrottle {
 
   public sendQueue(store: MiddlewareAPI): void {
     if (this.queue.length > 0) {
-      store.dispatch({ type: VALUES_CHANGED, payload: [...this.queue] });
+      store.dispatch(valuesChanged([...this.queue]));
       this.queue = [];
     }
   }
 }
 
 export const throttleMiddleware =
-  (updater: UpdateThrottle): Middleware<unknown, CsState> =>
+  (updater: UpdateThrottle): Middleware =>
   (
     store
     // next(action) returns the action, but in the case of a value being cached,
@@ -43,8 +40,8 @@ export const throttleMiddleware =
   ) =>
   next =>
   action => {
-    if (valueChangedAction.match(action)) {
-      updater.queueUpdate(action as ValueChanged, store);
+    if (valueChanged.match(action)) {
+      updater.queueUpdate(action, store);
     } else {
       return next(action);
     }

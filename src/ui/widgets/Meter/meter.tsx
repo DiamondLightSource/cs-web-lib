@@ -11,7 +11,7 @@ import {
   FontPropOpt,
   ColorPropOpt
 } from "../propTypes";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 import { GaugeComponent } from "react-gauge-component";
 import {
   buildSubArcs,
@@ -22,6 +22,8 @@ import {
   NumberFormatEnum
 } from "./meterUtilities";
 import { getPvValueAndName } from "../utils";
+import { dTypeGetDoubleValue } from "../../../types/dtypes";
+import { fontToCss } from "../../../types/font";
 
 export const MeterProps = {
   minimum: FloatPropOpt,
@@ -50,8 +52,8 @@ export const MeterComponent = (
     width = 240,
     limitsFromPv = true,
     font,
-    foregroundColor = Color.fromRgba(0, 0, 0, 1),
-    needleColor = Color.fromRgba(255, 5, 7, 1),
+    foregroundColor = ColorUtils.fromRgba(0, 0, 0, 1),
+    needleColor = ColorUtils.fromRgba(255, 5, 7, 1),
     precision = undefined,
     showUnits = true,
     showValue = true,
@@ -60,7 +62,7 @@ export const MeterComponent = (
   const { value } = getPvValueAndName(pvData);
 
   const units = value?.display.units ?? "";
-  const numValue = value?.getDoubleValue() ?? 0;
+  const numValue = dTypeGetDoubleValue(value) ?? 0;
 
   const getFormattedValue = useMemo(
     () => formatValue(numValue, format, precision ?? 3, units, showUnits),
@@ -69,7 +71,7 @@ export const MeterComponent = (
 
   const backgroundColor = transparent
     ? "transparent"
-    : (props.backgroundColor?.toString() ?? "rgba(250, 250, 250, 1)");
+    : (props.backgroundColor?.colorString ?? "rgba(250, 250, 250, 1)");
 
   const display = value?.display;
   const alarmRangeMin = convertInfAndNanToUndefined(display?.alarmRange?.min);
@@ -131,7 +133,7 @@ export const MeterComponent = (
           right: 0.09
         }}
         pointer={{
-          color: needleColor.toString(),
+          color: needleColor.colorString,
           elastic: false,
           animate: false,
           length: 0.95
@@ -140,7 +142,7 @@ export const MeterComponent = (
           padding: 0,
           cornerRadius: 0,
           subArcs: buildSubArcs(
-            foregroundColor.toString(),
+            foregroundColor.colorString,
             minimum,
             maximum,
             alarmRangeMin,
@@ -153,8 +155,8 @@ export const MeterComponent = (
         labels={{
           valueLabel: {
             style: {
-              fontFamily: font?.css().fontFamily,
-              fill: foregroundColor.toString(),
+              fontFamily: fontToCss(font)?.fontFamily,
+              fill: foregroundColor.colorString,
               textShadow: "none"
             },
             formatTextValue: getFormattedValue,
@@ -179,14 +181,14 @@ export const MeterComponent = (
             ),
             defaultTickValueConfig: {
               style: {
-                fill: foregroundColor.toString(),
+                fill: foregroundColor.colorString,
                 fontSize: `${scaledWidth * 0.04}px`,
                 textShadow: "none",
-                fontFamily: font?.css().fontFamily
+                fontFamily: fontToCss(font)?.fontFamily
               }
             },
             defaultTickLineConfig: {
-              color: foregroundColor.toString()
+              color: foregroundColor.colorString
             }
           }
         }}

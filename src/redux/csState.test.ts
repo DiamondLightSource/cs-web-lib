@@ -1,26 +1,28 @@
-import { csReducer, CsState } from "./csState";
+import csReducer, {
+  connectionChanged,
+  CsState,
+  deviceQueried,
+  subscribe,
+  valueChanged,
+  valuesChanged,
+  unsubscribe,
+  fileChanged,
+  refreshFile
+} from "./csState";
 import {
-  UNSUBSCRIBE,
-  SUBSCRIBE,
-  VALUE_CHANGED,
-  CONNECTION_CHANGED,
-  ConnectionChanged,
-  Subscribe,
-  Unsubscribe,
-  ValueChanged,
-  ValuesChanged,
-  VALUES_CHANGED,
-  DeviceQueried,
-  DEVICE_QUERIED,
-  RefreshFile,
-  FileChanged,
-  FILE_CHANGED,
-  REFRESH_FILE
-} from "./actions";
-import { AlarmQuality, DAlarm, DType } from "../types/dtypes";
+  DType,
+  dTypeGetAlarm,
+  dTypeGetArrayValue,
+  dTypeGetDoubleValue,
+  dTypeGetStringValue,
+  newDType,
+  AlarmQuality,
+  DAlarmMAJOR,
+  newDAlarm
+} from "../types/dtypes";
 import { ddouble, dstring, ddoubleArray } from "../testResources";
 import { WidgetDescription } from "../ui/widgets/createComponent";
-import { AbsolutePosition } from "../types";
+import { newAbsolutePosition } from "../types/position";
 
 const initialState: CsState = {
   valueCache: {
@@ -38,36 +40,48 @@ const initialState: CsState = {
   fileCache: {
     "mySecondFile.bob": {
       type: "ellipse",
-      position: new AbsolutePosition("0", "0", "0", "0")
+      position: newAbsolutePosition("0", "0", "0", "0")
     }
   }
 };
 
 describe("VALUES_CHANGED", (): void => {
   test("csReducer honours latest of multiple value updates", (): void => {
-    const action: ValuesChanged = {
-      type: VALUES_CHANGED,
+    const action: ReturnType<typeof valuesChanged> = {
+      type: "cs/valuesChanged",
       payload: [
-        { type: VALUE_CHANGED, payload: { pvName: "PV", value: ddouble(1) } },
-        { type: VALUE_CHANGED, payload: { pvName: "PV", value: ddouble(2) } }
+        {
+          type: "cs/valueChanged",
+          payload: { pvName: "PV", value: ddouble(1) }
+        },
+        {
+          type: "cs/valueChanged",
+          payload: { pvName: "PV", value: ddouble(2) }
+        }
       ]
     };
     const newState = csReducer(initialState, action);
     // expect the latter value
-    expect(newState.valueCache["PV"].value?.getDoubleValue()).toEqual(2);
+    expect(newState.valueCache["PV"].value).not.toBeUndefined();
+    expect(
+      dTypeGetDoubleValue(newState.valueCache["PV"].value as DType)
+    ).toEqual(2);
   });
   test("csReducer merges multiple value updates", (): void => {
-    const action: ValuesChanged = {
-      type: VALUES_CHANGED,
+    const action: ReturnType<typeof valuesChanged> = {
+      type: "cs/valuesChanged",
       payload: [
-        { type: VALUE_CHANGED, payload: { pvName: "PV", value: ddouble(1) } },
         {
-          type: VALUE_CHANGED,
+          type: "cs/valueChanged",
+          payload: { pvName: "PV", value: ddouble(1) }
+        },
+        {
+          type: "cs/valueChanged",
           payload: {
             pvName: "PV",
-            value: new DType(
+            value: newDType(
               {},
-              new DAlarm(AlarmQuality.ALARM, ""),
+              newDAlarm(AlarmQuality.ALARM, ""),
               undefined,
               undefined,
               true
@@ -78,27 +92,31 @@ describe("VALUES_CHANGED", (): void => {
     };
     const newState = csReducer(initialState, action);
     // value from first update and alarm from second update
-    expect(newState.valueCache["PV"].value?.getDoubleValue()).toEqual(1);
-    expect(newState.valueCache["PV"].value?.getAlarm().quality).toEqual(
-      AlarmQuality.ALARM
-    );
+    expect(
+      dTypeGetDoubleValue(newState.valueCache["PV"].value as DType)
+    ).toEqual(1);
+    expect(
+      dTypeGetAlarm(newState.valueCache["PV"].value as DType).quality
+    ).toEqual(AlarmQuality.ALARM);
   });
 });
 
 describe("VALUE_CHANGED", (): void => {
   test("csReducer handles value update", (): void => {
-    const action: ValueChanged = {
-      type: VALUE_CHANGED,
+    const action: ReturnType<typeof valueChanged> = {
+      type: "cs/valueChanged",
       payload: { pvName: "PV", value: ddouble(1) }
     };
     const newState = csReducer(initialState, action);
-    expect(newState?.valueCache["PV"].value?.getDoubleValue()).toEqual(1);
+    expect(
+      dTypeGetDoubleValue(newState.valueCache["PV"].value as DType)
+    ).toEqual(1);
   });
 
   test("csReducer handles alarm update", (): void => {
-    const majorAlarm = DAlarm.MAJOR;
-    const action: ValueChanged = {
-      type: VALUE_CHANGED,
+    const majorAlarm = DAlarmMAJOR();
+    const action: ReturnType<typeof valueChanged> = {
+      type: "cs/valueChanged",
       payload: {
         pvName: "PV",
         value: ddouble(0, majorAlarm)
@@ -106,12 +124,12 @@ describe("VALUE_CHANGED", (): void => {
     };
     const newState = csReducer(initialState, action);
     const newValue = newState.valueCache["PV"].value;
-    expect(newValue?.getAlarm()).toEqual(majorAlarm);
+    expect(dTypeGetAlarm(newValue)).toEqual(majorAlarm);
   });
 
   test("csReducer handles type update", (): void => {
-    const action: ValueChanged = {
-      type: VALUE_CHANGED,
+    const action: ReturnType<typeof valueChanged> = {
+      type: "cs/valueChanged",
       payload: {
         pvName: "PV",
         value: dstring("hello")
@@ -119,12 +137,12 @@ describe("VALUE_CHANGED", (): void => {
     };
     const newState = csReducer(initialState, action);
     const newValue = newState.valueCache["PV"].value;
-    expect(newValue?.getStringValue()).toEqual("hello");
+    expect(dTypeGetStringValue(newValue as DType)).toEqual("hello");
   });
 
   test("csReducer handles array type update", (): void => {
-    const action: ValueChanged = {
-      type: VALUE_CHANGED,
+    const action: ReturnType<typeof valueChanged> = {
+      type: "cs/valueChanged",
       payload: {
         pvName: "PV",
         value: ddoubleArray([1, 2, 3])
@@ -132,14 +150,16 @@ describe("VALUE_CHANGED", (): void => {
     };
     const newState = csReducer(initialState, action);
     const newValue = newState.valueCache["PV"].value;
-    expect(newValue?.getArrayValue()).toEqual(Float64Array.from([1, 2, 3]));
+    expect(dTypeGetArrayValue(newValue as DType)).toEqual(
+      Float64Array.from([1, 2, 3])
+    );
   });
 });
 
 describe("CONNECTION_CHANGED", (): void => {
   test("csReducer handles value update", (): void => {
-    const action: ConnectionChanged = {
-      type: CONNECTION_CHANGED,
+    const action: ReturnType<typeof connectionChanged> = {
+      type: "cs/connectionChanged",
       payload: { pvName: "PV", value: { isConnected: false, isReadonly: true } }
     };
     const newState = csReducer(initialState, action);
@@ -149,10 +169,10 @@ describe("CONNECTION_CHANGED", (): void => {
 
 describe("DEVICE_QUERIED", (): void => {
   test("csReducer adds device to deviceCache", (): void => {
-    const dtype = new DType({ stringValue: "42" });
+    const dtype = newDType({ stringValue: "42" });
     const deviceName = "testDevice";
-    const action: DeviceQueried = {
-      type: DEVICE_QUERIED,
+    const action: ReturnType<typeof deviceQueried> = {
+      type: "cs/deviceQueried",
       payload: { device: deviceName, value: dtype }
     };
 
@@ -162,8 +182,8 @@ describe("DEVICE_QUERIED", (): void => {
 });
 
 test("handles initializers", (): void => {
-  const action: Subscribe = {
-    type: SUBSCRIBE,
+  const action: ReturnType<typeof subscribe> = {
+    type: "cs/subscribe",
     payload: {
       pvName: "PV(1)",
       effectivePvName: "PV",
@@ -171,8 +191,8 @@ test("handles initializers", (): void => {
       type: { double: true }
     }
   };
-  const action2: Subscribe = {
-    type: SUBSCRIBE,
+  const action2: ReturnType<typeof subscribe> = {
+    type: "cs/subscribe",
     payload: {
       pvName: "PV(1)",
       effectivePvName: "PV",
@@ -184,13 +204,13 @@ test("handles initializers", (): void => {
   const state3 = csReducer(state2, action2);
   expect(state3.effectivePvNameMap["PV(1)"]).toEqual("PV");
 
-  const unsubAction: Unsubscribe = {
-    type: UNSUBSCRIBE,
+  const unsubAction: ReturnType<typeof unsubscribe> = {
+    type: "cs/unsubscribe",
     payload: { pvName: "PV(1)", componentId: "0" }
   };
 
-  const unsubAction2: Unsubscribe = {
-    type: UNSUBSCRIBE,
+  const unsubAction2: ReturnType<typeof unsubscribe> = {
+    type: "cs/unsubscribe",
     payload: { pvName: "PV(1)", componentId: "1" }
   };
 
@@ -204,11 +224,11 @@ describe("FILE_CHANGED", (): void => {
   test("csReducer adds file to fileCache", (): void => {
     const contents: WidgetDescription = {
       type: "shape",
-      position: new AbsolutePosition("0", "0", "0", "0")
+      position: newAbsolutePosition("0", "0", "0", "0")
     };
     const fileName = "myfile.bob";
-    const action: FileChanged = {
-      type: FILE_CHANGED,
+    const action: ReturnType<typeof fileChanged> = {
+      type: "cs/fileChanged",
       payload: { file: fileName, contents: contents }
     };
 
@@ -220,8 +240,8 @@ describe("FILE_CHANGED", (): void => {
 describe("REFRESH_FILE", (): void => {
   test("csReducer deletes the file entry from fileCache", (): void => {
     const fileName = "mySecondFile.bob";
-    const action: RefreshFile = {
-      type: REFRESH_FILE,
+    const action: ReturnType<typeof refreshFile> = {
+      type: "cs/refreshFile",
       payload: { file: fileName }
     };
 

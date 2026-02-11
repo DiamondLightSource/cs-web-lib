@@ -14,10 +14,11 @@ import {
   IntPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
-import { DType } from "../../../types/dtypes";
+import { dTypeGetDoubleValue, newDType } from "../../../types/dtypes";
 import { Slider, useTheme } from "@mui/material";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { getPvValueAndName } from "../utils";
+import { fontToCss } from "../../../types/font";
 
 export const SliderControlProps = {
   minimum: FloatPropOpt,
@@ -57,8 +58,6 @@ export const SlideControlComponent = (
     enabled = true,
     horizontal = true,
     limitsFromPv = false,
-    foregroundColor = theme.palette.primary.contrastText,
-    backgroundColor = theme.palette.primary.main,
     levelHihi = 90,
     levelHigh = 80,
     levelLow = 20,
@@ -73,10 +72,15 @@ export const SlideControlComponent = (
     width = WIDGET_DEFAULT_SIZES["scaledslider"][0],
     height = WIDGET_DEFAULT_SIZES["scaledslider"][1]
   } = props;
+  const foregroundColor =
+    props.foregroundColor?.colorString ?? theme.palette.primary.contrastText;
+  const backgroundColor =
+    props.backgroundColor?.colorString ?? theme.palette.primary.main;
+
   let { minimum = 0, maximum = 100 } = props;
   const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
 
-  const font = props.font?.css() ?? theme.typography;
+  const font = fontToCss(props.font) ?? theme.typography;
 
   if (limitsFromPv && value?.display.controlRange) {
     minimum = value.display.controlRange?.min;
@@ -126,19 +130,19 @@ export const SlideControlComponent = (
   }
 
   const [inputValue, setInputValue] = useState<number>(
-    value?.getDoubleValue() ?? 0
+    dTypeGetDoubleValue(value) ?? 0
   );
 
   useEffect(() => {
     if (value) {
-      setInputValue(value?.getDoubleValue() ?? 0);
+      setInputValue(dTypeGetDoubleValue(value) ?? 0);
     }
   }, [value]);
 
   function onMouseUp(value: number): void {
     if (pvName !== undefined) {
       try {
-        writePv(pvName, new DType({ doubleValue: value }));
+        writePv(pvName, newDType({ doubleValue: value }));
       } catch (error) {
         log.warn(`Unexpected value ${value} set to slider.`);
       }
@@ -194,7 +198,7 @@ export const SlideControlComponent = (
       marks={marks}
       step={increment}
       sx={{
-        color: foregroundColor.toString(),
+        color: foregroundColor,
         "& .MuiSlider-thumb": {
           height: 16,
           width: 16,
@@ -206,13 +210,13 @@ export const SlideControlComponent = (
         },
         "& .MuiSlider-valueLabelOpen": {
           fontFamily: font,
-          color: foregroundColor.toString(),
-          backgroundColor: backgroundColor.toString(),
+          color: foregroundColor,
+          backgroundColor: backgroundColor,
           opacity: 0.6
         },
         "& .MuiSlider-markLabel": {
           fontFamily: font,
-          color: foregroundColor.toString(),
+          color: foregroundColor,
           whiteSpace: "pre"
         },
         "&.Mui-disabled": {

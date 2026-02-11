@@ -1,21 +1,24 @@
 import { useDispatch, useSelector } from "react-redux";
-import { CsState } from "../../redux/csState";
+import {
+  CsState,
+  fileChanged,
+  refreshFile as refreshFileAction
+} from "../../redux/csState";
 import { fileComparator, fileSelector } from "./utils";
 import { MacroMap } from "../../types/macros";
 import { errorWidget, WidgetDescription } from "../widgets/createComponent";
 import { useEffect } from "react";
-import { FILE_CHANGED, REFRESH_FILE } from "../../redux/actions";
-import { AbsolutePosition } from "../../types";
 import { httpRequest } from "../../misc";
 import log from "loglevel";
 import { parseBob } from "../widgets/EmbeddedDisplay/bobParser";
 import { parseJson } from "../widgets/EmbeddedDisplay/jsonParser";
 import { parseOpi } from "../widgets/EmbeddedDisplay/opiParser";
 import { Store } from "redux";
+import { newAbsolutePosition } from "../../types/position";
 
 const EMPTY_WIDGET: WidgetDescription = {
   type: "shape",
-  position: new AbsolutePosition("0", "0", "0", "0")
+  position: newAbsolutePosition("0", "0", "0", "0")
 };
 
 export interface File {
@@ -30,7 +33,7 @@ export async function fetchAndConvert(
   macros?: MacroMap
 ): Promise<WidgetDescription> {
   try {
-    const parentDir = filepath.substr(0, filepath.lastIndexOf("/"));
+    const parentDir = filepath.slice(0, filepath.lastIndexOf("/"));
     const fileResponse = await httpRequest(filepath);
 
     const fileExt = filepath.split(".").pop() || "json";
@@ -81,12 +84,10 @@ export function useFile(file: File, macros?: MacroMap): WidgetDescription {
         macros
       );
       const contents = await fetchPromise;
+
       // Populate the file cache.
       if (isMounted) {
-        dispatch({
-          type: FILE_CHANGED,
-          payload: { file: file.path, contents: contents }
-        });
+        dispatch(fileChanged({ file: file.path, contents: contents }));
       }
     };
     fetchData();
@@ -101,8 +102,5 @@ export function useFile(file: File, macros?: MacroMap): WidgetDescription {
 }
 
 export function refreshFile(store: Store, file: string): void {
-  store.dispatch({
-    type: REFRESH_FILE,
-    payload: { file: file }
-  });
+  store.dispatch(refreshFileAction({ file: file }));
 }

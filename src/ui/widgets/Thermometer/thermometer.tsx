@@ -10,10 +10,10 @@ import {
   InferWidgetProps,
   ColorPropOpt
 } from "../propTypes";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 import { Box } from "@mui/material";
-import { DType } from "../../../types";
 import { getPvValueAndName } from "../utils";
+import { dTypeGetDoubleValue, DType } from "../../../types/dtypes";
 
 // This is the angle between vertical and the line from the center of the bulb to the intersection of the stem and bulb
 export const bulbStemAngle = Math.PI / 5;
@@ -52,15 +52,15 @@ export const ThermometerComponent = (
     limitsFromPv = false,
     height = 160,
     width = 40,
-    fillColor = Color.fromRgba(60, 255, 60, 1)
+    fillColor = ColorUtils.fromRgba(60, 255, 60, 1)
   } = props;
   const { value } = getPvValueAndName(pvData);
 
   const colors = useMemo(
     () => ({
       mercuryColor: fillColor,
-      backgroundColor: Color.fromRgba(230, 230, 230, 1),
-      borderColor: Color.fromRgba(75, 75, 75, 1)
+      backgroundColor: ColorUtils.fromRgba(230, 230, 230, 1),
+      borderColor: ColorUtils.fromRgba(75, 75, 75, 1)
     }),
     [fillColor]
   );
@@ -91,14 +91,14 @@ export const ThermometerComponent = (
     thermometerSvgGroup
       .append("path")
       .attr("d", thermometerPath.toString())
-      .attr("fill", colors.backgroundColor.toString())
-      .attr("stroke", colors.borderColor.toString())
+      .attr("fill", colors.backgroundColor.colorString)
+      .attr("stroke", colors.borderColor.colorString)
       .style("stroke-width", thermometerOutlineWidth);
 
     thermometerSvgGroup
       .append("path")
       .attr("d", mercuryBulbPath.toString())
-      .attr("fill", colors.mercuryColor.toString());
+      .attr("fill", colors.mercuryColor.colorString);
   }, [thermometerDimensions, colors]);
 
   useEffect(() => {
@@ -127,7 +127,7 @@ export const ThermometerComponent = (
         2 * thermometerDimensions.stemHalfWidth - thermometerOutlineWidth
       )
       .attr("height", mercuryHeight + thermometerOutlineWidth)
-      .attr("fill", colors.mercuryColor.toString());
+      .attr("fill", colors.mercuryColor.colorString);
   }, [value, maximum, minimum, thermometerDimensions, colors]);
 
   return (
@@ -270,7 +270,7 @@ export const calculateMercuryHeight = (
   verticalStemHeight: number,
   topOfStemY: number
 ) => {
-  const numValue = value?.getDoubleValue() ?? 0;
+  const numValue = dTypeGetDoubleValue(value) ?? 0;
   const safeValue = Math.max(minimum, Math.min(maximum, numValue));
 
   const emptyFractionOfStem = (maximum - safeValue) / (maximum - minimum);

@@ -10,10 +10,14 @@ import {
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import classes from "./led.module.css";
-import { DAlarm } from "../../../types/dtypes";
-import { Color } from "../../../types";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { getPvValueAndName } from "../utils";
+import {
+  dTypeGetAlarm,
+  dTypeGetDoubleValue,
+  DAlarmNONE
+} from "../../../types/dtypes";
+import { ColorUtils } from "../../../types/color";
 
 /**
  * width: the diameter of the LED
@@ -40,9 +44,9 @@ export type LedComponentProps = InferWidgetProps<typeof LedProps> & PVComponent;
 export const LedComponent = (props: LedComponentProps): JSX.Element => {
   const {
     pvData,
-    onColor = Color.fromRgba(0, 255, 0),
-    offColor = Color.fromRgba(60, 100, 60),
-    lineColor = Color.fromRgba(50, 50, 50, 178),
+    onColor = ColorUtils.fromRgba(0, 255, 0),
+    offColor = ColorUtils.fromRgba(60, 100, 60),
+    lineColor = ColorUtils.fromRgba(50, 50, 50, 178),
     width = WIDGET_DEFAULT_SIZES["led"][0],
     height = WIDGET_DEFAULT_SIZES["led"][1],
     alarmSensitive = false,
@@ -55,7 +59,7 @@ export const LedComponent = (props: LedComponentProps): JSX.Element => {
   const style: CSSProperties = {};
 
   let ledOn = false;
-  const doubleValue = value?.getDoubleValue();
+  const doubleValue = dTypeGetDoubleValue(value);
   if (doubleValue !== undefined) {
     if (bit < 0) {
       // Off if vlaue is 0, on otherwise.
@@ -65,8 +69,10 @@ export const LedComponent = (props: LedComponentProps): JSX.Element => {
       ledOn = ((1 << doubleValue) & bit) === bit;
     }
   }
-  style["backgroundColor"] = ledOn ? onColor?.toString() : offColor?.toString();
-  style["border"] = `2px solid ${lineColor.toString()}`;
+  style["backgroundColor"] = ledOn
+    ? onColor?.colorString
+    : offColor?.colorString;
+  style["border"] = `2px solid ${lineColor.colorString}`;
   style["borderRadius"] = square ? "0%" : "50%";
 
   // make sizes similar to size in CS-Studio, five taken
@@ -76,7 +82,7 @@ export const LedComponent = (props: LedComponentProps): JSX.Element => {
 
   let className = classes.Led;
   if (alarmSensitive) {
-    const alarm = value?.getAlarm() || DAlarm.NONE;
+    const alarm = dTypeGetAlarm(value) || DAlarmNONE();
     className += ` ${classes[alarm.quality]}`;
   }
 

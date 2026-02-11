@@ -1,24 +1,23 @@
 import log from "loglevel";
 import { Connection, ConnectionState } from "../connection/plugin";
-import {
-  connectionChangedAction,
-  valueChangedAction,
-  deviceQueriedAction,
-  subscribeAction,
-  writePvAction,
-  unsubscribeAction,
-  queryDeviceAction
-} from "./actions";
 import { DType } from "../types/dtypes";
 import { Middleware, MiddlewareAPI } from "@reduxjs/toolkit";
-import { CsState } from "./csState";
+import {
+  connectionChanged,
+  deviceQueried,
+  queryDevice,
+  subscribe,
+  unsubscribe,
+  valueChanged,
+  writePv
+} from "./csState";
 
 function connectionChangedDispatch(
   store: MiddlewareAPI,
   pvName: string,
   value: ConnectionState
 ): void {
-  store.dispatch(connectionChangedAction({ pvName, value }));
+  store.dispatch(connectionChanged({ pvName, value }));
 }
 
 function valueChangedDispatch(
@@ -26,7 +25,7 @@ function valueChangedDispatch(
   pvName: string,
   value: DType
 ): void {
-  store.dispatch(valueChangedAction({ pvName, value }));
+  store.dispatch(valueChanged({ pvName, value }));
 }
 
 function deviceQueriedDispatch(
@@ -34,11 +33,11 @@ function deviceQueriedDispatch(
   device: string,
   value: DType
 ): void {
-  store.dispatch(deviceQueriedAction({ device, value }));
+  store.dispatch(deviceQueried({ device, value }));
 }
 
 export const connectionMiddleware =
-  (connection: Connection): Middleware<unknown, CsState> =>
+  (connection: Connection): Middleware =>
   store =>
   next =>
   action => {
@@ -54,7 +53,7 @@ export const connectionMiddleware =
       );
     }
 
-    if (subscribeAction.match(action)) {
+    if (subscribe.match(action)) {
       const { pvName, type } = action.payload;
       // Are we already subscribed?
       let effectivePvName = pvName;
@@ -75,17 +74,17 @@ export const connectionMiddleware =
           pvName: pvName
         }
       };
-    } else if (writePvAction.match(action)) {
+    } else if (writePv.match(action)) {
       const { pvName, value } = action.payload;
       const effectivePvName =
         store.getState().effectivePvNameMap[pvName] || pvName;
       try {
-        connection.putPv(effectivePvName, value);
+        connection.putPv(effectivePvName, value as DType);
       } catch (error) {
         log.error(`Failed to put to pv ${pvName}`);
         log.error(error);
       }
-    } else if (unsubscribeAction.match(action)) {
+    } else if (unsubscribe.match(action)) {
       const { componentId, pvName } = action.payload;
       const subs = store.getState().subscriptions;
       // Is this the last subscriber?
@@ -94,6 +93,7 @@ export const connectionMiddleware =
         store.getState().effectivePvNameMap[pvName] || pvName;
 
       if (
+        subs[effectivePvName] &&
         subs[effectivePvName].length === 1 &&
         subs[effectivePvName][0] === componentId
       ) {
@@ -104,7 +104,7 @@ export const connectionMiddleware =
           log.error(error);
         }
       }
-    } else if (queryDeviceAction.match(action)) {
+    } else if (queryDevice.match(action)) {
       const { device } = action.payload;
       try {
         // Devices should be queried once and then stored

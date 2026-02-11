@@ -1,6 +1,12 @@
 import React from "react";
 import { MenuButtonComponent } from "./menuButton";
-import { DAlarm, DType, DDisplay } from "../../../types/dtypes";
+import {
+  newDDisplay,
+  newDTime,
+  DType,
+  newDType,
+  DAlarmNONE
+} from "../../../types/dtypes";
 import { ACTIONS_EX_FIRST } from "../../../testResources";
 import { act, fireEvent, render } from "@testing-library/react";
 import { vi } from "vitest";
@@ -8,6 +14,7 @@ import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
 import { PvDatum } from "../../../redux/csState";
 import * as useSubscription from "../../hooks/useSubscription";
+import { newColor } from "../../../types/color";
 
 const mockWritePv = vi
   .spyOn(useSubscription, "writePv")
@@ -24,16 +31,14 @@ const BASE_PROPS = {
       effectivePvName: "TEST:PV",
       connected: true,
       readonly: false,
-      value: {
-        getStringValue: () => "zero",
-        getTime: () => {
-          new Date(Date.now());
-        },
-        alarm: DAlarm.NONE,
-        display: new DDisplay({
+      value: newDType(
+        { doubleValue: 10, stringValue: "zero" },
+        DAlarmNONE(),
+        newDTime(new Date(Date.now())),
+        newDDisplay({
           choices: ["zero", "one", "two", "three", "four", "five"]
         })
-      } as Partial<DType> as DType
+      )
     } as Partial<PvDatum> as PvDatum
   ]
 };
@@ -70,8 +75,8 @@ describe("<MenuButton />", (): void => {
   test("it renders with style from props", (): void => {
     const props = {
       ...BASE_PROPS,
-      backgroundColor: "rgb(10, 240, 60)",
-      foregroundColor: "rgb(11, 16, 11)",
+      backgroundColor: newColor("rgb(10, 240, 60)"),
+      foregroundColor: newColor("rgb(11, 16, 11)"),
       itemsFromPv: false
     };
     const { getAllByRole, getByRole } = render(MenuButtonRenderer(props));
@@ -120,16 +125,14 @@ describe("<MenuButton />", (): void => {
           effectivePvName: "TEST:PV",
           connected: true,
           readonly: false,
-          value: {
-            getStringValue: () => "five",
-            getTime: () => {
-              new Date(Date.now());
-            },
-            alarm: DAlarm.NONE,
-            display: new DDisplay({
+          value: newDType(
+            { doubleValue: 10, stringValue: "five" },
+            DAlarmNONE(),
+            newDTime(new Date(Date.now())),
+            newDDisplay({
               choices: ["zero", "one", "two", "three", "four", "five"]
             })
-          } as Partial<DType> as DType
+          )
         } as Partial<PvDatum> as PvDatum
       ]
     };
@@ -151,16 +154,14 @@ describe("<MenuButton />", (): void => {
           effectivePvName: "TEST:PV",
           connected: true,
           readonly: false,
-          value: {
-            getStringValue: () => "one",
-            getTime: () => {
-              new Date(Date.now());
-            },
-            alarm: DAlarm.NONE,
-            display: new DDisplay({
+          value: newDType(
+            { doubleValue: 10, stringValue: "one" },
+            DAlarmNONE(),
+            newDTime(new Date(Date.now())),
+            newDDisplay({
               choices: ["one", "two"]
             })
-          } as Partial<DType> as DType
+          )
         } as Partial<PvDatum> as PvDatum
       ]
     };
@@ -177,7 +178,7 @@ describe("<MenuButton />", (): void => {
 
     expect(mockWritePv).toHaveBeenCalledWith(
       "TEST:PV",
-      new DType({ stringValue: "two" })
+      newDType({ stringValue: "two" })
     );
   });
 
@@ -201,7 +202,7 @@ describe("<MenuButton />", (): void => {
 
     expect(mockWritePv).toHaveBeenCalledWith(
       "TEST:PV",
-      new DType({ stringValue: "one" })
+      newDType({ stringValue: "one" })
     );
   });
 
@@ -229,8 +230,8 @@ describe("<MenuButton />", (): void => {
             getTime: () => {
               new Date(Date.now());
             },
-            alarm: DAlarm.NONE,
-            display: new DDisplay({
+            alarm: DAlarmNONE(),
+            display: newDDisplay({
               choices: ["one", "two"]
             })
           } as Partial<DType> as DType

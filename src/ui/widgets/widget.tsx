@@ -13,10 +13,14 @@ import {
   ConnectingComponentWidgetProps,
   PVWidgetComponent
 } from "./widgetProps";
-import { Border, BorderStyle } from "../../types/border";
-import { Color } from "../../types/color";
-import { AlarmQuality } from "../../types/dtypes";
-import { Font } from "../../types/font";
+import {
+  Border,
+  BorderStyle,
+  borderToCss,
+  newBorder
+} from "../../types/border";
+import { Color, ColorUtils, newColor } from "../../types/color";
+import { Font, fontToCss } from "../../types/font";
 import { OutlineContext } from "../../misc/outlineContext";
 import { ExitFileContext, FileContext } from "../../misc/fileContext";
 import { executeAction, WidgetAction, WidgetActions } from "./widgetActions";
@@ -25,7 +29,9 @@ import { resolveTooltip } from "./tooltip";
 import { useScripts } from "../hooks/useScripts";
 import { ScriptResponse } from "./EmbeddedDisplay/scripts/scriptExecutor";
 import { OPI_SIMPLE_PARSERS } from "./EmbeddedDisplay/opiParser";
-import { PositionPropNames } from "../../types/position";
+import { PositionPropNames, positionToCss } from "../../types/position";
+import { AlarmQuality, dTypeGetAlarm } from "../../types/dtypes";
+import { pvQualifiedName } from "../../types/pv";
 
 const ALARM_SEVERITY_MAP = {
   [AlarmQuality.ALARM]: 1,
@@ -37,12 +43,12 @@ const ALARM_SEVERITY_MAP = {
 };
 
 const AlarmColorsMap = {
-  [AlarmQuality.VALID]: Color.BLACK,
-  [AlarmQuality.WARNING]: Color.WARNING,
-  [AlarmQuality.ALARM]: Color.ALARM,
-  [AlarmQuality.INVALID]: Color.INVALID,
-  [AlarmQuality.UNDEFINED]: Color.UNDEFINED,
-  [AlarmQuality.CHANGING]: Color.CHANGING
+  [AlarmQuality.VALID]: ColorUtils.BLACK,
+  [AlarmQuality.WARNING]: ColorUtils.WARNING,
+  [AlarmQuality.ALARM]: ColorUtils.ALARM,
+  [AlarmQuality.INVALID]: ColorUtils.INVALID,
+  [AlarmQuality.UNDEFINED]: ColorUtils.UNDEFINED,
+  [AlarmQuality.CHANGING]: ColorUtils.CHANGING
 };
 
 const scriptResponseCallback =
@@ -63,7 +69,7 @@ const scriptResponseCallback =
       propKeys.forEach(propName => {
         const rawValue = scriptResponse.widgetProps[propName];
         const propValue =
-          rawValue?.type === "rgbaColor" ? new Color(rawValue?.text) : rawValue;
+          rawValue?.type === "rgbaColor" ? newColor(rawValue?.text) : rawValue;
 
         // remap to the correct internal property name in cs-web-lib
         const jsonPropName =
@@ -110,13 +116,13 @@ export function commonCss(props: {
   const visible = props.visible === undefined || props.visible;
   const backgroundColor = props.transparent
     ? "transparent"
-    : props.backgroundColor?.toString();
+    : props.backgroundColor?.colorString;
   const cursor =
     props.actions && props.actions.actions.length > 0 ? "pointer" : undefined;
   return {
-    ...props.border?.css(),
-    ...props.font?.css(),
-    color: props.foregroundColor?.toString(),
+    ...borderToCss(props.border),
+    ...fontToCss(props.font),
+    color: props.foregroundColor?.colorString,
     backgroundColor,
     cursor,
     visibility: visible ? undefined : "hidden"
@@ -158,7 +164,7 @@ export const ConnectingComponent = (props: {
         (e.currentTarget as HTMLDivElement).classList.add(
           tooltipClasses.Copying
         );
-        copyToClipboard(pvName.toString());
+        copyToClipboard(pvQualifiedName(pvName));
       }
       // Stop regular middle-click behaviour if showing tooltip.
       e.preventDefault();
@@ -178,7 +184,7 @@ export const ConnectingComponent = (props: {
 
   const { pvData } = useConnectionMultiplePv(
     id,
-    pvNames.map(x => x.qualifiedName())
+    pvNames.map(x => pvQualifiedName(x))
   );
 
   let border = props.widgetProps.border;
@@ -187,7 +193,7 @@ export const ConnectingComponent = (props: {
 
     if (alarmBorder && pvData) {
       alarmSeverity = pvData
-        .map(x => x.value?.getAlarm()?.quality ?? AlarmQuality.VALID)
+        .map(x => dTypeGetAlarm(x.value)?.quality ?? AlarmQuality.VALID)
         .reduce(
           (mostSevereSoFar, currentItem) =>
             ALARM_SEVERITY_MAP[mostSevereSoFar] <
@@ -199,9 +205,9 @@ export const ConnectingComponent = (props: {
     }
 
     if (alarmSeverity !== AlarmQuality.VALID) {
-      border = new Border(BorderStyle.Line, AlarmColorsMap[alarmSeverity], 2);
+      border = newBorder(BorderStyle.Line, AlarmColorsMap[alarmSeverity], 2);
     } else if (pvData && !pvData.every(x => x.connected)) {
-      border = new Border(BorderStyle.Dotted, Color.DISCONNECTED, 3);
+      border = newBorder(BorderStyle.Dotted, ColorUtils.DISCONNECTED, 3);
     }
   }
 
@@ -351,7 +357,7 @@ export const Widget = (props: PVWidgetComponent): JSX.Element => {
   // Calculate the inner div style here as it doesn't update frequently.
   const { showOutlines } = useContext(OutlineContext);
   const containerStyle = {
-    ...position.css(),
+    ...positionToCss(position),
     outline: showOutlines ? "1px dashed grey" : undefined,
     outlineOffset: showOutlines ? "-2px" : undefined
   };

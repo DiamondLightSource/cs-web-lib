@@ -20,10 +20,11 @@ import {
   createTraces,
   NewAxisSettings
 } from "./xyPlotOptions";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 import { getPvValueAndName, trimFromString } from "../utils";
 import { Trace } from "../../../types/trace";
 import { Axis } from "../../../types/axis";
+import { fontToCss } from "../../../types/font";
 
 export const XYPlotProps = {
   height: FloatPropOpt,
@@ -51,7 +52,7 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
     height = 250,
     width = 400,
     pvData,
-    plotBackgroundColor = Color.fromRgba(255, 255, 255),
+    plotBackgroundColor = ColorUtils.fromRgba(255, 255, 255),
     title = "",
     titleFont,
     showLegend = true,
@@ -79,9 +80,9 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
     if (showPlotBorder) {
       style = { border: "1px solid black", padding: "1px" };
     }
-    const font = titleFont?.css();
+    const font = fontToCss(titleFont) as React.CSSProperties;
     // Sometimes font is a string with "px" on the end
-    if (typeof font.fontSize === "string")
+    if (typeof font?.fontSize === "string")
       font.fontSize = trimFromString(font.fontSize);
 
     const newAxisOptions = createAxes(axes, font);
@@ -97,8 +98,8 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
         r: 5
       },
       overflow: "hidden",
-      paper_bgcolor: plotBackgroundColor.toString(),
-      plot_bgcolor: plotBackgroundColor.toString(),
+      paper_bgcolor: plotBackgroundColor.colorString,
+      plot_bgcolor: plotBackgroundColor.colorString,
       showlegend: showLegend,
       width: width - 5,
       height: height - 5,

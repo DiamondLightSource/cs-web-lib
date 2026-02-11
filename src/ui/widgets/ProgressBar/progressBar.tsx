@@ -12,8 +12,10 @@ import {
   BorderPropOpt
 } from "../propTypes";
 import { LinearProgress } from "@mui/material";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 import { getPvValueAndName } from "../utils";
+import { dTypeGetDoubleValue } from "../../../types/dtypes";
+import { fontToCss } from "../../../types/font";
 
 export const ProgressBarProps = {
   min: FloatPropOpt,
@@ -39,7 +41,7 @@ export const ProgressBarComponent = (
     showLabel = false,
     font,
     horizontal = true,
-    fillColor = Color.fromRgba(60, 255, 60),
+    fillColor = ColorUtils.fromRgba(60, 255, 60),
     precision = undefined,
     logScale = false,
     transparent = false // This property only exists in CSStudio, so default to false
@@ -49,14 +51,14 @@ export const ProgressBarComponent = (
 
   const backgroundColor = transparent
     ? "transparent"
-    : (props.backgroundColor?.toString() ?? "rgba(250, 250, 250, 255)");
+    : (props.backgroundColor?.colorString ?? "rgba(250, 250, 250, 255)");
 
   let { min = 0, max = 100 } = props;
   if (limitsFromPv && value?.display.controlRange) {
     min = value.display.controlRange?.min;
     max = value.display.controlRange?.max;
   }
-  const numValue = value?.getDoubleValue() ?? 0;
+  const numValue = dTypeGetDoubleValue(value) ?? 0;
   const percentCalc = logScale
     ? ((Math.log10(numValue) - Math.log10(min)) * 100) /
       (Math.log10(max) - Math.log10(min))
@@ -95,7 +97,7 @@ export const ProgressBarComponent = (
             transform: horizontal
               ? null
               : `translateY(${100 - percent}%)!important`.toString(),
-            backgroundColor: fillColor.toString()
+            backgroundColor: fillColor.colorString
           }
         }}
       />
@@ -107,7 +109,7 @@ export const ProgressBarComponent = (
           color: "#000000",
           alignContent: "center",
           transform: horizontal ? undefined : "rotate(-90deg)",
-          ...font?.css()
+          ...fontToCss(font)
         }}
       >
         {label}

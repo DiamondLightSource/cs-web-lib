@@ -1,7 +1,7 @@
 import React from "react";
 import { useConnection } from "./useConnection";
 import { contextRender, ddouble } from "../../testResources";
-import { DType } from "../../types/dtypes";
+import { DType, dTypeToString } from "../../types/dtypes";
 import { CsState } from "../../redux/csState";
 
 // Helper component to allow calling the useConnection hook.
@@ -15,7 +15,7 @@ const ConnectionTester = (props: { pvName?: string }): JSX.Element => {
       <div>effective pv name: {effectivePvName}</div>
       <div>connected: {connected.toString()}</div>
       <div>readonly: {readonly.toString()}</div>
-      <div>value: {value?.toString()}</div>
+      <div>value: {dTypeToString(value)}</div>
     </div>
   );
 };

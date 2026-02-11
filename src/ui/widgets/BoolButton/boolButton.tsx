@@ -12,13 +12,14 @@ import {
   FontPropOpt,
   ChoicePropOpt
 } from "../propTypes";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 import { writePv } from "../../hooks/useSubscription";
-import { DType } from "../../../types/dtypes";
+import { dTypeGetDoubleValue, newDType } from "../../../types/dtypes";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { Button as MuiButton, styled, useTheme } from "@mui/material";
 import { getPvValueAndName } from "../utils";
 import { LedComponent } from "../LED/led";
+import { fontToCss } from "../../../types/font";
 
 const BoolButtonProps = {
   pvName: StringPropOpt,
@@ -86,13 +87,11 @@ export const BoolButtonComponent = (
   const {
     width = WIDGET_DEFAULT_SIZES["bool_button"][0],
     height = WIDGET_DEFAULT_SIZES["bool_button"][1],
-    foregroundColor = theme.palette.primary.contrastText,
-    backgroundColor = theme.palette.primary.main,
     pvData,
     onState = 1,
     offState = 0,
-    onColor = Color.fromRgba(0, 255, 0),
-    offColor = Color.fromRgba(0, 100, 0),
+    onColor = ColorUtils.fromRgba(0, 255, 0),
+    offColor = ColorUtils.fromRgba(0, 100, 0),
     showBooleanLabel = true,
     showLed = true,
     labelsFromPv = false,
@@ -102,7 +101,12 @@ export const BoolButtonComponent = (
   } = props;
   const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
 
-  const font = props.font?.css() ?? theme.typography;
+  const foregroundColor =
+    props.foregroundColor?.colorString ?? theme.palette.primary.contrastText;
+  const backgroundColor =
+    props.backgroundColor?.colorString ?? theme.palette.primary.main;
+
+  const font = fontToCss(props.font) ?? theme.typography;
 
   // These could be overwritten by  PV labels
   let { onLabel = "On", offLabel = "Off" } = props;
@@ -117,8 +121,8 @@ export const BoolButtonComponent = (
 
   // Use useState for properties that change on click - text and color
   const [label, setLabel] = useState(showBooleanLabel ? offLabel : "");
-  const doubleValue = value?.getDoubleValue();
-  const [ledColor, setLedColor] = useState(offColor.toString());
+  const doubleValue = dTypeGetDoubleValue(value);
+  const [ledColor, setLedColor] = useState(offColor.colorString);
 
   // Establish LED style
   const ledDiameter = showLed ? getDimensions(width, height) : 0;
@@ -130,10 +134,10 @@ export const BoolButtonComponent = (
   useEffect(() => {
     if (doubleValue === onState) {
       if (showBooleanLabel) setLabel(onLabel);
-      setLedColor(onColor.toString());
+      setLedColor(onColor.colorString);
     } else if (doubleValue === offState) {
       if (showBooleanLabel) setLabel(offLabel);
-      setLedColor(offColor.toString());
+      setLedColor(offColor.colorString);
     }
   }, [
     doubleValue,
@@ -151,7 +155,7 @@ export const BoolButtonComponent = (
     if (pvName) {
       writePv(
         pvName,
-        new DType({
+        newDType({
           doubleValue: doubleValue === offState ? onState : offState
         })
       );
@@ -166,9 +170,9 @@ export const BoolButtonComponent = (
         disabled={!enabled}
         sx={{
           fontFamily: font,
-          color: foregroundColor.toString(),
+          color: foregroundColor,
           // If no LED, use on/off colours as background
-          backgroundColor: showLed ? backgroundColor.toString() : ledColor,
+          backgroundColor: showLed ? backgroundColor : ledColor,
           "&.MuiButton-root": {
             alignItems:
               textAlignV === "top"

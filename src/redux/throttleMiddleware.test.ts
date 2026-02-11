@@ -1,13 +1,7 @@
 import { UpdateThrottle, throttleMiddleware } from "./throttleMiddleware";
-import {
-  VALUE_CHANGED,
-  CONNECTION_CHANGED,
-  VALUES_CHANGED,
-  ValueChanged,
-  ConnectionChanged
-} from "./actions";
 import { ddouble } from "../testResources";
 import { vi } from "vitest";
+import { connectionChanged, valueChanged } from "./csState";
 
 // Mock setInterval.
 vi.useFakeTimers();
@@ -29,21 +23,23 @@ describe("UpdateThrottle", (): void => {
     };
     updater.queueUpdate(
       {
-        type: VALUE_CHANGED,
+        type: "cs/valueChanged",
         payload: payload1
       },
       mockStore
     );
     updater.queueUpdate(
       {
-        type: VALUE_CHANGED,
+        type: "cs/valueChanged",
         payload: payload2
       },
       mockStore
     );
     updater.sendQueue(mockStore);
     expect(mockStore.dispatch).toHaveBeenCalledTimes(1);
-    expect(mockStore.dispatch.mock.calls[0][0].type).toEqual(VALUES_CHANGED);
+    expect(mockStore.dispatch.mock.calls[0][0].type).toEqual(
+      "cs/valuesChanged"
+    );
   });
 });
 
@@ -59,8 +55,8 @@ describe("throttleMidddlware", (): void => {
     const mockNext = vi.fn();
     // actionHandler takes an action
     const actionHandler = nextHandler(mockNext);
-    const valueAction: ValueChanged = {
-      type: VALUE_CHANGED,
+    const valueAction: ReturnType<typeof valueChanged> = {
+      type: "cs/valueChanged",
       payload: { pvName: "pv", value: ddouble(0) }
     };
     actionHandler(valueAction);
@@ -68,7 +64,9 @@ describe("throttleMidddlware", (): void => {
     // manually trigger the dispatch
     updater.sendQueue(mockStore);
     expect(mockStore.dispatch).toHaveBeenCalledTimes(1);
-    expect(mockStore.dispatch.mock.calls[0][0].type).toEqual(VALUES_CHANGED);
+    expect(mockStore.dispatch.mock.calls[0][0].type).toEqual(
+      "cs/valuesChanged"
+    );
     // The value update is not passed on.
     expect(mockNext).not.toHaveBeenCalled();
   });
@@ -80,8 +78,8 @@ describe("throttleMidddlware", (): void => {
     const mockNext = vi.fn();
     // actionHandler takes an action
     const actionHandler = nextHandler(mockNext);
-    const connectionAction: ConnectionChanged = {
-      type: CONNECTION_CHANGED,
+    const connectionAction: ReturnType<typeof connectionChanged> = {
+      type: "cs/connectionChanged",
       payload: { pvName: "pv", value: { isReadonly: false, isConnected: true } }
     };
     actionHandler(connectionAction);

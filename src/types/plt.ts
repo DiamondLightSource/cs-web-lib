@@ -1,6 +1,6 @@
 import { Axes, Axis } from "./axis";
-import { Color } from "./color";
-import { Font } from "./font";
+import { Color, ColorUtils } from "./color";
+import { Font, newFont } from "./font";
 import { Trace } from "./trace";
 
 export class Plt {
@@ -29,17 +29,17 @@ export class Plt {
     title = "",
     axes = [new Axis()],
     pvlist = [new Trace()],
-    background = Color.WHITE,
-    foreground = Color.BLACK,
+    background = ColorUtils.WHITE,
+    foreground = ColorUtils.BLACK,
     scroll = true,
     grid = false,
     scrollStep = 5,
     updatePeriod = 0,
     bufferSize = 5000,
-    titleFont = new Font(),
-    labelFont = new Font(),
-    legendFont = new Font(),
-    scaleFont = new Font(),
+    titleFont = newFont(),
+    labelFont = newFont(),
+    legendFont = newFont(),
+    scaleFont = newFont(),
     start = "1 minute",
     end = "now"
   } = {}) {

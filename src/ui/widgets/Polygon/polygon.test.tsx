@@ -1,7 +1,7 @@
 import React from "react";
 import renderer, { ReactTestRendererJSON } from "react-test-renderer";
 import { PolygonComponent } from "./polygon";
-import { Color } from "../../../types/color";
+import { ColorUtils } from "../../../types/color";
 
 const PolygonRenderer = (polygonProps: any): ReactTestRendererJSON => {
   return renderer
@@ -15,8 +15,8 @@ describe("<PolygonComponent />", (): void => {
       height: 10,
       width: 20,
       lineWidth: 2,
-      lineColor: Color.fromRgba(0, 1, 255),
-      backgroundColor: Color.fromRgba(200, 1, 60),
+      lineColor: ColorUtils.fromRgba(0, 1, 255),
+      backgroundColor: ColorUtils.fromRgba(200, 1, 60),
       points: {
         values: [
           { x: 1, y: 10 },
@@ -43,8 +43,8 @@ describe("<PolygonComponent />", (): void => {
       height: 10,
       width: 20,
       lineWidth: 2,
-      lineColor: Color.fromRgba(0, 1, 255),
-      backgroundColor: Color.fromRgba(200, 1, 60),
+      lineColor: ColorUtils.fromRgba(0, 1, 255),
+      backgroundColor: ColorUtils.fromRgba(200, 1, 60),
       points: {
         values: [
           { x: 1, y: 10 },
@@ -69,8 +69,8 @@ describe("<PolygonComponent />", (): void => {
       height: 10,
       width: 20,
       lineWidth: 2,
-      lineColor: Color.fromRgba(0, 1, 255),
-      backgroundColor: Color.fromRgba(200, 1, 60),
+      lineColor: ColorUtils.fromRgba(0, 1, 255),
+      backgroundColor: ColorUtils.fromRgba(200, 1, 60),
       rotationAngle: 0
     };
 

@@ -11,7 +11,7 @@ import {
   IntPropOpt,
   MacrosPropOpt
 } from "../propTypes";
-import { Color } from "../../../types";
+import { ColorUtils } from "../../../types/color";
 
 const ShapeProps = {
   pvName: PvPropOpt,
@@ -31,9 +31,9 @@ export const ShapeComponent = (
   props: InferWidgetProps<typeof ShapeProps>
 ): JSX.Element => {
   const {
-    lineColor = Color.fromRgba(0, 0, 255),
+    lineColor = ColorUtils.fromRgba(0, 0, 255),
     lineWidth = 3,
-    backgroundColor = Color.fromRgba(30, 144, 255),
+    backgroundColor = ColorUtils.fromRgba(30, 144, 255),
     visible = true
   } = props;
   // Calculate radii of corners
@@ -43,7 +43,7 @@ export const ShapeComponent = (
 
   // Use line properties to set border, unless alarm border
   const style: CSSProperties = {
-    borderColor: lineColor.toString(),
+    borderColor: lineColor.colorString,
     borderWidth: lineWidth,
     borderRadius: cornerRadius,
     width: "100%",
@@ -51,7 +51,7 @@ export const ShapeComponent = (
     boxSizing: "border-box",
     backgroundColor: props.transparent
       ? "transparent"
-      : backgroundColor.toString(),
+      : backgroundColor.colorString,
     transform: props.shapeTransform ?? "",
     visibility: visible ? undefined : "hidden"
   };

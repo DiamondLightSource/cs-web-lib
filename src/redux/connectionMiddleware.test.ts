@@ -1,15 +1,8 @@
-import {
-  SUBSCRIBE,
-  Subscribe,
-  WRITE_PV,
-  WritePv,
-  QueryDevice,
-  QUERY_DEVICE
-} from "./actions";
 import { connectionMiddleware } from "./connectionMiddleware";
 import { ddouble } from "../testResources";
-import { DType } from "../types/dtypes";
+import { newDType } from "../types/dtypes";
 import { vi } from "vitest";
+import { queryDevice, subscribe, writePv } from "./csState";
 
 const mockStore = { dispatch: vi.fn(), getState: vi.fn() };
 
@@ -37,8 +30,9 @@ describe("connectionMiddleware", (): void => {
     const mockNext = vi.fn();
     // actionHandler takes an action
     const actionHandler = nextHandler(mockNext);
-    const subscribeAction: Subscribe = {
-      type: SUBSCRIBE,
+
+    const subscribeAction: ReturnType<typeof subscribe> = {
+      type: "cs/subscribe",
       payload: {
         pvName: "pv",
         componentId: "2",
@@ -50,8 +44,9 @@ describe("connectionMiddleware", (): void => {
     expect(mockConnection.subscribe).toHaveBeenCalledTimes(1);
     // The action is passed on.
     expect(mockNext).toHaveBeenCalledTimes(1);
-    expect(mockNext.mock.calls[0][0].type).toEqual(SUBSCRIBE);
+    expect(mockNext.mock.calls[0][0].type).toEqual("cs/subscribe");
   });
+
   it("calls putPv() when receiving WritePv", (): void => {
     // Set up state
     mockStore.getState.mockReturnValue({ effectivePvNameMap: {} });
@@ -61,15 +56,17 @@ describe("connectionMiddleware", (): void => {
     const mockNext = vi.fn();
     // actionHandler takes an action
     const actionHandler = nextHandler(mockNext);
-    const writeAction: WritePv = {
-      type: WRITE_PV,
+
+    const writeAction: ReturnType<typeof writePv> = {
+      type: "cs/writePv",
       payload: { pvName: "pv", value: ddouble(0) }
     };
+
     actionHandler(writeAction);
     expect(mockConnection.putPv).toHaveBeenCalledTimes(1);
     // The action is passed on.
     expect(mockNext).toHaveBeenCalledTimes(1);
-    expect(mockNext.mock.calls[0][0].type).toEqual(WRITE_PV);
+    expect(mockNext.mock.calls[0][0].type).toEqual("cs/writePv");
   });
 
   it("calls getDevice() when receiving query device", (): void => {
@@ -78,26 +75,26 @@ describe("connectionMiddleware", (): void => {
     const nextHandler = middleware(mockStore);
     const mockNext = vi.fn();
     const actionHandler = nextHandler(mockNext);
-    const queryAction: QueryDevice = {
-      type: QUERY_DEVICE,
+    const queryAction: ReturnType<typeof queryDevice> = {
+      type: "cs/queryDevice",
       payload: { device: "dev://device" }
     };
     actionHandler(queryAction);
     expect(mockConnection.getDevice).toHaveBeenCalledTimes(1);
     expect(mockNext).toHaveBeenCalledTimes(1);
-    expect(mockNext.mock.calls[0][0].type).toEqual(QUERY_DEVICE);
+    expect(mockNext.mock.calls[0][0].type).toEqual("cs/queryDevice");
   });
 
   it("doesn't query when the current device is in cache", (): void => {
     mockStore.getState.mockReturnValue({
-      deviceCache: { testDevice: new DType({ stringValue: "42" }) }
+      deviceCache: { testDevice: newDType({ stringValue: "42" }) }
     });
     const middleware = connectionMiddleware(mockConnection);
     const nextHandler = middleware(mockStore);
     const mockNext = vi.fn();
     const actionHandler = nextHandler(mockNext);
-    const queryAction: QueryDevice = {
-      type: QUERY_DEVICE,
+    const queryAction: ReturnType<typeof queryDevice> = {
+      type: "cs/queryDevice",
       payload: { device: "testDevice" }
     };
     actionHandler(queryAction);

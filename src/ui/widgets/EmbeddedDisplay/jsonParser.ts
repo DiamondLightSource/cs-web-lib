@@ -1,15 +1,15 @@
 import { REGISTERED_WIDGETS } from "../register";
 import { Rule } from "../../../types/props";
-import { Font, FontStyle } from "../../../types/font";
-import { Color } from "../../../types/color";
+import { Font, FontStyle, newFont } from "../../../types/font";
+import { Color, newColor } from "../../../types/color";
 import { parseWidget, ParserDict, ComplexParserDict } from "./parser";
-import { Border, BorderStyle } from "../../../types/border";
+import { Border, BorderStyle, newBorder } from "../../../types/border";
 import {
   Position,
-  AbsolutePosition,
-  RelativePosition
+  newAbsolutePosition,
+  newRelativePosition
 } from "../../../types/position";
-import { PV } from "../../../types/pv";
+import { PV, PVUtils } from "../../../types/pv";
 import { WidgetDescription } from "../createComponent";
 
 interface JsonBorder {
@@ -27,38 +27,44 @@ interface JsonFont {
 }
 
 function jsonParsePvName(pvName: string, defaultProtocol: string): PV {
-  return PV.parse(pvName, defaultProtocol);
+  return PVUtils.parse(pvName, defaultProtocol);
 }
+
+const toString = (value: undefined | string | number): string =>
+  value != null ? `${value}` : "";
+
 function jsonParsePosition(props: Record<string, string>): Position {
   if (props.position === "absolute") {
-    return new AbsolutePosition(
-      props.x,
-      props.y,
-      props.width,
-      props.height,
-      props.margin,
-      props.padding,
-      props.minWidth,
-      props.maxWidth,
-      props.minHeight
+    return newAbsolutePosition(
+      toString(props.x),
+      toString(props.y),
+      toString(props.width),
+      toString(props.height),
+      toString(props.margin),
+      toString(props.padding),
+      toString(props.minWidth),
+      toString(props.maxWidth),
+      toString(props.minHeight)
     );
   } else {
-    return new RelativePosition(
-      props.x,
-      props.y,
-      props.width,
-      props.height,
-      props.margin,
-      props.padding,
-      props.minWidth,
-      props.maxWidth,
-      props.minHeight
+    return newRelativePosition(
+      toString(props.x),
+      toString(props.y),
+      toString(props.width),
+      toString(props.height),
+      toString(props.margin),
+      toString(props.padding),
+      toString(props.minWidth),
+      toString(props.maxWidth),
+      toString(props.minHeight)
     );
   }
 }
 
-function jsonParseColor(jsonColor: string): Color {
-  return new Color(jsonColor);
+function jsonParseColor(jsonColor: string | { colorString: string }): Color {
+  return typeof jsonColor === "string" || jsonColor instanceof String
+    ? newColor(jsonColor as string)
+    : newColor(jsonColor.colorString);
 }
 
 function jsonParseBorder(jsonBorder: JsonBorder): Border {
@@ -69,7 +75,7 @@ function jsonParseBorder(jsonBorder: JsonBorder): Border {
     dotted: BorderStyle.Dotted,
     groupbox: BorderStyle.GroupBox
   };
-  return new Border(
+  return newBorder(
     styles[jsonBorder.style.toLowerCase()],
     jsonParseColor(jsonBorder.color),
     jsonBorder.width,
@@ -83,7 +89,7 @@ function jsonParseFont(jsonFont: JsonFont): Font {
     bold: FontStyle.Bold,
     "bold italic": FontStyle.BoldItalic
   };
-  return new Font(
+  return newFont(
     jsonFont.size,
     jsonFont.style ? styles[jsonFont.style] : undefined,
     jsonFont.typeface

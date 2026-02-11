@@ -5,13 +5,14 @@ import { useSelector } from "react-redux";
 import { CsState } from "../../redux/csState";
 
 import { PvArrayResults, pvStateSelector, pvStateComparator } from "./utils";
-import { DType } from "../../types/dtypes";
+import { dTypeCoerceString, dTypeGetDoubleValue } from "../../types/dtypes";
 import { SubscriptionType } from "../../connection/plugin";
 import {
   executeDynamicScriptInSandbox,
   ScriptResponse
 } from "../widgets/EmbeddedDisplay/scripts/scriptExecutor";
 import { Script } from "../../types/props";
+import { pvQualifiedName } from "../../types/pv";
 
 export const useScripts = (
   scriptsProp: Script[],
@@ -24,7 +25,7 @@ export const useScripts = (
 
   for (const script of scripts) {
     for (const pvMetadata of script.pvs) {
-      allPvs.push(pvMetadata.pvName.qualifiedName());
+      allPvs.push(pvQualifiedName(pvMetadata.pvName));
       allTypes.push({ string: true, double: true });
     }
   }
@@ -47,7 +48,7 @@ export const useScripts = (
       string: string | undefined;
     }[] = [];
     for (const pvMetadata of pvMetadataList) {
-      const pvDatum = pvDataMap[pvMetadata.pvName.qualifiedName()][0];
+      const pvDatum = pvDataMap[pvQualifiedName(pvMetadata.pvName)][0];
 
       let value: { number: number | undefined; string: string | undefined } = {
         number: undefined,
@@ -55,8 +56,8 @@ export const useScripts = (
       };
 
       if (pvDatum?.value) {
-        const doubleValue = pvDatum.value.getDoubleValue();
-        const stringValue = DType.coerceString(pvDatum.value);
+        const doubleValue = dTypeGetDoubleValue(pvDatum.value);
+        const stringValue = dTypeCoerceString(pvDatum.value);
         value = { number: doubleValue, string: stringValue };
       }
       pvValues.push(value);

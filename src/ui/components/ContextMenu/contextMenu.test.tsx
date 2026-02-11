@@ -2,7 +2,7 @@ import React from "react";
 import { fireEvent } from "@testing-library/react";
 
 import { Widget } from "../../widgets/widget";
-import { RelativePosition } from "../../../types/position";
+import { newRelativePosition } from "../../../types/position";
 import { contextRender, OPEN_BBC_ACTION } from "../../../testResources";
 import { Mock } from "vitest";
 
@@ -21,7 +21,7 @@ test("context menu cancels on click elsewhere in document", async () => {
         executeAsOne: false
       }}
       baseWidget={contents}
-      position={new RelativePosition()}
+      position={newRelativePosition()}
     ></Widget>
   );
 
@@ -44,7 +44,7 @@ test("context menu opens on right click and executes action if clicked", async (
         executeAsOne: false
       }}
       baseWidget={contents}
-      position={new RelativePosition()}
+      position={newRelativePosition()}
     ></Widget>
   );
 

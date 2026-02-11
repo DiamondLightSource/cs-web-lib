@@ -9,7 +9,7 @@ import { contextRender } from "../../../testResources";
 import { vi } from "vitest";
 import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
-import { Color } from "../../../types";
+import { ColorUtils } from "../../../types";
 ensureWidgetsRegistered();
 
 const navigationTab = (
@@ -102,8 +102,8 @@ describe("<NavigationTabs>", (): void => {
       return contextRender(
         navigationTab({
           direction: 0,
-          selectedColor: Color.fromRgba(255, 99, 71),
-          deselectedColor: Color.fromRgba(60, 179, 113),
+          selectedColor: ColorUtils.fromRgba(255, 99, 71),
+          deselectedColor: ColorUtils.fromRgba(60, 179, 113),
           tabSpacing: 10,
           tabHeight: 20,
           tabWidth: 40

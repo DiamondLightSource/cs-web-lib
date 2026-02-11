@@ -6,7 +6,7 @@ import { vi } from "vitest";
 import { contextRender } from "../../../testResources";
 import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
-import { Color } from "../../../types";
+import { ColorUtils } from "../../../types/color";
 
 // Pass the theme in with the component to access default values
 const mock = vi.fn();
@@ -53,8 +53,8 @@ describe("<ActionButton />", (): void => {
   test("it renders a button with style from props", (): void => {
     const { getByRole } = render(
       actionButton({
-        foregroundColor: Color.fromRgba(155, 160, 209),
-        backgroundColor: Color.fromRgba(10, 200, 1),
+        foregroundColor: ColorUtils.fromRgba(155, 160, 209),
+        backgroundColor: ColorUtils.fromRgba(10, 200, 1),
         height: 40,
         width: 60
       })

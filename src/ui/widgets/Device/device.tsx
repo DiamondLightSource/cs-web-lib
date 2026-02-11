@@ -11,9 +11,9 @@ import {
   WidgetDescription,
   widgetDescriptionToComponent
 } from "../createComponent";
-import { RelativePosition } from "../../../types/position";
-import { BorderStyle, Border } from "../../../types/border";
-import { Color } from "../../../types/color";
+import { newRelativePosition } from "../../../types/position";
+import { BorderStyle, newBorder, borderNONE } from "../../../types/border";
+import { ColorUtils } from "../../../types/color";
 import { MacroContext } from "../../../types/macros";
 
 const DeviceProps = {
@@ -30,7 +30,7 @@ export const DeviceComponent = (
   const deviceName = props.deviceName ?? (displayMacros["DESC"] || "");
   const [component, setComponent] = useState<JSX.Element>();
   const [border, setBorder] = useState(
-    new Border(BorderStyle.Dotted, Color.DISCONNECTED, 3)
+    newBorder(BorderStyle.Dotted, ColorUtils.DISCONNECTED, 3)
   );
   const replacedDeviceName = `dev://${deviceName.replace(/\s/g, "")}`;
   const description = useDevice(replacedDeviceName);
@@ -42,14 +42,14 @@ export const DeviceComponent = (
         let jsonResponse = {};
         if (description && description.value) {
           jsonResponse = JSON.parse(description?.value?.stringValue || "");
-          setBorder(Border.NONE);
+          setBorder(borderNONE);
           const jsonObject = parseResponse(jsonResponse as any);
 
           componentDescription = await parseObject(jsonObject, "ca");
         } else {
           componentDescription = errorWidget(
             `No device ${replacedDeviceName} found.`,
-            new RelativePosition("100%", "50px")
+            newRelativePosition("100%", "50px")
           );
         }
       } catch {
@@ -59,7 +59,7 @@ export const DeviceComponent = (
       }
       setComponent(
         widgetDescriptionToComponent({
-          position: new RelativePosition("100%", "100%"),
+          position: newRelativePosition("100%", "100%"),
           type: "display",
           children: [componentDescription]
         })

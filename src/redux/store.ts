@@ -1,6 +1,6 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore, isPlainObject } from "@reduxjs/toolkit";
 
-import { csReducer } from "./csState";
+import csReducer from "./csState";
 import { connectionMiddleware } from "./connectionMiddleware";
 import { throttleMiddleware, UpdateThrottle } from "./throttleMiddleware";
 import { Connection } from "../connection/plugin";
@@ -45,32 +45,53 @@ const buildConnection = (config?: CsWebLibConfig): Connection => {
   return new ConnectionForwarder(plugins);
 };
 
-export const store = (config?: CsWebLibConfig) => {
-  if (storeInstance) {
-    return storeInstance;
-  }
-
-  const THROTTLE_PERIOD: number = parseFloat(
-    config?.THROTTLE_PERIOD ??
-      process.env.VITE_THROTTLE_PERIOD ??
-      import.meta.env.VITE_THROTTLE_PERIOD ??
-      "100"
-  );
-
+const createStoreInstance = (config?: CsWebLibConfig) => {
   const isDevMode = config?.storeMode === "DEV";
 
-  storeInstance = configureStore({
+  return configureStore({
     reducer: csReducer,
-    middleware: getDefaultMiddleware =>
-      getDefaultMiddleware({
+    middleware: getDefaultMiddleware => {
+      const mw = getDefaultMiddleware({
         immutableCheck: isDevMode,
-        serializableCheck: isDevMode
-      })
-        .concat(throttleMiddleware(new UpdateThrottle(THROTTLE_PERIOD)))
-        .concat(connectionMiddleware(buildConnection(config))),
+        serializableCheck: !isDevMode
+          ? false
+          : {
+              isSerializable: (value: any) =>
+                value === null ||
+                typeof value === "string" ||
+                typeof value === "number" ||
+                typeof value === "boolean" ||
+                Array.isArray(value) ||
+                isPlainObject(value) ||
+                // allow all typed arrays and undefined
+                ArrayBuffer.isView(value) ||
+                value === undefined
+            }
+      });
+
+      return mw
+        .concat(connectionMiddleware(buildConnection(config)))
+        .concat(
+          throttleMiddleware(
+            new UpdateThrottle(
+              parseFloat(
+                config?.THROTTLE_PERIOD ??
+                  process.env.VITE_THROTTLE_PERIOD ??
+                  import.meta.env.VITE_THROTTLE_PERIOD ??
+                  "100"
+              )
+            )
+          )
+        );
+    },
     devTools: isDevMode
   });
+};
 
+export const store = (config?: CsWebLibConfig) => {
+  if (!storeInstance) {
+    storeInstance = createStoreInstance(config);
+  }
   return storeInstance;
 };
 

@@ -1,13 +1,13 @@
 import { Axis } from "../../../types/axis";
-import { Color } from "../../../types/color";
-import { DType } from "../../../types/dtypes";
-import { Font, FontStyle } from "../../../types/font";
+import { newColor } from "../../../types/color";
+import { newDType } from "../../../types/dtypes";
+import { FontStyle, fontToCss, newFont } from "../../../types/font";
 import { Trace } from "../../../types/trace";
 import { roundValue } from "../utils";
 import { calculateAxisLimits, createAxes, createTraces } from "./xyPlotOptions";
 
 const DATA = [0, 3, 4, 8];
-const ARRAY_DATA = new DType({
+const ARRAY_DATA = newDType({
   arrayValue: new Float32Array(DATA)
 });
 
@@ -99,7 +99,7 @@ describe("calculate axis limits", (): void => {
 describe("Create trace options object", (): void => {
   test("Return empty array if no data", (): void => {
     const traces: Trace[] = [];
-    const val = new DType({ stringValue: "3.141", arrayValue: undefined });
+    const val = newDType({ stringValue: "3.141", arrayValue: undefined });
     const bytesPerElement = 4;
     const traceOptions = createTraces(traces, val, bytesPerElement);
 
@@ -109,7 +109,7 @@ describe("Create trace options object", (): void => {
   test("Create bar chart trace", (): void => {
     const traces: Trace[] = [
       new Trace({
-        color: new Color("rgb(255, 0, 0)"),
+        color: newColor("rgb(255, 0, 0)"),
         pointType: 0,
         pointSize: 2,
         traceType: 3
@@ -135,7 +135,7 @@ describe("Create trace options object", (): void => {
   test("Create line plot trace", (): void => {
     const traces: Trace[] = [
       new Trace({
-        color: new Color("rgb(250, 0, 0)"),
+        color: newColor("rgb(250, 0, 0)"),
         lineWidth: 2,
         pointType: 3,
         pointSize: 6,
@@ -167,7 +167,7 @@ describe("Create trace options object", (): void => {
   test("Create area plot trace", (): void => {
     const traces: Trace[] = [
       new Trace({
-        color: new Color("rgb(250, 0, 0)"),
+        color: newColor("rgb(250, 0, 0)"),
         lineWidth: 2,
         pointType: 6,
         pointSize: 6,
@@ -202,7 +202,7 @@ describe("Create trace options object", (): void => {
     const traces: Trace[] = [
       new Trace({
         fromOpi: true,
-        color: new Color("rgb(250, 0, 0)"),
+        color: newColor("rgb(250, 0, 0)"),
         lineWidth: 2,
         pointSize: 6,
         traceType: 2,
@@ -236,7 +236,7 @@ describe("Create trace options object", (): void => {
     const traces: Trace[] = [
       new Trace({
         fromOpi: true,
-        color: new Color("rgb(250, 0, 0)"),
+        color: newColor("rgb(250, 0, 0)"),
         lineWidth: 2,
         pointType: 3,
         pointSize: 6,
@@ -275,13 +275,16 @@ describe("Create axis options object", (): void => {
         title: "Test Plot",
         visible: true,
         showGrid: true,
-        color: new Color("rgb(255, 255, 255"),
+        color: newColor("rgb(255, 255, 255"),
         minimum: 1,
         maximum: 10
       })
     ];
-    const font = new Font(10, FontStyle.Regular, "sans");
-    const axisOptions = createAxes(axes, font.css());
+    const font = newFont(10, FontStyle.Regular, "sans");
+    const axisOptions = createAxes(
+      axes,
+      fontToCss(font) as React.CSSProperties
+    );
 
     expect(axisOptions).toEqual([
       {
@@ -314,7 +317,7 @@ describe("Create axis options object", (): void => {
       title: "Test Plot",
       visible: true,
       showGrid: true,
-      color: new Color("rgb(255, 255, 255"),
+      color: newColor("rgb(255, 255, 255"),
       minimum: 1,
       maximum: 10,
       onRight: false,
@@ -325,8 +328,11 @@ describe("Create axis options object", (): void => {
       new Axis({ ...axis, ...{ minimum: -5, xAxis: false } }),
       new Axis({ ...axis, ...{ maximum: 50, xAxis: false } })
     ];
-    const font = new Font(10, FontStyle.Regular, "sans");
-    const axisOptions = createAxes(axes, font.css());
+    const font = newFont(10, FontStyle.Regular, "sans");
+    const axisOptions = createAxes(
+      axes,
+      fontToCss(font) as React.CSSProperties
+    );
 
     // Check that third axis has shifted
     expect(axisOptions[2]).toEqual({
@@ -362,7 +368,7 @@ describe("Create axis options object", (): void => {
       title: "Test Plot",
       visible: true,
       showGrid: true,
-      color: new Color("rgb(255, 255, 255"),
+      color: newColor("rgb(255, 255, 255"),
       minimum: 1,
       maximum: 10,
       xAxis: true,
@@ -374,8 +380,11 @@ describe("Create axis options object", (): void => {
       new Axis({ ...axis, ...{ minimum: -5, xAxis: false } }),
       new Axis({ ...axis, ...{ maximum: 50, onRight: true } })
     ];
-    const font = new Font(10, FontStyle.Regular, "sans");
-    const axisOptions = createAxes(axes, font.css());
+    const font = newFont(10, FontStyle.Regular, "sans");
+    const axisOptions = createAxes(
+      axes,
+      fontToCss(font) as React.CSSProperties
+    );
 
     // Check that third axis has shifted
     expect(axisOptions[2]).toEqual({

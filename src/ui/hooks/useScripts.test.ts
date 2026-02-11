@@ -4,8 +4,9 @@ import { useScripts } from "./useScripts";
 import { useSubscription } from "./useSubscription";
 import { useSelector } from "react-redux";
 import { executeDynamicScriptInSandbox } from "../widgets/EmbeddedDisplay/scripts/scriptExecutor";
-import { PV } from "../../types/pv";
+import { newPV } from "../../types/pv";
 import { Script } from "../../types/props";
+import { newDType } from "../../types/dtypes";
 
 vi.mock("./useSubscription");
 vi.mock("react-redux");
@@ -22,22 +23,16 @@ describe("useScripts", () => {
       return {
         "ca://pv1": [
           {
-            value: {
-              getDoubleValue: () => 10,
-              getStringValue: () => "10",
-              getArrayValue: () => [10],
-              toString: () => "10"
-            }
+            value: newDType({
+              doubleValue: 10,
+              stringValue: "10",
+              arrayValue: new Float64Array([10])
+            })
           }
         ],
         "ca://pv2": [
           {
-            value: {
-              getDoubleValue: () => null,
-              getStringValue: () => null,
-              getArrayValue: () => null,
-              toString: () => "test"
-            }
+            value: newDType({ stringValue: undefined })
           }
         ],
         "ca://pv3": [{ value: null }]
@@ -61,8 +56,8 @@ describe("useScripts", () => {
       {
         text: "return pvs[0] + pvs[1]",
         pvs: [
-          { pvName: new PV("pv1"), trigger: true },
-          { pvName: new PV("pv2"), trigger: true }
+          { pvName: newPV("pv1"), trigger: true },
+          { pvName: newPV("pv2"), trigger: true }
         ]
       } as Partial<Script> as Script
     ];
@@ -83,7 +78,7 @@ describe("useScripts", () => {
     const scripts = [
       {
         text: "return pvs[0] + pvs[1]",
-        pvs: [{ pvName: new PV("pv1") }, { pvName: new PV("pv2") }]
+        pvs: [{ pvName: newPV("pv1") }, { pvName: newPV("pv2") }]
       } as Partial<Script> as Script
     ];
 
@@ -96,7 +91,7 @@ describe("useScripts", () => {
       "return pvs[0] + pvs[1]",
       [
         { number: 10, string: "10" },
-        { number: null, string: null }
+        { number: undefined, string: "" }
       ]
     );
     expect(mockCallback).toHaveBeenCalledWith({
@@ -118,7 +113,7 @@ describe("useScripts", () => {
     const scripts = [
       {
         text: "return pvs[0]",
-        pvs: [{ pvName: new PV("pv3") }]
+        pvs: [{ pvName: newPV("pv3") }]
       } as Partial<Script> as Script
     ];
 
@@ -137,11 +132,11 @@ describe("useScripts", () => {
     const scripts = [
       {
         text: "return pvs[0]",
-        pvs: [{ pvName: new PV("pv1") }]
+        pvs: [{ pvName: newPV("pv1") }]
       } as Partial<Script> as Script,
       {
         text: "return pvs[0]",
-        pvs: [{ pvName: new PV("pv2") }]
+        pvs: [{ pvName: newPV("pv2") }]
       } as Partial<Script> as Script
     ];
 
@@ -159,7 +154,7 @@ describe("useScripts", () => {
     expect(executeDynamicScriptInSandbox).toHaveBeenNthCalledWith(
       2,
       "return pvs[0]",
-      [{ number: null, string: null }]
+      [{ number: undefined, string: "" }]
     );
   });
 });

@@ -1,9 +1,9 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { SimpleSymbolComponent } from "./simpleSymbol";
-import { DType } from "../../../types/dtypes";
+import { newDType } from "../../../types/dtypes";
 
-const fakeValue = new DType({ stringValue: "Fake value" });
+const fakeValue = newDType({ stringValue: "Fake value" });
 
 describe("<Symbol />", (): void => {
   test("img element rendered", (): void => {

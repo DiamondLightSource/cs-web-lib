@@ -3,8 +3,10 @@ import { render, screen } from "@testing-library/react";
 import { describe, test, expect, beforeEach, vi } from "vitest";
 import { TankComponent } from "./tank";
 import { Font } from "../../../types/font";
-import { Color, DType } from "../../../types";
 import { PvDatum } from "../../../redux/csState";
+import { newDType } from "../../../types/dtypes";
+import { ColorUtils } from "../../../types/color";
+import * as FontModule from "../../../types/font";
 
 // Mock the MUI X-Charts components
 vi.mock("@mui/x-charts/BarChart", () => ({
@@ -28,24 +30,15 @@ vi.mock("@mui/material", () => ({
   Box: vi.fn(({ children }) => <div data-testid="mui-box">{children}</div>)
 }));
 
-// Mock for font.css() function
-const mockFontCss = vi.fn().mockReturnValue({
-  fontFamily: "Arial",
-  fontSize: "12px"
-});
-
 describe("TankComponent", () => {
   // Basic test setup
   const defaultProps = {
     pvData: [
       {
-        value: {
-          getDoubleValue: () => 50,
-          display: {
-            units: "mm",
-            controlRange: { min: 0, max: 100 }
-          }
-        } as Partial<DType> as DType
+        value: newDType({ doubleValue: 50 }, undefined, undefined, {
+          units: "mm",
+          controlRange: { min: 0, max: 100 }
+        })
       } as Partial<PvDatum> as PvDatum
     ],
     connected: true,
@@ -53,7 +46,7 @@ describe("TankComponent", () => {
     pvName: "TEST:PV",
     minimum: 0,
     maximum: 100,
-    font: { css: mockFontCss } as Partial<Font> as Font
+    font: {} as Partial<Font> as Font
   };
 
   beforeEach(() => {
@@ -151,13 +144,10 @@ describe("TankComponent", () => {
         ...defaultProps,
         pvData: [
           {
-            value: {
-              getDoubleValue: () => 100,
-              display: {
-                units: "mm",
-                controlRange: { min: 0, max: 100 }
-              }
-            } as Partial<DType> as DType
+            value: newDType({ doubleValue: 100 }, undefined, undefined, {
+              units: "mm",
+              controlRange: { min: 0, max: 100 }
+            })
           } as Partial<PvDatum> as PvDatum
         ]
       };
@@ -176,13 +166,10 @@ describe("TankComponent", () => {
         ...defaultProps,
         pvData: [
           {
-            value: {
-              getDoubleValue: () => -10,
-              display: {
-                units: "mm",
-                controlRange: { min: 0, max: 100 }
-              }
-            } as Partial<DType> as DType
+            value: newDType({ doubleValue: -10 }, undefined, undefined, {
+              units: "mm",
+              controlRange: { min: 0, max: 100 }
+            })
           } as Partial<PvDatum> as PvDatum
         ]
       };
@@ -198,9 +185,9 @@ describe("TankComponent", () => {
 
   describe("Styling", () => {
     test("applies custom colors", () => {
-      const fillColor = Color.fromRgba(100, 150, 200);
-      const emptyColor = Color.fromRgba(200, 200, 200);
-      const backgroundColor = Color.fromRgba(240, 240, 240);
+      const fillColor = ColorUtils.fromRgba(100, 150, 200);
+      const emptyColor = ColorUtils.fromRgba(200, 200, 200);
+      const backgroundColor = ColorUtils.fromRgba(240, 240, 240);
 
       render(
         <TankComponent
@@ -214,8 +201,8 @@ describe("TankComponent", () => {
       const barChart = screen.getByTestId("bar-chart");
       const seriesData = JSON.parse(barChart.getAttribute("data-series") ?? "");
 
-      expect(seriesData[0].color).toBe(fillColor.toString());
-      expect(seriesData[1].color).toBe(emptyColor.toString());
+      expect(seriesData[0].color).toBe(fillColor.colorString);
+      expect(seriesData[1].color).toBe(emptyColor.colorString);
 
       // Check background color is applied
       expect(barChart.style.backgroundColor).toBe("rgb(240, 240, 240)");
@@ -247,6 +234,13 @@ describe("TankComponent", () => {
     });
 
     test("applies font styling to label", () => {
+      vi.spyOn(FontModule, "fontToCss").mockReturnValue({
+        fontFamily: "Arial",
+        fontWeight: "normal",
+        fontStyle: "normal",
+        fontSize: "12px"
+      });
+
       render(<TankComponent {...defaultProps} showLabel={true} />);
 
       const labelContainer = screen.getByText("50");

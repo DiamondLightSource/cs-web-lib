@@ -12,12 +12,13 @@ import {
 } from "./plugin";
 
 import {
+  newDRange,
+  newDDisplay,
+  newDTime,
   DType,
-  DTime,
-  DAlarm,
+  newDType,
   AlarmQuality,
-  DDisplay,
-  DRange
+  newDAlarm
 } from "../types/dtypes";
 import log from "loglevel";
 
@@ -65,22 +66,22 @@ function pvwsToDType(data: any): DType {
   let ddisplay = undefined;
   if (data.severity !== undefined) {
     if (data.severity === "MAJOR") {
-      alarm = new DAlarm(AlarmQuality.ALARM, "");
+      alarm = newDAlarm(AlarmQuality.ALARM, "");
     } else if (data.severity === "MINOR") {
-      alarm = new DAlarm(AlarmQuality.WARNING, "");
+      alarm = newDAlarm(AlarmQuality.WARNING, "");
     } else {
-      alarm = new DAlarm(AlarmQuality.VALID, "");
+      alarm = newDAlarm(AlarmQuality.VALID, "");
     }
   }
-  ddisplay = new DDisplay({
+  ddisplay = newDDisplay({
     description: undefined,
     role: undefined,
     controlRange: undefined,
     alarmRange: data.alarm_low
-      ? new DRange(data.alarm_low, data.alarm_high)
+      ? newDRange(data.alarm_low, data.alarm_high)
       : undefined,
     warningRange: data.warn_low
-      ? new DRange(data.warn_low, data.warn_high)
+      ? newDRange(data.warn_low, data.warn_high)
       : undefined,
     units: data.units,
     precision: data.precision,
@@ -107,7 +108,7 @@ function pvwsToDType(data: any): DType {
   }
 
   let dtime = undefined;
-  if (data.seconds) dtime = new DTime(new Date(data.seconds * 1000));
+  if (data.seconds) dtime = newDTime(new Date(data.seconds * 1000));
 
   let stringVal = undefined;
   if (data.text !== undefined) {
@@ -115,7 +116,7 @@ function pvwsToDType(data: any): DType {
   } else if (data.value !== undefined) {
     stringVal = data.value.toString();
   }
-  return new DType(
+  return newDType(
     {
       stringValue: stringVal,
       doubleValue: data.value,

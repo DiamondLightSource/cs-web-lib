@@ -2,11 +2,11 @@ import React from "react";
 import log from "loglevel";
 import { checkPropTypes } from "./checkPropTypes";
 
-import { Color } from "../../types/color";
+import { ColorUtils } from "../../types/color";
 import { REGISTERED_WIDGETS } from "./register";
-import { Position, RelativePosition } from "../../types/position";
-import { Font, FontStyle } from "../../types/font";
-import { Border, BorderStyle } from "../../types/border";
+import { newRelativePosition, Position } from "../../types/position";
+import { FontStyle, newFont } from "../../types/font";
+import { BorderStyle, newBorder } from "../../types/border";
 
 export interface WidgetDescription {
   type: string;
@@ -16,10 +16,10 @@ export interface WidgetDescription {
 }
 const ERROR_WIDGET: WidgetDescription = {
   type: "label",
-  position: new RelativePosition(),
-  font: new Font(16, FontStyle.Bold),
-  backgroundColor: Color.TRANSPARENT,
-  border: new Border(BorderStyle.Line, Color.RED, 2),
+  position: newRelativePosition(),
+  font: newFont(16, FontStyle.Bold),
+  backgroundColor: ColorUtils.TRANSPARENT,
+  border: newBorder(BorderStyle.Line, ColorUtils.RED, 2),
   text: "Error",
   tooltip: "Error",
   width: "auto",
@@ -34,7 +34,7 @@ export function errorWidget(
     ...ERROR_WIDGET,
     text: message,
     tooltip: message,
-    position: position ?? new RelativePosition()
+    position: position ?? newRelativePosition()
   };
 }
 
