@@ -2,9 +2,12 @@ import log from "loglevel";
 
 import { useSubscription } from "./useSubscription";
 import { useSelector } from "react-redux";
-import { CsState } from "../../redux/csState";
+import {
+  selectPvStates,
+  pvStateComparator,
+  PvArrayResults
+} from "../../redux/csState";
 
-import { PvArrayResults, pvStateSelector, pvStateComparator } from "./utils";
 import { dTypeCoerceString, dTypeGetDoubleValue } from "../../types/dtypes";
 import { SubscriptionType } from "../../connection/plugin";
 import {
@@ -35,7 +38,7 @@ export const useScripts = (
 
   // Get results from all PVs.
   const pvDataMap = useSelector(
-    (state: CsState): PvArrayResults => pvStateSelector(allPvs, state),
+    (state): PvArrayResults => selectPvStates(state, allPvs),
     pvStateComparator
   );
 

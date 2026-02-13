@@ -1,6 +1,11 @@
-import { configureStore, isPlainObject } from "@reduxjs/toolkit";
+import {
+  combineReducers,
+  configureStore,
+  isPlainObject
+} from "@reduxjs/toolkit";
 
 import csReducer from "./csState";
+import notificationsReducer from "./notificationsSlice";
 import { connectionMiddleware } from "./connectionMiddleware";
 import { throttleMiddleware, UpdateThrottle } from "./throttleMiddleware";
 import { Connection } from "../connection/plugin";
@@ -45,11 +50,16 @@ const buildConnection = (config?: CsWebLibConfig): Connection => {
   return new ConnectionForwarder(plugins);
 };
 
+export const rootReducer = combineReducers({
+  cs: csReducer,
+  notifications: notificationsReducer
+});
+
 const createStoreInstance = (config?: CsWebLibConfig) => {
   const isDevMode = config?.storeMode === "DEV";
 
   return configureStore({
-    reducer: csReducer,
+    reducer: rootReducer,
     middleware: getDefaultMiddleware => {
       const mw = getDefaultMiddleware({
         immutableCheck: isDevMode,

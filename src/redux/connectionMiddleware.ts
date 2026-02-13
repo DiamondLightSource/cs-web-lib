@@ -6,6 +6,9 @@ import {
   connectionChanged,
   deviceQueried,
   queryDevice,
+  selectDevice,
+  selectEffectivePvName,
+  selectSubscriptions,
   subscribe,
   unsubscribe,
   valueChanged,
@@ -77,7 +80,7 @@ export const connectionMiddleware =
     } else if (writePv.match(action)) {
       const { pvName, value } = action.payload;
       const effectivePvName =
-        store.getState().effectivePvNameMap[pvName] || pvName;
+        selectEffectivePvName(store.getState(), pvName) || pvName;
       try {
         connection.putPv(effectivePvName, value as DType);
       } catch (error) {
@@ -86,11 +89,11 @@ export const connectionMiddleware =
       }
     } else if (unsubscribe.match(action)) {
       const { componentId, pvName } = action.payload;
-      const subs = store.getState().subscriptions;
+      const subs = selectSubscriptions(store.getState());
       // Is this the last subscriber?
       // The reference will be removed in csReducer.
       const effectivePvName =
-        store.getState().effectivePvNameMap[pvName] || pvName;
+        selectEffectivePvName(store.getState(), pvName) || pvName;
 
       if (
         subs[effectivePvName] &&
@@ -108,7 +111,7 @@ export const connectionMiddleware =
       const { device } = action.payload;
       try {
         // Devices should be queried once and then stored
-        if (!store.getState().deviceCache[device]) {
+        if (!selectDevice(store.getState(), device)) {
           connection.getDevice(device);
         }
       } catch (error) {

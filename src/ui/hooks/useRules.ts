@@ -2,9 +2,12 @@ import log from "loglevel";
 
 import { useSubscription } from "./useSubscription";
 import { useSelector } from "react-redux";
-import { CsState } from "../../redux/csState";
+import {
+  selectPvStates,
+  pvStateComparator,
+  PvArrayResults
+} from "../../redux/csState";
 
-import { PvArrayResults, pvStateSelector, pvStateComparator } from "./utils";
 import { AnyProps } from "../widgets/widgetProps";
 import {
   dTypeCoerceString,
@@ -49,7 +52,7 @@ export function useRules(props: AnyProps): AnyProps {
   useSubscription(props.id, allPvs, allTypes);
   // Get results from all PVs.
   const results = useSelector(
-    (state: CsState): PvArrayResults => pvStateSelector(allPvs, state),
+    (state): PvArrayResults => selectPvStates(state, allPvs),
     pvStateComparator
   );
 

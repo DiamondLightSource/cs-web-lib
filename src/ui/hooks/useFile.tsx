@@ -1,10 +1,10 @@
 import { useDispatch, useSelector } from "react-redux";
 import {
-  CsState,
   fileChanged,
-  refreshFile as refreshFileAction
+  refreshFile as refreshFileAction,
+  selectFile,
+  fileComparator
 } from "../../redux/csState";
-import { fileComparator, fileSelector } from "./utils";
 import { MacroMap } from "../../types/macros";
 import { errorWidget, WidgetDescription } from "../widgets/createComponent";
 import { useEffect } from "react";
@@ -70,8 +70,9 @@ export async function fetchAndConvert(
 export function useFile(file: File, macros?: MacroMap): WidgetDescription {
   const dispatch = useDispatch();
   const fileExt = file.path.split(".").pop() || "json";
+
   const contents = useSelector(
-    (state: CsState): any => fileSelector(file.path, state),
+    (state): any => selectFile(state, file.path),
     fileComparator
   );
 

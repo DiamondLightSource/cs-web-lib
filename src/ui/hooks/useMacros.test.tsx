@@ -2,7 +2,7 @@
 import React from "react";
 import { useMacros } from "./useMacros";
 import { newPV, pvQualifiedName } from "../../types/pv";
-import { contextRender } from "../../testResources";
+import { contextRender, createRootStoreState } from "../../testResources";
 import { CsState } from "../../redux/csState";
 
 /* Use one of the techniques described here for testing hooks without
@@ -11,7 +11,7 @@ import { CsState } from "../../redux/csState";
 */
 export function substituteMacros(
   props: Record<string, unknown>,
-  initialCsState: CsState = buildInitialCsState(),
+  initialRootState = buildInitialCsState(),
   initialContextMacros: { [key: string]: any } = {}
 ): any {
   let resolvedProps = {};
@@ -23,7 +23,7 @@ export function substituteMacros(
     <MacrosTester />,
     undefined,
     undefined,
-    initialCsState,
+    createRootStoreState(initialRootState),
     initialContextMacros
   );
   return resolvedProps;

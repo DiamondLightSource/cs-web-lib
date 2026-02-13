@@ -3,7 +3,7 @@ import { FileProvider, PageState, TabState } from "./misc/fileContext";
 import { render, RenderResult } from "@testing-library/react";
 import { Provider } from "react-redux";
 import { MacroContext } from "./types/macros";
-import csReducer, { CsState } from "./redux/csState";
+import { CsState, initialCsState } from "./redux/csState";
 import { configureStore } from "@reduxjs/toolkit";
 
 import { BrowserRouter as Router } from "react-router";
@@ -14,6 +14,11 @@ import {
   WRITE_PV
 } from "./ui/widgets/widgetActions";
 import { DAlarm, DAlarmNONE, DType, newDType } from "./types/dtypes";
+import { rootReducer } from "./redux/store";
+import {
+  initialNotificationsState,
+  NotificationStack
+} from "./redux/notificationsSlice";
 
 // Helper functions for dtypes.
 export function ddouble(
@@ -70,19 +75,20 @@ export const ACTIONS_EX_FIRST = {
   executeAsOne: false
 };
 
+export const createRootStoreState = (
+  csState?: CsState,
+  notifications?: NotificationStack
+) => ({
+  cs: csState ?? initialCsState,
+  notifications: notifications ?? initialNotificationsState
+});
+
 // Helper function for rendering with a working fileContext.
 export function contextRender(
   component: JSX.Element,
   initialPageState: PageState = {},
   initialTabState: TabState = {},
-  initialCsState: CsState = {
-    effectivePvNameMap: {},
-    globalMacros: {},
-    subscriptions: {},
-    valueCache: {},
-    deviceCache: {},
-    fileCache: {}
-  },
+  initialRootStoreState = createRootStoreState(),
   initialContextMacros = {}
 ): RenderResult {
   const ParentComponent = (props: { child: JSX.Element }): JSX.Element => {
@@ -92,7 +98,7 @@ export function contextRender(
 
     const extendedGlobalMacros = {
       ...globalMacros,
-      ...initialCsState.globalMacros
+      ...initialRootStoreState?.cs?.globalMacros
     };
 
     const macroContext = {
@@ -101,8 +107,11 @@ export function contextRender(
     };
 
     const store = configureStore({
-      reducer: csReducer,
-      preloadedState: { ...initialCsState, globalMacros: extendedGlobalMacros }
+      reducer: rootReducer,
+      preloadedState: {
+        ...initialRootStoreState,
+        cs: { ...initialRootStoreState.cs, globalMacros: extendedGlobalMacros }
+      }
     });
 
     return (
