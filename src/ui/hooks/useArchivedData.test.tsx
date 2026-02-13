@@ -4,7 +4,8 @@ import { Plt } from "../../types/plt";
 import { vi } from "vitest";
 import { Axis } from "../../types/axis";
 import { Trace } from "../../types/trace";
-import { render, act, screen } from "@testing-library/react";
+import { act, screen } from "@testing-library/react";
+import { contextRender } from "../../testResources";
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -70,7 +71,7 @@ describe("useArchivedData", (): void => {
       axes: [new Axis()]
     });
     await act(async () => {
-      return render(<ArchivedDataTester plt={plt} />);
+      return contextRender(<ArchivedDataTester plt={plt} />);
     });
     const returnData = [
       { dateTime: "2025-10-27T09:14:27.828Z", "ca://TEST:PV": 52 },

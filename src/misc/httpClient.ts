@@ -1,3 +1,6 @@
+import { store } from "../redux";
+import { notificationDispatcher } from "../redux/notificationUtils";
+
 export class CsWebLibHttpResponseError extends Error {
   private _responseCode: number;
 
@@ -20,6 +23,8 @@ export const httpRequest = async (
 
   if (response?.status >= 400) {
     const message = `HTTP GET failed for url: ${url}.\nResponse code ${response?.status}\nResponse message ${response?.statusText}\n `;
+    const { showError } = notificationDispatcher(store().dispatch);
+    showError(message);
     throw new CsWebLibHttpResponseError(message, response.status);
   }
 

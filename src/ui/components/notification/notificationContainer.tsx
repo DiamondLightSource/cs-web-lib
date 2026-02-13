@@ -14,15 +14,15 @@ import {
 } from "../../../redux/notificationsSlice";
 
 interface Props {
-  position: ToastPosition;
-  autoClose: number;
-  hideProgressBar: boolean;
-  newestOnTop: boolean;
-  closeOnClick: boolean;
-  rtl: boolean;
-  pauseOnFocusLoss: boolean;
-  draggable: boolean;
-  pauseOnHover: boolean;
+  position?: ToastPosition;
+  autoClose?: number;
+  hideProgressBar?: boolean;
+  newestOnTop?: boolean;
+  closeOnClick?: boolean;
+  rtl?: boolean;
+  pauseOnFocusLoss?: boolean;
+  draggable?: boolean;
+  pauseOnHover?: boolean;
 }
 
 export const NotificationContainer = (props: Props) => {
@@ -41,12 +41,6 @@ export const NotificationContainer = (props: Props) => {
         toast(notification.message, {
           toastId: notification.id,
           type: toastType,
-          position: "top-right",
-          autoClose: 10000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
           onClose: () => {
             dispatch(removeNotificationById(notification.id));
           }

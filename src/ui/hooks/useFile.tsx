@@ -27,7 +27,7 @@ export interface File {
   defaultProtocol: string;
 }
 
-export async function fetchAndConvert(
+async function fetchAndConvert(
   filepath: string,
   protocol: string,
   macros?: MacroMap
@@ -69,7 +69,6 @@ export async function fetchAndConvert(
 
 export function useFile(file: File, macros?: MacroMap): WidgetDescription {
   const dispatch = useDispatch();
-  const fileExt = file.path.split(".").pop() || "json";
 
   const contents = useSelector(
     (state): any => selectFile(state, file.path),
@@ -79,16 +78,15 @@ export function useFile(file: File, macros?: MacroMap): WidgetDescription {
   useEffect(() => {
     let isMounted = true;
     const fetchData = async (): Promise<void> => {
-      const fetchPromise = fetchAndConvert(
+      const widgetDescription = await fetchAndConvert(
         file.path,
         file.defaultProtocol,
         macros
       );
-      const contents = await fetchPromise;
 
       // Populate the file cache.
       if (isMounted) {
-        dispatch(fileChanged({ file: file.path, contents: contents }));
+        dispatch(fileChanged({ file: file.path, contents: widgetDescription }));
       }
     };
     fetchData();
@@ -97,7 +95,7 @@ export function useFile(file: File, macros?: MacroMap): WidgetDescription {
     return () => {
       isMounted = false;
     };
-  }, [file.path, file.defaultProtocol, fileExt, contents, dispatch, macros]);
+  }, [file.path, file.defaultProtocol, contents, dispatch, macros]);
 
   return contents || EMPTY_WIDGET;
 }

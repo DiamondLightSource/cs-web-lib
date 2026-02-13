@@ -83,52 +83,66 @@ export const createRootStoreState = (
   notifications: notifications ?? initialNotificationsState
 });
 
-// Helper function for rendering with a working fileContext.
-export function contextRender(
+export const contextWrapperGenerator = (
+  initialPageState: PageState = {},
+  initialTabState: TabState = {},
+  initialRootStoreState = createRootStoreState(),
+  initialContextMacros = {}
+): ((props: { child: JSX.Element }) => JSX.Element) => {
+  // eslint-disable-next-line no-template-curly-in-string
+  const contextMacros = { a: "A", b: "B", c: "C", e: "${a}" };
+  const globalMacros = { c: "D", d: "E" };
+
+  const extendedGlobalMacros = {
+    ...globalMacros,
+    ...initialRootStoreState?.cs?.globalMacros
+  };
+
+  const macroContext = {
+    macros: { ...contextMacros, ...initialContextMacros },
+    updateMacro: (): void => {}
+  };
+
+  const store = configureStore({
+    reducer: rootReducer,
+    preloadedState: {
+      ...initialRootStoreState,
+      cs: { ...initialRootStoreState.cs, globalMacros: extendedGlobalMacros }
+    }
+  });
+
+  const ContextWrapper = (props: { child: JSX.Element }): JSX.Element => (
+    <Router>
+      <Provider store={store}>
+        <MacroContext.Provider value={macroContext}>
+          <FileProvider
+            initialPageState={initialPageState}
+            initialTabState={initialTabState}
+          >
+            {props.child}
+          </FileProvider>
+        </MacroContext.Provider>
+      </Provider>
+    </Router>
+  );
+
+  ContextWrapper.displayName = "ContextWrapper";
+
+  return ContextWrapper;
+};
+
+export const contextRender = (
   component: JSX.Element,
   initialPageState: PageState = {},
   initialTabState: TabState = {},
   initialRootStoreState = createRootStoreState(),
   initialContextMacros = {}
-): RenderResult {
-  const ParentComponent = (props: { child: JSX.Element }): JSX.Element => {
-    // eslint-disable-next-line no-template-curly-in-string
-    const contextMacros = { a: "A", b: "B", c: "C", e: "${a}" };
-    const globalMacros = { c: "D", d: "E" };
-
-    const extendedGlobalMacros = {
-      ...globalMacros,
-      ...initialRootStoreState?.cs?.globalMacros
-    };
-
-    const macroContext = {
-      macros: { ...contextMacros, ...initialContextMacros },
-      updateMacro: (): void => {}
-    };
-
-    const store = configureStore({
-      reducer: rootReducer,
-      preloadedState: {
-        ...initialRootStoreState,
-        cs: { ...initialRootStoreState.cs, globalMacros: extendedGlobalMacros }
-      }
-    });
-
-    return (
-      <Router>
-        <Provider store={store}>
-          <MacroContext.Provider value={macroContext}>
-            <FileProvider
-              initialPageState={initialPageState}
-              initialTabState={initialTabState}
-            >
-              {props.child}
-            </FileProvider>
-          </MacroContext.Provider>
-        </Provider>
-      </Router>
-    );
-  };
-
-  return render(<ParentComponent child={component} />);
-}
+): RenderResult => {
+  const WrapperComponent = contextWrapperGenerator(
+    initialPageState,
+    initialTabState,
+    initialRootStoreState,
+    initialContextMacros
+  );
+  return render(<WrapperComponent child={component} />);
+};

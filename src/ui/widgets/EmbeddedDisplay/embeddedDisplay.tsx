@@ -86,7 +86,6 @@ export const EmbeddedDisplay = (
   );
 
   const resolvedProps = useRules(macroProps);
-
   const description = useFile(
     resolvedProps.file as File,
     embeddedDisplayMacroContext.macros
