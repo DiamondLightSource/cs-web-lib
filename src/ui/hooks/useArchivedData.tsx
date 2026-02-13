@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { Plt } from "../../types/plt";
 import { httpRequest } from "../../misc/httpClient";
 import { newPV, pvQualifiedName } from "../../types/pv";
+import { useNotification } from "./useNotification";
 
 /**
  * Fetch archived data for each PV from archivers available
@@ -61,6 +62,10 @@ export function useArchivedData(plt: Plt): [TimeSeriesPoint[], boolean] {
           });
           fetchedData = tmpData;
         } catch (e: any) {
+          const { showError } = useNotification();
+          showError(
+            `Failed to fetch archiver data for PVs from address ${url}: ${e.error}.`
+          );
           log.error(
             `Failed to fetch archiver data for PVs from address ${url}: ${e.error}.`
           );

@@ -27,6 +27,7 @@
     "plotly.js": "^2.35.2",
     "plotly.js-basic-dist": "^2.35.2",
     "react-plotly.js": "^2.6.0",
+    "react-toastify": "^11.0.5",
     "utf-8-validate": "^5.0.10",
     "uuid": "^9.0.1"
   },

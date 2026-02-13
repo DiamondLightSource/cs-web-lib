@@ -277,6 +277,7 @@ export const fileComparator = (
   }
   return true;
 };
+
 /* Used for preventing re-rendering if the results are equivalent.
    Note that if the state for a particular PV hasn't changed, we will
    get back the same object as last time so we are safe to compare them.
@@ -284,7 +285,6 @@ export const fileComparator = (
    the same object with different properties and compare it as equal when
    in fact it has changed.
 */
-
 export const pvStateComparator = (
   before: PvArrayResults,
   after: PvArrayResults

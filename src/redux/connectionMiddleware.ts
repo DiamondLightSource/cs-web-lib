@@ -14,6 +14,7 @@ import {
   valueChanged,
   writePv
 } from "./csState";
+import { notificationDispatcher } from "./notificationUtils";
 
 function connectionChangedDispatch(
   store: MiddlewareAPI,
@@ -44,6 +45,7 @@ export const connectionMiddleware =
   store =>
   next =>
   action => {
+    const { showError } = notificationDispatcher(store.dispatch);
     if (!connection.isConnected()) {
       connection.connect(
         // Partial function application.
@@ -63,6 +65,7 @@ export const connectionMiddleware =
       try {
         effectivePvName = connection.subscribe(pvName, type);
       } catch (error) {
+        showError(`Failed to subscribe to pv ${pvName}`);
         log.error(`Failed to subscribe to pv ${pvName}`);
         log.error(error);
       }
@@ -84,6 +87,7 @@ export const connectionMiddleware =
       try {
         connection.putPv(effectivePvName, value as DType);
       } catch (error) {
+        showError(`Failed to put to pv ${pvName}`);
         log.error(`Failed to put to pv ${pvName}`);
         log.error(error);
       }
@@ -103,6 +107,7 @@ export const connectionMiddleware =
         try {
           connection.unsubscribe(pvName);
         } catch (error) {
+          showError(`Failed to unsubscribe from pv ${pvName}`);
           log.error(`Failed to unsubscribe from pv ${pvName}`);
           log.error(error);
         }
@@ -115,6 +120,7 @@ export const connectionMiddleware =
           connection.getDevice(device);
         }
       } catch (error) {
+        showError(`Failed to query device ${device}`);
         log.error(`Failed to query device ${device}`);
         log.error(error);
       }

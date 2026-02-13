@@ -1,4 +1,5 @@
 import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { TypeOptions } from "react-toastify";
 
 export interface NotificationStack {
   notifications: NotificationWithId[];
@@ -6,7 +7,7 @@ export interface NotificationStack {
 
 export interface Notification {
   message: string;
-  severity: "success" | "warning" | "error" | "info";
+  severity: TypeOptions;
 }
 
 export interface NotificationWithId extends Notification {
@@ -36,9 +37,7 @@ const notificationsSlice = createSlice({
     }
   },
   selectors: {
-    selectNotifications: (
-      notifications: NotificationStack
-    ): NotificationWithId[] => notifications.notifications
+    selectNotifications: state => state.notifications
   }
 });
 
