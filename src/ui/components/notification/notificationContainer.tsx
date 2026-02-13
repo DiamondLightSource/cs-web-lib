@@ -42,6 +42,7 @@ export const NotificationContainer = (props: Props) => {
           toastId: notification.id,
           type: toastType,
           onClose: () => {
+            displayedRef.current.delete(notification.id);
             dispatch(removeNotificationById(notification.id));
           }
         });

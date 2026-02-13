@@ -48,5 +48,5 @@ export const { selectNotifications } = notificationsSlice.selectors;
 
 export const selectNotification = createSelector(
   [selectNotifications, (_state, id: string) => id],
-  (notifications, id) => notifications.find(x => x.id === id)
+  (notifications, id) => notifications?.find(x => x.id === id)
 );
