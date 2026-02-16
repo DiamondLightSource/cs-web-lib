@@ -151,19 +151,19 @@ export function convertStringTimePeriod(period: string): number {
     periodArray.forEach((subString, idx) => {
       let match = times.find(item => subString.includes(item.unit));
       // If we find a match, take value and index before
-      if (match) matches.push([periodArray[idx -1], match]);
-    })
+      if (match) matches.push([periodArray[idx - 1], match]);
+    });
 
     if (matches.length === 0) matches = [1, times[1]];
     let time = 0;
-    matches.forEach((match) => {
+    matches.forEach(match => {
       const multiplier = parseFloat(match[0]);
-    // Add time to calculation
-    time +=
-      (isNaN(multiplier) ? 1 : multiplier) *
-      match[1].value *
-      (isNegative ? -1000 : 1000);
-    })
+      // Add time to calculation
+      time +=
+        (isNaN(multiplier) ? 1 : multiplier) *
+        match[1].value *
+        (isNegative ? -1000 : 1000);
+    });
 
     return time;
   } else {

@@ -212,7 +212,7 @@ export async function parsePlt(
       axes: axes
     });
   }
-  console.log(props);
+
   return props;
 }
 
