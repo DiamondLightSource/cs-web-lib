@@ -145,16 +145,16 @@ export function convertStringTimePeriod(period: string): number {
       { unit: "year", value: 31536000 }
     ];
     // Split by spaces
-    let periodArray = period.split(" ");
+    const periodArray = period.split(" ");
     let matches: any[] = [];
 
     periodArray.forEach((subString, idx) => {
-      let match = times.find(item => subString.includes(item.unit));
+      const match = times.find(item => subString.includes(item.unit));
       // If we find a match, take value and index before
       if (match) matches.push([periodArray[idx - 1], match]);
     });
 
-    if (matches.length === 0) matches = [1, times[1]];
+    if (matches.length === 0) matches = [[1, times[1]]];
     let time = 0;
     matches.forEach(match => {
       const multiplier = parseFloat(match[0]);

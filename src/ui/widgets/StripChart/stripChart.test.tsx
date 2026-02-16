@@ -23,11 +23,6 @@ vi.mock("@mui/x-charts", () => ({
   ))
 }));
 
-// vi.mock("@mui/x-charts", () => ({
-//   XAxis: vi.fn(),
-//   YAxis: vi.fn()
-// }));
-
 vi.mock("@mui/material", () => ({
   Box: vi.fn(({ children }) => <div data-testid="mui-box">{children}</div>),
   Typography: vi.fn(({ children }) => (
