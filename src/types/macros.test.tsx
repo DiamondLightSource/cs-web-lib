@@ -4,7 +4,8 @@ import { MacroMap, resolveMacros, macrosEqual } from "./macros";
 const macroMap: MacroMap = {
   A: "B",
   C: "D",
-  E: ""
+  E: "",
+  BMacro: "H"
 };
 
 it("substitutes if macro matches", (): void => {
@@ -35,6 +36,11 @@ it("line break characters are ignored", (): void => {
 it("multiple substitutions are made", (): void => {
   const substituted = resolveMacros("${A}${C}${E}A${F}${C}", macroMap);
   expect(substituted).toEqual("BDA${F}D");
+});
+
+it("nested macros are parsed", (): void => {
+  const substituted = resolveMacros("${$(A)Macro}ello", macroMap);
+  expect(substituted).toEqual("Hello");
 });
 
 it("true if macros match", (): void => {
