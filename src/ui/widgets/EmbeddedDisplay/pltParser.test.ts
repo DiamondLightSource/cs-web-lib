@@ -109,7 +109,7 @@ describe("plt parser", (): void => {
     expect(plt.axes.length).toEqual(1);
     expect(plt.pvlist[0].archive).toEqual({
       name: "Primary Test",
-      url: "http://test.diamond.ac.uk/retrieval"
+      url: "https://test.diamond.ac.uk/retrieval"
     });
   });
 });

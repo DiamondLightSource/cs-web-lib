@@ -98,7 +98,7 @@ function pltParsePointType(jsonProp: ElementCompact) {
 function pltParseArchiver(jsonProp: ElementCompact) {
   // Ensure archiver is using HTTP address
   const url = opiParseString(jsonProp.url);
-  const archiverURL = `http://${url.split("://")[1]}`;
+  const archiverURL = `https://${url.split("://")[1]}`;
   const archive: Archiver = {
     name: opiParseString(jsonProp.name),
     url: archiverURL
