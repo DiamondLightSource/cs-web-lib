@@ -144,17 +144,27 @@ export function convertStringTimePeriod(period: string): number {
       { unit: "month", value: 705600 },
       { unit: "year", value: 31536000 }
     ];
-    let match = times.find(item => period.includes(item.unit));
-    if (match === undefined) match = times[1];
-    // Find number of time period
-    const multiplier = match
-      ? parseFloat(period.replace(match.unit, "").trim())
-      : 1;
-    // If multiplier can't be parsed, default again to 1 minute, and calculate time
-    const time =
-      (isNaN(multiplier) ? 1 : multiplier) *
-      match.value *
-      (isNegative ? -1000 : 1000);
+    // Split by spaces
+    const periodArray = period.split(" ");
+    let matches: any[] = [];
+
+    periodArray.forEach((subString, idx) => {
+      const match = times.find(item => subString.includes(item.unit));
+      // If we find a match, take value and index before
+      if (match) matches.push([periodArray[idx - 1], match]);
+    });
+
+    if (matches.length === 0) matches = [[1, times[1]]];
+    let time = 0;
+    matches.forEach(match => {
+      const multiplier = parseFloat(match[0]);
+      // Add time to calculation
+      time +=
+        (isNaN(multiplier) ? 1 : multiplier) *
+        match[1].value *
+        (isNegative ? -1000 : 1000);
+    });
+
     return time;
   } else {
     // Date worked

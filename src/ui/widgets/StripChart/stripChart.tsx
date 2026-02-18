@@ -306,7 +306,7 @@ export const StripChartComponent = (
       </Typography>
       <LineChart
         hideLegend={showLegend}
-        grid={{ vertical: localAxes[0].showGrid, horizontal: showGrid }}
+        grid={{ vertical: showGrid, horizontal: localAxes[0].showGrid }}
         dataset={data.current}
         sx={{
           width: "100%",

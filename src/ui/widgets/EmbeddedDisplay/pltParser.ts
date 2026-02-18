@@ -41,6 +41,7 @@ const PLT_PARSERS: ParserDict = {
   request: ["request", opiParseString],
   archive: ["archive", pltParseArchiver],
   titleFont: ["title_font", pltParseFont],
+  title: ["title", opiParseString],
   scaleFont: ["scale_font", pltParseFont],
   labelFont: ["label_font", pltParseFont],
   legendFont: ["legend_font", pltParseFont],
@@ -97,7 +98,7 @@ function pltParsePointType(jsonProp: ElementCompact) {
 function pltParseArchiver(jsonProp: ElementCompact) {
   // Ensure archiver is using HTTP address
   const url = opiParseString(jsonProp.url);
-  const archiverURL = `http://${url.split("://")[1]}`;
+  const archiverURL = `https://${url.split("://")[1]}`;
   const archive: Archiver = {
     name: opiParseString(jsonProp.name),
     url: archiverURL
@@ -211,6 +212,7 @@ export async function parsePlt(
       axes: axes
     });
   }
+
   return props;
 }
 
