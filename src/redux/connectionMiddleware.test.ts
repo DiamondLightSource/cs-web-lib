@@ -1,8 +1,8 @@
 import { connectionMiddleware } from "./connectionMiddleware";
-import { ddouble } from "../testResources";
+import { createRootStoreState, ddouble } from "../testResources";
 import { newDType } from "../types/dtypes";
 import { vi } from "vitest";
-import { queryDevice, subscribe, writePv } from "./csState";
+import { initialCsState, queryDevice, subscribe, writePv } from "./csState";
 
 const mockStore = { dispatch: vi.fn(), getState: vi.fn() };
 
@@ -49,7 +49,9 @@ describe("connectionMiddleware", (): void => {
 
   it("calls putPv() when receiving WritePv", (): void => {
     // Set up state
-    mockStore.getState.mockReturnValue({ effectivePvNameMap: {} });
+    mockStore.getState.mockReturnValue(
+      createRootStoreState({ ...initialCsState, effectivePvNameMap: {} })
+    );
     const middleware = connectionMiddleware(mockConnection);
     // nextHandler takes next() and returns the actual middleware function
     const nextHandler = middleware(mockStore);
@@ -70,7 +72,9 @@ describe("connectionMiddleware", (): void => {
   });
 
   it("calls getDevice() when receiving query device", (): void => {
-    mockStore.getState.mockReturnValue({ deviceCache: {} });
+    mockStore.getState.mockReturnValue(
+      createRootStoreState({ ...initialCsState, deviceCache: {} })
+    );
     const middleware = connectionMiddleware(mockConnection);
     const nextHandler = middleware(mockStore);
     const mockNext = vi.fn();
@@ -86,9 +90,12 @@ describe("connectionMiddleware", (): void => {
   });
 
   it("doesn't query when the current device is in cache", (): void => {
-    mockStore.getState.mockReturnValue({
-      deviceCache: { testDevice: newDType({ stringValue: "42" }) }
-    });
+    mockStore.getState.mockReturnValue(
+      createRootStoreState({
+        ...initialCsState,
+        deviceCache: { testDevice: newDType({ stringValue: "42" }) }
+      })
+    );
     const middleware = connectionMiddleware(mockConnection);
     const nextHandler = middleware(mockStore);
     const mockNext = vi.fn();

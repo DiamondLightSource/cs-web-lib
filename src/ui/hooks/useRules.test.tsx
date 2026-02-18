@@ -3,7 +3,11 @@ import { useRules } from "./useRules";
 import { AnyProps } from "../widgets/widgetProps";
 import { Rule } from "../../types/props";
 import { newPV } from "../../types/pv";
-import { contextRender, ddouble } from "../../testResources";
+import {
+  contextRender,
+  createRootStoreState,
+  ddouble
+} from "../../testResources";
 import { DType } from "../../types/dtypes";
 import { CsState } from "../../redux/csState";
 
@@ -93,14 +97,24 @@ describe("useRules", (): void => {
     const props = { id: "id1", rules: [rule], text: "neither" };
     const ruleTester = getRuleTester(props);
     const csState = getCsState(ddouble(0));
-    const { getByText } = contextRender(ruleTester, {}, {}, csState);
+    const { getByText } = contextRender(
+      ruleTester,
+      {},
+      {},
+      createRootStoreState(csState)
+    );
     expect(getByText("no")).toBeInTheDocument();
   });
   it("changes prop with simple rule", (): void => {
     const props = { id: "id1", rules: [rule], text: "neither" };
     const ruleTester = getRuleTester(props);
     const csState = getCsState(ddouble(2));
-    const { getByText } = contextRender(ruleTester, {}, {}, csState);
+    const { getByText } = contextRender(
+      ruleTester,
+      {},
+      {},
+      createRootStoreState(csState)
+    );
     expect(getByText("yes")).toBeInTheDocument();
   });
 
@@ -108,7 +122,12 @@ describe("useRules", (): void => {
     const props = { id: "id1", rules: [outExpRule], text: "neither" };
     const ruleTester = getRuleTester(props);
     const csState = getCsState(ddouble(2));
-    const { getByText } = contextRender(ruleTester, {}, {}, csState);
+    const { getByText } = contextRender(
+      ruleTester,
+      {},
+      {},
+      createRootStoreState(csState)
+    );
     expect(getByText("2")).toBeInTheDocument();
   });
 
@@ -120,7 +139,12 @@ describe("useRules", (): void => {
     };
     const ruleTester = getRuleTester(props);
     const csState = getCsState(ddouble(2));
-    const { getByText } = contextRender(ruleTester, {}, {}, csState);
+    const { getByText } = contextRender(
+      ruleTester,
+      {},
+      {},
+      createRootStoreState(csState)
+    );
 
     const expectedText = JSON.stringify([
       "element_0",
@@ -139,7 +163,12 @@ describe("useRules", (): void => {
     };
     const ruleTester = getRuleTester(props);
     const csState = getCsState(ddouble(2));
-    const { getByText } = contextRender(ruleTester, {}, {}, csState);
+    const { getByText } = contextRender(
+      ruleTester,
+      {},
+      {},
+      createRootStoreState(csState)
+    );
 
     const expectedText = JSON.stringify(["element_0", "element_1"]);
     expect(getByText(expectedText)).toBeInTheDocument();

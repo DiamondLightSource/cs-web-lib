@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { useSelector } from "react-redux";
 import { MacroMap, resolveMacros, MacroContext } from "../../types/macros";
-import { CsState } from "../../redux/csState";
+import { selectGlobalMacros } from "../../redux/csState";
 import { PV } from "../../types/pv";
 import { AnyProps } from "../widgets/widgetProps";
 
@@ -62,9 +62,7 @@ export function recursiveResolve(
 
 export function useMacros<P extends MacroProps>(props: P): AnyProps {
   const displayMacros = useContext(MacroContext).macros;
-  const globalMacros = useSelector(
-    (state: CsState): MacroMap => state.globalMacros
-  );
+  const globalMacros = useSelector(selectGlobalMacros);
   // In Phoebus, some components e.g. Shape have a macros field
   const propMacros = props.macros;
   const allMacros = {

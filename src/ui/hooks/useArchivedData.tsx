@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { Plt } from "../../types/plt";
 import { httpRequest } from "../../misc/httpClient";
 import { newPV, pvQualifiedName } from "../../types/pv";
+import { useNotification } from "./useNotification";
 
 /**
  * Fetch archived data for each PV from archivers available
@@ -12,6 +13,7 @@ import { newPV, pvQualifiedName } from "../../types/pv";
 export function useArchivedData(plt: Plt): [TimeSeriesPoint[], boolean] {
   const [data, setData] = useState<TimeSeriesPoint[]>([]);
   const [archiveDataLoaded, setArchiveDataLoaded] = useState(false);
+  const { showError } = useNotification();
 
   useEffect(() => {
     // Runs whenever pvlist updated and fetches archiver data
@@ -61,6 +63,9 @@ export function useArchivedData(plt: Plt): [TimeSeriesPoint[], boolean] {
           });
           fetchedData = tmpData;
         } catch (e: any) {
+          showError(
+            `Failed to fetch archiver data for PVs from address ${url}: ${e.error}.`
+          );
           log.error(
             `Failed to fetch archiver data for PVs from address ${url}: ${e.error}.`
           );
@@ -71,7 +76,7 @@ export function useArchivedData(plt: Plt): [TimeSeriesPoint[], boolean] {
     };
     // Only fetch once
     if (!archiveDataLoaded) fetchArchivedPVData();
-  }, [archiveDataLoaded, plt]);
+  }, [archiveDataLoaded, plt, showError]);
 
   return [data, archiveDataLoaded];
 }

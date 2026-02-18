@@ -1,5 +1,5 @@
 import React from "react";
-import { contextRender } from "../../testResources";
+import { contextRender, createRootStoreState } from "../../testResources";
 import { CsState } from "../../redux/csState";
 import { File, useFile } from "./useFile";
 import { vi } from "vitest";
@@ -47,7 +47,7 @@ describe("useFile", (): void => {
       />,
       {},
       {},
-      initialState
+      createRootStoreState(initialState)
     );
 
     const responseContent = JSON.stringify({
@@ -78,7 +78,7 @@ describe("useFile", (): void => {
         />,
         {},
         {},
-        initialState
+        createRootStoreState(initialState)
       );
     });
 

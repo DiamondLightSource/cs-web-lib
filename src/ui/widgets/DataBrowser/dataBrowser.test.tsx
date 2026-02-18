@@ -8,6 +8,7 @@ import { Plt } from "../../../types/plt";
 import { PvDatum } from "../../../redux/csState";
 import { newDTime, newDType } from "../../../types/dtypes";
 import { ColorUtils } from "../../../types/color";
+import { contextRender, contextWrapperGenerator } from "../../../testResources";
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -109,7 +110,7 @@ describe("DataBrowserComponent", () => {
   describe("Rendering", () => {
     test("renders with default props", async () => {
       await act(async () => {
-        render(<DataBrowserComponent {...defaultProps} />);
+        contextRender(<DataBrowserComponent {...defaultProps} />);
       });
 
       const lineChart = screen.getByTestId("line-chart");
@@ -131,7 +132,7 @@ describe("DataBrowserComponent", () => {
         plt: new Plt({ axes: axes })
       };
       await act(async () => {
-        render(<DataBrowserComponent {...newProps} />);
+        contextRender(<DataBrowserComponent {...newProps} />);
       });
 
       const lineChart = screen.getByTestId("line-chart");
@@ -161,8 +162,11 @@ describe("DataBrowserComponent", () => {
         })
       };
 
+      const ContextWrapper = contextWrapperGenerator();
       const { rerender } = await act(async () => {
-        return render(<DataBrowserComponent {...newProps} />);
+        return render(
+          <ContextWrapper child={<DataBrowserComponent {...newProps} />} />
+        );
       });
       const lineChart = screen.getByTestId("line-chart");
       expect(lineChart).toBeDefined();
@@ -176,14 +180,19 @@ describe("DataBrowserComponent", () => {
       expect(actualDiff).toBe(expectedDiff);
 
       // Send a new value to append to archived data
-      await act(async () => {
+      await act(async () =>
         rerender(
-          <DataBrowserComponent
-            {...newProps}
-            pvData={[buildPvDatum("TEST:PV", 57)]}
+          <ContextWrapper
+            child={
+              <DataBrowserComponent
+                {...newProps}
+                pvData={[buildPvDatum("TEST:PV", 57)]}
+              />
+            }
           />
-        );
-      });
+        )
+      );
+
       const newLineChart = screen.getByTestId("line-chart");
       expect(newLineChart).toBeDefined();
       const seriesData = JSON.parse(

@@ -1,5 +1,5 @@
 import React from "react";
-import { contextRender } from "../../testResources";
+import { contextRender, createRootStoreState } from "../../testResources";
 import { newDType } from "../../types/dtypes";
 import { CsState } from "../../redux/csState";
 import { useDevice } from "./useDevice";
@@ -23,7 +23,12 @@ function getConnectionState(): CsState {
 describe("useDevice", (): void => {
   it("returns undefined if device not in cache", (): void => {
     const initialState = getConnectionState();
-    const { getByText } = contextRender(<DeviceTester />, {}, {}, initialState);
+    const { getByText } = contextRender(
+      <DeviceTester />,
+      {},
+      {},
+      createRootStoreState(initialState)
+    );
     expect(getByText("not defined")).toBeInTheDocument();
   });
 
@@ -33,7 +38,7 @@ describe("useDevice", (): void => {
       <DeviceTester device={"testDevice"} />,
       {},
       {},
-      initialState
+      createRootStoreState(initialState)
     );
     expect(getByText("42")).toBeInTheDocument();
   });

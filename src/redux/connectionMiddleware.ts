@@ -6,11 +6,15 @@ import {
   connectionChanged,
   deviceQueried,
   queryDevice,
+  selectDevice,
+  selectEffectivePvName,
+  selectSubscriptions,
   subscribe,
   unsubscribe,
   valueChanged,
   writePv
 } from "./csState";
+import { notificationDispatcher } from "./notificationUtils";
 
 function connectionChangedDispatch(
   store: MiddlewareAPI,
@@ -41,6 +45,7 @@ export const connectionMiddleware =
   store =>
   next =>
   action => {
+    const { showError } = notificationDispatcher(store.dispatch);
     if (!connection.isConnected()) {
       connection.connect(
         // Partial function application.
@@ -60,6 +65,7 @@ export const connectionMiddleware =
       try {
         effectivePvName = connection.subscribe(pvName, type);
       } catch (error) {
+        showError(`Failed to subscribe to pv ${pvName}`);
         log.error(`Failed to subscribe to pv ${pvName}`);
         log.error(error);
       }
@@ -77,20 +83,21 @@ export const connectionMiddleware =
     } else if (writePv.match(action)) {
       const { pvName, value } = action.payload;
       const effectivePvName =
-        store.getState().effectivePvNameMap[pvName] || pvName;
+        selectEffectivePvName(store.getState(), pvName) || pvName;
       try {
         connection.putPv(effectivePvName, value as DType);
       } catch (error) {
+        showError(`Failed to put to pv ${pvName}`);
         log.error(`Failed to put to pv ${pvName}`);
         log.error(error);
       }
     } else if (unsubscribe.match(action)) {
       const { componentId, pvName } = action.payload;
-      const subs = store.getState().subscriptions;
+      const subs = selectSubscriptions(store.getState());
       // Is this the last subscriber?
       // The reference will be removed in csReducer.
       const effectivePvName =
-        store.getState().effectivePvNameMap[pvName] || pvName;
+        selectEffectivePvName(store.getState(), pvName) || pvName;
 
       if (
         subs[effectivePvName] &&
@@ -100,6 +107,7 @@ export const connectionMiddleware =
         try {
           connection.unsubscribe(pvName);
         } catch (error) {
+          showError(`Failed to unsubscribe from pv ${pvName}`);
           log.error(`Failed to unsubscribe from pv ${pvName}`);
           log.error(error);
         }
@@ -108,10 +116,11 @@ export const connectionMiddleware =
       const { device } = action.payload;
       try {
         // Devices should be queried once and then stored
-        if (!store.getState().deviceCache[device]) {
+        if (!selectDevice(store.getState(), device)) {
           connection.getDevice(device);
         }
       } catch (error) {
+        showError(`Failed to query device ${device}`);
         log.error(`Failed to query device ${device}`);
         log.error(error);
       }

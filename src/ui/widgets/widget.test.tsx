@@ -4,7 +4,7 @@ import { Widget } from "./widget";
 import { LabelComponent } from "./Label/label";
 import { newRelativePosition } from "../../types/position";
 import { newPV, pvQualifiedName } from "../../types/pv";
-import { contextRender } from "../../testResources";
+import { contextRender, createRootStoreState } from "../../testResources";
 import { fireEvent } from "@testing-library/react";
 import copyToClipboard from "clipboard-copy";
 import { vi } from "vitest";
@@ -53,7 +53,7 @@ describe("<Widget />", (): void => {
       />,
       {},
       {},
-      initialCsState
+      createRootStoreState(initialCsState)
     );
     const label = getByText("Test");
     // simulate middle click

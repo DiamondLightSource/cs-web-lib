@@ -1,6 +1,10 @@
 import React from "react";
 import { useConnection } from "./useConnection";
-import { contextRender, ddouble } from "../../testResources";
+import {
+  contextRender,
+  createRootStoreState,
+  ddouble
+} from "../../testResources";
 import { DType, dTypeToString } from "../../types/dtypes";
 import { CsState } from "../../redux/csState";
 
@@ -46,7 +50,7 @@ describe("useConnection", (): void => {
       <ConnectionTester />,
       {},
       {},
-      initialState
+      createRootStoreState(initialState)
     );
     expect(getByText("connected: false")).toBeInTheDocument();
   });
@@ -57,7 +61,7 @@ describe("useConnection", (): void => {
       <ConnectionTester pvName={PV_NAME} />,
       {},
       {},
-      initialState
+      createRootStoreState(initialState)
     );
     expect(getByText("connected: true")).toBeInTheDocument();
     expect(getByText("readonly: false")).toBeInTheDocument();
