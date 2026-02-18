@@ -59,7 +59,9 @@ function interpolate(
 
   // regex matches any pattern that start with $, is followed by { or (,
   // then has a series of characters with a closing after
-  const regexp = /\$[{(](.*?)[})]/g;
+  // this pattern matches nested patterns too, although they might remain
+  // missing until the next iteration when nested macros are resolved
+  const regexp = /\$(?:\(|\{)([^${}()]+)[)}]/g;
   let result = null;
   while ((result = regexp.exec(str))) {
     requiredMappings.push(result[1]);
