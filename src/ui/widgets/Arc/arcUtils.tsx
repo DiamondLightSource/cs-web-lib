@@ -7,33 +7,52 @@ export function calculateArc(
   const rx = Math.floor(width / 2);
   const ry = Math.floor(height / 2);
 
-  // Need to split into two half arcs if full 360
-  if (totalAngle === 360) {
-    return [
+  const isFullCircle = Math.abs(totalAngle) === 360;
+  const start = polarToCartesian(rx, ry, startAngle);
 
-    ].join(" ")
+  const sweepFlag = totalAngle >= 0 ? 1 : 0;
+  let largeArcFlag = Math.abs(totalAngle) > 180 ? 1 : 0;
+
+  // Cannot generate a full circle in a single command
+  // So split into two 180 arcs
+  if (isFullCircle) {
+    const midAngle = startAngle + totalAngle / 2;
+    const mid = polarToCartesian(rx, ry, midAngle);
+
+    largeArcFlag = 1;
+
+    const arc = [
+      "M",
+      start.x,
+      start.y,
+      "A",
+      rx,
+      ry,
+      0,
+      largeArcFlag,
+      sweepFlag,
+      mid.x,
+      mid.y,
+      "A",
+      rx,
+      ry,
+      0,
+      largeArcFlag,
+      sweepFlag,
+      start.x,
+      start.y
+    ].join(" ");
+
+    const edge = ["L", rx, ry, "L", start.x, start.y].join(" ");
+
+    return [arc, edge];
   }
 
-  const start = polarToCartesian(rx, ry, startAngle);
-  const end = polarToCartesian(
-    rx,
-    ry,
-    totalAngle >= 0 ? startAngle + totalAngle : startAngle - totalAngle
-  );
+  const end = polarToCartesian(rx, ry, startAngle + totalAngle);
 
-  const largeArcFlag = Math.abs(totalAngle) > 180 ? 1 : 0;
-  const sweepFlag = totalAngle >= 0 ? 1 : 0;
+  const edge = [" L", rx, ry, "L", start.x, start.y].join(" ");
 
-  const edge = [
-    " L",
-    rx,
-    ry,
-    "L",
-    start.x,
-    start.y
-  ].join(" ");
-
-  const arc = totalAngle === 360 ? [
+  const arc = [
     "M",
     start.x,
     start.y,
@@ -44,20 +63,7 @@ export function calculateArc(
     largeArcFlag,
     sweepFlag,
     end.x,
-    end.y,
-  ].join(" ") :
-  [
-    "M",
-    start.x,
-    start.y,
-    "A",
-    rx,
-    ry,
-    0,
-    largeArcFlag,
-    sweepFlag,
-    end.x,
-    end.y,
+    end.y
   ].join(" ");
 
   return [arc, edge];
