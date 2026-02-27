@@ -17,12 +17,13 @@ import { writePv } from "../../hooks/useSubscription";
 import {
   ToggleButton as MuiToggleButton,
   styled,
-  ToggleButtonGroup,
-  useTheme
+  ToggleButtonGroup
 } from "@mui/material";
 import { getPvValueAndName } from "../utils";
 import { ColorUtils } from "../../../types/color";
-import { fontToCss } from "../../../types/font";
+import { useStyle } from "../../themeUtils";
+
+const widgetName = "choicebutton";
 
 const ChoiceButtonProps = {
   pvName: StringPropOpt,
@@ -35,7 +36,6 @@ const ChoiceButtonProps = {
   backgroundColor: ColorPropOpt,
   horizontal: BoolPropOpt,
   enabled: BoolPropOpt,
-  itemsfromPv: BoolPropOpt,
   font: FontPropOpt
 };
 
@@ -48,7 +48,7 @@ const ToggleButton = styled(MuiToggleButton)({
   "&.MuiToggleButton-root": {
     textTransform: "none",
     overflow: "hidden",
-    display: "block",
+    display: "flex",
     padding: 0,
     lineHeight: 1.2,
     alignItems: "center",
@@ -58,7 +58,8 @@ const ToggleButton = styled(MuiToggleButton)({
   },
   "&.Mui-disabled": {
     cursor: "not-allowed",
-    pointerEvents: "all !important"
+    pointerEvents: "all !important",
+    opacity: 0.7
   },
   "&.MuiToggleButtonGroup-grouped": {
     border: "1px solid !important",
@@ -69,7 +70,7 @@ const ToggleButton = styled(MuiToggleButton)({
 export const ChoiceButtonComponent = (
   props: ChoiceButtonComponentProps
 ): JSX.Element => {
-  const theme = useTheme();
+  const style = useStyle(props, widgetName);
   const {
     width = 100,
     height = 43,
@@ -82,12 +83,6 @@ export const ChoiceButtonComponent = (
   } = props;
   const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
 
-  const foregroundColor =
-    props.foregroundColor?.colorString ?? theme.palette.primary.contrastText;
-  const backgroundColor =
-    props.backgroundColor?.colorString ?? theme.palette.primary.main;
-
-  const font = fontToCss(props.font) ?? theme.typography;
   const [selected, setSelected] = useState(
     value ? dTypeGetDoubleValue(value) : value
   );
@@ -144,11 +139,10 @@ export const ChoiceButtonComponent = (
             key={item}
             value={idx}
             sx={{
+              ...style.font,
+              ...style.colors,
               width: buttonWidth,
               height: buttonHeight,
-              fontFamily: font,
-              color: foregroundColor,
-              backgroundColor: backgroundColor,
               "&.Mui-selected": {
                 backgroundColor: selectedColor.colorString
               },
@@ -157,7 +151,7 @@ export const ChoiceButtonComponent = (
                 opacity: 0.6
               },
               "&:hover": {
-                backgroundColor: backgroundColor,
+                backgroundColor: style.colors.backgroundColor,
                 opacity: 0.6
               }
             }}
@@ -178,4 +172,4 @@ export const ChoiceButton = (
   props: InferWidgetProps<typeof ChoiceButtonWidgetProps>
 ): JSX.Element => <Widget baseWidget={ChoiceButtonComponent} {...props} />;
 
-registerWidget(ChoiceButton, ChoiceButtonWidgetProps, "choicebutton");
+registerWidget(ChoiceButton, ChoiceButtonWidgetProps, widgetName);

@@ -2,8 +2,18 @@ import React from "react";
 import { GroupingContainerComponent } from "./groupingContainer";
 import { contextRender } from "../../../testResources";
 import { create } from "react-test-renderer";
+import { vi } from "vitest";
 
 const grouping = <GroupingContainerComponent name={"Test"} />;
+
+vi.mock("../../themeUtils", () => ({
+  useStyle: vi.fn(() => ({
+    color: undefined,
+    backgroundColor: undefined,
+    cursor: undefined,
+    visibility: undefined
+  }))
+}));
 
 describe("<GroupingContainerComponent />", (): void => {
   test("it matches the snapshot", (): void => {

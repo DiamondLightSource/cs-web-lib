@@ -3,6 +3,12 @@ import { fireEvent, render, waitFor } from "@testing-library/react";
 import { create } from "react-test-renderer";
 
 import { SlideshowComponent } from "./slideshow";
+import { vi } from "vitest";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
+
+vi.mock("../../themeUtils", () => ({
+  useStyle: vi.fn(() => createMockStyle())
+}));
 
 const slideshow = (
   <SlideshowComponent>

@@ -6,6 +6,8 @@ import { registerWidget } from "../register";
 import { InferWidgetProps, StringProp, MacrosProp } from "../propTypes";
 import { MacroContext } from "../../../types/macros";
 
+const widgetName = "menumux";
+
 export interface MenuMuxProps {
   onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   values: { [key: string]: string };
@@ -68,4 +70,4 @@ export const MenuMux = (
   props: InferWidgetProps<typeof MenuMuxWidgetProps>
 ): JSX.Element => <Widget baseWidget={SmartMenuMux} {...props} />;
 
-registerWidget(MenuMux, MenuMuxWidgetProps, "menumux");
+registerWidget(MenuMux, MenuMuxWidgetProps, widgetName);

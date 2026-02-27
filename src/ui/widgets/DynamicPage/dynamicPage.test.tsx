@@ -7,7 +7,12 @@ import { contextRender } from "../../../testResources";
 
 import { ensureWidgetsRegistered } from "..";
 import { vi } from "vitest";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
 ensureWidgetsRegistered();
+
+vi.mock("../../themeUtils", () => ({
+  useStyle: vi.fn(() => createMockStyle())
+}));
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

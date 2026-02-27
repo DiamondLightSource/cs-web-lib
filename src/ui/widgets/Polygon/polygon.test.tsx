@@ -2,6 +2,18 @@ import React from "react";
 import renderer, { ReactTestRendererJSON } from "react-test-renderer";
 import { PolygonComponent } from "./polygon";
 import { ColorUtils } from "../../../types/color";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
+import { vi } from "vitest";
+
+vi.mock("../../themeUtils", () => ({
+  useStyle: vi.fn((props: any) =>
+    props?.transparent
+      ? createMockStyle({ colors: { backgroundColor: "transparent" } })
+      : createMockStyle({
+          colors: { backgroundColor: props.backgroundColor.colorString }
+        })
+  )
+}));
 
 const PolygonRenderer = (polygonProps: any): ReactTestRendererJSON => {
   return renderer

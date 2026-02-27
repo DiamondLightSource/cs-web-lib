@@ -1,6 +1,7 @@
 import React, { CSSProperties } from "react";
 
-import { commonCss, Widget } from "../widget";
+import { Widget } from "../widget";
+import { useStyle } from "../../themeUtils";
 import { WidgetPropType } from "../widgetProps";
 import {
   InferWidgetProps,
@@ -13,6 +14,9 @@ import {
   ColorPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
+import { Box } from "@mui/material";
+
+const widgetName = "image";
 
 const ImageProps = {
   imageFile: StringProp,
@@ -52,8 +56,12 @@ export const ImageComponent = (
 
   const overflow = props.overflow ? "visible" : "hidden";
 
-  const style: CSSProperties = {
-    ...commonCss(props as any),
+  const style = useStyle(props, widgetName);
+  const fullStyle: CSSProperties = {
+    ...style.colors,
+    ...style.font,
+    ...style.border,
+    ...style.other,
     overflow,
     textAlign: "left",
     width: "100%",
@@ -76,7 +84,7 @@ export const ImageComponent = (
   // Symbol widget
   const ratio = imageFileName.includes(".svg") ? true : preserveRatio;
   return (
-    <div style={style} onClick={onClick}>
+    <Box sx={fullStyle} onClick={onClick}>
       <img
         src={imageFileName}
         alt={props.alt || undefined}
@@ -90,7 +98,7 @@ export const ImageComponent = (
           opacity: opacity
         }}
       />
-    </div>
+    </Box>
   );
 };
 
@@ -103,4 +111,4 @@ export const Image = (
   props: InferWidgetProps<typeof ImageWidgetProps>
 ): JSX.Element => <Widget baseWidget={ImageComponent} {...props} />;
 
-registerWidget(Image, ImageWidgetProps, "image");
+registerWidget(Image, ImageWidgetProps, widgetName);

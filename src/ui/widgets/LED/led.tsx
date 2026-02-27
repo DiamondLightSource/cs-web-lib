@@ -62,16 +62,14 @@ export const LedComponent = (props: LedComponentProps): JSX.Element => {
   const doubleValue = dTypeGetDoubleValue(value);
   if (doubleValue !== undefined) {
     if (bit < 0) {
-      // Off if vlaue is 0, on otherwise.
+      // Off if value is 0, on otherwise.
       ledOn = doubleValue !== 0;
     } else {
       // Off if value-th bit is 0, on if it is 1
       ledOn = ((1 << doubleValue) & bit) === bit;
     }
   }
-  style["backgroundColor"] = ledOn
-    ? onColor?.colorString
-    : offColor?.colorString;
+  style["backgroundColor"] = ledOn ? onColor.colorString : offColor.colorString;
   style["border"] = `2px solid ${lineColor.colorString}`;
   style["borderRadius"] = square ? "0%" : "50%";
 

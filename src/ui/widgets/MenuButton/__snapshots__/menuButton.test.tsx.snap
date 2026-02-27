@@ -3,12 +3,12 @@
 exports[`<MenuButton /> > it matches the snapshot 1`] = `
 <DocumentFragment>
   <div
-    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiSelect-root css-51mqx2-MuiInputBase-root-MuiOutlinedInput-root-MuiSelect-root"
+    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiSelect-root css-jpwdho-MuiInputBase-root-MuiOutlinedInput-root-MuiSelect-root"
   >
     <div
       aria-expanded="false"
       aria-haspopup="listbox"
-      class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-18jp67o-MuiNativeSelect-root-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+      class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-2urgvo-MuiNativeSelect-root-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
       role="combobox"
       tabindex="0"
     >

@@ -4,6 +4,9 @@ import { WidgetPropType } from "../widgetProps";
 import { InferWidgetProps, MacrosPropOpt, ColorPropOpt } from "../propTypes";
 import { registerWidget } from "../register";
 import { Box } from "@mui/material";
+import { useStyle } from "../../themeUtils";
+
+const widgetName = "demoImage";
 
 const DemoImageProps = {
   macros: MacrosPropOpt,
@@ -13,6 +16,7 @@ const DemoImageProps = {
 export const DemoImageComponent = (
   props: InferWidgetProps<typeof DemoImageProps>
 ): JSX.Element => {
+  const { colors } = useStyle(props, widgetName);
   // this image needs to be exist in the Daedalus public/images folder
   const imageFileName = "/images/demoCameraImage.jpg";
 
@@ -26,7 +30,7 @@ export const DemoImageComponent = (
         height: "100%",
         display: "block",
         objectFit: "contain",
-        backgroundColor: props?.backgroundColor?.colorString
+        backgroundColor: colors?.backgroundColor
       }}
     />
   );
@@ -41,4 +45,4 @@ export const DemoImage = (
   props: InferWidgetProps<typeof DemoImageWidgetProps>
 ): JSX.Element => <Widget baseWidget={DemoImageComponent} {...props} />;
 
-registerWidget(DemoImage, DemoImageWidgetProps, "demoImage");
+registerWidget(DemoImage, DemoImageWidgetProps, widgetName);

@@ -2,13 +2,6 @@
 
 exports[`<GroupingContainerComponent /> > it matches the snapshot 1`] = `
 <div
-  style={
-    {
-      "backgroundColor": undefined,
-      "color": undefined,
-      "cursor": undefined,
-      "visibility": undefined,
-    }
-  }
+  style={{}}
 />
 `;

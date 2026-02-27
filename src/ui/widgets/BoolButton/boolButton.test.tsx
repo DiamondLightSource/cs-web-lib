@@ -13,6 +13,21 @@ const mockWritePv = vi
   .spyOn(useSubscription, "writePv")
   .mockImplementation(vi.fn());
 
+vi.mock("../../themeUtils", () => ({
+  useStyle: vi.fn(() => ({
+    colors: {
+      color: "rgb(155, 160, 209)",
+      backgroundColor: "rgba(0, 0, 0, 1)"
+    },
+    font: {
+      fontFamily: undefined,
+      fontSize: undefined,
+      fontStyle: undefined,
+      fontWeight: undefined
+    }
+  }))
+}));
+
 beforeEach((): void => {
   mockWritePv.mockReset();
 });
@@ -59,7 +74,7 @@ describe("<BoolButton />", (): void => {
     const led = spanElement.children[0] as HTMLSpanElement;
 
     expect(button).toHaveStyle({
-      "background-color": "rgb(210, 210, 210)",
+      "background-color": "rgba(0, 0, 0, 1)",
       height: "100%",
       width: "100%",
       borderRadius: ""
@@ -85,7 +100,7 @@ describe("<BoolButton />", (): void => {
     expect(led.style.height).toEqual("11px");
 
     expect(button).toHaveStyle({
-      "background-color": "rgb(20, 20, 200)",
+      "background-color": "rgba(0, 0, 0, 1)",
       height: "100%",
       width: "100%",
       borderRadius: ""
@@ -103,7 +118,7 @@ describe("<BoolButton />", (): void => {
     const button = getByRole("button") as HTMLButtonElement;
 
     expect(button.textContent).toEqual("");
-    expect(button).toHaveStyle("background-color: rgb(210, 210, 210)");
+    expect(button).toHaveStyle("background-color: rgba(0, 0, 0, 1)");
   });
 
   test("it changes background colour if no LED", async (): Promise<void> => {

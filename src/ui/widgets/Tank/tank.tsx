@@ -1,6 +1,6 @@
 import React from "react";
 import { BarChart } from "@mui/x-charts/BarChart";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { Widget } from "../widget";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
@@ -17,7 +17,9 @@ import { ColorUtils } from "../../../types/color";
 import { XAxis, YAxis } from "@mui/x-charts";
 import { getPvValueAndName } from "../utils";
 import { dTypeGetDoubleValue } from "../../../types/dtypes";
-import { fontToCss } from "../../../types/font";
+import { useStyle } from "../../themeUtils";
+
+const widgetName = "tank";
 
 export const TankProps = {
   minimum: FloatPropOpt,
@@ -40,26 +42,22 @@ export const TankProps = {
 export const TankComponent = (
   props: InferWidgetProps<typeof TankProps> & PVComponent
 ): JSX.Element => {
+  const style = useStyle(props, widgetName);
+
   const {
     pvData,
     limitsFromPv = false,
     showLabel = false,
-    font,
     horizontal = false,
     fillColor = ColorUtils.fromRgba(0, 0, 255, 1),
     emptyColor = ColorUtils.fromRgba(192, 192, 192, 1),
     precision = undefined,
     scaleVisible = true,
     logScale = false,
-    showUnits = true,
-    transparent = false // This property only exists in CSStudio, so default to false
+    showUnits = true
   } = props;
 
   const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
-
-  const backgroundColor = transparent
-    ? "transparent"
-    : (props.backgroundColor?.colorString ?? "rgba(250, 250, 250, 1)");
 
   let { minimum = 0, maximum = 100 } = props;
   if (limitsFromPv && value?.display.controlRange) {
@@ -155,27 +153,31 @@ export const TankComponent = (
           }
         ]}
         sx={{
+          ...style?.border,
+          ...style?.colors,
           height: "100%",
           width: "100%",
-          position: "absolute",
-          border: 1,
-          borderColor: "#D2D2D2",
-          borderRadius: "4px",
-          backgroundColor: backgroundColor
+          position: "absolute"
         }}
       />
-      <div
-        style={{
+      <Box
+        sx={{
+          ...style?.colors,
           position: "relative",
           height: "100%",
           width: "100%",
-          color: "#000000",
-          alignContent: "center",
-          ...fontToCss(font)
+          alignContent: "center"
         }}
       >
-        {label}
-      </div>
+        <Typography
+          sx={{
+            ...style?.font,
+            textAlign: "center"
+          }}
+        >
+          {label}
+        </Typography>
+      </Box>
     </Box>
   );
 };
@@ -189,4 +191,4 @@ export const Tank = (
   props: InferWidgetProps<typeof TankWidgetProps>
 ): JSX.Element => <Widget baseWidget={TankComponent} {...props} />;
 
-registerWidget(Tank, TankWidgetProps, "tank");
+registerWidget(Tank, TankWidgetProps, widgetName);

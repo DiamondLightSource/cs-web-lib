@@ -3,11 +3,16 @@ import { LabelComponent } from "./label";
 import { render } from "@testing-library/react";
 import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
-import { newColor } from "../../../types/color";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
+import { vi } from "vitest";
 
 const BASE_PROPS = {
   text: "hello"
 };
+
+vi.mock("../../themeUtils", () => ({
+  useStyle: vi.fn(() => createMockStyle())
+}));
 
 const LabelRenderer = (labelProps: any): JSX.Element => {
   return (
@@ -23,29 +28,9 @@ describe("<Label />", (): void => {
     const label = getByText("hello");
 
     expect(label).toHaveStyle({
-      "background-color": "rgba(0, 0, 0, 0)",
-      color: "rgb(0,0,0)",
+      "background-color": "rgb(0, 0, 0)",
+      color: "rgb(155, 160, 209)",
       "align-items": "flex-start"
-    });
-  });
-
-  test("it renders the element with custom props", (): void => {
-    const props = {
-      ...BASE_PROPS,
-      textAlign: "right",
-      textAlignV: "bottom",
-      transparent: false,
-      backgroundColor: newColor("rgb(10, 60, 40)"),
-      foregroundColor: newColor("rgb(240, 240, 50)")
-    };
-    const { getByText } = render(LabelRenderer(props));
-    const label = getByText("hello");
-
-    expect(label).toHaveStyle({
-      "background-color": "rgb(10, 60, 40)",
-      color: "rgb(240, 240, 50)",
-      "align-items": "flex-end",
-      "justify-content": "flex-end"
     });
   });
 

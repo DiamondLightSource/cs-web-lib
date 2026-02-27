@@ -16,7 +16,9 @@ import {
   BorderPropOpt,
   ColorPropOpt
 } from "../propTypes";
-import { borderToCss } from "../../../types/border";
+import { useStyle } from "../../themeUtils";
+
+const widgetName = "slideshow";
 
 export const SlideshowProps = {
   children: PropTypes.arrayOf(PropTypes.element),
@@ -56,6 +58,7 @@ export const SwitchableWidget = (props: {
 export const SlideshowComponent = (
   props: InferWidgetProps<typeof SlideshowProps>
 ): JSX.Element => {
+  const style = useStyle(props, widgetName);
   const nextChildIndex = (index: number, length: number): number => {
     setTransition(slideRightTransition);
     if (index + 1 < length) {
@@ -81,11 +84,11 @@ export const SlideshowComponent = (
     <div
       className={classes.Slideshow}
       style={{
+        ...style.colors,
+        ...style.border,
         maxWidth: props.maxWidth ?? "",
         maxHeight: props.maxHeight ?? "",
-        minHeight: props.minHeight ?? "",
-        ...borderToCss(props.border),
-        backgroundColor: props.backgroundColor?.colorString
+        minHeight: props.minHeight ?? ""
       }}
     >
       <button
@@ -165,4 +168,4 @@ export const Slideshow = (
   props: InferWidgetProps<typeof SlideshowWidgetProps>
 ): JSX.Element => <Widget baseWidget={SlideshowComponent} {...props} />;
 
-registerWidget(Slideshow, SlideshowWidgetProps, "slideshow");
+registerWidget(Slideshow, SlideshowWidgetProps, widgetName);

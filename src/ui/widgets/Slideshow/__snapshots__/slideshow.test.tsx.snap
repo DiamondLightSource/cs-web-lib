@@ -5,7 +5,12 @@ exports[`<Slideshow /> > it matches the snapshot 1`] = `
   className="_Slideshow_9785a1"
   style={
     {
-      "backgroundColor": undefined,
+      "backgroundColor": "rgba(0, 0, 0, 1)",
+      "borderColor": "green",
+      "borderRadius": "0px",
+      "borderStyle": "solid",
+      "borderWidth": "1px",
+      "color": "rgb(155, 160, 209)",
       "maxHeight": "",
       "maxWidth": "",
       "minHeight": "",

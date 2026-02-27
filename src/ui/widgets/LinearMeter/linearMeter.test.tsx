@@ -13,6 +13,11 @@ import { RectangleAreaProps } from "./rectangleArea";
 import { ChartsReferenceLineProps } from "@mui/x-charts";
 import { newDType } from "../../../types/dtypes";
 import { ColorUtils } from "../../../types/color";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
+
+vi.mock("../../themeUtils", () => ({
+  useStyle: vi.fn(() => createMockStyle())
+}));
 
 vi.mock("@mui/x-charts/BarChart", () => {
   const MockBarChart: React.FC<any> = ({ children, ...props }) => (

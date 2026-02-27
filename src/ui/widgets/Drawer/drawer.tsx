@@ -14,8 +14,9 @@ import {
   ColorPropOpt,
   BorderPropOpt
 } from "../propTypes";
-import { borderToCss } from "../../../types/border";
-import { fontToCss } from "../../../types/font";
+import { useStyle } from "../../themeUtils";
+
+const widgetName = "drawer";
 
 export const DrawerProps = {
   anchor: ChoicePropOpt(["left", "right", "top", "bottom"]),
@@ -32,6 +33,7 @@ export const DrawerProps = {
 export const DrawerComponent = (
   props: InferWidgetProps<typeof DrawerProps>
 ): JSX.Element => {
+  const style = useStyle(props, widgetName);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
   // To satisfy the typing for the literals
@@ -42,12 +44,11 @@ export const DrawerComponent = (
       <button
         onClick={(): void => setDrawerOpen(true)}
         style={{
+          ...style?.font,
+          ...style?.border,
+          ...style?.colors,
           height: "100%",
-          width: "100%",
-          ...fontToCss(props.font),
-          ...borderToCss(props.border),
-          color: props.foregroundColor?.colorString,
-          backgroundColor: props.backgroundColor?.colorString
+          width: "100%"
         }}
       >
         {props.text ?? "\u2630"}
@@ -80,4 +81,4 @@ export const DrawerWidget = (
   props: InferWidgetProps<typeof DrawerWidgetProps>
 ): JSX.Element => <Widget baseWidget={DrawerComponent} {...props} />;
 
-registerWidget(DrawerWidget, DrawerWidgetProps, "drawer");
+registerWidget(DrawerWidget, DrawerWidgetProps, widgetName);

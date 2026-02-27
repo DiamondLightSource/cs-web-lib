@@ -1,6 +1,6 @@
 import React from "react";
 import { BarChart, BarSeries } from "@mui/x-charts/BarChart";
-import { Box, useTheme } from "@mui/material";
+import { Box } from "@mui/material";
 import { Widget } from "../widget";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
@@ -34,7 +34,9 @@ import {
 } from "./trianglePointer";
 import { buildStatusRegions } from "./linearMeterUtilities";
 import { dTypeGetDoubleValue } from "../../../types/dtypes";
-import { fontToCss } from "../../../types/font";
+import { useStyle } from "../../themeUtils";
+
+const widgetName = "linearmeter";
 
 export const LinearMeterComponentProps = {
   minimum: FloatPropOpt,
@@ -58,7 +60,7 @@ export const LinearMeterComponentProps = {
 export const LinearMeterComponent = (
   props: InferWidgetProps<typeof LinearMeterComponentProps> & PVComponent
 ): JSX.Element => {
-  const theme = useTheme();
+  const style = useStyle(props, widgetName);
   const {
     pvData,
     limitsFromPv = true,
@@ -68,7 +70,6 @@ export const LinearMeterComponent = (
     levelLolo = 10,
     needleWidth = 1,
     knobSize = 8,
-    font,
     displayHorizontal = true,
     scaleVisible = true,
     showUnits = true,
@@ -80,16 +81,10 @@ export const LinearMeterComponent = (
   const units = value?.display.units ?? "";
   const numValue = dTypeGetDoubleValue(value) ?? 0;
 
-  const foregroundColor =
-    props?.colors?.foregroundColor?.colorString ??
-    theme.palette.primary.contrastText;
   const needleColor =
-    props?.colors?.needleColor?.colorString ??
-    theme.palette.primary.contrastText;
+    props?.colors?.needleColor?.colorString ?? style.colors?.color;
   const knobColor =
-    props?.colors?.knobColor?.colorString ?? theme.palette.primary.contrastText;
-  const backgroundColor =
-    props?.colors?.backgroundColor?.colorString ?? theme.palette.primary.main;
+    props?.colors?.knobColor?.colorString ?? style.colors?.color;
 
   // Set the maximum, minimum and alarm levels.
   let alarmRangeMin: number | undefined = levelLolo;
@@ -114,13 +109,9 @@ export const LinearMeterComponent = (
     maximum = pvMax ?? maximum;
   }
 
-  const fontCss = fontToCss(font) ?? theme.typography;
   const labelFontStyle = {
-    fontSize: fontCss.fontSize,
-    fontStyle: fontToCss(font)?.fontStyle,
-    fontFamily: fontCss.fontFamily,
-    fontWeight: fontToCss(font)?.fontWeight,
-    fill: foregroundColor
+    ...style?.font,
+    fill: style?.colors?.color
   };
 
   const scaleAxisProps: XAxis<any> = {
@@ -268,7 +259,7 @@ export const LinearMeterComponent = (
           border: 1,
           borderColor: "#D2D2D2",
           borderRadius: "4px",
-          backgroundColor: backgroundColor
+          backgroundColor: style?.colors?.backgroundColor
         }}
         slotProps={{
           tooltip: {
@@ -344,4 +335,4 @@ export const LinearMeter = (
   props: InferWidgetProps<typeof LinearMeterProps>
 ): JSX.Element => <Widget baseWidget={LinearMeterComponent} {...props} />;
 
-registerWidget(LinearMeter, LinearMeterProps, "linearmeter");
+registerWidget(LinearMeter, LinearMeterProps, widgetName);

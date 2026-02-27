@@ -48,11 +48,11 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
     lineStyle = 0
   } = props;
 
-  let color = (function () {
-    if (lineColor) return lineColor.colorString;
-    else if (backgroundColor) return backgroundColor.colorString;
-    else return ColorUtils.fromRgba(0, 0, 255).colorString;
-  })();
+  const color = transparent
+    ? "transparent"
+    : (lineColor?.colorString ??
+      backgroundColor?.colorString ??
+      ColorUtils.fromRgba(0, 0, 255).colorString);
 
   const dashStyle = (function () {
     switch (lineStyle) {
@@ -68,8 +68,6 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
         return "0";
     }
   })();
-
-  if (transparent) color = "transparent";
 
   const transform = `rotation(${rotationAngle},0,0)`;
 

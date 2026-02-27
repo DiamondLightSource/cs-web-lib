@@ -1,3 +1,4 @@
+import { vi } from "vitest";
 import {
   wordSplitter,
   createLabel,
@@ -6,6 +7,21 @@ import {
   parseResponse,
   Response
 } from "./deviceParser";
+
+vi.mock("../../themeUtils", () => ({
+  useStyle: vi.fn(() => ({
+    colors: {
+      color: "rgb(155, 160, 209)",
+      backgroundColor: "rgba(0, 0, 0, 1)"
+    },
+    font: {
+      fontFamily: undefined,
+      fontSize: undefined,
+      fontStyle: undefined,
+      fontWeight: undefined
+    }
+  }))
+}));
 
 describe("wordSplitter", (): void => {
   test("Splits a word and trims spaces", (): void => {

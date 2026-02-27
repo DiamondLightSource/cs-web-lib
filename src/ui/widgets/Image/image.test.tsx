@@ -1,6 +1,12 @@
 import React from "react";
 import { ImageComponent } from "./image";
 import { render, screen } from "@testing-library/react";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
+import { vi } from "vitest";
+
+vi.mock("../../themeUtils", () => ({
+  useStyle: vi.fn(() => createMockStyle())
+}));
 
 describe("<ImageComponent />", (): void => {
   describe("Visible tests", (): void => {

@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
-import { Widget, commonCss } from "../widget";
+import { Widget } from "../widget";
+import { useStyle } from "../../themeUtils";
 import { WidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import {
@@ -10,6 +11,7 @@ import {
   MacrosPropOpt
 } from "../propTypes";
 import { MacroContextType, MacroContext } from "../../../types/macros";
+const widgetName = "groupingcontainer";
 
 const GroupingContainerProps = {
   name: StringProp,
@@ -22,7 +24,7 @@ const GroupingContainerProps = {
 export const GroupingContainerComponent = (
   props: InferWidgetProps<typeof GroupingContainerProps>
 ): JSX.Element => {
-  const style = commonCss(props);
+  const style = useStyle(props, widgetName);
 
   // Include and override parent macros with those from the prop.
   const { updateMacro, macros } = useContext(MacroContext);
@@ -38,7 +40,14 @@ export const GroupingContainerComponent = (
 
   return (
     <MacroContext.Provider value={groupingContainerMacroContext}>
-      <div style={style}>
+      <div
+        style={{
+          ...style.colors,
+          ...style.font,
+          ...style.border,
+          ...style.other
+        }}
+      >
         <>{props.children}</>
       </div>
     </MacroContext.Provider>
@@ -54,4 +63,4 @@ export const GroupingContainer = (
   props: InferWidgetProps<typeof GroupingWidgetProps>
 ): JSX.Element => <Widget baseWidget={GroupingContainerComponent} {...props} />;
 
-registerWidget(GroupingContainer, GroupingWidgetProps, "groupingcontainer");
+registerWidget(GroupingContainer, GroupingWidgetProps, widgetName);

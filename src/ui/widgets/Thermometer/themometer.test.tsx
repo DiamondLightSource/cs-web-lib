@@ -11,6 +11,7 @@ import {
 import { ColorUtils } from "../../../types/color";
 import { PvDatum } from "../../../redux/csState";
 import { newDType, DType } from "../../../types/dtypes";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
 // Mock d3 functionality
 vi.mock("d3", () => {
@@ -37,6 +38,10 @@ vi.mock("d3", () => {
     })
   };
 });
+
+vi.mock("../../themeUtils", () => ({
+  useStyle: vi.fn(() => createMockStyle())
+}));
 
 describe("Thermometer Component", () => {
   const pvDatum = {

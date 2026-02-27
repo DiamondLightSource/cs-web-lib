@@ -15,10 +15,12 @@ import {
 } from "../propTypes";
 import { registerWidget } from "../register";
 import { dTypeGetDoubleValue, newDType } from "../../../types/dtypes";
-import { Slider, useTheme } from "@mui/material";
+import { Slider } from "@mui/material";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { getPvValueAndName } from "../utils";
-import { fontToCss } from "../../../types/font";
+import { useStyle } from "../../themeUtils";
+
+const widgetName = "slidecontrol";
 
 export const SliderControlProps = {
   minimum: FloatPropOpt,
@@ -52,7 +54,7 @@ export const SliderControlProps = {
 export const SlideControlComponent = (
   props: InferWidgetProps<typeof SliderControlProps> & PVComponent
 ): JSX.Element => {
-  const theme = useTheme();
+  const style = useStyle(props, widgetName);
   const {
     pvData,
     enabled = true,
@@ -72,15 +74,9 @@ export const SlideControlComponent = (
     width = WIDGET_DEFAULT_SIZES["scaledslider"][0],
     height = WIDGET_DEFAULT_SIZES["scaledslider"][1]
   } = props;
-  const foregroundColor =
-    props.foregroundColor?.colorString ?? theme.palette.primary.contrastText;
-  const backgroundColor =
-    props.backgroundColor?.colorString ?? theme.palette.primary.main;
 
   let { minimum = 0, maximum = 100 } = props;
   const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
-
-  const font = fontToCss(props.font) ?? theme.typography;
 
   if (limitsFromPv && value?.display.controlRange) {
     minimum = value.display.controlRange?.min;
@@ -198,7 +194,7 @@ export const SlideControlComponent = (
       marks={marks}
       step={increment}
       sx={{
-        color: foregroundColor,
+        color: style?.colors?.color,
         "& .MuiSlider-thumb": {
           height: 16,
           width: 16,
@@ -209,14 +205,13 @@ export const SlideControlComponent = (
           }
         },
         "& .MuiSlider-valueLabelOpen": {
-          fontFamily: font,
-          color: foregroundColor,
-          backgroundColor: backgroundColor,
+          ...style?.colors,
+          ...style?.font,
           opacity: 0.6
         },
         "& .MuiSlider-markLabel": {
-          fontFamily: font,
-          color: foregroundColor,
+          color: style?.colors?.color,
+          ...style?.font,
           whiteSpace: "pre"
         },
         "&.Mui-disabled": {
@@ -237,4 +232,4 @@ export const SlideControl = (
   props: InferWidgetProps<typeof SlideControlWidgetProps>
 ): JSX.Element => <Widget baseWidget={SlideControlComponent} {...props} />;
 
-registerWidget(SlideControl, SlideControlWidgetProps, "slidecontrol");
+registerWidget(SlideControl, SlideControlWidgetProps, widgetName);

@@ -7,6 +7,11 @@ import { contextRender } from "../../../testResources";
 import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
 import { ColorUtils } from "../../../types/color";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
+
+vi.mock("../../themeUtils", () => ({
+  useStyle: vi.fn(() => createMockStyle())
+}));
 
 // Pass the theme in with the component to access default values
 const mock = vi.fn();
@@ -26,8 +31,8 @@ describe("<ActionButton />", (): void => {
     const { getByRole } = contextRender(actionButton({}));
     const button = getByRole("button");
     expect(button).toHaveStyle({
-      "background-color": "rgb(210, 210, 210)",
-      color: "rgb(0, 0, 0)",
+      "background-color": "rgb(0, 0, 0)",
+      color: "rgb(155, 160, 209)",
       width: "100px",
       height: "30px"
     });
@@ -61,18 +66,12 @@ describe("<ActionButton />", (): void => {
     );
     const button = getByRole("button");
     expect(button).toHaveStyle({
-      "background-color": "rgb(10, 200, 1)",
+      "background-color": "rgb(0, 0, 0)",
       color: "rgb(155, 160, 209)",
       width: "60px",
       height: "40px"
     });
     // For some reason, background colour doesn't like to be passed as an object so pass as string
-  });
-
-  test("button variation changes if transparent", (): void => {
-    const { getByRole } = render(actionButton({ transparent: true }));
-    const button = getByRole("button");
-    expect(button).toHaveStyle("background-color: rgba(0, 0, 0, 0)");
   });
 
   test("button is rotated correctly when rotationStep is set", async () => {

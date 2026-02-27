@@ -1,7 +1,8 @@
 import React from "react";
 
 import classes from "./flexContainer.module.css";
-import { Widget, commonCss } from "../widget";
+import { Widget } from "../widget";
+import { useStyle } from "../../themeUtils";
 import { WidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import {
@@ -11,6 +12,8 @@ import {
   BorderPropOpt,
   ColorPropOpt
 } from "../propTypes";
+
+const widgetName = "flexcontainer";
 
 const FlexProps = {
   flexFlow: ChoicePropOpt(["rowWrap", "column", "row", "columnWrap"]),
@@ -29,13 +32,17 @@ export const FlexContainerComponent = (
   props: InferWidgetProps<typeof FlexProps>
 ): JSX.Element => {
   const { flexFlow = undefined, justifyContent = undefined } = props;
-  const style = {
-    ...commonCss(props),
+  const style = useStyle(props, widgetName);
+  const fullStyle = {
+    ...style.colors,
+    ...style.font,
+    ...style.border,
+    ...style.other,
     flexFlow,
     justifyContent
   };
   return (
-    <div className={classes.FlexContainer} style={style}>
+    <div className={classes.FlexContainer} style={fullStyle}>
       <>{props.children}</>
     </div>
   );
@@ -50,4 +57,4 @@ export const FlexContainer = (
   props: InferWidgetProps<typeof FlexWidgetProps>
 ): JSX.Element => <Widget baseWidget={FlexContainerComponent} {...props} />;
 
-registerWidget(FlexContainer, FlexWidgetProps, "flexcontainer");
+registerWidget(FlexContainer, FlexWidgetProps, widgetName);

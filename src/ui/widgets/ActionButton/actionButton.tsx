@@ -18,11 +18,12 @@ import {
 } from "../propTypes";
 import { MacroContext } from "../../../types/macros";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
-import { styled, Button as MuiButton, useTheme } from "@mui/material";
+import { styled, Button as MuiButton } from "@mui/material";
 import { calculateRotationTransform } from "../utils";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
-import { borderToCss } from "../../../types/border";
-import { fontToCss } from "../../../types/font";
+import { useStyle } from "../../themeUtils";
+
+const widgetName = "actionbutton";
 
 export interface ActionButtonProps {
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
@@ -46,28 +47,32 @@ const ActionButtonPropType = {
 };
 
 const Button = styled(MuiButton)({
-  "&.MuiButton-root": {
-    display: "block",
-    alignItems: "center",
-    justifyContent: "center",
-    minWidth: 1,
-    minHeight: 1,
-    padding: 1,
-    overflow: "clip",
-    textTransform: "none",
-    whiteSpace: "pre-wrap",
-    lineHeight: 1.2
-  },
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minWidth: 0,
+  minHeight: 0,
+  padding: 1,
+  overflow: "hidden",
+  textTransform: "none",
+  whiteSpace: "pre-wrap",
+  lineHeight: 1.2,
   "&.Mui-disabled": {
-    cursor: "not-allowed",
-    pointerEvents: "all !important"
+    cursor: "not-allowed"
   }
 });
 
 export const ActionButtonComponent = (
   props: InferWidgetProps<typeof ActionButtonPropType> & ActionButtonProps
 ): JSX.Element => {
-  const theme = useTheme();
+  const style = useStyle(
+    {
+      ...props,
+      actions: props?.actions as WidgetActions | undefined
+    },
+    widgetName
+  );
+
   const {
     enabled = true,
     rotationStep = 0,
@@ -76,14 +81,6 @@ export const ActionButtonComponent = (
     height = WIDGET_DEFAULT_SIZES["action_button"][1],
     width = WIDGET_DEFAULT_SIZES["action_button"][0]
   } = props;
-
-  const foregroundColor =
-    props?.foregroundColor?.colorString ?? theme.palette.primary.contrastText;
-  const backgroundColor = transparent
-    ? "transparent"
-    : (props.backgroundColor?.colorString ?? theme.palette.primary.main);
-  const font = fontToCss(props.font) ?? theme.typography;
-  const border = borderToCss(props.border) ?? null;
 
   const [inputWidth, inputHeight, transform] = calculateRotationTransform(
     rotationStep,
@@ -96,17 +93,10 @@ export const ActionButtonComponent = (
       disabled={!enabled}
       fullWidth={true}
       sx={{
-        "&.MuiButton-root": {
-          display: visible ? "flex" : "none",
-          // If size is given as %, rem or vh, allow element to fill parent div
-          // Otherwise, use the calculated height that accounts for rotationStep
-          height: typeof height === "string" ? "100%" : inputHeight,
-          width: typeof width === "string" ? "100%" : inputWidth
-        },
-        color: foregroundColor,
-        backgroundColor: backgroundColor,
-        border: border,
-        fontFamily: font,
+        ...style.colors,
+        display: visible ? "flex" : "none",
+        height: typeof height === "string" ? "100%" : inputHeight,
+        width: typeof width === "string" ? "100%" : inputWidth,
         transform: transform
       }}
       onClick={props.onClick}
@@ -191,4 +181,4 @@ export const ActionButton = (
   props: InferWidgetProps<typeof ActionButtonWidgetProps>
 ): JSX.Element => <Widget baseWidget={ActionButtonWidget} {...props} />;
 
-registerWidget(ActionButton, ActionButtonWidgetProps, "actionbutton");
+registerWidget(ActionButton, ActionButtonWidgetProps, widgetName);

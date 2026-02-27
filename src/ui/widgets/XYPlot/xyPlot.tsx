@@ -1,4 +1,4 @@
-import React, { CSSProperties } from "react";
+import React from "react";
 import { Widget } from "../widget";
 import {
   InferWidgetProps,
@@ -20,11 +20,13 @@ import {
   createTraces,
   NewAxisSettings
 } from "./xyPlotOptions";
-import { ColorUtils } from "../../../types/color";
 import { getPvValueAndName, trimFromString } from "../utils";
 import { Trace } from "../../../types/trace";
 import { Axis } from "../../../types/axis";
-import { fontToCss } from "../../../types/font";
+import { useStyle } from "../../themeUtils";
+import { Box } from "@mui/material";
+
+const widgetName = "xyplot";
 
 export const XYPlotProps = {
   height: FloatPropOpt,
@@ -48,13 +50,16 @@ export type XYPlotComponentProps = InferWidgetProps<typeof XYPlotProps> &
   PVComponent;
 
 export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
+  let style = useStyle(
+    { backgroundColor: props.plotBackgroundColor, font: props.titleFont },
+    widgetName
+  );
+
   const {
     height = 250,
     width = 400,
     pvData,
-    plotBackgroundColor = ColorUtils.fromRgba(255, 255, 255),
     title = "",
-    titleFont,
     showLegend = true,
     showPlotBorder,
     // showToolbar, // TO DO - do we want a toolbar as well?
@@ -64,23 +69,16 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
   const { value } = getPvValueAndName(pvData);
 
   // TO DO - having all these checks is not ideal
-  if (
-    value?.value.arrayValue &&
-    axes &&
-    traces &&
-    titleFont &&
-    width &&
-    height
-  ) {
+  if (value?.value.arrayValue && axes && traces && width && height) {
     const bytesPerElement = value.value.arrayValue.BYTES_PER_ELEMENT;
     // If data exists, creates traces to plot
     const dataSet = createTraces(traces, value, bytesPerElement);
     // Set up style
-    let style: CSSProperties = {};
-    if (showPlotBorder) {
-      style = { border: "1px solid black", padding: "1px" };
+    if (!showPlotBorder) {
+      style = { ...style, border: { ...style?.border, borderWidth: "0" } };
     }
-    const font = fontToCss(titleFont) as React.CSSProperties;
+
+    const font = style?.font;
     // Sometimes font is a string with "px" on the end
     if (typeof font?.fontSize === "string")
       font.fontSize = trimFromString(font.fontSize);
@@ -98,16 +96,16 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
         r: 5
       },
       overflow: "hidden",
-      paper_bgcolor: plotBackgroundColor.colorString,
-      plot_bgcolor: plotBackgroundColor.colorString,
+      paper_bgcolor: style?.colors?.backgroundColor,
+      plot_bgcolor: style?.colors?.backgroundColor,
       showlegend: showLegend,
       width: width - 5,
       height: height - 5,
       title: {
         text: title,
         font: {
-          family: font ? font.fontFamily : "Liberation sans, sans-serif",
-          size: font.fontSize ? font.fontSize : 12
+          family: font?.fontFamily,
+          size: font?.fontSize
         }
       },
       uirevision: 1 // This number needs to stay same to persist zoom on refresh
@@ -119,26 +117,25 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
       plotLayout[axisNames[i]] = newAxisOptions.shift();
     }
     return (
-      <div className={"showBorder"} style={style}>
+      <Box className={"showBorder"} sx={style?.border}>
         <Plot data={dataSet} layout={plotLayout} />
-      </div>
+      </Box>
     );
   }
   // If doesn't pass checks above, render empty box with msg
   return (
-    <div
-      style={{
-        width: `${width}px`,
-        height: `${height}px`,
-        fontSize: "14px",
-        fontWeight: "bold",
-        border: "2px solid red",
+    <Box
+      sx={{
+        ...style?.font,
+        ...style?.border,
+        borderWidth: "2px",
+        borderColor: "red",
         padding: "1px"
       }}
     >
       XYPlot could not be displayed. Please check the .opi file and connection
       to PV {traces[0].yPv}.
-    </div>
+    </Box>
   );
 };
 
@@ -151,4 +148,4 @@ export const XYPlot = (
   props: InferWidgetProps<typeof XYPlotWidgetProps>
 ): JSX.Element => <Widget baseWidget={XYPlotComponent} {...props} />;
 
-registerWidget(XYPlot, XYPlotWidgetProps, "xyplot");
+registerWidget(XYPlot, XYPlotWidgetProps, widgetName);

@@ -7,7 +7,8 @@
  */
 import React, { useContext } from "react";
 
-import { Widget, commonCss } from "../widget";
+import { Widget } from "../widget";
+import { useStyle } from "../../themeUtils";
 import { WidgetPropType } from "../widgetProps";
 import { ActionButton } from "../ActionButton/actionButton";
 import { CLOSE_PAGE } from "../widgetActions";
@@ -27,6 +28,8 @@ import { newRelativePosition } from "../../../types/position";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 import { phoebusTheme } from "../../../phoebusTheme";
 
+const widgetName = "dynamicpage";
+
 const DynamicPageProps = {
   location: StringProp,
   border: BorderPropOpt,
@@ -39,7 +42,7 @@ export const DynamicPageComponent = (
   props: InferWidgetProps<typeof DynamicPageProps> & EmbeddedDisplayPropsExtra
 ): JSX.Element => {
   const theme = props.theme || phoebusTheme;
-  const style = commonCss(props);
+  const style = useStyle(props, widgetName);
   const fileContext = useContext(FileContext);
 
   const file = fileContext.pageState[props.location];
@@ -48,16 +51,22 @@ export const DynamicPageComponent = (
   const showCloseButton =
     props.showCloseButton === undefined ? true : props.showCloseButton;
 
+  const fullStyle = {
+    ...style.border,
+    ...style.colors,
+    ...style.font,
+    ...style.other
+  };
+
   if (file === undefined) {
     return (
       <div
         style={{
           height: "100%",
           width: "100%",
-          border: "1px solid black",
           minHeight: "100px",
           fontSize: "0.625rem",
-          ...style
+          ...fullStyle
         }}
       >
         <h3>Dynamic page &quot;{props.location}&quot;: no file loaded.</h3>
@@ -68,7 +77,7 @@ export const DynamicPageComponent = (
       <ExitFileContext.Provider
         value={() => fileContext.removePage(props.location)}
       >
-        <div style={style}>
+        <div style={fullStyle}>
           <EmbeddedDisplay
             file={file}
             position={newRelativePosition()}
@@ -115,7 +124,7 @@ export const DynamicPageComponent = (
       <ExitFileContext.Provider
         value={() => fileContext.removePage(props.location)}
       >
-        <div style={style}>
+        <div style={fullStyle}>
           <EmbeddedDisplay
             file={file}
             position={newRelativePosition()}
@@ -138,4 +147,4 @@ export const DynamicPageWidget = (
   props: InferWidgetProps<typeof DynamicPageWidgetProps>
 ): JSX.Element => <Widget baseWidget={DynamicPageComponent} {...props} />;
 
-registerWidget(DynamicPageWidget, DynamicPageWidgetProps, "dynamicpage");
+registerWidget(DynamicPageWidget, DynamicPageWidgetProps, widgetName);

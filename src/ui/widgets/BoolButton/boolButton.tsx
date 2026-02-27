@@ -16,10 +16,12 @@ import { ColorUtils } from "../../../types/color";
 import { writePv } from "../../hooks/useSubscription";
 import { dTypeGetDoubleValue, newDType } from "../../../types/dtypes";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
-import { Button as MuiButton, styled, useTheme } from "@mui/material";
+import { Button as MuiButton, styled } from "@mui/material";
 import { getPvValueAndName } from "../utils";
 import { LedComponent } from "../LED/led";
-import { fontToCss } from "../../../types/font";
+import { useStyle } from "../../themeUtils";
+
+const widgetName = "boolbutton";
 
 const BoolButtonProps = {
   pvName: StringPropOpt,
@@ -83,7 +85,8 @@ export type BoolButtonComponentProps = InferWidgetProps<
 export const BoolButtonComponent = (
   props: BoolButtonComponentProps
 ): JSX.Element => {
-  const theme = useTheme();
+  const style = useStyle(props, widgetName);
+
   const {
     width = WIDGET_DEFAULT_SIZES["bool_button"][0],
     height = WIDGET_DEFAULT_SIZES["bool_button"][1],
@@ -100,13 +103,6 @@ export const BoolButtonComponent = (
     textAlignV = "center"
   } = props;
   const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
-
-  const foregroundColor =
-    props.foregroundColor?.colorString ?? theme.palette.primary.contrastText;
-  const backgroundColor =
-    props.backgroundColor?.colorString ?? theme.palette.primary.main;
-
-  const font = fontToCss(props.font) ?? theme.typography;
 
   // These could be overwritten by  PV labels
   let { onLabel = "On", offLabel = "Off" } = props;
@@ -169,10 +165,10 @@ export const BoolButtonComponent = (
         onClick={handleClick}
         disabled={!enabled}
         sx={{
-          fontFamily: font,
-          color: foregroundColor,
+          ...style.colors,
+          ...style.font,
           // If no LED, use on/off colours as background
-          backgroundColor: showLed ? backgroundColor : ledColor,
+          backgroundColor: showLed ? style.colors.backgroundColor : ledColor,
           "&.MuiButton-root": {
             alignItems:
               textAlignV === "top"
@@ -227,4 +223,4 @@ export const BoolButton = (
   props: InferWidgetProps<typeof BoolButtonWidgetProps>
 ): JSX.Element => <Widget baseWidget={BoolButtonComponent} {...props} />;
 
-registerWidget(BoolButton, BoolButtonWidgetProps, "boolbutton");
+registerWidget(BoolButton, BoolButtonWidgetProps, widgetName);
