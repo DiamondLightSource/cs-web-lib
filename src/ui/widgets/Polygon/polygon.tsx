@@ -12,7 +12,6 @@ import {
   MacrosPropOpt
 } from "../propTypes";
 import { Point } from "../../../types/points";
-import { ColorUtils } from "../../../types/color";
 import { useStyle } from "../../themeUtils";
 
 const widgetName = "polygon";
@@ -31,13 +30,11 @@ const PolygonProps = {
 export const PolygonComponent = (
   props: InferWidgetProps<typeof PolygonProps>
 ): JSX.Element => {
-  const { colors } = useStyle(props, widgetName);
-  const {
-    lineWidth = 3,
-    lineColor = ColorUtils.fromRgba(0, 0, 255),
-    points,
-    rotationAngle = 0
-  } = props;
+  const { colors, customColors } = useStyle(
+    { ...props, customColors: { lineColor: props?.lineColor } },
+    widgetName
+  );
+  const { lineWidth = 3, points, rotationAngle = 0 } = props;
   //Loop over points and convert to string for svg
   let coordinates = "";
   if (points) {
@@ -54,7 +51,7 @@ export const PolygonComponent = (
     >
       <polygon
         overflow={"visible"}
-        stroke={lineColor.colorString}
+        stroke={customColors?.lineColor}
         strokeWidth={lineWidth}
         fill={colors?.backgroundColor}
         transform={`rotation(${rotationAngle},0,0)`}

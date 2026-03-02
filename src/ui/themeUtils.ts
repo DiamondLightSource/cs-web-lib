@@ -53,6 +53,7 @@ export const useStyle = (
     backgroundColor?: Color;
     transparent?: boolean;
     actions?: WidgetActions;
+    customColors?: { [key: string]: Color | undefined };
   },
   widgetName?: string
 ) => {
@@ -78,6 +79,25 @@ export const useStyle = (
     props?.backgroundColor,
     props.transparent
   );
+
+  const customColors: { [key: string]: string } = Object.fromEntries(
+    Object.entries(themePalette)
+      .map(([key, value]) => {
+        if (key === "contrastText" || key === "main") {
+          return [null, null];
+        }
+        if (
+          props?.customColors &&
+          key in props?.customColors &&
+          props.customColors[key]
+        ) {
+          return [key, props.customColors[key]?.colorString];
+        }
+        return [key, value];
+      })
+      .filter(x => x[0] != null)
+  );
+
   const font = fontSelector(theme, props?.font);
 
   const cursor =
@@ -95,6 +115,7 @@ export const useStyle = (
       color: foregroundColor,
       backgroundColor
     },
+    customColors,
     other
   };
 };

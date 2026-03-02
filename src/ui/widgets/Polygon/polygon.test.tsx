@@ -8,9 +8,13 @@ import { vi } from "vitest";
 vi.mock("../../themeUtils", () => ({
   useStyle: vi.fn((props: any) =>
     props?.transparent
-      ? createMockStyle({ colors: { backgroundColor: "transparent" } })
+      ? createMockStyle({
+          colors: { backgroundColor: "transparent" },
+          customColors: { lineColor: "rgba(0,1,255,1)" }
+        })
       : createMockStyle({
-          colors: { backgroundColor: props.backgroundColor.colorString }
+          colors: { backgroundColor: props.backgroundColor.colorString },
+          customColors: { lineColor: "rgba(0,1,255,1)" }
         })
   )
 }));

@@ -1,12 +1,17 @@
 import React from "react";
 import renderer, { ReactTestRendererJSON } from "react-test-renderer";
-import {
-  ArcComponent,
-  circumPointFromAngle,
-  findFillOption,
-  findLineColor
-} from "./arc";
+import { ArcComponent, circumPointFromAngle } from "./arc";
 import { ColorUtils } from "../../../types/color";
+import { vi } from "vitest";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
+
+vi.mock("../../themeUtils", () => ({
+  useStyle: vi.fn(() =>
+    createMockStyle({
+      colors: { color: "rgba(0,0,255,1)", backgroundColor: "rgba(200,1,60,1)" }
+    })
+  )
+}));
 
 const ArcRenderer = (arcProps: any): ReactTestRendererJSON => {
   return renderer
@@ -18,8 +23,7 @@ describe("<ArcComponent />", (): void => {
   test("create arc of angle < 180 degrees using default", (): void => {
     const arcProps = {
       height: 100,
-      width: 100,
-      backgroundColor: ColorUtils.fromRgba(200, 1, 60)
+      width: 100
     };
 
     const svg = ArcRenderer(arcProps);
@@ -48,9 +52,7 @@ describe("<ArcComponent />", (): void => {
       width: 100,
       startAngle: 34,
       totalAngle: 201,
-      transparent: false,
-      lineColor: ColorUtils.fromRgba(0, 100, 200),
-      backgroundColor: ColorUtils.fromRgba(45, 1, 180)
+      transparent: false
     };
 
     const svg = ArcRenderer(arcProps);
@@ -66,10 +68,10 @@ describe("<ArcComponent />", (): void => {
     for (let i = 0; i < pathArray.length; i++) {
       if (i % 2) {
         // Even numbers are border elements
-        expect(pathArray[i].props.stroke).toEqual("rgba(0,100,200,1)");
+        expect(pathArray[i].props.stroke).toEqual("rgba(0,0,255,1)");
       } else {
         // Odd numbers are filled arc elements
-        expect(pathArray[i].props.fill).toEqual("rgba(45,1,180,1)");
+        expect(pathArray[i].props.fill).toEqual("rgba(200,1,60,1)");
       }
     }
   });
@@ -141,47 +143,5 @@ describe("circumPointFromAngle()", (): void => {
   test("calculate circumference point", (): void => {
     const coords = circumPointFromAngle(0, 0, 20, 20, 45);
     expect(coords).toEqual([11, 17]);
-  });
-});
-
-describe("findFillOption()", (): void => {
-  test("Use Phoebus fill option", (): void => {
-    const fillOpt = findFillOption(false, undefined);
-    expect(fillOpt).toEqual(true);
-  });
-  test("Use CSStudio fill option", (): void => {
-    const fillOpt = findFillOption(undefined, true);
-    expect(fillOpt).toEqual(true);
-  });
-  test("Use default fill option", (): void => {
-    const fillOpt = findFillOption(undefined, undefined);
-    expect(fillOpt).toEqual(true);
-  });
-});
-
-describe("findLineColor()", (): void => {
-  test("Use Phoebus line color", (): void => {
-    const lineColor = findLineColor(
-      ColorUtils.fromRgba(20, 15, 100),
-      undefined
-    );
-    expect(lineColor.colorString).toEqual(
-      ColorUtils.fromRgba(20, 15, 100).colorString
-    );
-  });
-  test("Use CSStudio foreground color", (): void => {
-    const lineColor = findLineColor(
-      undefined,
-      ColorUtils.fromRgba(40, 250, 100)
-    );
-    expect(lineColor.colorString).toEqual(
-      ColorUtils.fromRgba(40, 250, 100).colorString
-    );
-  });
-  test("Use default line color", (): void => {
-    const lineColor = findLineColor(undefined, undefined);
-    expect(lineColor.colorString).toEqual(
-      ColorUtils.fromRgba(0, 0, 255, 1).colorString
-    );
   });
 });

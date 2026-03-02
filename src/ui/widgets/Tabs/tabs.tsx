@@ -7,7 +7,6 @@ import {
   styled,
   Tabs
 } from "@mui/material";
-import { ColorUtils } from "../../../types";
 import { Close } from "@mui/icons-material";
 import PropTypes from "prop-types";
 import {
@@ -20,7 +19,7 @@ import {
 } from "../propTypes";
 import { useStyle } from "../../themeUtils";
 
-const widgetName = "tabBar";
+const widgetName = "tabbar";
 
 const Tab = styled(MuiTab)({
   padding: 0,
@@ -56,14 +55,21 @@ export const TabBarProps = {
 export const TabBar = (
   props: InferWidgetProps<typeof TabBarProps>
 ): JSX.Element => {
-  const { font } = useStyle(props, widgetName);
+  const { font, customColors } = useStyle(
+    {
+      ...props,
+      customColors: {
+        selectedColor: props?.selectedColor,
+        deselectedColor: props?.deselectedColor
+      }
+    },
+    widgetName
+  );
   const {
     direction = 0,
     tabWidth = 100,
     tabHeight = 30,
     tabSpacing = 0,
-    selectedColor = ColorUtils.fromRgba(236, 236, 236),
-    deselectedColor = ColorUtils.fromRgba(200, 200, 200),
     activeTab = 0,
     visible = true
   } = props;
@@ -134,11 +140,11 @@ export const TabBar = (
               }
               sx={{
                 "&.Mui-selected": {
-                  backgroundColor: selectedColor.colorString,
+                  backgroundColor: customColors?.selectedColor,
                   color: "black"
                 },
                 boxShadow: 3,
-                backgroundColor: deselectedColor.colorString,
+                backgroundColor: customColors?.deselectedColor,
                 marginRight: direction ? "0px" : `${tabSpacing}px`,
                 marginBottom: direction ? `${tabSpacing}px` : "0px",
                 "&.MuiTab-root": {

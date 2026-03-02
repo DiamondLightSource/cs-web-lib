@@ -20,7 +20,6 @@ import {
   ToggleButtonGroup
 } from "@mui/material";
 import { getPvValueAndName } from "../utils";
-import { ColorUtils } from "../../../types/color";
 import { useStyle } from "../../themeUtils";
 
 const widgetName = "choicebutton";
@@ -70,7 +69,10 @@ const ToggleButton = styled(MuiToggleButton)({
 export const ChoiceButtonComponent = (
   props: ChoiceButtonComponentProps
 ): JSX.Element => {
-  const style = useStyle(props, widgetName);
+  const style = useStyle(
+    { ...props, customColors: { selectedColor: props?.selectedColor } },
+    widgetName
+  );
   const {
     width = 100,
     height = 43,
@@ -78,8 +80,7 @@ export const ChoiceButtonComponent = (
     enabled = true,
     itemsFromPv = true,
     items = ["Item 1", "Item 2"],
-    horizontal = true,
-    selectedColor = ColorUtils.fromRgba(200, 200, 200)
+    horizontal = true
   } = props;
   const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
 
@@ -144,10 +145,10 @@ export const ChoiceButtonComponent = (
               width: buttonWidth,
               height: buttonHeight,
               "&.Mui-selected": {
-                backgroundColor: selectedColor.colorString
+                backgroundColor: style?.customColors?.selectedColor
               },
               "&.Mui-selected:hover": {
-                backgroundColor: selectedColor.colorString,
+                backgroundColor: style?.customColors?.selectedColor,
                 opacity: 0.6
               },
               "&:hover": {

@@ -11,7 +11,6 @@ import {
   FontPropOpt,
   ColorPropOpt
 } from "../propTypes";
-import { ColorUtils } from "../../../types/color";
 import { GaugeComponent } from "react-gauge-component";
 import {
   buildSubArcs,
@@ -53,12 +52,14 @@ export const MeterComponent = (
     height = 120,
     width = 240,
     limitsFromPv = true,
-    needleColor = ColorUtils.fromRgba(255, 5, 7, 1),
     precision = undefined,
     showUnits = true,
     showValue = true
   } = props;
-  const style = useStyle(props, widgetName);
+  const style = useStyle(
+    { ...props, customColors: { needleColor: props?.needleColor } },
+    widgetName
+  );
   const { value } = getPvValueAndName(pvData);
 
   const units = value?.display.units ?? "";
@@ -129,7 +130,7 @@ export const MeterComponent = (
           right: 0.09
         }}
         pointer={{
-          color: needleColor.colorString,
+          color: style?.customColors?.needleColor,
           elastic: false,
           animate: false,
           length: 0.95

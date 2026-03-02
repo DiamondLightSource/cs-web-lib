@@ -17,7 +17,9 @@ import {
   dTypeGetDoubleValue,
   DAlarmNONE
 } from "../../../types/dtypes";
-import { ColorUtils } from "../../../types/color";
+import { useStyle } from "../../themeUtils";
+
+const widgetName = "led";
 
 /**
  * width: the diameter of the LED
@@ -44,9 +46,6 @@ export type LedComponentProps = InferWidgetProps<typeof LedProps> & PVComponent;
 export const LedComponent = (props: LedComponentProps): JSX.Element => {
   const {
     pvData,
-    onColor = ColorUtils.fromRgba(0, 255, 0),
-    offColor = ColorUtils.fromRgba(60, 100, 60),
-    lineColor = ColorUtils.fromRgba(50, 50, 50, 178),
     width = WIDGET_DEFAULT_SIZES["led"][0],
     height = WIDGET_DEFAULT_SIZES["led"][1],
     alarmSensitive = false,
@@ -54,9 +53,21 @@ export const LedComponent = (props: LedComponentProps): JSX.Element => {
     square = false
   } = props;
 
+  const style = useStyle(
+    {
+      ...props,
+      customColors: {
+        onColor: props?.onColor,
+        offColor: props?.offColor,
+        lineColor: props?.lineColor
+      }
+    },
+    widgetName
+  );
+
   const { value } = getPvValueAndName(pvData);
 
-  const style: CSSProperties = {};
+  const divStyle: CSSProperties = {};
 
   let ledOn = false;
   const doubleValue = dTypeGetDoubleValue(value);
@@ -69,14 +80,17 @@ export const LedComponent = (props: LedComponentProps): JSX.Element => {
       ledOn = ((1 << doubleValue) & bit) === bit;
     }
   }
-  style["backgroundColor"] = ledOn ? onColor.colorString : offColor.colorString;
-  style["border"] = `2px solid ${lineColor.colorString}`;
-  style["borderRadius"] = square ? "0%" : "50%";
+
+  divStyle["backgroundColor"] = ledOn
+    ? style?.customColors?.onColor
+    : style?.customColors?.offColor;
+  divStyle["border"] = `2px solid ${style?.customColors?.lineColor}`;
+  divStyle["borderRadius"] = square ? "0%" : "50%";
 
   // make sizes similar to size in CS-Studio, five taken
   // away from default in css file too
-  style.width = `${width}px`;
-  style.height = `${height}px`;
+  divStyle.width = `${width}px`;
+  divStyle.height = `${height}px`;
 
   let className = classes.Led;
   if (alarmSensitive) {
@@ -84,7 +98,7 @@ export const LedComponent = (props: LedComponentProps): JSX.Element => {
     className += ` ${classes[alarm.quality]}`;
   }
 
-  return <div className={className} style={style} />;
+  return <div className={className} style={divStyle} />;
 };
 
 const LedWidgetProps = {
@@ -96,4 +110,4 @@ export const LED = (
   props: InferWidgetProps<typeof LedWidgetProps>
 ): JSX.Element => <Widget baseWidget={LedComponent} {...props} />;
 
-registerWidget(LED, LedWidgetProps, "led");
+registerWidget(LED, LedWidgetProps, widgetName);

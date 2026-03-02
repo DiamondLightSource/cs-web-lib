@@ -12,7 +12,7 @@ import {
   BobColorsPropOpt,
   IntPropOpt
 } from "../propTypes";
-import { ColorUtils } from "../../../types/color";
+import { Color, ColorUtils } from "../../../types/color";
 import {
   ChartsReferenceLine,
   chartsTooltipClasses,
@@ -60,7 +60,28 @@ export const LinearMeterComponentProps = {
 export const LinearMeterComponent = (
   props: InferWidgetProps<typeof LinearMeterComponentProps> & PVComponent
 ): JSX.Element => {
-  const style = useStyle(props, widgetName);
+  const style = useStyle(
+    {
+      ...props,
+      foregroundColor: props?.colors?.foregroundColor as Color | undefined,
+      backgroundColor: props?.colors?.backgroundColor as Color | undefined,
+      customColors: {
+        needleColor: props?.colors?.needleColor as Color | undefined,
+        normalStatusColor: props?.colors?.normalStatusColor as
+          | Color
+          | undefined,
+        minorWarningColor: props?.colors?.minorWarningColor as
+          | Color
+          | undefined,
+        majorWarningColor: props?.colors?.majorWarningColor as
+          | Color
+          | undefined,
+        knobColor: props?.colors?.knobColor as Color | undefined
+      }
+    },
+    widgetName
+  );
+
   const {
     pvData,
     limitsFromPv = true,
@@ -81,10 +102,8 @@ export const LinearMeterComponent = (
   const units = value?.display.units ?? "";
   const numValue = dTypeGetDoubleValue(value) ?? 0;
 
-  const needleColor =
-    props?.colors?.needleColor?.colorString ?? style.colors?.color;
-  const knobColor =
-    props?.colors?.knobColor?.colorString ?? style.colors?.color;
+  const needleColor = style?.customColors?.needleColor;
+  const knobColor = style?.customColors?.knobColor;
 
   // Set the maximum, minimum and alarm levels.
   let alarmRangeMin: number | undefined = levelLolo;
@@ -185,7 +204,11 @@ export const LinearMeterComponent = (
     alarmRangeMax,
     minimum,
     maximum,
-    props?.colors ?? {},
+    {
+      ...style?.customColors,
+      isHighlightingOfActiveRegionsEnabled:
+        props?.colors?.isHighlightingOfActiveRegionsEnabled
+    },
     showLimits,
     numValue
   );
@@ -256,9 +279,7 @@ export const LinearMeterComponent = (
           height: "100%",
           width: "100%",
           position: "absolute",
-          border: 1,
-          borderColor: "#D2D2D2",
-          borderRadius: "4px",
+          ...style?.border,
           backgroundColor: style?.colors?.backgroundColor
         }}
         slotProps={{

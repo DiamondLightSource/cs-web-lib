@@ -12,7 +12,6 @@ import {
   BorderPropOpt
 } from "../propTypes";
 import { LinearProgress } from "@mui/material";
-import { ColorUtils } from "../../../types/color";
 import { getPvValueAndName } from "../utils";
 import { dTypeGetDoubleValue } from "../../../types/dtypes";
 import { useStyle } from "../../themeUtils";
@@ -37,13 +36,15 @@ export const ProgressBarProps = {
 export const ProgressBarComponent = (
   props: InferWidgetProps<typeof ProgressBarProps> & PVComponent
 ): JSX.Element => {
-  const style = useStyle(props, widgetName);
+  const style = useStyle(
+    { ...props, customColors: { fillColor: props?.fillColor } },
+    widgetName
+  );
   const {
     pvData,
     limitsFromPv = false,
     showLabel = false,
     horizontal = true,
-    fillColor = ColorUtils.fromRgba(60, 255, 60),
     precision = undefined,
     logScale = false
   } = props;
@@ -94,7 +95,7 @@ export const ProgressBarComponent = (
             transform: horizontal
               ? null
               : `translateY(${100 - percent}%)!important`.toString(),
-            backgroundColor: fillColor.colorString
+            backgroundColor: style?.customColors?.fillColor
           }
         }}
       />

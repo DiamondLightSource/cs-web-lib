@@ -14,7 +14,8 @@ vi.mock("../../themeUtils", () => ({
   useStyle: vi.fn(() =>
     createMockStyle({
       font: { fontFamily: "Arial" },
-      colors: { color: "rgba(0,0,0,1)" }
+      colors: { color: "rgba(0,0,0,1)" },
+      customColors: { needleColor: "rgba(0,255,0,1)" }
     })
   )
 }));

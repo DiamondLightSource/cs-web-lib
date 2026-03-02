@@ -19,7 +19,7 @@ import {
 } from "../propTypes";
 
 import { TabBar } from "./tabs";
-import { ColorUtils, newRelativePosition } from "../../../types";
+import { newRelativePosition } from "../../../types";
 import { EmbeddedDisplay } from "../EmbeddedDisplay/embeddedDisplay";
 
 export const NavigationTabsProps = {
@@ -65,8 +65,6 @@ export const NavigationTabsComponent = (
       direction={1}
       tabWidth={100}
       tabSpacing={2}
-      selectedColor={ColorUtils.fromRgba(236, 236, 236)}
-      deselectedColor={ColorUtils.fromRgba(200, 200, 200)}
       {...props}
       tabs={tabChildren}
     ></TabBar>

@@ -13,7 +13,6 @@ import {
   ColorPropOpt,
   BorderPropOpt
 } from "../propTypes";
-import { ColorUtils } from "../../../types/color";
 import { XAxis, YAxis } from "@mui/x-charts";
 import { getPvValueAndName } from "../utils";
 import { dTypeGetDoubleValue } from "../../../types/dtypes";
@@ -42,15 +41,22 @@ export const TankProps = {
 export const TankComponent = (
   props: InferWidgetProps<typeof TankProps> & PVComponent
 ): JSX.Element => {
-  const style = useStyle(props, widgetName);
+  const style = useStyle(
+    {
+      ...props,
+      customColors: {
+        fillColor: props?.fillColor,
+        emptyColor: props?.emptyColor
+      }
+    },
+    widgetName
+  );
 
   const {
     pvData,
     limitsFromPv = false,
     showLabel = false,
     horizontal = false,
-    fillColor = ColorUtils.fromRgba(0, 0, 255, 1),
-    emptyColor = ColorUtils.fromRgba(192, 192, 192, 1),
     precision = undefined,
     scaleVisible = true,
     logScale = false,
@@ -132,7 +138,7 @@ export const TankComponent = (
           {
             data: [numValue],
             stack: "total",
-            color: fillColor.colorString,
+            color: style?.customColors?.fillColor,
             label: pvName?.toString(),
             type: "bar",
             valueFormatter: val => {
@@ -145,7 +151,7 @@ export const TankComponent = (
             // This is the empty part of the tank
             data: [maximum - numValue],
             stack: "total",
-            color: emptyColor.colorString,
+            color: style?.customColors?.emptyColor,
             type: "bar",
             label: undefined,
             // Disable tooltip for this series
