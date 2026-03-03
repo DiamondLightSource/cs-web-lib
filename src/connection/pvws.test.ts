@@ -7,13 +7,16 @@ describe("PvwsPlugin", (): void => {
   let cp: PvwsPlugin;
   let mockConnUpdate: Mock;
   let mockValUpdate: Mock;
+  let mockShowError: Mock;
   let ws: WS;
   beforeEach(async () => {
     ws = new WS("ws://a.b.c:100/pvws/pv");
     cp = new PvwsPlugin("a.b.c:100", false);
     mockConnUpdate = vi.fn();
     mockValUpdate = vi.fn();
-    cp.connect(mockConnUpdate, mockValUpdate);
+    mockShowError = vi.fn();
+    // @ts-expect-error: testing behaviour with undefined callback
+    cp.connect(mockConnUpdate, mockValUpdate, undefined, mockShowError);
     await ws.connected;
   });
   afterEach(() => {
@@ -94,5 +97,11 @@ describe("PvwsPlugin", (): void => {
       isConnected: true,
       isReadonly: false
     });
+  });
+
+  it("Calls showError, when error message received from PVWS", (): void => {
+    cp.subscribe("hello", { string: true });
+    ws.send(JSON.stringify({ type: "error", message: "I am an error" }));
+    expect(mockShowError).toHaveBeenLastCalledWith("I am an error");
   });
 });

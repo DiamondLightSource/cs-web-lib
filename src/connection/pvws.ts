@@ -8,7 +8,8 @@ import {
   ValueChangedCallback,
   nullConnCallback,
   nullValueCallback,
-  SubscriptionType
+  SubscriptionType,
+  DeviceQueriedCallback
 } from "./plugin";
 
 import {
@@ -135,6 +136,7 @@ export class PvwsPlugin implements Connection {
   private wsProtocol = "ws";
   private onConnectionUpdate: ConnectionChangedCallback;
   private onValueUpdate: ValueChangedCallback;
+  private showError: (message: string) => void;
   private connected: boolean;
   private disconnected: string[] = [];
   private subscriptions: { [pvName: string]: boolean };
@@ -151,6 +153,7 @@ export class PvwsPlugin implements Connection {
     this.open(false);
     this.onConnectionUpdate = nullConnCallback;
     this.onValueUpdate = nullValueCallback;
+    this.showError = () => null;
     this.connected = false;
     this.subscriptions = {};
     this.initMsgRcvd = {};
@@ -204,6 +207,9 @@ export class PvwsPlugin implements Connection {
 
       const dtype = pvwsToDType(jm);
       this.onValueUpdate(jm.pv, dtype);
+    } else if (jm.type === "error") {
+      log.error(`PVWS error message: ${jm?.message}`);
+      this.showError(`${jm?.message}`);
     }
   }
 
@@ -257,10 +263,13 @@ export class PvwsPlugin implements Connection {
 
   public connect(
     connectionCallback: ConnectionChangedCallback,
-    valueCallback: ValueChangedCallback
+    valueCallback: ValueChangedCallback,
+    _deviceCallback: DeviceQueriedCallback,
+    showErrorCallback: (message: string) => void
   ): void {
     this.onConnectionUpdate = connectionCallback;
     this.onValueUpdate = valueCallback;
+    this.showError = showErrorCallback;
     this.connected = true;
   }
 
