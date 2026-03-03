@@ -12,7 +12,7 @@ import {
   MacrosPropOpt
 } from "../propTypes";
 import { Point } from "../../../types/points";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "polygon";
 

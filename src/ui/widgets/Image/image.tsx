@@ -1,7 +1,7 @@
 import React, { CSSProperties } from "react";
 
 import { Widget } from "../widget";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 import { WidgetPropType } from "../widgetProps";
 import {
   InferWidgetProps,

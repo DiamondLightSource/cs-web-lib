@@ -34,7 +34,7 @@ import {
 } from "./trianglePointer";
 import { buildStatusRegions } from "./linearMeterUtilities";
 import { dTypeGetDoubleValue } from "../../../types/dtypes";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "linearmeter";
 

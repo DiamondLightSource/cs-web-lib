@@ -26,7 +26,7 @@ import {
 } from "../../../types/dtypes";
 import { TextField as MuiTextField, styled } from "@mui/material";
 import { getPvValueAndName } from "../utils";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 
 const InputComponentProps = {
   pvName: StringPropOpt,

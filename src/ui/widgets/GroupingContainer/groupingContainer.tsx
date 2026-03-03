@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { Widget } from "../widget";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 import { WidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import {

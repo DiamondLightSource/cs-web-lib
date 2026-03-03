@@ -13,7 +13,7 @@ import { PvDatum } from "../../../redux/csState";
 import { createMockStyle } from "../../../test-utils/styleTestUtils";
 import { vi } from "vitest";
 
-vi.mock("../../themeUtils", () => ({
+vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() =>
     createMockStyle({
       colors: { color: "rgba(0,0,255,1)", backgroundColor: "rgba(200,1,60,1)" },

@@ -10,7 +10,7 @@ import { newFont } from "../../../types/font";
 import { vi } from "vitest";
 import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
-vi.mock("../../themeUtils", () => ({
+vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() => ({
     colors: {
       color: "rgb(155, 160, 209)",
@@ -25,7 +25,7 @@ vi.mock("../../themeUtils", () => ({
   }))
 }));
 
-vi.mock("../../themeUtils", () => ({
+vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() =>
     createMockStyle({
       font: {

@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 
 import { Widget } from "../widget";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 import { PVWidgetPropType, PVComponent } from "../widgetProps";
 import {
   InferWidgetProps,

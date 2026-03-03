@@ -24,7 +24,7 @@ import { errorWidget, widgetDescriptionToComponent } from "../createComponent";
 import log from "loglevel";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { newColor } from "../../../types/color";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "tabcontainer";
 

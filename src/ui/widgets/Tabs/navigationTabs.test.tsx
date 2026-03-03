@@ -13,7 +13,7 @@ import { ColorUtils } from "../../../types";
 import { createMockStyle } from "../../../test-utils/styleTestUtils";
 ensureWidgetsRegistered();
 
-vi.mock("../../themeUtils", () => ({
+vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() =>
     createMockStyle({
       customColors: {

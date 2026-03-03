@@ -17,7 +17,7 @@ import {
   FuncPropOpt,
   InferWidgetProps
 } from "../propTypes";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "tabbar";
 

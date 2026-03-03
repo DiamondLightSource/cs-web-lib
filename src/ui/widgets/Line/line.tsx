@@ -13,7 +13,7 @@ import {
 } from "../propTypes";
 import { registerWidget } from "../register";
 import { Point } from "../../../types/points";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "line";
 

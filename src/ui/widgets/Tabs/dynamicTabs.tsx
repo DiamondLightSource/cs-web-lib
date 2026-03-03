@@ -23,7 +23,7 @@ import { newRelativePosition } from "../../../types/position";
 
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 import { TabBar } from "./tabs";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "dynamictabs";
 

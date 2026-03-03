@@ -17,7 +17,7 @@ import {
   dTypeGetDoubleValue,
   DAlarmNONE
 } from "../../../types/dtypes";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "led";
 

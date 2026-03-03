@@ -25,7 +25,7 @@ import {
   dTimeToDate
 } from "../../../types/dtypes";
 import { fontToCss, newFont } from "../../../types/font";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "stripchart";
 

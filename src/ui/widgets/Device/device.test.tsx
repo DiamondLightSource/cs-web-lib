@@ -9,7 +9,7 @@ import { vi } from "vitest";
 import { createMockStyle } from "../../../test-utils/styleTestUtils";
 ensureWidgetsRegistered();
 
-vi.mock("../../themeUtils", () => ({
+vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() => createMockStyle())
 }));
 

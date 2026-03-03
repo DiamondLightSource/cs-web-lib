@@ -10,7 +10,7 @@ const BASE_PROPS = {
   text: "hello"
 };
 
-vi.mock("../../themeUtils", () => ({
+vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() => createMockStyle())
 }));
 

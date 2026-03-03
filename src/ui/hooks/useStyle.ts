@@ -1,9 +1,9 @@
 import { BorderDef, PaletteColor, Theme, useTheme } from "@mui/material";
-import { Border, Color } from "../types";
-import { Font, fontToCss } from "../types/font";
+import { Border, Color } from "../../types";
+import { Font, fontToCss } from "../../types/font";
 import { CSSProperties } from "react";
-import { borderToCss } from "../types/border";
-import { WidgetActions } from "./widgets/widgetActions";
+import { borderToCss } from "../../types/border";
+import { WidgetActions } from "../widgets/widgetActions";
 
 const selectPalette = (theme: Theme, widgetName?: string): PaletteColor => {
   if (theme?.palette && widgetName && widgetName in theme?.palette) {

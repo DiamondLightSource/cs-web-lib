@@ -8,7 +8,7 @@ import {
   Response
 } from "./deviceParser";
 
-vi.mock("../../themeUtils", () => ({
+vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() => ({
     colors: {
       color: "rgb(155, 160, 209)",

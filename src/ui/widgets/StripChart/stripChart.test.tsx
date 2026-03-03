@@ -31,7 +31,7 @@ vi.mock("@mui/material", () => ({
   ))
 }));
 
-vi.mock("../../themeUtils", () => ({
+vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() =>
     createMockStyle({
       colors: {

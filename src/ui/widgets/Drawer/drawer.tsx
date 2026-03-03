@@ -14,7 +14,7 @@ import {
   ColorPropOpt,
   BorderPropOpt
 } from "../propTypes";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "drawer";
 

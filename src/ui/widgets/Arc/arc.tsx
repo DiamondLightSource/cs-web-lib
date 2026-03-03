@@ -11,7 +11,7 @@ import {
 } from "../propTypes";
 import classes from "./arc.module.css";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "arc";
 

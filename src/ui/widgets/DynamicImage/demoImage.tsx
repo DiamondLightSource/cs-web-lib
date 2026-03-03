@@ -4,7 +4,7 @@ import { WidgetPropType } from "../widgetProps";
 import { InferWidgetProps, MacrosPropOpt, ColorPropOpt } from "../propTypes";
 import { registerWidget } from "../register";
 import { Box } from "@mui/material";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "demoImage";
 

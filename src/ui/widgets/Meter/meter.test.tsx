@@ -10,7 +10,7 @@ import { PvDatum } from "../../../redux/csState";
 import { newDType } from "../../../types/dtypes";
 import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
-vi.mock("../../themeUtils", () => ({
+vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() =>
     createMockStyle({
       font: { fontFamily: "Arial" },

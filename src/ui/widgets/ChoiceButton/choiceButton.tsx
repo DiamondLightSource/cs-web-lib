@@ -20,7 +20,7 @@ import {
   ToggleButtonGroup
 } from "@mui/material";
 import { getPvValueAndName } from "../utils";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "choicebutton";
 

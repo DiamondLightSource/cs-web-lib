@@ -18,7 +18,7 @@ import { dTypeGetDoubleValue, newDType } from "../../../types/dtypes";
 import { Slider } from "@mui/material";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { getPvValueAndName } from "../utils";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "slidecontrol";
 

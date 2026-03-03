@@ -23,7 +23,7 @@ import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import { getPvValueAndName } from "../utils";
 import log from "loglevel";
 import { dTypeGetStringValue } from "../../../types/dtypes";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "menubutton";
 

@@ -39,7 +39,7 @@ vi.mock("d3", () => {
   };
 });
 
-vi.mock("../../themeUtils", () => ({
+vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() => createMockStyle())
 }));
 

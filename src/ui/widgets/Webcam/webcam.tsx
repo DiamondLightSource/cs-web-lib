@@ -5,7 +5,7 @@ import { WidgetPropType } from "../widgetProps";
 import { Widget } from "../widget";
 import { registerWidget } from "../register";
 import { Box } from "@mui/material";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "webcam";
 

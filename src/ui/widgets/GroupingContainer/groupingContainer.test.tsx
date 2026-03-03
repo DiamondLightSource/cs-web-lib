@@ -6,7 +6,7 @@ import { vi } from "vitest";
 
 const grouping = <GroupingContainerComponent name={"Test"} />;
 
-vi.mock("../../themeUtils", () => ({
+vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() => ({
     color: undefined,
     backgroundColor: undefined,

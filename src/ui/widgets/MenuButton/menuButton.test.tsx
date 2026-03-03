@@ -20,7 +20,7 @@ const mockWritePv = vi
   .spyOn(useSubscription, "writePv")
   .mockImplementation(vi.fn());
 
-vi.mock("../../themeUtils", () => ({
+vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() =>
     createMockStyle({
       colors: {

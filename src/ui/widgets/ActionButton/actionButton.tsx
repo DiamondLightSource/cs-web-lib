@@ -21,7 +21,7 @@ import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 import { styled, Button as MuiButton } from "@mui/material";
 import { calculateRotationTransform } from "../utils";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "actionbutton";
 

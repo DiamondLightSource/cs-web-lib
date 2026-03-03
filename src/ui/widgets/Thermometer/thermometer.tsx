@@ -13,7 +13,7 @@ import {
 import { Box } from "@mui/material";
 import { getPvValueAndName } from "../utils";
 import { dTypeGetDoubleValue, DType } from "../../../types/dtypes";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "thermometer";
 

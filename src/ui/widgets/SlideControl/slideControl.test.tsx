@@ -5,7 +5,7 @@ import { SlideControlComponent } from "./slideControl";
 import { createMockStyle } from "../../../test-utils/styleTestUtils";
 import { vi } from "vitest";
 
-vi.mock("../../themeUtils", () => ({
+vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() => createMockStyle())
 }));
 

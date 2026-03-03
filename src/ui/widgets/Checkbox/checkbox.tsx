@@ -17,7 +17,7 @@ import {
 import { writePv } from "../../hooks/useSubscription";
 import { getPvValueAndName } from "../utils";
 import { newDType, dTypeGetDoubleValue } from "../../../types/dtypes";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "checkbox";
 

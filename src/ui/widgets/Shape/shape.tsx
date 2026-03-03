@@ -12,7 +12,7 @@ import {
   MacrosPropOpt
 } from "../propTypes";
 import { Color } from "../../../types/color";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 import { BorderStyle } from "../../../types/border";
 
 const widgetName = "shape";

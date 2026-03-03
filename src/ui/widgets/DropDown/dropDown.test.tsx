@@ -6,7 +6,7 @@ import { fireEvent, render, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
 import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
-vi.mock("../../themeUtils", () => ({
+vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() => ({
     color: "",
     backgroundColor: "",
@@ -17,7 +17,7 @@ vi.mock("../../themeUtils", () => ({
   }))
 }));
 
-vi.mock("../../themeUtils", () => ({
+vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() => createMockStyle())
 }));
 

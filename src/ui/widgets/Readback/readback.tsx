@@ -28,7 +28,7 @@ import {
 import { TextField as MuiTextField, styled } from "@mui/material";
 import { calculateRotationTransform, getPvValueAndName } from "../utils";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "readback";
 

@@ -34,7 +34,7 @@ vi.mock(import("@mui/material"), async importOriginal => {
   };
 });
 
-vi.mock("../../themeUtils", () => ({
+vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() =>
     createMockStyle({
       colors: {

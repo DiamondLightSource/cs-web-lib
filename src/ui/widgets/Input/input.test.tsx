@@ -9,7 +9,7 @@ import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
 let input: JSX.Element;
 
-vi.mock("../../themeUtils", () => ({
+vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() => createMockStyle())
 }));
 

@@ -9,6 +9,7 @@
     "lint": "eslint 'src/**/*.{ts,tsx}' --max-warnings=0",
     "lint:fix": "eslint 'src/**/*.{ts,tsx}' --max-warnings=0 --fix",
     "prettier-check": "prettier --check 'src/**/*.{ts,tsx}'",
+    "prettier-write": "prettier --write 'src/**/*.{ts,tsx}'",
     "check-types": "tsc",
     "all-checks": "npm run lint && npm run prettier-check && npm run check-types"
   },

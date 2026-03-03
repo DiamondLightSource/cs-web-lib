@@ -23,7 +23,7 @@ import {
 import { getPvValueAndName, trimFromString } from "../utils";
 import { Trace } from "../../../types/trace";
 import { Axis } from "../../../types/axis";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 import { Box } from "@mui/material";
 
 const widgetName = "xyplot";

@@ -16,7 +16,7 @@ import {
 import { XAxis, YAxis } from "@mui/x-charts";
 import { getPvValueAndName } from "../utils";
 import { dTypeGetDoubleValue } from "../../../types/dtypes";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "tank";
 

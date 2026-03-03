@@ -19,7 +19,7 @@ import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { Button as MuiButton, styled } from "@mui/material";
 import { getPvValueAndName } from "../utils";
 import { LedComponent } from "../LED/led";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "boolbutton";
 

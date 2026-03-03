@@ -14,7 +14,7 @@ import {
   BorderPropOpt,
   ColorPropOpt
 } from "../propTypes";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 const widgetName = "dropdown";
 const DropDownContainerProps = {
   title: StringProp,

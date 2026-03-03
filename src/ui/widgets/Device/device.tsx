@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Widget } from "./../widget";
-import { useStyle } from "../../themeUtils";
+import { useStyle } from "../../hooks/useStyle";
 import { WidgetPropType } from "./../widgetProps";
 import { InferWidgetProps, StringPropOpt } from "./../propTypes";
 import { registerWidget } from "./../register";

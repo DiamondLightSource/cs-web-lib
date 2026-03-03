@@ -15,7 +15,7 @@ import { newDType } from "../../../types/dtypes";
 import { ColorUtils } from "../../../types/color";
 import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
-vi.mock("../../themeUtils", () => ({
+vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() =>
     createMockStyle({
       colors: {

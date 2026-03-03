@@ -5,7 +5,7 @@ import { ColorUtils } from "../../../types/color";
 import { createMockStyle } from "../../../test-utils/styleTestUtils";
 import { vi } from "vitest";
 
-vi.mock("../../themeUtils", () => ({
+vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn((props: any) =>
     props?.transparent
       ? createMockStyle({
