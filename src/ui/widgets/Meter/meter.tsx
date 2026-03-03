@@ -130,10 +130,13 @@ export const MeterComponent = (
           right: 0.09
         }}
         pointer={{
+          type: "needle",
           color: style?.customColors?.needleColor,
+          baseColor: style?.customColors?.needleColor,
           elastic: false,
           animate: false,
-          length: 0.95
+          length: 0.95,
+          width: 15
         }}
         arc={{
           padding: 0,
