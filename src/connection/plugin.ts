@@ -31,7 +31,8 @@ export interface Connection {
   connect: (
     connectionCallback: ConnectionChangedCallback,
     valueCallback: ValueChangedCallback,
-    deviceQueried: DeviceQueriedCallback
+    deviceQueried: DeviceQueriedCallback,
+    showError: (message: string) => void
   ) => void;
   isConnected: () => boolean;
   unsubscribe: (pvName: string) => void;

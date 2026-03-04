@@ -54,7 +54,8 @@ export const connectionMiddleware =
         (pvName: string, value: DType): void =>
           valueChangedDispatch(store, pvName, value),
         (device: string, value: DType): void =>
-          deviceQueriedDispatch(store, device, value)
+          deviceQueriedDispatch(store, device, value),
+        (message: string): void => showError(message)
       );
     }
 

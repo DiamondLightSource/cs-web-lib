@@ -54,12 +54,18 @@ export class ConnectionForwarder implements Connection {
   public connect(
     connectionCallback: ConnectionChangedCallback,
     valueCallback: ValueChangedCallback,
-    deviceCallback: DeviceQueriedCallback
+    deviceCallback: DeviceQueriedCallback,
+    showErrorCallback: (message: string) => void
   ): void {
     for (const [, connection] of this.prefixConnections) {
       if (connection !== undefined) {
         if (!connection.isConnected()) {
-          connection.connect(connectionCallback, valueCallback, deviceCallback);
+          connection.connect(
+            connectionCallback,
+            valueCallback,
+            deviceCallback,
+            showErrorCallback
+          );
         }
       }
     }
