@@ -11,15 +11,7 @@ const config = [
   {
     input: "src/index.ts",
 
-    external: (id) => {
-      if (id.includes("react-gauge-component")) return false;
-      return false; // bundle everything except peer deps
-    },
-    moduleContext(id) {
-      if (id.includes("react-gauge-component")) {
-        return "window";
-      }
-    },
+    external: [ "react-gauge-component" ],
 
     output: [
       {
@@ -45,9 +37,7 @@ const config = [
       }
     },
     plugins: [
-      peerDepsExternal({
-        exclude: ["react-gauge-component"]
-      }),
+      peerDepsExternal(),
 
       resolve({
         preferBuiltins: true
