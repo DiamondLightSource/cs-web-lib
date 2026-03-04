@@ -77,11 +77,10 @@ export const DisplayComponent = (
   // true AND the scale factor provided is not 1 where 1
   // implies no scaling
   if (props.autoZoomToFit && internalScaleX !== "1" && internalScaleY !== "1") {
-    const transformOrigin = getOptionalValue(props.scalingOrigin, "center top");
     extendedStyle = {
       ...extendedStyle,
       transform: `scale(${internalScaleX}, ${internalScaleY})`,
-      transformOrigin
+      transformOrigin: getOptionalValue(props.scalingOrigin, "center top")
     };
   }
   return (

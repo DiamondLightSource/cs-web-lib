@@ -23,18 +23,18 @@ const selectBorder = (theme: Theme, widgetName?: string): BorderDef => {
 };
 
 const foregroundColorSelector = (
-  themePallet: PaletteColor,
+  themePalette: PaletteColor,
   foregroundColor?: Color
-): string => foregroundColor?.colorString ?? themePallet?.contrastText;
+): string => foregroundColor?.colorString ?? themePalette?.contrastText;
 
 const backgroundColorSelector = (
-  themePallet: PaletteColor,
+  themePalette: PaletteColor,
   backgroundColor?: Color,
   transparent?: boolean
 ): string =>
   transparent
     ? "transparent"
-    : (backgroundColor?.colorString ?? themePallet?.main);
+    : (backgroundColor?.colorString ?? themePalette?.main);
 
 const fontSelector = (theme: Theme, font?: Font): CSSProperties =>
   fontToCss(font) ?? (theme.typography as CSSProperties);
