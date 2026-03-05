@@ -1,9 +1,10 @@
 import React from "react";
 import renderer, { ReactTestRendererJSON } from "react-test-renderer";
-import { ArcComponent, circumPointFromAngle } from "./arc";
+import { ArcComponent } from "./arc";
 import { ColorUtils } from "../../../types/color";
 import { vi } from "vitest";
 import { createMockStyle } from "../../../test-utils/styleTestUtils";
+import { polarToCartesian } from "./arcUtils";
 
 vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() =>
@@ -30,20 +31,12 @@ describe("<ArcComponent />", (): void => {
     expect(svg.props.viewBox).toEqual("0 0 100 100");
 
     const pathArray = svg.children as Array<ReactTestRendererJSON>;
-    // Default fills, expect border path and fill of arc
-    expect(pathArray.length).toEqual(2);
     // Filled arc
     expect(pathArray[0].props.d).toEqual(
-      "M 50 50\nL 100 50\nA 50 50 0 0 1 50 100\nZ"
+      "M 100 50 A 50 50 0 0 1 50 100 L 50 50 L 100 50"
     );
     expect(pathArray[0].props.fill).toEqual("rgba(200,1,60,1)");
-    expect(pathArray[0].props.stroke).toEqual("rgba(200,1,60,1)");
-    // BOrder
-    expect(pathArray[1].props.d).toEqual(
-      "M 100 50\nA 50 50 0 0 1 50 100\nL 50 50\nL 100 50"
-    );
-    expect(pathArray[1].props.fill).toEqual("transparent");
-    expect(pathArray[1].props.stroke).toEqual("rgba(0,0,255,1)");
+    expect(pathArray[0].props.stroke).toEqual("rgba(0,0,255,1)");
   });
 
   test("create arc of angle > 180 degrees with fill (phoebus)", (): void => {
@@ -58,11 +51,9 @@ describe("<ArcComponent />", (): void => {
     const svg = ArcRenderer(arcProps);
 
     const pathArray = svg.children as Array<ReactTestRendererJSON>;
-    // Fill and border paths of arc
-    expect(pathArray.length).toEqual(6);
     // Filled arc
     expect(pathArray[0].props.d).toEqual(
-      "M 50 50\nL 91 78\nA 50 50 34 0 1 22 91\nZ"
+      "M 91 77 A 50 50 0 1 1 21 9 L 50 50 L 91 77"
     );
 
     for (let i = 0; i < pathArray.length; i++) {
@@ -90,11 +81,9 @@ describe("<ArcComponent />", (): void => {
     const svg = ArcRenderer(arcProps);
 
     const pathArray = svg.children as Array<ReactTestRendererJSON>;
-    // Fill and border paths of arc
-    expect(pathArray.length).toEqual(2);
     // Filled arc
     expect(pathArray[0].props.d).toEqual(
-      "M 50 50\nL 75 7\nA 50 50 -60 0 1 97 33\nZ"
+      "M 75 6 A 50 50 0 0 1 96 32 L 50 50 L 75 6"
     );
   });
 
@@ -112,10 +101,8 @@ describe("<ArcComponent />", (): void => {
     const svg = ArcRenderer(arcProps);
 
     const pathArray = svg.children as Array<ReactTestRendererJSON>;
-    // Border paths of arc
-    expect(pathArray.length).toEqual(1);
     // Arc
-    expect(pathArray[0].props.d).toEqual("M 41 1\nA 50 50 -100 0 0 1 59");
+    expect(pathArray[0].props.d).toEqual("M 41 0 A 50 50 0 0 0 0 58");
   });
 
   test("create arc with negative total angle, no fill (css)", (): void => {
@@ -132,16 +119,14 @@ describe("<ArcComponent />", (): void => {
     const svg = ArcRenderer(arcProps);
 
     const pathArray = svg.children as Array<ReactTestRendererJSON>;
-    // Border paths of arc
-    expect(pathArray.length).toEqual(2);
     // Filled arc
-    expect(pathArray[0].props.d).toEqual("M 88 82\nA 50 50 40 0 0 82 12");
+    expect(pathArray[0].props.d).toEqual("M 88 82 A 50 50 0 0 0 58 0");
   });
 });
 
-describe("circumPointFromAngle()", (): void => {
+describe("polarToCartesian()", (): void => {
   test("calculate circumference point", (): void => {
-    const coords = circumPointFromAngle(0, 0, 20, 20, 45);
-    expect(coords).toEqual([11, 17]);
+    const coords = polarToCartesian(10, 10, 25);
+    expect(coords).toEqual({ x: 19, y: 14 });
   });
 });

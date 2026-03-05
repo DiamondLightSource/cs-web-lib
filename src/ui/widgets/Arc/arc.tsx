@@ -60,7 +60,7 @@ export const ArcComponent = (
 
   const element = (
     <path
-      className={classes.BorderPath}
+      className={classes.Arc}
       d={shape}
       stroke={style?.colors?.color}
       fill={style?.colors?.backgroundColor}
@@ -70,11 +70,7 @@ export const ArcComponent = (
   );
 
   return (
-    <svg
-      className={classes.Arc}
-      viewBox={`0 0 ${width} ${height}`}
-      overflow={"visible"}
-    >
+    <svg viewBox={`0 0 ${width} ${height}`} overflow={"visible"}>
       {element}
     </svg>
   );

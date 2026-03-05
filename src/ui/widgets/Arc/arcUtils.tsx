@@ -76,7 +76,11 @@ export function calculateArc(
  * @param angleInDegrees angle to use
  * @returns array of [x, y] coordinates
  */
-function polarToCartesian(rx: number, ry: number, angleInDegrees: number) {
+export function polarToCartesian(
+  rx: number,
+  ry: number,
+  angleInDegrees: number
+) {
   const angleInRadians = (angleInDegrees * Math.PI) / 180.0;
 
   return {
