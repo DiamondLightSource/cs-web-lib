@@ -4,7 +4,7 @@ import { ArcComponent } from "./arc";
 import { ColorUtils } from "../../../types/color";
 import { vi } from "vitest";
 import { createMockStyle } from "../../../test-utils/styleTestUtils";
-import { polarToCartesian } from "./arcUtils";
+import { calculateArc, polarToCartesian } from "./arcUtils";
 
 vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() =>
@@ -21,7 +21,7 @@ const ArcRenderer = (arcProps: any): ReactTestRendererJSON => {
 };
 
 describe("<ArcComponent />", (): void => {
-  test("create arc of angle < 180 degrees using default", (): void => {
+  test("creating 360 arc correctly", (): void => {
     const arcProps = {
       height: 100,
       width: 100
@@ -33,13 +33,32 @@ describe("<ArcComponent />", (): void => {
     const pathArray = svg.children as Array<ReactTestRendererJSON>;
     // Filled arc
     expect(pathArray[0].props.d).toEqual(
-      "M 100 50 A 50 50 0 0 1 50 100 L 50 50 L 100 50"
+      "M 98 50 A 48.5 48.5 0 0 1 50 98 L 48.5 48.5 L 98 50"
     );
     expect(pathArray[0].props.fill).toEqual("rgba(200,1,60,1)");
     expect(pathArray[0].props.stroke).toEqual("rgba(0,0,255,1)");
   });
 
-  test("create arc of angle > 180 degrees with fill (phoebus)", (): void => {
+  test("creating arc of angle < 180 degrees using default", (): void => {
+    const arcProps = {
+      height: 100,
+      width: 100,
+      backgroundColor: ColorUtils.fromRgba(200, 1, 60)
+    };
+
+    const svg = ArcRenderer(arcProps);
+    expect(svg.props.viewBox).toEqual("0 0 100 100");
+
+    const pathArray = svg.children as Array<ReactTestRendererJSON>;
+    // Filled arc
+    expect(pathArray[0].props.d).toEqual(
+      "M 98 50 A 48.5 48.5 0 0 1 50 98 L 48.5 48.5 L 98 50"
+    );
+    expect(pathArray[0].props.fill).toEqual("rgba(200,1,60,1)");
+    expect(pathArray[0].props.stroke).toEqual("rgba(0,0,255,1)");
+  });
+
+  test("creating arc of angle > 180 degrees with fill (phoebus)", (): void => {
     const arcProps = {
       height: 100,
       width: 100,
@@ -53,7 +72,7 @@ describe("<ArcComponent />", (): void => {
     const pathArray = svg.children as Array<ReactTestRendererJSON>;
     // Filled arc
     expect(pathArray[0].props.d).toEqual(
-      "M 91 77 A 50 50 0 1 1 21 9 L 50 50 L 91 77"
+      "M 90 77 A 48.5 48.5 0 1 1 22 10 L 48.5 48.5 L 90 77"
     );
 
     for (let i = 0; i < pathArray.length; i++) {
@@ -67,7 +86,7 @@ describe("<ArcComponent />", (): void => {
     }
   });
 
-  test("create arc with negative start angle, with fill (css)", (): void => {
+  test("creating arc with negative start angle, with fill (css)", (): void => {
     const arcProps = {
       height: 100,
       width: 100,
@@ -83,11 +102,11 @@ describe("<ArcComponent />", (): void => {
     const pathArray = svg.children as Array<ReactTestRendererJSON>;
     // Filled arc
     expect(pathArray[0].props.d).toEqual(
-      "M 75 6 A 50 50 0 0 1 96 32 L 50 50 L 75 6"
+      "M 74 7 A 48.5 48.5 0 0 1 95 33 L 48.5 48.5 L 74 7"
     );
   });
 
-  test("create arc with negative start and total angle, no fill (phoebus)", (): void => {
+  test("creating arc with negative start and total angle, no fill (phoebus)", (): void => {
     const arcProps = {
       height: 100,
       width: 100,
@@ -102,10 +121,10 @@ describe("<ArcComponent />", (): void => {
 
     const pathArray = svg.children as Array<ReactTestRendererJSON>;
     // Arc
-    expect(pathArray[0].props.d).toEqual("M 41 0 A 50 50 0 0 0 0 58");
+    expect(pathArray[0].props.d).toEqual("M 41 2 A 48.5 48.5 0 0 0 2 58");
   });
 
-  test("create arc with negative total angle, no fill (css)", (): void => {
+  test("creating arc with negative total angle, no fill (css)", (): void => {
     const arcProps = {
       height: 100,
       width: 100,
@@ -120,13 +139,27 @@ describe("<ArcComponent />", (): void => {
 
     const pathArray = svg.children as Array<ReactTestRendererJSON>;
     // Filled arc
-    expect(pathArray[0].props.d).toEqual("M 88 82 A 50 50 0 0 0 58 0");
+    expect(pathArray[0].props.d).toEqual("M 87 81 A 48.5 48.5 0 0 0 58 2");
   });
 });
 
 describe("polarToCartesian()", (): void => {
-  test("calculate circumference point", (): void => {
-    const coords = polarToCartesian(10, 10, 25);
-    expect(coords).toEqual({ x: 19, y: 14 });
+  test("converting coordinates", (): void => {
+    const coords = polarToCartesian(9, 9, 10, 10, 25);
+    expect(coords).toEqual({ x: 18, y: 13 });
+  });
+});
+
+describe("calculateArc()", (): void => {
+  test("calculating full circle", (): void => {
+    const [arc, edge] = calculateArc(100, 100, 0, 360, 2);
+    expect(arc).toEqual("M 99 50 A 49 49 0 1 1 1 50 A 49 49 0 1 1 99 50");
+    expect(edge).toEqual(" L 49 49 L 99 50");
+  });
+
+  test("calculating an arc with negative angle", (): void => {
+    const [arc, edge] = calculateArc(100, 100, 30, -210, 2);
+    expect(arc).toEqual("M 92 74 A 49 49 0 1 0 1 49");
+    expect(edge).toEqual(" L 49 49 L 92 74");
   });
 });
