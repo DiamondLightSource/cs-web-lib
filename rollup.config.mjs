@@ -11,8 +11,6 @@ const config = [
   {
     input: "src/index.ts",
 
-    external: [ "react-gauge-component" ],
-
     output: [
       {
         dir: "dist",
@@ -44,8 +42,7 @@ const config = [
       }),
       commonjs({
         include: [
-          /node_modules/,
-          "node_modules/react-gauge-component/**" 
+          /node_modules/
         ]
       }),
       typescript({
