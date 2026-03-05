@@ -54,9 +54,15 @@ export const ArcComponent = (
     totalAngle = 90,
     lineWidth = 3
   } = props;
-  const [arc, edge] = calculateArc(width, height, startAngle, totalAngle);
+  const [arc, edge] = calculateArc(
+    width,
+    height,
+    startAngle,
+    totalAngle,
+    lineWidth
+  );
   // Combine edge if not full circle or filled
-  const shape = (style.colors.backgroundColor === "transparent" || totalAngle === 360) ? arc : arc.concat(edge);
+  const shape = transparent || totalAngle === 360 ? arc : arc.concat(edge);
 
   const element = (
     <path
