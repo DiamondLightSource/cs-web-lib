@@ -4,8 +4,15 @@ import { render } from "@testing-library/react";
 import { dstring } from "../../../testResources";
 import { PvDatum } from "../../../redux/csState";
 import { DAlarmMINOR } from "../../../types/dtypes";
+import { vi } from "vitest";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
 let input: JSX.Element;
+
+vi.mock("../../hooks/useStyle", () => ({
+  useStyle: vi.fn(() => createMockStyle())
+}));
+
 beforeEach((): void => {
   input = (
     <SmartInputComponent

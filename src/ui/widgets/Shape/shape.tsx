@@ -11,7 +11,11 @@ import {
   IntPropOpt,
   MacrosPropOpt
 } from "../propTypes";
-import { ColorUtils } from "../../../types/color";
+import { Color } from "../../../types/color";
+import { useStyle } from "../../hooks/useStyle";
+import { BorderStyle } from "../../../types/border";
+
+const widgetName = "shape";
 
 const ShapeProps = {
   pvName: PvPropOpt,
@@ -30,33 +34,28 @@ const ShapeProps = {
 export const ShapeComponent = (
   props: InferWidgetProps<typeof ShapeProps>
 ): JSX.Element => {
-  const {
-    lineColor = ColorUtils.fromRgba(0, 0, 255),
-    lineWidth = 3,
-    backgroundColor = ColorUtils.fromRgba(30, 144, 255),
-    visible = true
-  } = props;
-  // Calculate radii of corners
+  const { visible = true } = props;
+
+  const themeStyle = useStyle(
+    {
+      ...props,
+      border: {
+        color: props.lineColor as Color,
+        width: props.lineWidth as number,
+        radius: 1,
+        style: BorderStyle.Line
+      },
+      visible: visible
+    },
+    widgetName
+  );
+
+  // Style overrides - Calculate radii of corners
   const cornerRadius = `${props.cornerWidth || 0}px / ${
     props.cornerHeight || 0
   }px`;
 
-  // Use line properties to set border, unless alarm border
-  const style: CSSProperties = {
-    borderColor: lineColor.colorString,
-    borderWidth: lineWidth,
-    borderRadius: cornerRadius,
-    width: "100%",
-    height: "100%",
-    boxSizing: "border-box",
-    backgroundColor: props.transparent
-      ? "transparent"
-      : backgroundColor.colorString,
-    transform: props.shapeTransform ?? "",
-    visibility: visible ? undefined : "hidden"
-  };
-
-  style.borderStyle = (function () {
+  const borderStyle = (function () {
     switch (props.lineStyle) {
       case 1: // Dashed
       case 3: // Dash-Dot
@@ -68,6 +67,19 @@ export const ShapeComponent = (
         return "solid";
     }
   })();
+
+  // Use line properties to set border, unless alarm border
+  const style: CSSProperties = {
+    ...themeStyle.border,
+    ...themeStyle.colors,
+    borderStyle,
+    borderRadius: cornerRadius,
+    width: "100%",
+    height: "100%",
+    boxSizing: "border-box",
+    transform: props.shapeTransform ?? "",
+    visibility: themeStyle?.other?.visibility
+  };
 
   return <div style={style} />;
 };
@@ -81,4 +93,4 @@ export const Shape = (
   props: InferWidgetProps<typeof ShapeWidgetProps>
 ): JSX.Element => <Widget baseWidget={ShapeComponent} {...props} />;
 
-registerWidget(Shape, ShapeWidgetProps, "shape");
+registerWidget(Shape, ShapeWidgetProps, widgetName);

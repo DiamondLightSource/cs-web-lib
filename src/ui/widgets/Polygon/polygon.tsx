@@ -12,7 +12,9 @@ import {
   MacrosPropOpt
 } from "../propTypes";
 import { Point } from "../../../types/points";
-import { ColorUtils } from "../../../types/color";
+import { useStyle } from "../../hooks/useStyle";
+
+const widgetName = "polygon";
 
 const PolygonProps = {
   macros: MacrosPropOpt,
@@ -28,14 +30,11 @@ const PolygonProps = {
 export const PolygonComponent = (
   props: InferWidgetProps<typeof PolygonProps>
 ): JSX.Element => {
-  const {
-    lineWidth = 3,
-    lineColor = ColorUtils.fromRgba(0, 0, 255),
-    backgroundColor = ColorUtils.fromRgba(50, 50, 255),
-    points,
-    rotationAngle = 0,
-    transparent = false
-  } = props;
+  const { colors, customColors } = useStyle(
+    { ...props, customColors: { lineColor: props?.lineColor } },
+    widgetName
+  );
+  const { lineWidth = 3, points, rotationAngle = 0 } = props;
   //Loop over points and convert to string for svg
   let coordinates = "";
   if (points) {
@@ -52,9 +51,9 @@ export const PolygonComponent = (
     >
       <polygon
         overflow={"visible"}
-        stroke={lineColor.colorString}
+        stroke={customColors?.lineColor}
         strokeWidth={lineWidth}
-        fill={transparent ? "transparent" : backgroundColor.colorString} // background colour
+        fill={colors?.backgroundColor}
         transform={`rotation(${rotationAngle},0,0)`}
         points={coordinates}
       />
@@ -71,4 +70,4 @@ export const Polygon = (
   props: InferWidgetProps<typeof PolygonWidgetProps>
 ): JSX.Element => <Widget baseWidget={PolygonComponent} {...props} />;
 
-registerWidget(Polygon, PolygonWidgetProps, "polygon");
+registerWidget(Polygon, PolygonWidgetProps, widgetName);

@@ -2,6 +2,12 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import { ddouble } from "../../../testResources";
 import { SlideControlComponent } from "./slideControl";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
+import { vi } from "vitest";
+
+vi.mock("../../hooks/useStyle", () => ({
+  useStyle: vi.fn(() => createMockStyle())
+}));
 
 test("slideControl", () => {
   const { container } = render(

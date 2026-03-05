@@ -5,8 +5,8 @@ import { TankComponent } from "./tank";
 import { Font } from "../../../types/font";
 import { PvDatum } from "../../../redux/csState";
 import { newDType } from "../../../types/dtypes";
-import { ColorUtils } from "../../../types/color";
 import * as FontModule from "../../../types/font";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
 // Mock the MUI X-Charts components
 vi.mock("@mui/x-charts/BarChart", () => ({
@@ -26,8 +26,28 @@ vi.mock("@mui/x-charts", () => ({
   YAxis: vi.fn()
 }));
 
-vi.mock("@mui/material", () => ({
-  Box: vi.fn(({ children }) => <div data-testid="mui-box">{children}</div>)
+vi.mock(import("@mui/material"), async importOriginal => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    Box: vi.fn(({ children }) => <div data-testid="mui-box">{children}</div>)
+  };
+});
+
+vi.mock("../../hooks/useStyle", () => ({
+  useStyle: vi.fn(() =>
+    createMockStyle({
+      colors: {
+        color: "rgba(255,255,0,1)",
+        backgroundColor: "rgba(127,0,127,1)"
+      },
+      customColors: {
+        fillColor: "rgba(255,100,0,1)",
+        emptyColor: "rgba(127,255,127,1)"
+      },
+      font: { fontFamily: "Arial", fontSize: "12px" }
+    })
+  )
 }));
 
 describe("TankComponent", () => {
@@ -184,35 +204,17 @@ describe("TankComponent", () => {
   });
 
   describe("Styling", () => {
-    test("applies custom colors", () => {
-      const fillColor = ColorUtils.fromRgba(100, 150, 200);
-      const emptyColor = ColorUtils.fromRgba(200, 200, 200);
-      const backgroundColor = ColorUtils.fromRgba(240, 240, 240);
-
-      render(
-        <TankComponent
-          {...defaultProps}
-          fillColor={fillColor}
-          emptyColor={emptyColor}
-          backgroundColor={backgroundColor}
-        />
-      );
+    test("applies colors from useStyle", () => {
+      render(<TankComponent {...defaultProps} />);
 
       const barChart = screen.getByTestId("bar-chart");
       const seriesData = JSON.parse(barChart.getAttribute("data-series") ?? "");
 
-      expect(seriesData[0].color).toBe(fillColor.colorString);
-      expect(seriesData[1].color).toBe(emptyColor.colorString);
+      expect(seriesData[0].color).toBe("rgba(255,100,0,1)");
+      expect(seriesData[1].color).toBe("rgba(127,255,127,1)");
 
       // Check background color is applied
-      expect(barChart.style.backgroundColor).toBe("rgb(240, 240, 240)");
-    });
-
-    test("applies transparent background when transparent is true", () => {
-      render(<TankComponent {...defaultProps} transparent={true} />);
-
-      const barChart = screen.getByTestId("bar-chart");
-      expect(barChart.style.backgroundColor).toBe("transparent");
+      expect(barChart.style.backgroundColor).toBe("rgb(127, 0, 127)");
     });
 
     test("hides scale when scaleVisible is false", () => {
@@ -243,9 +245,11 @@ describe("TankComponent", () => {
 
       render(<TankComponent {...defaultProps} showLabel={true} />);
 
-      const labelContainer = screen.getByText("50");
-      expect(labelContainer?.style.fontFamily).toBe("Arial");
-      expect(labelContainer?.style.fontSize).toBe("12px");
+      const label = screen.getByText("50");
+      const labelStyle = window.getComputedStyle(label);
+
+      expect(labelStyle.fontFamily).toBe("Arial");
+      expect(labelStyle?.fontSize).toBe("12px");
     });
   });
 });

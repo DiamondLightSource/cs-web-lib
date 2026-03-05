@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Widget, commonCss } from "./../widget";
+import { Widget } from "./../widget";
+import { useStyle } from "../../hooks/useStyle";
 import { WidgetPropType } from "./../widgetProps";
 import { InferWidgetProps, StringPropOpt } from "./../propTypes";
 import { registerWidget } from "./../register";
@@ -15,6 +16,9 @@ import { newRelativePosition } from "../../../types/position";
 import { BorderStyle, newBorder, borderNONE } from "../../../types/border";
 import { ColorUtils } from "../../../types/color";
 import { MacroContext } from "../../../types/macros";
+import { Box } from "@mui/material";
+
+const widgetName = "device";
 
 const DeviceProps = {
   deviceName: StringPropOpt,
@@ -68,8 +72,14 @@ export const DeviceComponent = (
     loadComponent();
   }, [description, deviceName, replacedDeviceName]);
 
-  const style = commonCss({ border });
-  return <div style={style}>{component}</div>;
+  const style = useStyle({ border }, widgetName);
+  return (
+    <Box
+      sx={{ ...style.colors, ...style.font, ...style.border, ...style.other }}
+    >
+      {component}
+    </Box>
+  );
 };
 
 const DeviceWidgetProps = {
@@ -81,4 +91,4 @@ export const Device = (
   props: InferWidgetProps<typeof DeviceWidgetProps>
 ): JSX.Element => <Widget baseWidget={DeviceComponent} {...props} />;
 
-registerWidget(Device, DeviceWidgetProps, "device");
+registerWidget(Device, DeviceWidgetProps, widgetName);

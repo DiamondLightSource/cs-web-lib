@@ -14,9 +14,8 @@ import {
   BorderPropOpt,
   ColorPropOpt
 } from "../propTypes";
-import { borderToCss } from "../../../types/border";
-import { fontToCss } from "../../../types/font";
-
+import { useStyle } from "../../hooks/useStyle";
+const widgetName = "dropdown";
 const DropDownContainerProps = {
   title: StringProp,
   open: BoolPropOpt,
@@ -35,28 +34,30 @@ const DropDownWidgetProps = {
 
 export const DropDownComponent = (
   props: InferWidgetProps<typeof DropDownContainerProps>
-): JSX.Element => (
-  <details
-    className={classes.Detail}
-    open={props.open ?? false}
-    style={{
-      ...borderToCss(props.border),
-      color: props.foregroundColor?.colorString ?? "",
-      backgroundColor: props.backgroundColor?.colorString ?? "",
-      minHeight: props.minHeight ?? ""
-    }}
-  >
-    <summary className={classes.Summary} style={{ ...fontToCss(props.font) }}>
-      {props.title}
-    </summary>
-    <div
-      className={classes.Children}
-      style={{ position: "relative", height: "100%", width: "100%" }}
+): JSX.Element => {
+  const style = useStyle(props, widgetName);
+  return (
+    <details
+      className={classes.Detail}
+      open={props.open ?? false}
+      style={{
+        ...style.colors,
+        ...style.border,
+        minHeight: props.minHeight ?? ""
+      }}
     >
-      <>{props.children}</>
-    </div>
-  </details>
-);
+      <summary className={classes.Summary} style={style.font}>
+        {props.title}
+      </summary>
+      <div
+        className={classes.Children}
+        style={{ position: "relative", height: "100%", width: "100%" }}
+      >
+        <>{props.children}</>
+      </div>
+    </details>
+  );
+};
 
 type DropDownWidget = InferWidgetProps<typeof DropDownWidgetProps>;
 
@@ -64,4 +65,4 @@ export const DropDown = (props: DropDownWidget): JSX.Element => (
   <Widget baseWidget={DropDownComponent} {...props} />
 );
 
-registerWidget(DropDown, DropDownWidgetProps, "dropdown");
+registerWidget(DropDown, DropDownWidgetProps, widgetName);

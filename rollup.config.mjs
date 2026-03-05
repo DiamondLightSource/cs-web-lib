@@ -1,3 +1,4 @@
+
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import typescript from "@rollup/plugin-typescript";
@@ -9,24 +10,41 @@ import preserveDirectives from 'rollup-preserve-directives';
 const config = [
   {
     input: "src/index.ts",
+
     output: [
       {
         dir: "dist",
         format: "cjs",
-        entryFileNames: "index.cjs",        
+        entryFileNames: "index.cjs",
         sourcemap: true
       },
       {
         dir: "dist",
         format: "esm",
-        entryFileNames: "index.js",        
+        entryFileNames: "index.js",
         sourcemap: true
       }
     ],
+    onwarn(warning, warn) {
+      // Ignore circular dependencies in d3-interpolate
+      if (
+        warning.code === "CIRCULAR_DEPENDENCY" &&
+        /d3-interpolate/.test(warning.importer)
+      ) {
+        return;
+      }
+    },
     plugins: [
       peerDepsExternal(),
-      resolve({ preferBuiltins: true }),
-      commonjs(),
+
+      resolve({
+        preferBuiltins: true
+      }),
+      commonjs({
+        include: [
+          /node_modules/
+        ]
+      }),
       typescript({
         tsconfig: "./tsconfig.build.json",
         outDir: "dist",

@@ -1,6 +1,6 @@
 {
   "name": "@diamondlightsource/cs-web-lib",
-  "version": "0.10.4",
+  "version": "0.10.5",
   "description": "Control system web library",
   "main": "./dist/index.cjs",
   "scripts": {
@@ -9,6 +9,7 @@
     "lint": "eslint 'src/**/*.{ts,tsx}' --max-warnings=0",
     "lint:fix": "eslint 'src/**/*.{ts,tsx}' --max-warnings=0 --fix",
     "prettier-check": "prettier --check 'src/**/*.{ts,tsx}'",
+    "prettier-write": "prettier --write 'src/**/*.{ts,tsx}'",
     "check-types": "tsc",
     "all-checks": "npm run lint && npm run prettier-check && npm run check-types"
   },
@@ -24,7 +25,7 @@
     "apollo-link-retry": "^2.2.16",
     "bufferutil": "^4.0.8",
     "loglevel": "^1.9.2",
-    "plotly.js": "^2.35.2",
+    "plotly.js": "^3.4.0",
     "plotly.js-basic-dist": "^2.35.2",
     "react-plotly.js": "^2.6.0",
     "react-toastify": "^11.0.5",
@@ -61,7 +62,7 @@
     "jsdom": "^25.0.1",
     "loglevel": "^1.9.2",
     "prettier": "^3.3.3",
-    "react-gauge-component": "^1.2.64",
+    "react-gauge-component": "^2.0.26",
     "react-id-generator": "^3.0.2",
     "react-router": "^7.13.0",
     "react-test-renderer": "^18.3.1",
@@ -86,7 +87,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-redux": "^7.2.9",
-    "react-router": "^7.13.0"
+    "react-router": "^7.13.0",
+    "react-gauge-component": "^2.0.26"
   },
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",

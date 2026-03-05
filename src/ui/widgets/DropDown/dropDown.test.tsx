@@ -3,6 +3,23 @@ import { create } from "react-test-renderer";
 
 import { DropDownComponent } from "./dropDown";
 import { fireEvent, render, waitFor } from "@testing-library/react";
+import { vi } from "vitest";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
+
+vi.mock("../../hooks/useStyle", () => ({
+  useStyle: vi.fn(() => ({
+    color: "",
+    backgroundColor: "",
+    fontFamily: undefined,
+    fontSize: undefined,
+    fontStyle: undefined,
+    fontWeight: undefined
+  }))
+}));
+
+vi.mock("../../hooks/useStyle", () => ({
+  useStyle: vi.fn(() => createMockStyle())
+}));
 
 const grouping = (
   <DropDownComponent title={"Test"}>Test Text</DropDownComponent>

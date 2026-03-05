@@ -13,14 +13,8 @@ import {
   ConnectingComponentWidgetProps,
   PVWidgetComponent
 } from "./widgetProps";
-import {
-  Border,
-  BorderStyle,
-  borderToCss,
-  newBorder
-} from "../../types/border";
-import { Color, ColorUtils, newColor } from "../../types/color";
-import { Font, fontToCss } from "../../types/font";
+import { BorderStyle, newBorder } from "../../types/border";
+import { ColorUtils, newColor } from "../../types/color";
 import { OutlineContext } from "../../misc/outlineContext";
 import { ExitFileContext, FileContext } from "../../misc/fileContext";
 import { executeAction, WidgetAction, WidgetActions } from "./widgetActions";
@@ -98,36 +92,6 @@ const scriptResponseCallback =
       return propsHaveBeenUpdated ? updatedProps : prevProps;
     });
   };
-
-/**
- * Return a CSSProperties object for props that multiple widgets may have.
- * @param props properties of the widget to be formatted
- * @returns a CSSProperties object to pass into another element under the style key
- */
-export function commonCss(props: {
-  border?: Border;
-  font?: Font;
-  visible?: boolean;
-  foregroundColor?: Color;
-  backgroundColor?: Color;
-  transparent?: boolean;
-  actions?: WidgetActions;
-}): CSSProperties {
-  const visible = props.visible === undefined || props.visible;
-  const backgroundColor = props.transparent
-    ? "transparent"
-    : props.backgroundColor?.colorString;
-  const cursor =
-    props.actions && props.actions.actions.length > 0 ? "pointer" : undefined;
-  return {
-    ...borderToCss(props.border),
-    ...fontToCss(props.font),
-    color: props.foregroundColor?.colorString,
-    backgroundColor,
-    cursor,
-    visibility: visible ? undefined : "hidden"
-  };
-}
 
 /**
  * This component creates the connection aspect of a widget.

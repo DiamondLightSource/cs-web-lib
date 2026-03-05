@@ -12,8 +12,10 @@ import {
   IntPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
-import { ColorUtils } from "../../../types/color";
 import { Point } from "../../../types/points";
+import { useStyle } from "../../hooks/useStyle";
+
+const widgetName = "line";
 
 const LineProps = {
   points: PointsProp,
@@ -37,22 +39,21 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
   const {
     visible = true,
     transparent = false,
-    backgroundColor = ColorUtils.fromRgba(0, 0, 255),
     rotationAngle = 0,
-    lineWidth = 3,
     points,
     arrowLength = 20,
     arrows = 0,
     fillArrow = true,
+    lineWidth = 3,
     lineColor,
     lineStyle = 0
   } = props;
 
-  let color = (function () {
-    if (lineColor) return lineColor.colorString;
-    else if (backgroundColor) return backgroundColor.colorString;
-    else return ColorUtils.fromRgba(0, 0, 255).colorString;
-  })();
+  const style = useStyle(props, widgetName);
+
+  const color = transparent
+    ? "transparent"
+    : (lineColor?.colorString ?? style?.colors?.backgroundColor);
 
   const dashStyle = (function () {
     switch (lineStyle) {
@@ -68,8 +69,6 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
         return "0";
     }
   })();
-
-  if (transparent) color = "transparent";
 
   const transform = `rotation(${rotationAngle},0,0)`;
 
@@ -229,4 +228,4 @@ export const Line = (
   props: InferWidgetProps<typeof LineWidgetProps>
 ): JSX.Element => <Widget baseWidget={LineComponent} {...props} />;
 
-registerWidget(Line, LineWidgetProps, "line");
+registerWidget(Line, LineWidgetProps, widgetName);

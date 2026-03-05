@@ -2,7 +2,17 @@ import React from "react";
 import renderer, { ReactTestRendererJSON } from "react-test-renderer";
 import { render } from "@testing-library/react";
 import { LineComponent } from "./line";
-import { ColorUtils } from "../../../types/color";
+import { ColorUtils, newColor } from "../../../types/color";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
+import { vi } from "vitest";
+
+vi.mock("../../hooks/useStyle", () => ({
+  useStyle: vi.fn(() =>
+    createMockStyle({
+      colors: { color: "rgba(0,0,255,1)", backgroundColor: "rgba(200,1,60,1)" }
+    })
+  )
+}));
 
 const LineRenderer = (lineProps: any): ReactTestRendererJSON => {
   return renderer
@@ -15,7 +25,6 @@ describe("<LineComponent />", (): void => {
     const { asFragment } = render(
       <LineComponent
         {...({
-          backgroundColor: ColorUtils.fromRgba(0, 255, 255),
           width: 20,
           height: 15,
           lineWidth: 4,
@@ -38,7 +47,6 @@ describe("<LineComponent />", (): void => {
     const lineProps = {
       width: 20,
       height: 25,
-      backgroundColor: ColorUtils.fromRgba(0, 255, 255),
       points: {
         values: [
           { x: 1, y: 10 },
@@ -53,7 +61,32 @@ describe("<LineComponent />", (): void => {
 
     const lines = svg.children as Array<ReactTestRendererJSON>;
 
-    expect(lines[0].props.stroke).toEqual("rgba(0,255,255,1)");
+    expect(lines[0].props.stroke).toEqual("rgba(200,1,60,1)");
+    expect(lines[0].props.strokeWidth).toEqual(3);
+    expect(lines[0].props.transform).toEqual("rotation(0,0,0)");
+    expect(lines[0].props.points).toEqual("1,10 15,20 4,15 ");
+  });
+
+  test("Line color overrides default color", (): void => {
+    const lineProps = {
+      width: 20,
+      height: 25,
+      points: {
+        values: [
+          { x: 1, y: 10 },
+          { x: 15, y: 20 },
+          { x: 4, y: 15 }
+        ]
+      },
+      lineColor: newColor("rgba(0,150,60,1)")
+    };
+
+    const svg = LineRenderer(lineProps);
+    expect(svg.props.viewBox).toEqual("0 0 100% 100%");
+
+    const lines = svg.children as Array<ReactTestRendererJSON>;
+
+    expect(lines[0].props.stroke).toEqual("rgba(0,150,60,1)");
     expect(lines[0].props.strokeWidth).toEqual(3);
     expect(lines[0].props.transform).toEqual("rotation(0,0,0)");
     expect(lines[0].props.points).toEqual("1,10 15,20 4,15 ");

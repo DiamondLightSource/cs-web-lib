@@ -13,6 +13,25 @@ import { RectangleAreaProps } from "./rectangleArea";
 import { ChartsReferenceLineProps } from "@mui/x-charts";
 import { newDType } from "../../../types/dtypes";
 import { ColorUtils } from "../../../types/color";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
+
+vi.mock("../../hooks/useStyle", () => ({
+  useStyle: vi.fn(() =>
+    createMockStyle({
+      colors: {
+        color: "rgb(0, 0, 0)",
+        backgroundColor: "rgb(255, 255, 255)"
+      },
+      customColors: {
+        needleColor: "rgb(255, 0, 0)",
+        normalStatusColor: "rgb(0, 255, 0)",
+        minorWarningColor: "rgb(255, 200, 0)",
+        majorWarningColor: "rgb(255, 100, 0)",
+        knobColor: "rgb(0, 0, 255)"
+      }
+    })
+  )
+}));
 
 vi.mock("@mui/x-charts/BarChart", () => {
   const MockBarChart: React.FC<any> = ({ children, ...props }) => (
@@ -276,6 +295,42 @@ describe("LinearMeterComponent", () => {
     );
   });
 
+  it("uses the expected colors when calling buildStatusRegions", () => {
+    render(
+      <ThemeProvider theme={mockTheme}>
+        <LinearMeterComponent
+          {...defaultProps}
+          limitsFromPv={false}
+          levelHihi={95}
+          levelHigh={85}
+          levelLow={15}
+          levelLolo={5}
+        />
+      </ThemeProvider>
+    );
+
+    const expectedColorsObject = {
+      needleColor: "rgb(255, 0, 0)",
+      normalStatusColor: "rgb(0, 255, 0)",
+      minorWarningColor: "rgb(255, 200, 0)",
+      majorWarningColor: "rgb(255, 100, 0)",
+      knobColor: "rgb(0, 0, 255)",
+      isHighlightingOfActiveRegionsEnabled: undefined
+    };
+
+    expect(linearMeterUtilities.buildStatusRegions).toHaveBeenCalledWith(
+      5,
+      15,
+      85,
+      95,
+      0,
+      100,
+      expectedColorsObject,
+      true,
+      50
+    );
+  });
+
   it("hides scale when scaleVisible is false", () => {
     render(
       <ThemeProvider theme={mockTheme}>
@@ -322,7 +377,7 @@ describe("LinearMeterComponent", () => {
 
     expect(screen.getByTestId("triangle-pointer-horizontal")).toHaveAttribute(
       "data-fill",
-      ColorUtils.YELLOW.colorString
+      "rgb(0, 0, 255)"
     );
   });
 });

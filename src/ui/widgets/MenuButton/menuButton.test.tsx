@@ -14,11 +14,22 @@ import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
 import { PvDatum } from "../../../redux/csState";
 import * as useSubscription from "../../hooks/useSubscription";
-import { newColor } from "../../../types/color";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
 const mockWritePv = vi
   .spyOn(useSubscription, "writePv")
   .mockImplementation(vi.fn());
+
+vi.mock("../../hooks/useStyle", () => ({
+  useStyle: vi.fn(() =>
+    createMockStyle({
+      colors: {
+        color: "rgb(11, 16, 11)",
+        backgroundColor: "rgba(0, 0, 0, 1)"
+      }
+    })
+  )
+}));
 
 beforeEach((): void => {
   mockWritePv.mockReset();
@@ -65,32 +76,11 @@ describe("<MenuButton />", (): void => {
 
     options.forEach(option => {
       expect(option).toHaveStyle({
-        color: "rgb(0, 0, 0)"
-      });
-    });
-
-    expect(options[0].textContent).toEqual("zero");
-  });
-
-  test("it renders with style from props", (): void => {
-    const props = {
-      ...BASE_PROPS,
-      backgroundColor: newColor("rgb(10, 240, 60)"),
-      foregroundColor: newColor("rgb(11, 16, 11)"),
-      itemsFromPv: false
-    };
-    const { getAllByRole, getByRole } = render(MenuButtonRenderer(props));
-    const trigger = getByRole("combobox");
-    fireEvent.mouseDown(trigger);
-    const options = getAllByRole("option");
-
-    options.forEach(option => {
-      expect(option).toHaveStyle({
         color: "rgb(11, 16, 11)"
       });
     });
 
-    expect(options[1].textContent).toEqual("Item 2");
+    expect(options[0].textContent).toEqual("zero");
   });
 
   test("it renders all the choices", (): void => {

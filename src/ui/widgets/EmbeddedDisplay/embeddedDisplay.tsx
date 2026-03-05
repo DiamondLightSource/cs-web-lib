@@ -183,7 +183,7 @@ export const EmbeddedDisplay = (
     scaleFactorY = String(scaleHeightVal);
   }
 
-  let selectedDescription = description;
+  let selectedDescription = { ...description };
   if (resolvedProps.groupName) {
     // A specific group has been specified find that group and resize the display to match its dimensions.
     let matchingGroup = description.children?.find(
@@ -218,7 +218,9 @@ export const EmbeddedDisplay = (
     };
   }
 
-  const displayChildren = getOptionalValue(selectedDescription.children, []);
+  const displayChildren = [
+    ...getOptionalValue(selectedDescription.children, [])
+  ];
   for (let i = 0; i < displayChildren.length; i++) {
     // Check for nested embeddedDisplays
     if (displayChildren[i].type === "embeddedDisplay") {
@@ -229,7 +231,10 @@ export const EmbeddedDisplay = (
       } else {
         // Otherwise pass on the scalingOrigin so if the child should
         // be scaled, then it will use the same transform-origin
-        displayChildren[i].scalingOrigin = resolvedProps.scalingOrigin;
+        displayChildren[i] = {
+          ...displayChildren[i],
+          scalingOrigin: resolvedProps.scalingOrigin
+        };
         // Update the parent container area to be the full area for the child
         // embedded display so it can be scaled into it if needed. Note height
         // from parsed opi file will always take the form "<num>px" so trim
@@ -239,6 +244,8 @@ export const EmbeddedDisplay = (
       }
     }
   }
+
+  selectedDescription = { ...selectedDescription, children: displayChildren };
 
   let component: JSX.Element;
   try {

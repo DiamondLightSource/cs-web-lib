@@ -9,10 +9,12 @@ import {
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import classes from "./byteMonitor.module.css";
-import { ColorUtils } from "../../../types/color";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { getPvValueAndName } from "../utils";
 import { dTypeGetDoubleValue } from "../../../types/dtypes";
+import { useStyle } from "../../hooks/useStyle";
+
+const widgetName = "bytemonitor";
 
 export const ByteMonitorProps = {
   width: IntPropOpt,
@@ -47,15 +49,25 @@ export const ByteMonitorComponent = (
     startBit = 0,
     horizontal = true,
     bitReverse = false,
-    onColor = ColorUtils.fromRgba(0, 255, 0),
-    offColor = ColorUtils.fromRgba(0, 100, 0),
     ledBorder = 2,
-    ledBorderColor = ColorUtils.fromRgba(50, 50, 50, 178), // dark grey
     square = false,
     effect3d = false,
     width = WIDGET_DEFAULT_SIZES["byte_monitor"][0],
     height = WIDGET_DEFAULT_SIZES["byte_monitor"][1]
   } = props;
+
+  const style = useStyle(
+    {
+      ...props,
+      customColors: {
+        onColor: props?.onColor,
+        offColor: props?.offColor,
+        borderColor: props?.ledBorderColor
+      }
+    },
+    widgetName
+  );
+
   const { value } = getPvValueAndName(pvData);
 
   // Check for a value, otherwise set to 0
@@ -77,54 +89,56 @@ export const ByteMonitorComponent = (
     square
   );
   const ledArray: Array<JSX.Element> = [];
+
   dataValues.forEach((data: number, idx: number) => {
-    const style: CSSProperties = {};
+    const styleTmp: CSSProperties = {};
     // Set CSS formatting if vertically or horizontally aligned
     if (horizontal) {
-      style.display = "inline-block";
-      style["flexFlow"] = "row wrap";
-      style["marginRight"] = `-${borderWidth}px`;
+      styleTmp.display = "inline-block";
+      styleTmp["flexFlow"] = "row wrap";
+      styleTmp["marginRight"] = `-${borderWidth}px`;
     } else {
-      style["marginBottom"] = `-${borderWidth}px`;
+      styleTmp["marginBottom"] = `-${borderWidth}px`;
     }
     // Set color based on bit
-    style["backgroundColor"] = data
-      ? onColor?.colorString
-      : offColor?.colorString;
+    styleTmp["backgroundColor"] = data
+      ? style?.customColors?.onColor
+      : style?.customColors?.offColor;
     // Set border color and thickness
-    style["borderColor"] = ledBorderColor.colorString;
-    style["borderWidth"] = `${borderWidth}px`;
+    styleTmp["borderColor"] = style?.customColors?.borderColor;
+    styleTmp["borderWidth"] = `${borderWidth}px`;
     // Set shape as square or circular
     if (square) {
-      style.width = `${bitWidth + borderWidth}px`;
-      style.height = `${bitHeight + borderWidth}px`;
+      styleTmp.width = `${bitWidth + borderWidth}px`;
+      styleTmp.height = `${bitHeight + borderWidth}px`;
     } else {
       // If 3d, border width is slightly narrower
       // If circular led, width and height are the same
-      style.width = horizontal
+      styleTmp.width = horizontal
         ? `${bitWidth + borderWidth}px`
         : `${bitHeight + borderWidth}px`;
-      style.height = style.width;
-      style["borderRadius"] = "50%";
+      styleTmp.height = styleTmp.width;
+      styleTmp["borderRadius"] = "50%";
     }
     // Add 3D effect
     if (effect3d) {
       // For ellipse, border is different in 3D. For square it is the same
       // but the LED has a shadow
-      style["backgroundImage"] = `radial-gradient(circle at top left, white, ${
-        data ? onColor?.colorString : offColor?.colorString
-      })`;
+      styleTmp["backgroundImage"] =
+        `radial-gradient(circle at top left, white, ${
+          data ? style?.customColors?.onColor : style?.customColors?.offColor
+        })`;
       if (!square) {
-        style["borderColor"] = "transparent";
-        style["backgroundImage"] +=
+        styleTmp["borderColor"] = "transparent";
+        styleTmp["backgroundImage"] +=
           ", radial-gradient(circle at top left, black,white)";
-        style["backgroundOrigin"] = "border-box";
-        style["backgroundClip"] = "padding-box, border-box";
+        styleTmp["backgroundOrigin"] = "border-box";
+        styleTmp["backgroundClip"] = "padding-box, border-box";
       }
     }
     const className = classes.Bit;
     const bitDiv = (
-      <div key={`bit${idx}`} className={className} style={style} />
+      <div key={`bit${idx}`} className={className} style={styleTmp} />
     );
 
     ledArray.push(bitDiv);
@@ -224,4 +238,4 @@ export const ByteMonitor = (
   props: InferWidgetProps<typeof ByteMonitorWidgetProps>
 ): JSX.Element => <Widget baseWidget={ByteMonitorComponent} {...props} />;
 
-registerWidget(ByteMonitor, ByteMonitorWidgetProps, "bytemonitor");
+registerWidget(ByteMonitor, ByteMonitorWidgetProps, widgetName);

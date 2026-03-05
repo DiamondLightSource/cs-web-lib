@@ -23,7 +23,10 @@ import { newRelativePosition } from "../../../types";
 import { errorWidget, widgetDescriptionToComponent } from "../createComponent";
 import log from "loglevel";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
-import { ColorUtils, newColor } from "../../../types/color";
+import { newColor } from "../../../types/color";
+import { useStyle } from "../../hooks/useStyle";
+
+const widgetName = "tabcontainer";
 
 export const TabContainerProps = {
   tabs: PropTypes.array.isRequired,
@@ -40,6 +43,7 @@ export const TabContainerProps = {
 export const TabContainerComponent = (
   props: InferWidgetProps<typeof TabContainerProps>
 ): JSX.Element => {
+  const { colors } = useStyle(props, widgetName);
   const {
     tabHeight = 30,
     width = WIDGET_DEFAULT_SIZES["tabs"][0],
@@ -60,8 +64,7 @@ export const TabContainerComponent = (
               `${width}px`,
               `${height - tabHeight}px`
             ),
-            backgroundColor:
-              props.backgroundColor ?? newColor("rgb(255,255,255"),
+            backgroundColor: newColor(colors?.backgroundColor as string),
             children: tab.children
           })
         };
@@ -75,17 +78,13 @@ export const TabContainerComponent = (
         };
       }
     });
-  }, [props.tabs, props.backgroundColor, tabHeight, width, height]);
+  }, [props.tabs, colors?.backgroundColor, tabHeight, width, height]);
 
   return (
     <TabBar
       direction={0}
-      selectedColor={
-        props.backgroundColor || ColorUtils.fromRgba(255, 255, 255)
-      }
-      deselectedColor={
-        props.backgroundColor || ColorUtils.fromRgba(255, 255, 255)
-      }
+      selectedColor={newColor(colors?.backgroundColor as string)}
+      deselectedColor={newColor(colors?.backgroundColor as string)}
       {...props}
       tabs={tabChildren}
     ></TabBar>
@@ -101,4 +100,4 @@ export const TabContainer = (
   props: InferWidgetProps<typeof TabContainerWidgetProps>
 ): JSX.Element => <Widget baseWidget={TabContainerComponent} {...props} />;
 
-registerWidget(TabContainer, TabContainerProps, "tabcontainer");
+registerWidget(TabContainer, TabContainerProps, widgetName);

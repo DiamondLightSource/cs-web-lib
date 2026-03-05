@@ -7,6 +7,33 @@ import { phoebusTheme } from "../../../phoebusTheme";
 import { PvDatum } from "../../../redux/csState";
 import { ColorUtils } from "../../../types/color";
 import { newFont } from "../../../types/font";
+import { vi } from "vitest";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
+
+vi.mock("../../hooks/useStyle", () => ({
+  useStyle: vi.fn(() => ({
+    colors: {
+      color: "rgb(155, 160, 209)",
+      backgroundColor: "rgba(0, 0, 0, 1)"
+    },
+    font: {
+      fontFamily: undefined,
+      fontSize: "0.75rem",
+      fontStyle: undefined,
+      fontWeight: undefined
+    }
+  }))
+}));
+
+vi.mock("../../hooks/useStyle", () => ({
+  useStyle: vi.fn(() =>
+    createMockStyle({
+      font: {
+        fontSize: "0.75rem"
+      }
+    })
+  )
+}));
 
 const ChoiceButtonRenderer = (choiceButtonProps: any): JSX.Element => {
   return (
@@ -36,10 +63,10 @@ describe("<ChoiceButton />", (): void => {
 
     buttons.forEach(button => {
       expect(button).toHaveStyle({
-        "background-color": "rgb(210, 210, 210)",
+        "background-color": "rgb(0, 0, 0)",
         height: "43px",
         width: "50px",
-        "font-size": "14px"
+        "font-size": "0.75rem"
       });
     });
   });
@@ -72,7 +99,7 @@ describe("<ChoiceButton />", (): void => {
     expect(buttons[3]).toHaveProperty("disabled", true);
 
     expect(buttons[0]).toHaveStyle({
-      "background-color": "rgb(20, 20, 200)",
+      "background-color": "rgb(0, 0, 0)",
       "font-size": "0.75rem"
     });
 
@@ -122,11 +149,11 @@ describe("<ChoiceButton />", (): void => {
     expect(buttons[1].textContent).toEqual("Item 2");
 
     expect(buttons[0]).toHaveStyle({
-      "background-color": "rgb(210, 210, 210)"
+      "background-color": "rgb(0, 0, 0)"
     });
     fireEvent.click(buttons[0]);
     expect(buttons[0]).toHaveStyle({
-      "background-color": "rgb(210, 210, 210)"
+      "background-color": "rgb(0, 0, 0)"
     });
   });
 });

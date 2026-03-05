@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 
-import { commonCss, Widget } from "../widget";
+import { Widget } from "../widget";
+import { useStyle } from "../../hooks/useStyle";
 import { PVWidgetPropType, PVComponent } from "../widgetProps";
 import {
   InferWidgetProps,
@@ -30,6 +31,7 @@ import {
 } from "../../../types/dtypes";
 import classes from "./symbol.module.css";
 import { getPvValueAndName } from "../utils";
+import { Box } from "@mui/material";
 
 const SymbolProps = {
   imageFile: StringPropOpt,
@@ -65,6 +67,8 @@ const SymbolProps = {
   preserveRatio: BoolPropOpt
 };
 
+const widgetName = "symbol";
+
 export type SymbolComponentProps = InferWidgetProps<typeof SymbolProps> &
   PVComponent;
 
@@ -79,17 +83,24 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
     arrayIndex = 0,
     initialIndex = 0,
     fallbackSymbol = "https://cs-web-symbol.diamond.ac.uk/catalogue/default_symbol.png",
-    transparent = true,
     showBooleanLabel = false,
     enabled = true,
     preserveRatio = true,
     pvData
   } = props;
-  const { value } = getPvValueAndName(pvData);
-  const backgroundColor = props.backgroundColor?.colorString ?? "white";
 
-  const style = commonCss(props as any);
-  // If symbols and not imagefile, we're in a bob file
+  const style = useStyle(
+    {
+      ...props,
+      transparent: props?.transparent ?? true,
+      actions: props?.actions as WidgetActions | undefined
+    },
+    widgetName
+  );
+
+  const { value } = getPvValueAndName(pvData);
+
+  // If symbols and not image file, we're in a bob file
   const isBob = props.symbols ? true : false;
   const symbols = props.symbols ? props.symbols : [];
 
@@ -173,12 +184,14 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
         labelDiv
       ) : showBooleanLabel ? (
         <>
-          <div
+          <Box
             className={classes.SymbolLabel}
             onClick={onClick}
             style={{
-              ...style,
-              backgroundColor: transparent ? "transparent" : backgroundColor,
+              ...style.colors,
+              ...style.border,
+              ...style.font,
+              ...style.other,
               alignItems: alignItems,
               justifyContent: justifyContent
             }}
@@ -191,7 +204,7 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
                 text={dTypeGetStringValue(value)}
               ></LabelComponent>
             </div>
-          </div>
+          </Box>
         </>
       ) : (
         <></>
@@ -250,4 +263,4 @@ export const Symbol = (
   props: InferWidgetProps<typeof SymbolWidgetProps>
 ): JSX.Element => <Widget baseWidget={SymbolComponent} {...props} />;
 
-registerWidget(Symbol, SymbolWidgetProps, "symbol");
+registerWidget(Symbol, SymbolWidgetProps, widgetName);

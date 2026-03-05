@@ -12,13 +12,20 @@ import {
   BorderPropOpt,
   ActionsPropType
 } from "../propTypes";
-import { executeAction, WritePv, WRITE_PV } from "../widgetActions";
+import {
+  executeAction,
+  WritePv,
+  WRITE_PV,
+  WidgetActions
+} from "../widgetActions";
 import { FileContext } from "../../../misc/fileContext";
-import { MenuItem, Select, SelectChangeEvent, useTheme } from "@mui/material";
+import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import { getPvValueAndName } from "../utils";
 import log from "loglevel";
 import { dTypeGetStringValue } from "../../../types/dtypes";
-import { fontToCss } from "../../../types/font";
+import { useStyle } from "../../hooks/useStyle";
+
+const widgetName = "menubutton";
 
 export const MenuButtonProps = {
   foregroundColor: ColorPropOpt,
@@ -43,7 +50,11 @@ export type MenuButtonComponentProps = InferWidgetProps<
 export const MenuButtonComponent = (
   props: MenuButtonComponentProps
 ): JSX.Element => {
-  const theme = useTheme();
+  const style = useStyle(
+    { ...props, actions: props.actions as WidgetActions },
+    widgetName
+  );
+  const files = useContext(FileContext);
   const {
     enabled = true,
     actionsFromPv = true,
@@ -52,11 +63,7 @@ export const MenuButtonComponent = (
     label,
     items = ["Item 1", "Item 2"]
   } = props;
-  const foregroundColor =
-    props.foregroundColor?.colorString ?? theme.palette.primary.contrastText;
-  const backgroundColor =
-    props.backgroundColor?.colorString ?? theme.palette.primary.main;
-  const files = useContext(FileContext);
+
   const fromPv = actionsFromPv && itemsFromPv;
   let actions: any[] = props.actions?.actions ?? [];
   const {
@@ -117,10 +124,7 @@ export const MenuButtonComponent = (
       <MenuItem
         key={index}
         value={text}
-        sx={{
-          fontFamily: fontToCss(props.font) ?? "",
-          color: foregroundColor
-        }}
+        sx={{ ...style?.font, ...style?.colors }}
       >
         {text}
       </MenuItem>
@@ -157,30 +161,31 @@ export const MenuButtonComponent = (
       MenuProps={{
         slotProps: {
           paper: {
-            sx: {
-              backgroundColor: backgroundColor
-            }
+            sx: style?.colors
           }
         }
       }}
       onChange={event => onChange(event)}
       sx={{
+        ...style?.colors,
         cursor: disabled ? "not-allowed" : "default",
         height: "100%",
         width: "100%",
         textAlignLast: "center",
-        backgroundColor: backgroundColor,
+        "& .MuiSelect-select": {
+          paddingLeft: "3px"
+        },
         "&:hover .MuiOutlinedInput-notchedOutline": {
           borderWidth: "1px",
-          borderColor: "#1976d2"
+          borderColor: style?.border?.borderColor
         },
         "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
           borderWidth: "2px",
-          borderColor: "#1976d2"
+          borderColor: style?.border?.borderColor
         },
         "& .MuiSelect-outlined": {
-          fontFamily: fontToCss(props.font) ?? "",
-          color: foregroundColor
+          ...style?.font,
+          color: style?.colors?.color
         }
       }}
     >
@@ -198,4 +203,4 @@ export const MenuButton = (
   props: InferWidgetProps<typeof MenuButtonWidgetProps>
 ): JSX.Element => <Widget baseWidget={MenuButtonComponent} {...props} />;
 
-registerWidget(MenuButton, MenuButtonWidgetProps, "menubutton");
+registerWidget(MenuButton, MenuButtonWidgetProps, widgetName);

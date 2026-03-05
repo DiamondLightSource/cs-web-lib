@@ -16,7 +16,6 @@ import {
   InferWidgetProps,
   StringOrNumPropOpt,
   BorderPropOpt,
-  ColorPropOpt,
   StringProp
 } from "../propTypes";
 import { EmbeddedDisplay } from "../EmbeddedDisplay/embeddedDisplay";
@@ -24,23 +23,27 @@ import { newRelativePosition } from "../../../types/position";
 
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 import { TabBar } from "./tabs";
+import { useStyle } from "../../hooks/useStyle";
+
+const widgetName = "dynamictabs";
 
 export const DynamicTabsProps = {
   location: StringProp,
   maxHeight: StringOrNumPropOpt,
   maxWidth: StringOrNumPropOpt,
   minHeight: StringOrNumPropOpt,
-  border: BorderPropOpt,
-  backgroundColor: ColorPropOpt
+  border: BorderPropOpt
 };
 
 export const DynamicTabsComponent = (
   props: InferWidgetProps<typeof DynamicTabsProps>
 ): JSX.Element => {
+  const { border } = useStyle(props, widgetName);
+
   const fileContext = useContext(FileContext);
   const tabState = fileContext.tabState[props.location];
   const containerStyle = {
-    border: "3px solid lightgrey",
+    ...border,
     height: "100%",
     width: "100%",
     overflow: "auto",
@@ -111,4 +114,4 @@ export const DynamicTabs = (
   props: InferWidgetProps<typeof DynamicTabsWidgetProps>
 ): JSX.Element => <Widget baseWidget={DynamicTabsComponent} {...props} />;
 
-registerWidget(DynamicTabs, DynamicTabsProps, "dynamictabs");
+registerWidget(DynamicTabs, DynamicTabsProps, widgetName);

@@ -9,6 +9,7 @@ import { PvDatum } from "../../../redux/csState";
 import { newDTime, newDType } from "../../../types/dtypes";
 import { ColorUtils } from "../../../types/color";
 import { contextRender, contextWrapperGenerator } from "../../../testResources";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -42,6 +43,17 @@ vi.mock("@mui/material", () => ({
   Typography: vi.fn(({ children }) => (
     <div data-testid="mui-typography">{children}</div>
   ))
+}));
+
+vi.mock("../../hooks/useStyle", () => ({
+  useStyle: vi.fn(() =>
+    createMockStyle({
+      colors: {
+        color: "rgba(255,255,0,1)",
+        backgroundColor: "rgba(127,0,127,1)"
+      }
+    })
+  )
 }));
 
 describe("DataBrowserComponent", () => {

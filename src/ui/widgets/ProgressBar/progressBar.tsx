@@ -12,10 +12,11 @@ import {
   BorderPropOpt
 } from "../propTypes";
 import { LinearProgress } from "@mui/material";
-import { ColorUtils } from "../../../types/color";
 import { getPvValueAndName } from "../utils";
 import { dTypeGetDoubleValue } from "../../../types/dtypes";
-import { fontToCss } from "../../../types/font";
+import { useStyle } from "../../hooks/useStyle";
+
+const widgetName = "progressbar";
 
 export const ProgressBarProps = {
   min: FloatPropOpt,
@@ -35,23 +36,20 @@ export const ProgressBarProps = {
 export const ProgressBarComponent = (
   props: InferWidgetProps<typeof ProgressBarProps> & PVComponent
 ): JSX.Element => {
+  const style = useStyle(
+    { ...props, customColors: { fillColor: props?.fillColor } },
+    widgetName
+  );
   const {
     pvData,
     limitsFromPv = false,
     showLabel = false,
-    font,
     horizontal = true,
-    fillColor = ColorUtils.fromRgba(60, 255, 60),
     precision = undefined,
-    logScale = false,
-    transparent = false // This property only exists in CSStudio, so default to false
+    logScale = false
   } = props;
 
   const { value } = getPvValueAndName(pvData);
-
-  const backgroundColor = transparent
-    ? "transparent"
-    : (props.backgroundColor?.colorString ?? "rgba(250, 250, 250, 255)");
 
   let { min = 0, max = 100 } = props;
   if (limitsFromPv && value?.display.controlRange) {
@@ -92,12 +90,12 @@ export const ProgressBarComponent = (
           border: 1,
           borderColor: "#D2D2D2",
           borderRadius: "4px",
-          backgroundColor: backgroundColor,
+          backgroundColor: style?.colors?.backgroundColor,
           "& .MuiLinearProgress-bar": {
             transform: horizontal
               ? null
               : `translateY(${100 - percent}%)!important`.toString(),
-            backgroundColor: fillColor.colorString
+            backgroundColor: style?.customColors?.fillColor
           }
         }}
       />
@@ -109,7 +107,7 @@ export const ProgressBarComponent = (
           color: "#000000",
           alignContent: "center",
           transform: horizontal ? undefined : "rotate(-90deg)",
-          ...fontToCss(font)
+          ...style?.font
         }}
       >
         {label}
@@ -127,4 +125,4 @@ export const ProgressBar = (
   props: InferWidgetProps<typeof ProgressBarWidgetProps>
 ): JSX.Element => <Widget baseWidget={ProgressBarComponent} {...props} />;
 
-registerWidget(ProgressBar, ProgressBarWidgetProps, "progressbar");
+registerWidget(ProgressBar, ProgressBarWidgetProps, widgetName);

@@ -14,11 +14,12 @@ import {
   MacrosPropOpt,
   StringOrNumPropOpt
 } from "../propTypes";
-import { Typography as MuiTypography, styled, useTheme } from "@mui/material";
+import { Typography as MuiTypography, styled } from "@mui/material";
 import { calculateRotationTransform } from "../utils";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
-import { borderToCss } from "../../../types/border";
-import { fontToCss } from "../../../types/font";
+import { useStyle } from "../../hooks/useStyle";
+
+const widgetName = "label";
 
 const LabelProps = {
   macros: MacrosPropOpt,
@@ -55,10 +56,13 @@ const Typography = styled(MuiTypography)({
 export const LabelComponent = (
   props: InferWidgetProps<typeof LabelProps>
 ): JSX.Element => {
-  const theme = useTheme();
   // Default labels to transparent.
+  const style = useStyle(
+    { ...props, transparent: props.transparent ?? true },
+    widgetName
+  );
+
   const {
-    transparent = true,
     textAlign = "left",
     textAlignV = "top",
     text = "",
@@ -68,15 +72,6 @@ export const LabelComponent = (
     height = WIDGET_DEFAULT_SIZES["label"][1],
     width = WIDGET_DEFAULT_SIZES["label"][0]
   } = props;
-  const foregroundColor =
-    props.foregroundColor?.colorString ?? theme.palette.primary.contrastText;
-  const backgroundColor = transparent
-    ? "transparent"
-    : (props.backgroundColor?.colorString ?? theme.palette.primary.main);
-  const font = fontToCss(props.font) ?? theme.typography;
-  const borderWidth = borderToCss(props.border)?.borderWidth ?? "0px";
-  const borderColor = borderToCss(props.border)?.borderColor ?? "#000000";
-  const borderStyle = borderToCss(props.border)?.borderStyle ?? "solid";
 
   const [inputWidth, inputHeight, transform] = calculateRotationTransform(
     rotationStep,
@@ -105,6 +100,8 @@ export const LabelComponent = (
     <Typography
       noWrap={!wrapWords}
       sx={{
+        ...style.colors,
+        ...style.font,
         display: visible ? "flex" : "none",
         justifyContent: alignment,
         alignItems: alignmentV,
@@ -115,13 +112,10 @@ export const LabelComponent = (
         textAlign: textAlign,
         wordBreak: wrapWords ? "break-word" : null,
         whiteSpace: wrapWords ? "pre-wrap" : "pre",
-        color: foregroundColor,
-        backgroundColor: backgroundColor,
-        fontFamily: font,
         transform: transform.toString(),
-        outlineWidth: borderWidth,
-        outlineColor: borderColor,
-        outlineStyle: borderStyle
+        outlineWidth: style?.border?.borderWidth as string | number,
+        outlineColor: style?.border?.borderColor as string | number,
+        outlineStyle: style?.border?.borderStyle as string | number
       }}
     >
       {text}
@@ -133,4 +127,4 @@ export const Label = (
   props: InferWidgetProps<typeof LabelWidgetProps>
 ): JSX.Element => <Widget baseWidget={LabelComponent} {...props} />;
 
-registerWidget(Label, LabelWidgetProps, "label");
+registerWidget(Label, LabelWidgetProps, widgetName);

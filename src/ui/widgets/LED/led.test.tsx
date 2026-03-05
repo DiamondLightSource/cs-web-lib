@@ -10,6 +10,21 @@ import renderer, { ReactTestRendererJSON } from "react-test-renderer";
 import { ColorUtils } from "../../../types/color";
 import { ddouble } from "../../../testResources";
 import { PvDatum } from "../../../redux/csState";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
+import { vi } from "vitest";
+
+vi.mock("../../hooks/useStyle", () => ({
+  useStyle: vi.fn(() =>
+    createMockStyle({
+      colors: { color: "rgba(0,0,255,1)", backgroundColor: "rgba(200,1,60,1)" },
+      customColors: {
+        onColor: "rgba(0,255,0,1)",
+        offColor: "rgba(255,100,0,1)",
+        lineColor: "rgba(150,0,200,1)"
+      }
+    })
+  )
+}));
 
 const createValue = (alarmType: AlarmQuality): DType => {
   return newDType({ stringValue: "3.141" }, newDAlarm(alarmType, ""));
@@ -67,9 +82,7 @@ describe("background color changes depending on value", (): void => {
 
     const renderedLed = renderLed(ledProps);
 
-    expect(renderedLed.props.style.backgroundColor).toBe(
-      ColorUtils.RED.colorString
-    );
+    expect(renderedLed.props.style.backgroundColor).toBe("rgba(255,100,0,1)");
   });
 
   it("on color is applied if value not zero", (): void => {
@@ -79,10 +92,7 @@ describe("background color changes depending on value", (): void => {
     };
 
     const renderedLed = renderLed(ledProps);
-
-    expect(renderedLed.props.style.backgroundColor).toBe(
-      ColorUtils.GREEN.colorString
-    );
+    expect(renderedLed.props.style.backgroundColor).toBe("rgba(0,255,0,1)");
   });
 });
 

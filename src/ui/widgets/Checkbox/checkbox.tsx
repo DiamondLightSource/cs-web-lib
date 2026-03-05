@@ -12,13 +12,14 @@ import { registerWidget } from "../register";
 import {
   FormControlLabel as MuiFormControlLabel,
   Checkbox as MuiCheckbox,
-  styled,
-  useTheme
+  styled
 } from "@mui/material";
 import { writePv } from "../../hooks/useSubscription";
 import { getPvValueAndName } from "../utils";
 import { newDType, dTypeGetDoubleValue } from "../../../types/dtypes";
-import { fontToCss } from "../../../types/font";
+import { useStyle } from "../../hooks/useStyle";
+
+const widgetName = "checkbox";
 
 export const CheckboxProps = {
   label: StringPropOpt,
@@ -66,7 +67,7 @@ export type CheckboxComponentProps = InferWidgetProps<typeof CheckboxProps> &
 export const CheckboxComponent = (
   props: CheckboxComponentProps
 ): JSX.Element => {
-  const theme = useTheme();
+  const style = useStyle(props, widgetName);
   const { enabled = true, label = "Label", pvData } = props;
   const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
   const checked = Boolean(dTypeGetDoubleValue(value));
@@ -81,12 +82,8 @@ export const CheckboxComponent = (
     <FormControlLabel
       disabled={!enabled}
       sx={{
-        color:
-          props.foregroundColor?.colorString ??
-          theme.palette.primary.contrastText,
-        ".MuiFormControlLabel-label": {
-          fontFamily: fontToCss(props.font) ?? theme.typography
-        }
+        color: style.colors.color,
+        ".MuiFormControlLabel-label": style?.font
       }}
       control={
         <MuiCheckbox
@@ -96,8 +93,7 @@ export const CheckboxComponent = (
           sx={{
             padding: 0,
             "&.MuiSvgIcon-root": {
-              fontSize:
-                fontToCss(props.font)?.fontSize ?? theme.typography.fontSize
+              fontSize: style?.font?.fontSize
             }
           }}
         />
@@ -116,4 +112,4 @@ export const Checkbox = (
   props: InferWidgetProps<typeof CheckboxWidgetProps>
 ): JSX.Element => <Widget baseWidget={CheckboxComponent} {...props} />;
 
-registerWidget(Checkbox, CheckboxWidgetProps, "checkbox");
+registerWidget(Checkbox, CheckboxWidgetProps, widgetName);

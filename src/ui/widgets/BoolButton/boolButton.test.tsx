@@ -7,11 +7,26 @@ import { phoebusTheme } from "../../../phoebusTheme";
 import { PvDatum } from "../../../redux/csState";
 import { vi } from "vitest";
 import * as useSubscription from "../../hooks/useSubscription";
-import { ColorUtils } from "../../../types/color";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
 const mockWritePv = vi
   .spyOn(useSubscription, "writePv")
   .mockImplementation(vi.fn());
+
+vi.mock("../../hooks/useStyle", () => ({
+  useStyle: vi.fn(() =>
+    createMockStyle({
+      colors: {
+        color: "rgb(155, 160, 209)",
+        backgroundColor: "rgba(0, 0, 0, 1)"
+      },
+      customColors: {
+        onColor: "rgb(0,235,10)",
+        offColor: "rgb(0, 100, 0)"
+      }
+    })
+  )
+}));
 
 beforeEach((): void => {
   mockWritePv.mockReset();
@@ -36,13 +51,9 @@ const TEST_PROPS = {
   pvData: [TEST_PVDATUM],
   width: 45,
   height: 20,
-  onColor: ColorUtils.fromRgba(0, 235, 10),
-  offColor: ColorUtils.fromRgba(0, 100, 0),
   onLabel: "Enabled",
   offLabel: "Disabled",
   squareButton: true,
-  backgroundColor: ColorUtils.fromRgba(20, 20, 200),
-  foregroundColor: ColorUtils.fromRgba(10, 60, 40),
   showBooleanLabel: true,
   onState: 1,
   offState: 0
@@ -59,13 +70,13 @@ describe("<BoolButton />", (): void => {
     const led = spanElement.children[0] as HTMLSpanElement;
 
     expect(button).toHaveStyle({
-      "background-color": "rgb(210, 210, 210)",
+      "background-color": "rgba(0, 0, 0, 1)",
       height: "100%",
       width: "100%",
       borderRadius: ""
     });
 
-    expect(led.style.backgroundColor).toEqual("rgb(0, 255, 0)");
+    expect(led.style.backgroundColor).toEqual("rgb(0, 235, 10)");
     expect(led.style.height).toEqual("16px");
   });
 
@@ -85,7 +96,7 @@ describe("<BoolButton />", (): void => {
     expect(led.style.height).toEqual("11px");
 
     expect(button).toHaveStyle({
-      "background-color": "rgb(20, 20, 200)",
+      "background-color": "rgba(0, 0, 0, 1)",
       height: "100%",
       width: "100%",
       borderRadius: ""
@@ -103,7 +114,7 @@ describe("<BoolButton />", (): void => {
     const button = getByRole("button") as HTMLButtonElement;
 
     expect(button.textContent).toEqual("");
-    expect(button).toHaveStyle("background-color: rgb(210, 210, 210)");
+    expect(button).toHaveStyle("background-color: rgba(0, 0, 0, 1)");
   });
 
   test("it changes background colour if no LED", async (): Promise<void> => {

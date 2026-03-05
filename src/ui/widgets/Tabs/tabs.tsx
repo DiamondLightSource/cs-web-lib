@@ -5,10 +5,8 @@ import {
   Tab as MuiTab,
   Paper,
   styled,
-  Tabs,
-  useTheme
+  Tabs
 } from "@mui/material";
-import { ColorUtils } from "../../../types";
 import { Close } from "@mui/icons-material";
 import PropTypes from "prop-types";
 import {
@@ -19,7 +17,9 @@ import {
   FuncPropOpt,
   InferWidgetProps
 } from "../propTypes";
-import { fontToCss, newFont } from "../../../types/font";
+import { useStyle } from "../../hooks/useStyle";
+
+const widgetName = "tabbar";
 
 const Tab = styled(MuiTab)({
   padding: 0,
@@ -55,22 +55,25 @@ export const TabBarProps = {
 export const TabBar = (
   props: InferWidgetProps<typeof TabBarProps>
 ): JSX.Element => {
-  const theme = useTheme();
+  const { font, customColors } = useStyle(
+    {
+      ...props,
+      customColors: {
+        selectedColor: props?.selectedColor,
+        deselectedColor: props?.deselectedColor
+      }
+    },
+    widgetName
+  );
   const {
     direction = 0,
     tabWidth = 100,
     tabHeight = 30,
     tabSpacing = 0,
-    selectedColor = ColorUtils.fromRgba(236, 236, 236),
-    deselectedColor = ColorUtils.fromRgba(200, 200, 200),
     activeTab = 0,
     visible = true
   } = props;
   const [value, setValue] = useState(activeTab);
-
-  const font =
-    props.font ??
-    newFont(theme.typography.fontSize, undefined, theme.typography.fontFamily);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     const element = event.target as HTMLElement;
@@ -95,12 +98,12 @@ export const TabBar = (
     >
       <Tabs
         sx={{
+          ...font,
           width: direction ? tabWidth : "100%",
           height: direction ? "100%" : tabHeight,
           minHeight: direction ? "100%" : tabHeight,
           minWidth: direction ? tabWidth : "100%",
           display: "flex",
-          font: fontToCss(font) as React.CSSProperties,
           "& .MuiTabs-indicator": {
             backgroundColor: "transparent"
           }
@@ -137,11 +140,11 @@ export const TabBar = (
               }
               sx={{
                 "&.Mui-selected": {
-                  backgroundColor: selectedColor.colorString,
+                  backgroundColor: customColors?.selectedColor,
                   color: "black"
                 },
                 boxShadow: 3,
-                backgroundColor: deselectedColor.colorString,
+                backgroundColor: customColors?.deselectedColor,
                 marginRight: direction ? "0px" : `${tabSpacing}px`,
                 marginBottom: direction ? `${tabSpacing}px` : "0px",
                 "&.MuiTab-root": {

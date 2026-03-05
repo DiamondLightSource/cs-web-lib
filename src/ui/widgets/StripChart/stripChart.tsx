@@ -24,8 +24,10 @@ import {
   dTypeGetTime,
   dTimeToDate
 } from "../../../types/dtypes";
-import { ColorUtils } from "../../../types/color";
 import { fontToCss, newFont } from "../../../types/font";
+import { useStyle } from "../../hooks/useStyle";
+
+const widgetName = "stripchart";
 
 const MARKER_STYLES: any[] = [
   undefined,
@@ -71,6 +73,8 @@ export interface TimeSeriesPoint {
 export const StripChartComponent = (
   props: StripChartComponentProps
 ): JSX.Element => {
+  const style = useStyle(props, widgetName);
+
   const {
     traces,
     axes,
@@ -81,8 +85,6 @@ export const StripChartComponent = (
     labelFont = newFont(),
     showGrid = false,
     showLegend = false,
-    foregroundColor = ColorUtils.fromRgba(0, 0, 0, 1),
-    backgroundColor = ColorUtils.fromRgba(255, 255, 255, 1),
     start = "1 minute",
     visible = true,
     archivedData = [],
@@ -203,37 +205,35 @@ export const StripChartComponent = (
     });
 
     const yAxes: ReadonlyArray<YAxis<any>> = localAxes.map(
-      (item, idx): YAxis<any> => ({
-        width: 55,
-        id: idx,
-        label: item.title,
-        color: item.color?.colorString,
-        labelStyle: {
-          fontSize: fontToCss(item.titleFont)?.fontSize,
-          fontStyle: fontToCss(item.titleFont)?.fontStyle,
-          fontFamily: fontToCss(item.titleFont)?.fontFamily,
-          fontWeight: fontToCss(item.titleFont)?.fontWeight,
-          fill: item.color.colorString
-        },
-        tickLabelStyle: {
-          fontSize: fontToCss(item.scaleFont)?.fontSize,
-          fontStyle: fontToCss(item.scaleFont)?.fontStyle,
-          fontFamily: fontToCss(item.scaleFont)?.fontFamily,
-          fontWeight: fontToCss(item.scaleFont)?.fontWeight,
-          fill: item.color.colorString,
-          angle: item.onRight ? 90 : -90
-        },
-        valueFormatter: (value: any, context: any) =>
-          context.location === "tooltip"
-            ? `${value}`
-            : value.length > 4
-              ? `${value.toExponential(3)}`
-              : value,
-        scaleType: item.logScale ? "symlog" : "linear",
-        position: item.onRight ? "right" : "left",
-        min: item.autoscale ? undefined : item.minimum,
-        max: item.autoscale ? undefined : item.maximum
-      })
+      (item, idx): YAxis<any> => {
+        const titleFont = fontToCss(item.titleFont);
+        const scaleFont = fontToCss(item.scaleFont);
+        return {
+          width: 55,
+          id: idx,
+          label: item.title,
+          color: item.color?.colorString,
+          labelStyle: {
+            ...titleFont,
+            fill: item.color.colorString
+          },
+          tickLabelStyle: {
+            ...scaleFont,
+            fill: item.color.colorString,
+            angle: item.onRight ? 90 : -90
+          },
+          valueFormatter: (value: any, context: any) =>
+            context.location === "tooltip"
+              ? `${value}`
+              : value.length > 4
+                ? `${value.toExponential(3)}`
+                : value,
+          scaleType: item.logScale ? "symlog" : "linear",
+          position: item.onRight ? "right" : "left",
+          min: item.autoscale ? undefined : item.minimum,
+          max: item.autoscale ? undefined : item.maximum
+        };
+      }
     );
 
     return { yAxes, yAxesStyle };
@@ -242,7 +242,7 @@ export const StripChartComponent = (
   const xAxis: ReadonlyArray<XAxis<any>> = useMemo(
     () => [
       {
-        color: foregroundColor.colorString,
+        color: style?.colors?.color,
         dataKey: "dateTime",
         min: dateRange.minX,
         max: dateRange.maxX,
@@ -250,7 +250,7 @@ export const StripChartComponent = (
         id: "xaxis"
       }
     ],
-    [dateRange, foregroundColor]
+    [dateRange, style?.colors?.color]
   );
 
   const series = useMemo(
@@ -294,12 +294,11 @@ export const StripChartComponent = (
     <Box sx={{ width: "100%", height: "100%" }}>
       <Typography
         sx={{
-          font: fontToCss(titleFont) as React.CSSProperties,
+          ...fontToCss(titleFont),
           width: "100%",
           height: "5%",
           textAlign: "center",
-          backgroundColor: backgroundColor.colorString,
-          color: foregroundColor.colorString
+          ...style?.colors
         }}
       >
         {title}
@@ -311,20 +310,20 @@ export const StripChartComponent = (
         sx={{
           width: "100%",
           height: "95%",
-          backgroundColor: backgroundColor.colorString,
+          backgroundColor: style?.colors?.backgroundColor,
           ".MuiChartsAxis-id-xaxis": {
             ".MuiChartsAxis-line": {
-              stroke: foregroundColor.colorString
+              stroke: style?.colors?.color
             },
             ".MuiChartsAxis-label": {
               font: fontToCss(labelFont)
             },
             ".MuiChartsAxis-tickLabel": {
-              fill: foregroundColor.colorString,
+              fill: style?.colors?.color,
               font: fontToCss(scaleFont)
             },
             ".MuiChartsAxis-tick": {
-              stroke: foregroundColor.colorString
+              stroke: style?.colors?.color
             }
           },
           ...yAxesStyle
@@ -332,7 +331,7 @@ export const StripChartComponent = (
         xAxis={xAxis}
         yAxis={yAxes}
         series={series}
-        slotProps={{ legend: { sx: { color: foregroundColor.colorString } } }}
+        slotProps={{ legend: { sx: { color: style?.colors?.color } } }}
       />
     </Box>
   );
@@ -347,4 +346,4 @@ export const StripChart = (
   props: InferWidgetProps<typeof StripChartWidgetProps>
 ): JSX.Element => <Widget baseWidget={StripChartComponent} {...props} />;
 
-registerWidget(StripChart, StripChartWidgetProps, "stripchart");
+registerWidget(StripChart, StripChartWidgetProps, widgetName);

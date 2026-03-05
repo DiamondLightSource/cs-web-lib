@@ -4,6 +4,10 @@ import { StringPropOpt, InferWidgetProps } from "../propTypes";
 import { WidgetPropType } from "../widgetProps";
 import { Widget } from "../widget";
 import { registerWidget } from "../register";
+import { Box } from "@mui/material";
+import { useStyle } from "../../hooks/useStyle";
+
+const widgetName = "webcam";
 
 const WebcamProps = {
   name: StringPropOpt,
@@ -19,15 +23,15 @@ const WebcamProps = {
 export const WebcamComponent = (
   props: InferWidgetProps<typeof WebcamProps>
 ): JSX.Element => {
+  const style = useStyle({}, widgetName);
   // Create image tag
   return (
-    <div
-      style={{
+    <Box
+      sx={{
+        ...style?.font,
+        ...style?.colors,
         width: "100%",
-        height: "100%",
-        fontSize: "14px", // Set properties for image alt text
-        fontWeight: "bold",
-        color: "#a6190f"
+        height: "100%"
       }}
     >
       <img
@@ -38,7 +42,7 @@ export const WebcamComponent = (
         onError={onError}
         onLoad={onLoad}
       />
-    </div>
+    </Box>
   );
 };
 
@@ -70,4 +74,4 @@ export const Webcam = (
   props: InferWidgetProps<typeof WebcamWidgetProps>
 ): JSX.Element => <Widget baseWidget={WebcamComponent} {...props} />;
 
-registerWidget(Webcam, WebcamWidgetProps, "webcam");
+registerWidget(Webcam, WebcamWidgetProps, widgetName);

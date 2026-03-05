@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 
-import { Widget, commonCss } from "../widget";
+import { Widget } from "../widget";
+import { useStyle } from "../../hooks/useStyle";
 import { WidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import {
@@ -20,6 +21,8 @@ import {
   MacroContextType
 } from "../../../types/macros";
 import { getOptionalValue } from "../utils";
+
+const widgetName = "display";
 
 const DisplayProps = {
   children: ChildrenPropOpt,
@@ -53,10 +56,19 @@ export const DisplayComponent = (
       DID: props.id // highest priority
     }
   };
-  const style = commonCss(props);
-  style["position"] = "relative";
-  style["overflow"] = props.overflow;
-  style["height"] = "100%";
+
+  const style = useStyle(props, widgetName);
+
+  let extendedStyle: React.CSSProperties = {
+    ...style.colors,
+    ...style.border,
+    ...style.other,
+    ...style.font,
+    position: "relative",
+    overflow: props.overflow,
+    height: "100%"
+  };
+
   // Check whether the scaling property has been set and if
   // not set the scaling to 1 (i.e. no scaling)
   const internalScaleX = getOptionalValue(props.scaling?.at(0), "1");
@@ -65,13 +77,15 @@ export const DisplayComponent = (
   // true AND the scale factor provided is not 1 where 1
   // implies no scaling
   if (props.autoZoomToFit && internalScaleX !== "1" && internalScaleY !== "1") {
-    style["transform"] = `scale(${internalScaleX}, ${internalScaleY})`;
-    const scalingOrigin = getOptionalValue(props.scalingOrigin, "center top");
-    style["transformOrigin"] = scalingOrigin;
+    extendedStyle = {
+      ...extendedStyle,
+      transform: `scale(${internalScaleX}, ${internalScaleY})`,
+      transformOrigin: getOptionalValue(props.scalingOrigin, "center top")
+    };
   }
   return (
     <MacroContext.Provider value={displayMacroContext}>
-      <div style={style} className="display">
+      <div style={extendedStyle} className="display">
         <>{props.children}</>
       </div>
     </MacroContext.Provider>
@@ -87,4 +101,4 @@ export const Display = (
   props: InferWidgetProps<typeof DisplayWidgetProps>
 ): JSX.Element => <Widget baseWidget={DisplayComponent} {...props} />;
 
-registerWidget(Display, DisplayWidgetProps, "display");
+registerWidget(Display, DisplayWidgetProps, widgetName);

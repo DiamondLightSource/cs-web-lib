@@ -7,7 +7,13 @@ import { Provider } from "react-redux";
 import { store } from "../../../redux/store";
 import { ensureWidgetsRegistered } from "..";
 import { newRelativePosition } from "../../../types";
+import { vi } from "vitest";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
 ensureWidgetsRegistered();
+
+vi.mock("../../hooks/useStyle", () => ({
+  useStyle: vi.fn(() => createMockStyle())
+}));
 
 describe("<TabContainer>", (): void => {
   it("renders one child", async () => {

@@ -6,15 +6,26 @@ exports[`<DropDownComponent /> > it matches the snapshot 1`] = `
   open={false}
   style={
     {
-      "backgroundColor": "",
-      "color": "",
+      "backgroundColor": "rgba(0, 0, 0, 1)",
+      "borderColor": "green",
+      "borderRadius": "0px",
+      "borderStyle": "solid",
+      "borderWidth": "1px",
+      "color": "rgb(155, 160, 209)",
       "minHeight": "",
     }
   }
 >
   <summary
     className="_Summary_e96ac1"
-    style={{}}
+    style={
+      {
+        "fontFamily": undefined,
+        "fontSize": undefined,
+        "fontStyle": undefined,
+        "fontWeight": undefined,
+      }
+    }
   >
     Test
   </summary>

@@ -1,6 +1,6 @@
 import React from "react";
 import { BarChart, BarSeries } from "@mui/x-charts/BarChart";
-import { Box, useTheme } from "@mui/material";
+import { Box } from "@mui/material";
 import { Widget } from "../widget";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
@@ -12,7 +12,7 @@ import {
   BobColorsPropOpt,
   IntPropOpt
 } from "../propTypes";
-import { ColorUtils } from "../../../types/color";
+import { Color, ColorUtils } from "../../../types/color";
 import {
   ChartsReferenceLine,
   chartsTooltipClasses,
@@ -34,7 +34,9 @@ import {
 } from "./trianglePointer";
 import { buildStatusRegions } from "./linearMeterUtilities";
 import { dTypeGetDoubleValue } from "../../../types/dtypes";
-import { fontToCss } from "../../../types/font";
+import { useStyle } from "../../hooks/useStyle";
+
+const widgetName = "linearmeter";
 
 export const LinearMeterComponentProps = {
   minimum: FloatPropOpt,
@@ -58,7 +60,28 @@ export const LinearMeterComponentProps = {
 export const LinearMeterComponent = (
   props: InferWidgetProps<typeof LinearMeterComponentProps> & PVComponent
 ): JSX.Element => {
-  const theme = useTheme();
+  const style = useStyle(
+    {
+      ...props,
+      foregroundColor: props?.colors?.foregroundColor as Color | undefined,
+      backgroundColor: props?.colors?.backgroundColor as Color | undefined,
+      customColors: {
+        needleColor: props?.colors?.needleColor as Color | undefined,
+        normalStatusColor: props?.colors?.normalStatusColor as
+          | Color
+          | undefined,
+        minorWarningColor: props?.colors?.minorWarningColor as
+          | Color
+          | undefined,
+        majorWarningColor: props?.colors?.majorWarningColor as
+          | Color
+          | undefined,
+        knobColor: props?.colors?.knobColor as Color | undefined
+      }
+    },
+    widgetName
+  );
+
   const {
     pvData,
     limitsFromPv = true,
@@ -68,7 +91,6 @@ export const LinearMeterComponent = (
     levelLolo = 10,
     needleWidth = 1,
     knobSize = 8,
-    font,
     displayHorizontal = true,
     scaleVisible = true,
     showUnits = true,
@@ -80,16 +102,8 @@ export const LinearMeterComponent = (
   const units = value?.display.units ?? "";
   const numValue = dTypeGetDoubleValue(value) ?? 0;
 
-  const foregroundColor =
-    props?.colors?.foregroundColor?.colorString ??
-    theme.palette.primary.contrastText;
-  const needleColor =
-    props?.colors?.needleColor?.colorString ??
-    theme.palette.primary.contrastText;
-  const knobColor =
-    props?.colors?.knobColor?.colorString ?? theme.palette.primary.contrastText;
-  const backgroundColor =
-    props?.colors?.backgroundColor?.colorString ?? theme.palette.primary.main;
+  const needleColor = style?.customColors?.needleColor;
+  const knobColor = style?.customColors?.knobColor;
 
   // Set the maximum, minimum and alarm levels.
   let alarmRangeMin: number | undefined = levelLolo;
@@ -114,13 +128,9 @@ export const LinearMeterComponent = (
     maximum = pvMax ?? maximum;
   }
 
-  const fontCss = fontToCss(font) ?? theme.typography;
   const labelFontStyle = {
-    fontSize: fontCss.fontSize,
-    fontStyle: fontToCss(font)?.fontStyle,
-    fontFamily: fontCss.fontFamily,
-    fontWeight: fontToCss(font)?.fontWeight,
-    fill: foregroundColor
+    ...style?.font,
+    fill: style?.colors?.color
   };
 
   const scaleAxisProps: XAxis<any> = {
@@ -194,7 +204,11 @@ export const LinearMeterComponent = (
     alarmRangeMax,
     minimum,
     maximum,
-    props?.colors ?? {},
+    {
+      ...style?.customColors,
+      isHighlightingOfActiveRegionsEnabled:
+        props?.colors?.isHighlightingOfActiveRegionsEnabled
+    },
     showLimits,
     numValue
   );
@@ -265,10 +279,8 @@ export const LinearMeterComponent = (
           height: "100%",
           width: "100%",
           position: "absolute",
-          border: 1,
-          borderColor: "#D2D2D2",
-          borderRadius: "4px",
-          backgroundColor: backgroundColor
+          ...style?.border,
+          backgroundColor: style?.colors?.backgroundColor
         }}
         slotProps={{
           tooltip: {
@@ -344,4 +356,4 @@ export const LinearMeter = (
   props: InferWidgetProps<typeof LinearMeterProps>
 ): JSX.Element => <Widget baseWidget={LinearMeterComponent} {...props} />;
 
-registerWidget(LinearMeter, LinearMeterProps, "linearmeter");
+registerWidget(LinearMeter, LinearMeterProps, widgetName);

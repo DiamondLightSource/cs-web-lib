@@ -10,10 +10,12 @@ import {
   InferWidgetProps,
   ColorPropOpt
 } from "../propTypes";
-import { ColorUtils } from "../../../types/color";
 import { Box } from "@mui/material";
 import { getPvValueAndName } from "../utils";
 import { dTypeGetDoubleValue, DType } from "../../../types/dtypes";
+import { useStyle } from "../../hooks/useStyle";
+
+const widgetName = "thermometer";
 
 // This is the angle between vertical and the line from the center of the bulb to the intersection of the stem and bulb
 export const bulbStemAngle = Math.PI / 5;
@@ -46,23 +48,22 @@ export const ThermometerComponent = (
   props: InferWidgetProps<typeof ThermometerComponentProps> & PVComponent
 ): JSX.Element => {
   const svgRef = useRef<SVGSVGElement>(null);
+  const style = useStyle({ foregroundColor: props.fillColor }, widgetName);
 
-  const {
-    pvData,
-    limitsFromPv = false,
-    height = 160,
-    width = 40,
-    fillColor = ColorUtils.fromRgba(60, 255, 60, 1)
-  } = props;
+  const { pvData, limitsFromPv = false, height = 160, width = 40 } = props;
   const { value } = getPvValueAndName(pvData);
 
   const colors = useMemo(
     () => ({
-      mercuryColor: fillColor,
-      backgroundColor: ColorUtils.fromRgba(230, 230, 230, 1),
-      borderColor: ColorUtils.fromRgba(75, 75, 75, 1)
+      mercuryColor: style?.colors?.color,
+      backgroundColor: style?.colors?.backgroundColor,
+      borderColor: style?.border?.borderColor
     }),
-    [fillColor]
+    [
+      style?.colors?.color,
+      style?.colors?.backgroundColor,
+      style?.border?.borderColor
+    ]
   );
 
   const thermometerDimensions = useMemo(
@@ -91,14 +92,14 @@ export const ThermometerComponent = (
     thermometerSvgGroup
       .append("path")
       .attr("d", thermometerPath.toString())
-      .attr("fill", colors.backgroundColor.colorString)
-      .attr("stroke", colors.borderColor.colorString)
+      .attr("fill", colors.backgroundColor as string)
+      .attr("stroke", colors.borderColor as string)
       .style("stroke-width", thermometerOutlineWidth);
 
     thermometerSvgGroup
       .append("path")
       .attr("d", mercuryBulbPath.toString())
-      .attr("fill", colors.mercuryColor.colorString);
+      .attr("fill", colors.mercuryColor as string);
   }, [thermometerDimensions, colors]);
 
   useEffect(() => {
@@ -127,7 +128,7 @@ export const ThermometerComponent = (
         2 * thermometerDimensions.stemHalfWidth - thermometerOutlineWidth
       )
       .attr("height", mercuryHeight + thermometerOutlineWidth)
-      .attr("fill", colors.mercuryColor.colorString);
+      .attr("fill", colors.mercuryColor as string);
   }, [value, maximum, minimum, thermometerDimensions, colors]);
 
   return (
@@ -261,7 +262,7 @@ export const Thermometer = (
   props: InferWidgetProps<typeof ThermometerWidgetProps>
 ): JSX.Element => <Widget baseWidget={ThermometerComponent} {...props} />;
 
-registerWidget(Thermometer, ThermometerWidgetProps, "thermometer");
+registerWidget(Thermometer, ThermometerWidgetProps, widgetName);
 
 export const calculateMercuryHeight = (
   value: DType | undefined,

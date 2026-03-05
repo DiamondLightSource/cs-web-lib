@@ -3,6 +3,12 @@ import { render, screen } from "@testing-library/react";
 import { SymbolComponent } from "./symbol";
 import { newDType } from "../../../types/dtypes";
 import { PvDatum } from "../../../redux/csState";
+import { vi } from "vitest";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
+
+vi.mock("../../hooks/useStyle", () => ({
+  useStyle: vi.fn(() => createMockStyle({ colors: { color: "" } }))
+}));
 
 const fakeValue = newDType({ stringValue: "Fake value" });
 const stringValue = newDType({ stringValue: "1.54" });

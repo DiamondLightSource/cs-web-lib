@@ -1,6 +1,12 @@
 import React from "react";
 import { render, fireEvent } from "@testing-library/react";
 import { DrawerComponent } from "./drawer";
+import { vi } from "vitest";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
+
+vi.mock("../../hooks/useStyle", () => ({
+  useStyle: vi.fn(() => createMockStyle())
+}));
 
 test("drawer opens on click", async () => {
   // when passing contents as a list each item in the list

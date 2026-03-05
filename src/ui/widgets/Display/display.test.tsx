@@ -3,6 +3,12 @@ import { DisplayComponent } from "./display";
 import { Label } from "../Label/label";
 import { newRelativePosition } from "../../../types/position";
 import { contextRender } from "../../../testResources";
+import { vi } from "vitest";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
+
+vi.mock("../../hooks/useStyle", () => ({
+  useStyle: vi.fn(() => createMockStyle())
+}));
 
 const display = (
   <DisplayComponent id="id1">

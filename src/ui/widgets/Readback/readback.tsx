@@ -25,11 +25,12 @@ import {
   dTypeGetDisplay,
   AlarmQuality
 } from "../../../types/dtypes";
-import { TextField as MuiTextField, styled, useTheme } from "@mui/material";
+import { TextField as MuiTextField, styled } from "@mui/material";
 import { calculateRotationTransform, getPvValueAndName } from "../utils";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
-import { borderToCss } from "../../../types/border";
-import { fontToCss } from "../../../types/font";
+import { useStyle } from "../../hooks/useStyle";
+
+const widgetName = "readback";
 
 const ReadbackProps = {
   precision: IntPropOpt,
@@ -87,14 +88,13 @@ export type ReadbackComponentProps = InferWidgetProps<typeof ReadbackProps> &
 export const ReadbackComponent = (
   props: ReadbackComponentProps
 ): JSX.Element => {
-  const theme = useTheme();
+  const style = useStyle(props, widgetName);
   const {
     enabled = true,
     pvData,
     precision,
     formatType = "default",
     alarmSensitive = true,
-    transparent = false,
     text = "######",
     textAlign = "left",
     textAlignV = "top",
@@ -154,12 +154,8 @@ export const ReadbackComponent = (
   if (showUnits && display?.units) {
     displayedValue = displayedValue + ` ${display.units}`;
   }
-
-  let foregroundColor =
-    props.foregroundColor?.colorString ?? theme.palette.primary.contrastText;
-  let borderColor = props.border?.color.colorString ?? "#000000";
-  let borderStyle = borderToCss(props.border)?.borderStyle ?? "solid";
-  let borderWidth = props.border?.width ?? "0px";
+  let { borderColor, borderStyle, borderWidth } = style?.border;
+  let { color: foregroundColor } = style?.colors;
 
   const alarmQuality = dTypeGetAlarm(value).quality ?? AlarmQuality.VALID;
   if (alarmSensitive) {
@@ -180,12 +176,6 @@ export const ReadbackComponent = (
         borderWidth = "2px";
     }
   }
-
-  const font = fontToCss(props.font) ?? theme.typography;
-
-  const backgroundColor = transparent
-    ? "transparent"
-    : (props.backgroundColor?.colorString ?? theme.palette.primary.main);
 
   let alignmentV = "center";
   if (textAlignV === "top") {
@@ -222,7 +212,7 @@ export const ReadbackComponent = (
         },
         "& .MuiInputBase-input": {
           textAlign: textAlign,
-          font: font
+          ...style?.font
         },
         "& .MuiInputBase-root": {
           justifyContent: alignmentV,
@@ -230,13 +220,13 @@ export const ReadbackComponent = (
           alignItems: alignmentV,
           overflow: "hidden",
           color: foregroundColor,
-          backgroundColor: backgroundColor
+          backgroundColor: style?.colors?.backgroundColor
         },
         "& .MuiOutlinedInput-root": {
           "& .MuiOutlinedInput-notchedOutline": {
-            outlineWidth: borderWidth,
-            outlineStyle: borderStyle,
-            outlineColor: borderColor
+            outlineWidth: borderWidth as string | number,
+            outlineStyle: borderStyle as string | number,
+            outlineColor: borderColor as string | number
           },
           "&.Mui-focused": {
             "& .MuiOutlinedInput-notchedOutline": {
@@ -267,4 +257,4 @@ export const Readback = (
   />
 );
 
-registerWidget(Readback, ReadbackWidgetProps, "readback");
+registerWidget(Readback, ReadbackWidgetProps, widgetName);

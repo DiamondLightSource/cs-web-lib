@@ -42,10 +42,11 @@ export const borderToCss = (
 ): CSSProperties | undefined =>
   border
     ? {
-        borderStyle: CssBorders[border.style],
-        borderWidth: `${border.width}px`,
-        borderColor: border.color.colorString,
-        borderRadius: border.radius ? `${border.radius}px` : undefined
+        borderStyle:
+          border.style != null ? CssBorders[border.style] : undefined,
+        borderWidth: border.width != null ? `${border.width}px` : undefined,
+        borderColor: border.color?.colorString,
+        borderRadius: border.radius != null ? `${border.radius}px` : undefined
       }
     : undefined;
 

@@ -11,7 +11,6 @@ import {
   FontPropOpt,
   ColorPropOpt
 } from "../propTypes";
-import { ColorUtils } from "../../../types/color";
 import { GaugeComponent } from "react-gauge-component";
 import {
   buildSubArcs,
@@ -23,7 +22,9 @@ import {
 } from "./meterUtilities";
 import { getPvValueAndName } from "../utils";
 import { dTypeGetDoubleValue } from "../../../types/dtypes";
-import { fontToCss } from "../../../types/font";
+import { useStyle } from "../../hooks/useStyle";
+
+const widgetName = "meter";
 
 export const MeterProps = {
   minimum: FloatPropOpt,
@@ -51,14 +52,14 @@ export const MeterComponent = (
     height = 120,
     width = 240,
     limitsFromPv = true,
-    font,
-    foregroundColor = ColorUtils.fromRgba(0, 0, 0, 1),
-    needleColor = ColorUtils.fromRgba(255, 5, 7, 1),
     precision = undefined,
     showUnits = true,
-    showValue = true,
-    transparent = false
+    showValue = true
   } = props;
+  const style = useStyle(
+    { ...props, customColors: { needleColor: props?.needleColor } },
+    widgetName
+  );
   const { value } = getPvValueAndName(pvData);
 
   const units = value?.display.units ?? "";
@@ -68,10 +69,6 @@ export const MeterComponent = (
     () => formatValue(numValue, format, precision ?? 3, units, showUnits),
     [numValue, format, precision, units, showUnits]
   );
-
-  const backgroundColor = transparent
-    ? "transparent"
-    : (props.backgroundColor?.colorString ?? "rgba(250, 250, 250, 1)");
 
   const display = value?.display;
   const alarmRangeMin = convertInfAndNanToUndefined(display?.alarmRange?.min);
@@ -107,10 +104,10 @@ export const MeterComponent = (
       alignContent="center"
       justifyContent="center"
       sx={{
+        ...style.colors,
         display: "flex",
         height: "100%",
         width: "100%",
-        backgroundColor: backgroundColor,
         position: "absolute"
       }}
     >
@@ -133,16 +130,19 @@ export const MeterComponent = (
           right: 0.09
         }}
         pointer={{
-          color: needleColor.colorString,
+          type: "needle",
+          color: style?.customColors?.needleColor,
+          baseColor: style?.customColors?.needleColor,
           elastic: false,
           animate: false,
-          length: 0.95
+          length: 0.95,
+          width: 15
         }}
         arc={{
           padding: 0,
           cornerRadius: 0,
           subArcs: buildSubArcs(
-            foregroundColor.colorString,
+            style?.colors?.color as string,
             minimum,
             maximum,
             alarmRangeMin,
@@ -155,8 +155,8 @@ export const MeterComponent = (
         labels={{
           valueLabel: {
             style: {
-              fontFamily: fontToCss(font)?.fontFamily,
-              fill: foregroundColor.colorString,
+              fontFamily: style?.font?.fontFamily,
+              fill: style?.colors?.color,
               textShadow: "none"
             },
             formatTextValue: getFormattedValue,
@@ -181,14 +181,14 @@ export const MeterComponent = (
             ),
             defaultTickValueConfig: {
               style: {
-                fill: foregroundColor.colorString,
+                fill: style?.colors?.color,
                 fontSize: `${scaledWidth * 0.04}px`,
                 textShadow: "none",
-                fontFamily: fontToCss(font)?.fontFamily
+                fontFamily: style?.font?.fontFamily
               }
             },
             defaultTickLineConfig: {
-              color: foregroundColor.colorString
+              color: style?.colors?.color
             }
           }
         }}
@@ -206,4 +206,4 @@ export const Meter = (
   props: InferWidgetProps<typeof MeterWidgetProps>
 ): JSX.Element => <Widget baseWidget={MeterComponent} {...props} />;
 
-registerWidget(Meter, MeterWidgetProps, "meter");
+registerWidget(Meter, MeterWidgetProps, widgetName);

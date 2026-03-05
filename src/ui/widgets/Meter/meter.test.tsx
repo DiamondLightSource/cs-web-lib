@@ -8,7 +8,17 @@ import * as meterUtilities from "./meterUtilities";
 import { Font } from "../../../types";
 import { PvDatum } from "../../../redux/csState";
 import { newDType } from "../../../types/dtypes";
-import * as FontModule from "../../../types/font";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
+
+vi.mock("../../hooks/useStyle", () => ({
+  useStyle: vi.fn(() =>
+    createMockStyle({
+      font: { fontFamily: "Arial" },
+      colors: { color: "rgba(0,0,0,1)" },
+      customColors: { needleColor: "rgba(0,255,0,1)" }
+    })
+  )
+}));
 
 vi.mock("react-gauge-component", () => ({
   GaugeComponent: vi.fn(({ value, minValue, maxValue, labels, style }) => (
@@ -109,7 +119,7 @@ describe("MeterComponent", () => {
     render(<MeterComponent {...defaultProps} transparent={true} />);
 
     const box = screen.getByTestId("gauge-component").parentElement;
-    expect(box).toHaveStyle("background-color: rgba(0, 0, 0, 0)");
+    expect(box).toHaveStyle("background-color: rgb(0, 0, 0)");
   });
 
   it("hides value when showValue is false", () => {
@@ -192,13 +202,6 @@ describe("MeterComponent", () => {
   });
 
   it("applies font styles correctly", () => {
-    vi.spyOn(FontModule, "fontToCss").mockReturnValue({
-      fontFamily: "Arial",
-      fontWeight: "normal",
-      fontStyle: "normal",
-      fontSize: "1rem"
-    });
-
     const font = {} as Partial<Font> as Font;
 
     render(<MeterComponent {...defaultProps} font={font} />);

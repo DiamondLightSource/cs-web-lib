@@ -137,7 +137,7 @@ export function parseChildProps(
   parser: ParserDict
 ): { [key: string]: any } {
   const obj: { [key: string]: any } = {}; // Object to assign props to
-  Object.entries(props).forEach((entry: any) => {
+  Object.entries(props ?? {}).forEach((entry: any) => {
     const [key, value] = entry;
     // For each prop, convert the name and parse
     const newName = snakeCaseToCamelCase(key);

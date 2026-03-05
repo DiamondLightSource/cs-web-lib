@@ -24,10 +24,9 @@ import {
   newDType,
   AlarmQuality
 } from "../../../types/dtypes";
-import { TextField as MuiTextField, styled, useTheme } from "@mui/material";
+import { TextField as MuiTextField, styled } from "@mui/material";
 import { getPvValueAndName } from "../utils";
-import { borderToCss } from "../../../types/border";
-import { fontToCss } from "../../../types/font";
+import { useStyle } from "../../hooks/useStyle";
 
 const InputComponentProps = {
   pvName: StringPropOpt,
@@ -46,6 +45,8 @@ const InputComponentProps = {
   showUnits: BoolPropOpt,
   precisionFromPv: BoolPropOpt
 };
+
+const widgetName = "input";
 
 const TextField = styled(MuiTextField)({
   // MUI Textfield contains a fieldset with a legend that needs to be removed
@@ -86,11 +87,11 @@ const TextField = styled(MuiTextField)({
 export const SmartInputComponent = (
   props: PVComponent & InferWidgetProps<typeof InputComponentProps>
 ): JSX.Element => {
-  const theme = useTheme();
+  const style = useStyle(props, widgetName);
+
   const {
     precision = -1,
     enabled = true,
-    transparent = false,
     textAlign = "left",
     textAlignV = "center",
     pvData,
@@ -149,14 +150,8 @@ export const SmartInputComponent = (
     displayedValue = displayedValue + ` ${display.units}`;
   }
 
-  const font = fontToCss(props.font) ?? theme.typography;
-
-  let foregroundColor =
-    props.foregroundColor?.colorString ?? theme.palette.primary.contrastText;
-
-  let borderColor = borderToCss(props.border)?.borderColor ?? "#000000";
-  let borderStyle = borderToCss(props.border)?.borderStyle ?? "solid";
-  let borderWidth = props.border?.width ?? "0px";
+  let { borderColor, borderStyle, borderWidth } = style?.border;
+  let foregroundColor = style?.colors?.color;
 
   const alarmQuality = dTypeGetAlarm(value).quality ?? AlarmQuality.VALID;
   if (alarmSensitive) {
@@ -187,10 +182,6 @@ export const SmartInputComponent = (
   } else if (textAlignV === "bottom") {
     alignmentV = "end";
   }
-
-  const backgroundColor = transparent
-    ? "transparent"
-    : (props.backgroundColor?.colorString ?? "#80FFFF");
 
   const [inputValue, setInputValue] = useState(displayedValue ?? "");
 
@@ -232,23 +223,26 @@ export const SmartInputComponent = (
       sx={{
         "& .MuiInputBase-input": {
           textAlign: textAlign,
-          font: font,
+          ...style.font,
           "& .MuiOutlinedInput-input": {
             "&.Mui-disabled": {
-              WebkitTextFillColor: foregroundColor.replace(/[^,]+(?=\))/, "0.4")
+              WebkitTextFillColor: foregroundColor?.replace(
+                /[^,]+(?=\))/,
+                "0.4"
+              )
             }
           }
         },
         "& .MuiInputBase-root": {
           alignItems: alignmentV,
           color: foregroundColor,
-          backgroundColor: backgroundColor
+          backgroundColor: style?.colors?.backgroundColor
         },
         "& .MuiOutlinedInput-root": {
           "& .MuiOutlinedInput-notchedOutline": {
-            outlineWidth: borderWidth,
-            outlineStyle: borderStyle,
-            outlineColor: borderColor
+            outlineWidth: borderWidth as string | number,
+            outlineStyle: borderStyle as string | number,
+            outlineColor: borderColor as string | number
           },
           "&.Mui-focused": {
             "& .MuiOutlinedInput-notchedOutline": {
@@ -270,4 +264,4 @@ export const Input = (
   props: InferWidgetProps<typeof InputWidgetProps>
 ): JSX.Element => <Widget baseWidget={SmartInputComponent} {...props} />;
 
-registerWidget(Input, InputWidgetProps, "input");
+registerWidget(Input, InputWidgetProps, widgetName);

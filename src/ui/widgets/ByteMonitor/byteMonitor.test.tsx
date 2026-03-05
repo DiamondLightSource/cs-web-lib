@@ -7,7 +7,20 @@ import {
 import renderer, { ReactTestRendererJSON } from "react-test-renderer";
 import { newDType } from "../../../types/dtypes";
 import { PvDatum } from "../../../redux/csState";
-import { ColorUtils } from "../../../types/color";
+import { vi } from "vitest";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
+
+vi.mock("../../hooks/useStyle", () => ({
+  useStyle: vi.fn(() =>
+    createMockStyle({
+      customColors: {
+        onColor: "rgb(155, 160, 209)",
+        offColor: "rgba(0, 0, 0, 1)",
+        borderColor: "rgba(150, 150, 150, 1)"
+      }
+    })
+  )
+}));
 
 const ByteMonitorRenderer = (byteMonitorProps: any): ReactTestRendererJSON => {
   return renderer
@@ -36,7 +49,7 @@ describe("<ByteMonitorComponent />", (): void => {
 
     expect(bits[0].props.style.marginRight).toEqual("-2px");
     expect(bits[1].props.style.borderWidth).toEqual("2px");
-    expect(bits[5].props.style.backgroundColor).toEqual("rgba(0,255,0,1)");
+    expect(bits[5].props.style.backgroundColor).toEqual("rgb(155, 160, 209)");
     expect(bits[7].props.style.borderRadius).toEqual("50%");
   });
   test("overwrite bytemonitor default values", (): void => {
@@ -57,10 +70,7 @@ describe("<ByteMonitorComponent />", (): void => {
       square: true,
       bitReverse: true,
       effect3d: false,
-      onColor: ColorUtils.fromRgba(200, 200, 200),
-      offColor: ColorUtils.fromRgba(100, 100, 100),
-      ledBorder: 1,
-      ledBorderColor: ColorUtils.fromRgba(150, 150, 150)
+      ledBorder: 1
     };
 
     const byteMonitor = ByteMonitorRenderer(byteMonitorProps);
@@ -69,7 +79,7 @@ describe("<ByteMonitorComponent />", (): void => {
 
     expect(bits[0].props.style.marginBottom).toEqual("-1px");
     expect(bits[1].props.style.borderWidth).toEqual("1px");
-    expect(bits[15].props.style.backgroundColor).toEqual("rgba(100,100,100,1)");
+    expect(bits[15].props.style.backgroundColor).toEqual("rgba(0, 0, 0, 1)");
     expect(bits[10].props.style.boxShadow).toBeUndefined();
     expect(bits[15].props.style.borderRadius).toBeUndefined();
     expect(bits[1].props.style.marginRight).toBeUndefined();

@@ -10,7 +10,19 @@ import { vi } from "vitest";
 import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
 import { ColorUtils } from "../../../types";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
 ensureWidgetsRegistered();
+
+vi.mock("../../hooks/useStyle", () => ({
+  useStyle: vi.fn(() =>
+    createMockStyle({
+      customColors: {
+        selectedColor: "rgba(255,100,0,1)",
+        deselectedColor: "rgba(127,255,127,1)"
+      }
+    })
+  )
+}));
 
 const navigationTab = (
   props: any,
@@ -87,14 +99,14 @@ describe("<NavigationTabs>", (): void => {
     expect(selectedTab).toHaveTextContent("one");
     expect(await findByText("Hello!")).toBeInTheDocument();
     const selectedStyle = getComputedStyle(selectedTab);
-    expect(selectedStyle.backgroundColor).toBe("rgb(236, 236, 236)");
+    expect(selectedStyle.backgroundColor).toBe("rgb(255, 100, 0)");
     expect(selectedStyle.minWidth).toBe("100px");
     expect(selectedStyle.minHeight).toBe("30px");
     expect(selectedStyle.marginBottom).toBe("2px");
 
     const deselectedTab = getByRole("tab", { selected: false });
     const deselectedStyle = getComputedStyle(deselectedTab);
-    expect(deselectedStyle.backgroundColor).toBe("rgb(200, 200, 200)");
+    expect(deselectedStyle.backgroundColor).toBe("rgb(127, 255, 127)");
   });
 
   it("renders with different tab spacing and colours", async () => {
@@ -113,14 +125,14 @@ describe("<NavigationTabs>", (): void => {
     const selectedTab = getByRole("tab", { selected: true });
     expect(selectedTab).toHaveTextContent("one");
     const selectedStyle = getComputedStyle(selectedTab);
-    expect(selectedStyle.backgroundColor).toBe("rgb(255, 99, 71)");
+    expect(selectedStyle.backgroundColor).toBe("rgb(255, 100, 0)");
     expect(selectedStyle.minWidth).toBe("40px");
     expect(selectedStyle.minHeight).toBe("20px");
     expect(selectedStyle.marginRight).toBe("10px");
 
     const deselectedTab = getByRole("tab", { selected: false });
     const deselectedStyle = getComputedStyle(deselectedTab);
-    expect(deselectedStyle.backgroundColor).toBe("rgb(60, 179, 113)");
+    expect(deselectedStyle.backgroundColor).toBe("rgb(127, 255, 127)");
   });
 
   it("opens on the second tab", async () => {
