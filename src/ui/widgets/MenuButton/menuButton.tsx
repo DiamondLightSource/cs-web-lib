@@ -7,7 +7,6 @@ import {
   ColorPropOpt,
   InferWidgetProps,
   StringArrayPropOpt,
-  StringPropOpt,
   FontPropOpt,
   BorderPropOpt,
   ActionsPropType
@@ -22,7 +21,7 @@ import { FileContext } from "../../../misc/fileContext";
 import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import { getPvValueAndName } from "../utils";
 import log from "loglevel";
-import { dTypeGetStringValue } from "../../../types/dtypes";
+import { dTypeGetStringValue, dTypeGetType } from "../../../types/dtypes";
 import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "menubutton";
@@ -36,7 +35,6 @@ export const MenuButtonProps = {
   // opi specific prop
   actionsFromPv: BoolPropOpt,
   actions: ActionsPropType,
-  label: StringPropOpt,
   // bob specific prop
   items: StringArrayPropOpt,
   itemsFromPv: BoolPropOpt
@@ -57,27 +55,22 @@ export const MenuButtonComponent = (
   const files = useContext(FileContext);
   const {
     enabled = true,
-    actionsFromPv = true,
     itemsFromPv = true,
     pvData,
-    label,
-    items = ["Item 1", "Item 2"]
+    items = ["item 0"]
   } = props;
 
-  const fromPv = actionsFromPv && itemsFromPv;
   let actions: any[] = props.actions?.actions ?? [];
   const {
     value,
     effectivePvName: pvName,
     connected
   } = getPvValueAndName(pvData);
+  const valueType = dTypeGetType(value);
   const enumPv = value?.display.choices ? true : false;
 
   // Store whether component is disabled or not
   let disabled = !enabled;
-
-  // If no value set at first, use blank label
-  let options: string[] = label ? [label] : pvName ? [] : ["No PV"];
 
   // Using value to dictate displayed value as described here: https://reactjs.org/docs/forms.html#the-select-tag
   // Show nothing by default where there is only one option, or warning of no PV
@@ -85,16 +78,17 @@ export const MenuButtonComponent = (
     (dTypeGetStringValue(value) ?? pvName) ? "" : "No PV"
   );
 
+  // If no value set at first, use blank label
+  let options: string[] = value ? [] : pvName ? [""] : ["No PV"];
+
   // Disable PV if not connected, or if we requested options from PV and got none
-  if (
-    (pvName && !connected) ||
-    value === null ||
-    (value?.display.choices === undefined && fromPv)
-  ) {
+  if ((pvName && !connected) || value === null) {
     disabled = true;
   }
 
   if (!itemsFromPv || !value?.display?.choices || !pvName) {
+    // If items doesn't already contain the current value, add to list
+    if (!items.includes(displayValue)) options = [displayValue];
     options = options.concat(items as string[]);
   } else {
     options = options.concat(value?.display?.choices);
@@ -106,7 +100,7 @@ export const MenuButtonComponent = (
         type: WRITE_PV,
         writePvInfo: {
           pvName: pvName,
-          value: option
+          value: valueType.isNumber ? Number(option) : option
         }
       };
       return writePv;
