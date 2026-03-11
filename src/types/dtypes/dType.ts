@@ -25,6 +25,25 @@ export const newDType = (
   partial: partial ?? false
 });
 
+export const dTypeGetType = (dType: DType | undefined) => {
+  const types = { isArray: false, isNumber: false, isString: false };
+  const stringValue = dTypeGetStringValue(dType);
+  const doubleValue = dTypeGetDoubleValue(dType);
+  const arrayValue = dTypeGetArrayValue(dType);
+  if (arrayValue !== undefined) {
+    types.isArray = true;
+  } else if (typeof doubleValue === "number") {
+    if (dType?.display.choices) {
+      types.isString = true;
+    } else {
+      types.isNumber = true;
+    }
+  } else if (stringValue !== undefined) {
+    types.isString = true;
+  }
+  return types;
+};
+
 export const dTypeGetStringValue = (
   dType: DType | undefined
 ): string | undefined => {

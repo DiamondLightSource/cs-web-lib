@@ -113,9 +113,11 @@ export const BoolButtonComponent = (
 
   // Use labels from PV
   if (labelsFromPv) {
-    if (value?.display.choices) {
-      offLabel = value.display.choices[0];
-      onLabel = value.display.choices[1];
+    const choices = value?.display.choices;
+    if (choices && choices?.length === 2) {
+      // If enum has 2 options use enum, otherwise use labels
+      offLabel = choices[0];
+      onLabel = choices[1];
     }
   }
 

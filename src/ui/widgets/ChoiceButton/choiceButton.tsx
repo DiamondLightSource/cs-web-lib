@@ -12,7 +12,12 @@ import {
   StringArrayPropOpt,
   StringPropOpt
 } from "../propTypes";
-import { dTypeGetDoubleValue, newDType } from "../../../types/dtypes";
+import {
+  dTypeGetDoubleValue,
+  dTypeGetStringValue,
+  dTypeGetType,
+  newDType
+} from "../../../types/dtypes";
 import { writePv } from "../../hooks/useSubscription";
 import {
   ToggleButton as MuiToggleButton,
@@ -84,11 +89,16 @@ export const ChoiceButtonComponent = (
   } = props;
   const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
 
+  const valueType = dTypeGetType(value);
   const [selected, setSelected] = useState(
-    value ? dTypeGetDoubleValue(value) : value
+    value
+      ? valueType.isNumber
+        ? dTypeGetDoubleValue(value)
+        : dTypeGetStringValue(value)
+      : value
   );
 
-  // Use items from file, unless itemsFRomPv set
+  // Use items from file, unless itemsFromPv set
   let options = items;
   if (itemsFromPv && value?.display.choices) options = value?.display.choices;
 
@@ -98,9 +108,13 @@ export const ChoiceButtonComponent = (
   // of the component as it causes too many re-renders error
   useEffect(() => {
     if (value) {
-      setSelected(dTypeGetDoubleValue(value));
+      setSelected(
+        valueType.isNumber
+          ? dTypeGetDoubleValue(value)
+          : dTypeGetStringValue(value)
+      );
     }
-  }, [value]);
+  }, [value, valueType.isNumber]);
 
   // Number of buttons to create
   const numButtons = options.length || 1;
@@ -108,15 +122,17 @@ export const ChoiceButtonComponent = (
   const buttonHeight = horizontal ? height : height / numButtons;
   const buttonWidth = horizontal ? width / numButtons : width;
 
-  const handleChange = (
-    event: React.MouseEvent<HTMLElement>,
-    newSelect: number
-  ) => {
+  const handleChange = (event: any, newSelect: number) => {
     // Write to PV
-    if (pvName) {
-      writePv(pvName, newDType({ doubleValue: newSelect }));
-    }
-    setSelected(newSelect);
+    if (pvName)
+      writePv(
+        pvName,
+        newDType(
+          valueType.isString || value?.display.choices
+            ? { stringValue: event.target.innerText }
+            : { doubleValue: newSelect }
+        )
+      );
   };
 
   return (
