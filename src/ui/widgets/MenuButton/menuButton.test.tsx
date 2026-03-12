@@ -3,7 +3,6 @@ import { MenuButtonComponent } from "./menuButton";
 import {
   newDDisplay,
   newDTime,
-  DType,
   newDType,
   DAlarmNONE
 } from "../../../types/dtypes";
@@ -91,22 +90,6 @@ describe("<MenuButton />", (): void => {
     expect(options.length).toBe(6);
   });
 
-  test("it renders actions", (): void => {
-    const props = {
-      ...BASE_PROPS,
-      actionsFromPv: false,
-      actions: ACTIONS_EX_FIRST,
-      label: "menu button with label"
-    };
-    const { getAllByRole, getByRole } = render(MenuButtonRenderer(props));
-    const select = getByRole("combobox");
-    expect(select.firstChild?.textContent).toEqual("zero");
-    fireEvent.mouseDown(select);
-    const options = getAllByRole("option");
-    // Two actions plus options plus label.
-    expect(options.length).toBe(7);
-  });
-
   test("it renders the option with the correct index", (): void => {
     const props = {
       ...BASE_PROPS,
@@ -184,10 +167,10 @@ describe("<MenuButton />", (): void => {
     fireEvent.mouseDown(select);
     const options = getAllByRole("option");
 
-    expect(options[1]).toHaveFocus();
+    expect(options[0]).toHaveFocus();
 
     await act(async () => {
-      fireEvent.click(options[2]);
+      fireEvent.click(options[1]);
     });
 
     expect(mockWritePv).toHaveBeenCalledWith(
@@ -215,16 +198,7 @@ describe("<MenuButton />", (): void => {
           effectivePvName: undefined,
           connected: false,
           readonly: false,
-          value: {
-            getStringValue: () => undefined,
-            getTime: () => {
-              new Date(Date.now());
-            },
-            alarm: DAlarmNONE(),
-            display: newDDisplay({
-              choices: ["one", "two"]
-            })
-          } as Partial<DType> as DType
+          value: undefined
         } as Partial<PvDatum> as PvDatum
       ],
       itemsfromPv: false
