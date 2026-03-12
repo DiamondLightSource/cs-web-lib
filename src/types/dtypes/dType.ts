@@ -3,6 +3,12 @@ import { mergeDDisplay, DDisplay, dDisplayNONE } from "./dDisplay";
 import { DTime } from "./dTime";
 import { DAlarm, DAlarmNONE } from "./dAlarm";
 
+enum Dtypes {
+  STRING,
+  NUMBER,
+  ARRAY,
+  UNKNOWN
+}
 export interface DType {
   value: DTypeValue;
   time?: DTime;
@@ -25,23 +31,22 @@ export const newDType = (
   partial: partial ?? false
 });
 
-export const dTypeGetType = (dType: DType | undefined) => {
-  const types = { isArray: false, isNumber: false, isString: false };
+export const dTypeGetType = (dType: DType | undefined): Dtypes => {
   const stringValue = dTypeGetStringValue(dType);
   const doubleValue = dTypeGetDoubleValue(dType);
   const arrayValue = dTypeGetArrayValue(dType);
   if (arrayValue !== undefined) {
-    types.isArray = true;
+    return 2;
   } else if (typeof doubleValue === "number") {
-    if (dType?.display.choices) {
-      types.isString = true;
+    if (dType?.display.choices && dType?.display.choices.length > 0) {
+      return 0;
     } else {
-      types.isNumber = true;
+      return 1;
     }
   } else if (stringValue !== undefined) {
-    types.isString = true;
+    return 0;
   }
-  return types;
+  return 3;
 };
 
 export const dTypeGetStringValue = (

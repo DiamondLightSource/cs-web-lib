@@ -66,7 +66,6 @@ export const MenuButtonComponent = (
     effectivePvName: pvName,
     connected
   } = getPvValueAndName(pvData);
-  const valueType = dTypeGetType(value);
   const enumPv = value?.display.choices ? true : false;
 
   // Store whether component is disabled or not
@@ -94,13 +93,14 @@ export const MenuButtonComponent = (
     options = options.concat(value?.display?.choices);
   }
 
+  const valueType = dTypeGetType(value);
   if (pvName) {
     actions = options.map(option => {
       const writePv: WritePv = {
         type: WRITE_PV,
         writePvInfo: {
           pvName: pvName,
-          value: valueType.isNumber ? Number(option) : option
+          value: valueType === 1 ? Number(option) : option
         }
       };
       return writePv;

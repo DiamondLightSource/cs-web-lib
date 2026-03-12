@@ -8,6 +8,7 @@ import {
   dTypeGetArrayValue,
   dTypeGetDoubleValue,
   dTypeGetStringValue,
+  dTypeGetType,
   mergeDType,
   newDType
 } from "./dtypes/dType";
@@ -99,5 +100,43 @@ describe("mergeDType", (): void => {
       warningRange: newDRange(1, 2)
     });
     expect(mergeDDisplay(orig, update)).toEqual(expected);
+  });
+});
+
+describe("dTypeGetType", (): void => {
+  test("returns string type for string", (): void => {
+    expect(dTypeGetType(stringDType)).toEqual(0);
+  });
+
+  test("returns string type for enum", (): void => {
+    const value = newDType(
+      { stringValue: "A" },
+      undefined,
+      undefined,
+      newDDisplay({ choices: ["A", "B"] })
+    );
+    expect(dTypeGetType(value)).toEqual(0);
+  });
+
+  test("returns false for all when empty enum", (): void => {
+    const value = newDType(
+      { stringValue: undefined },
+      undefined,
+      undefined,
+      newDDisplay({ choices: [] })
+    );
+    expect(dTypeGetType(value)).toEqual(3);
+  });
+
+  test("returns double type for double", (): void => {
+    expect(dTypeGetType(doubleDType)).toEqual(1);
+  });
+
+  test("returns array type", (): void => {
+    expect(dTypeGetType(arrayDType)).toEqual(2);
+  });
+
+  test("returns false for all when no value", (): void => {
+    expect(dTypeGetType(undefined)).toEqual(3);
   });
 });
