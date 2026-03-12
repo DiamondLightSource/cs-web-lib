@@ -92,7 +92,7 @@ export const ChoiceButtonComponent = (
   const valueType = dTypeGetType(value);
   const [selected, setSelected] = useState(
     value
-      ? valueType.isNumber
+      ? valueType === 1
         ? dTypeGetDoubleValue(value)
         : dTypeGetStringValue(value)
       : value
@@ -109,12 +109,12 @@ export const ChoiceButtonComponent = (
   useEffect(() => {
     if (value) {
       setSelected(
-        valueType.isNumber
+        valueType === 1
           ? dTypeGetDoubleValue(value)
           : dTypeGetStringValue(value)
       );
     }
-  }, [value, valueType.isNumber]);
+  }, [value, valueType]);
 
   // Number of buttons to create
   const numButtons = options.length || 1;
@@ -128,7 +128,7 @@ export const ChoiceButtonComponent = (
       writePv(
         pvName,
         newDType(
-          valueType.isString || value?.display.choices
+          !valueType || value?.display.choices
             ? { stringValue: event.target.innerText }
             : { doubleValue: newSelect }
         )
