@@ -118,7 +118,6 @@ describe("useMacros", (): void => {
   it("resolves macros in PV object", (): void => {
     const props = { pvMetadataList: [{ pvName: newPV("PREFIX:${c}", "xxx") }] };
     const resolvedProps = substituteMacros(props);
-    console.log(resolvedProps);
     expect(pvQualifiedName(resolvedProps?.pvMetadataList[0].pvName)).toEqual(
       "xxx://PREFIX:C"
     );

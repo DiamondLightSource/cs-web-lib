@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { useSelector } from "react-redux";
 import { MacroMap, resolveMacros, MacroContext } from "../../types/macros";
 import { selectGlobalMacros } from "../../redux/csState";
-import { PV, pvQualifiedName } from "../../types/pv";
+import { pvQualifiedName } from "../../types/pv";
 import { AnyProps } from "../widgets/widgetProps";
 
 export interface MacroProps extends React.PropsWithChildren<any> {
@@ -78,6 +78,5 @@ export function useMacros<P extends MacroProps>(props: P): AnyProps {
       : pvName || displayMacros.pv_name || globalMacros.pv_name || "",
     ...propMacros
   };
-  console.log(allMacros.pvName);
   return recursiveResolve(props, allMacros);
 }
