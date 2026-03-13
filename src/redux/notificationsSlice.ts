@@ -24,16 +24,18 @@ const notificationsSlice = createSlice({
   initialState: initialNotificationsState,
   reducers: {
     addNotification(state, action: PayloadAction<Notification>) {
-
       const newNotification = action.payload;
 
       // Check if a notification with the same message + type already exists
-      const alreadyExists = state.notifications.some(n => n.message === newNotification.message && n.severity === newNotification.severity );
+      const alreadyExists = state.notifications.some(
+        n =>
+          n.message === newNotification.message &&
+          n.severity === newNotification.severity
+      );
 
       if (alreadyExists) {
         return; // do nothing → prevent duplicate
       }
-
 
       state.notifications.push({
         ...action.payload,
