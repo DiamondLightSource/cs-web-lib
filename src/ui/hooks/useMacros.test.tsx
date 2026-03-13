@@ -104,18 +104,24 @@ describe("useMacros", (): void => {
     expect(resolvedProps.prop.subprop).toEqual("Bb");
   });
   it("resolves macros in actions", (): void => {
-    const props = { pvName: newPV("hello", "loc"), actions: actionsProp };
+    const props = {
+      pvMetadataList: [{ pvName: newPV("hello", "loc") }],
+      actions: actionsProp
+    };
     const resolvedProps = substituteMacros(props);
     const action1: any = resolvedProps?.actions?.actions[0];
     expect(action1.writePvInfo.pvName).toEqual("C:SUFFIX");
     const action2: any = resolvedProps?.actions?.actions[1];
     // Note loc:// prefix is missed here.
-    expect(action2.writePvInfo.pvName).toEqual("hello");
+    expect(action2.writePvInfo.pvName).toEqual("loc://hello");
   });
   it("resolves macros in PV object", (): void => {
-    const props = { pvName: newPV("PREFIX:${c}", "xxx") };
+    const props = { pvMetadataList: [{ pvName: newPV("PREFIX:${c}", "xxx") }] };
     const resolvedProps = substituteMacros(props);
-    expect(pvQualifiedName(resolvedProps?.pvName)).toEqual("xxx://PREFIX:C");
+    console.log(resolvedProps);
+    expect(pvQualifiedName(resolvedProps?.pvMetadataList[0].pvName)).toEqual(
+      "xxx://PREFIX:C"
+    );
   });
   it("returns empty array for empty array", (): void => {
     const props = { arrayProp: [] };
