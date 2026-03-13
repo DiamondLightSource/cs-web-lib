@@ -387,10 +387,14 @@ export function bobParseActions(
   jsonProp: ElementCompact,
   defaultProtocol: string
 ): WidgetActions {
-  const actionsToProcess = toArray(jsonProp.action);
+  const actions = jsonProp.actions;
+  // If no actions, skip
+  if (!actions) return { actions: [], executeAsOne: false };
+  const pvName = jsonProp["pv_name"];
+  const actionsToProcess = toArray(actions.action);
 
   // Extract information about whether to execute all actions at once
-  const executeAsOne = jsonProp._attributes?.execute_as_one === "true";
+  const executeAsOne = actions._attributes?.execute_as_one === "true";
 
   // Turn into an array of Actions
   const processedActions: WidgetActions = {
@@ -415,6 +419,8 @@ export function bobParseActions(
     }
   };
 
+  // Regex to check if our PV name is using a macro
+  const pvMacroRegex = /\$[({]pv_name[)}]/;
   actionsToProcess.forEach((action): void => {
     log.debug(action);
     const strType: string = action?._attributes?.type
@@ -425,8 +431,15 @@ export function bobParseActions(
         processedActions.actions.push({
           type: WRITE_PV,
           writePvInfo: {
+            // If we are using pv_name macro, substitute
+            // it here now (if it exists)
             pvName: pvQualifiedName(
-              opiParsePvName(action.pv_name, defaultProtocol)
+              opiParsePvName(
+                pvMacroRegex.test(action.pv_name._text) && pvName
+                  ? pvName
+                  : action.pv_name,
+                defaultProtocol
+              )
             ),
             value: action.value._text,
             description:
@@ -578,16 +591,13 @@ export async function parseBob(
       (pvName: ElementCompact): { pvName: PV }[] => [
         { pvName: opiParsePvName(pvName, defaultProtocol) }
       ]
-    ],
-    actions: [
-      "actions",
-      (actions: ElementCompact): WidgetActions =>
-        bobParseActions(actions, defaultProtocol)
     ]
   };
 
   const complexParsers = {
     ...BOB_COMPLEX_PARSERS,
+    actions: (props: ElementCompact): WidgetActions =>
+      bobParseActions(props, defaultProtocol),
     rules: (rules: Rule[]): Rule[] =>
       opiParseRules(rules, defaultProtocol, false),
     scripts: (scripts: ElementCompact): Script[] =>
