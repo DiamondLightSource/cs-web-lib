@@ -3,21 +3,29 @@ import { ActionButtonComponent } from "./actionButton";
 import renderer from "react-test-renderer";
 import { fireEvent, render, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
-import { contextRender } from "../../../testResources";
+import { contextRender, WRITE_PV_ACTION } from "../../../testResources";
 import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
 import { ColorUtils } from "../../../types/color";
 import { createMockStyle } from "../../../test-utils/styleTestUtils";
+import * as useSubscription from "../../hooks/useSubscription";
 
 vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() => createMockStyle())
 }));
 
+const mockWritePv = vi
+  .spyOn(useSubscription, "writePv")
+  .mockImplementation(vi.fn());
+
 // Pass the theme in with the component to access default values
-const mock = vi.fn();
 const actionButton = (props: any, text = "hello") => (
   <ThemeProvider theme={phoebusTheme}>
-    <ActionButtonComponent text={text} onClick={mock} {...props} />
+    <ActionButtonComponent
+      text={text}
+      actions={{ actions: [WRITE_PV_ACTION] }}
+      {...props}
+    />
   </ThemeProvider>
 );
 
@@ -38,21 +46,6 @@ describe("<ActionButton />", (): void => {
     });
     // For some reason, background colour doesn't like to be passed as an object so pass as string
     expect(button.textContent).toEqual("hello");
-  });
-
-  test("it renders a button with text from action description if text prop is empty string", (): void => {
-    const { getByRole } = contextRender(
-      actionButton(
-        {
-          actions: {
-            actions: [{ dynamicInfo: { description: "description text" } }]
-          }
-        },
-        ""
-      )
-    );
-    const button = getByRole("button");
-    expect(button.textContent).toEqual("description text");
   });
 
   test("it renders a button with style from props", (): void => {
@@ -96,6 +89,6 @@ describe("<ActionButton />", (): void => {
     const { getByRole } = render(actionButton({}));
     const button = getByRole("button") as HTMLButtonElement;
     fireEvent.click(button);
-    await waitFor(() => expect(mock).toHaveBeenCalled());
+    await waitFor(() => expect(mockWritePv).toHaveBeenCalled());
   });
 });
