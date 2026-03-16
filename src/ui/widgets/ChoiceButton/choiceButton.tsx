@@ -16,6 +16,7 @@ import {
   dTypeGetDoubleValue,
   dTypeGetStringValue,
   dTypeGetType,
+  DtypeValues,
   newDType
 } from "../../../types/dtypes";
 import { writePv } from "../../hooks/useSubscription";
@@ -92,7 +93,7 @@ export const ChoiceButtonComponent = (
   const valueType = dTypeGetType(value);
   const [selected, setSelected] = useState(
     value
-      ? valueType === 1
+      ? valueType === DtypeValues.NUMBER
         ? dTypeGetDoubleValue(value)
         : dTypeGetStringValue(value)
       : value
@@ -109,7 +110,7 @@ export const ChoiceButtonComponent = (
   useEffect(() => {
     if (value) {
       setSelected(
-        valueType === 1
+        valueType === DtypeValues.NUMBER
           ? dTypeGetDoubleValue(value)
           : dTypeGetStringValue(value)
       );
@@ -128,7 +129,7 @@ export const ChoiceButtonComponent = (
       writePv(
         pvName,
         newDType(
-          !valueType || value?.display.choices
+          valueType === DtypeValues.STRING || value?.display.choices
             ? { stringValue: event.target.innerText }
             : { doubleValue: newSelect }
         )

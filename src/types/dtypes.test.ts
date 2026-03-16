@@ -9,6 +9,7 @@ import {
   dTypeGetDoubleValue,
   dTypeGetStringValue,
   dTypeGetType,
+  DtypeValues,
   mergeDType,
   newDType
 } from "./dtypes/dType";
@@ -105,7 +106,7 @@ describe("mergeDType", (): void => {
 
 describe("dTypeGetType", (): void => {
   test("returns string type for string", (): void => {
-    expect(dTypeGetType(stringDType)).toEqual(0);
+    expect(dTypeGetType(stringDType)).toEqual(DtypeValues.STRING);
   });
 
   test("returns string type for enum", (): void => {
@@ -115,7 +116,7 @@ describe("dTypeGetType", (): void => {
       undefined,
       newDDisplay({ choices: ["A", "B"] })
     );
-    expect(dTypeGetType(value)).toEqual(0);
+    expect(dTypeGetType(value)).toEqual(DtypeValues.STRING);
   });
 
   test("returns false for all when empty enum", (): void => {
@@ -125,18 +126,18 @@ describe("dTypeGetType", (): void => {
       undefined,
       newDDisplay({ choices: [] })
     );
-    expect(dTypeGetType(value)).toEqual(3);
+    expect(dTypeGetType(value)).toEqual(DtypeValues.UNKNOWN);
   });
 
   test("returns double type for double", (): void => {
-    expect(dTypeGetType(doubleDType)).toEqual(1);
+    expect(dTypeGetType(doubleDType)).toEqual(DtypeValues.NUMBER);
   });
 
   test("returns array type", (): void => {
-    expect(dTypeGetType(arrayDType)).toEqual(2);
+    expect(dTypeGetType(arrayDType)).toEqual(DtypeValues.ARRAY);
   });
 
   test("returns false for all when no value", (): void => {
-    expect(dTypeGetType(undefined)).toEqual(3);
+    expect(dTypeGetType(undefined)).toEqual(DtypeValues.UNKNOWN);
   });
 });

@@ -21,7 +21,11 @@ import { FileContext } from "../../../misc/fileContext";
 import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import { getPvValueAndName } from "../utils";
 import log from "loglevel";
-import { dTypeGetStringValue, dTypeGetType } from "../../../types/dtypes";
+import {
+  dTypeGetStringValue,
+  dTypeGetType,
+  DtypeValues
+} from "../../../types/dtypes";
 import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "menubutton";
@@ -100,7 +104,7 @@ export const MenuButtonComponent = (
         type: WRITE_PV,
         writePvInfo: {
           pvName: pvName,
-          value: valueType === 1 ? Number(option) : option
+          value: valueType === DtypeValues.NUMBER ? Number(option) : option
         }
       };
       return writePv;
