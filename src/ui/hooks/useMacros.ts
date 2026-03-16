@@ -4,9 +4,35 @@ import { MacroMap, resolveMacros, MacroContext } from "../../types/macros";
 import { selectGlobalMacros } from "../../redux/csState";
 import { pvQualifiedName } from "../../types/pv";
 import { AnyProps } from "../widgets/widgetProps";
+import { getActionDescription, WidgetActions } from "../widgets/widgetActions";
 
 export interface MacroProps extends React.PropsWithChildren<any> {
   macroMap?: MacroMap;
+}
+
+/**
+ * Creates the correct string to substitute for
+ * the $(actions) macro
+ * @param actions array of available actions on widget
+ * @param isActionButton whether the actions are called on the
+ * actionbutton widget
+ * @returns
+ */
+export function resolveActionsMacro(
+  actions: WidgetActions,
+  isActionButton?: boolean
+): string {
+  if (!actions) return "No actions";
+  if (actions.actions.length > 1) {
+    // Only actionbutton can execute components individually
+    if (actions.executeAsOne || !isActionButton)
+      return `${actions.actions.length} actions`;
+    return `Choose 1 of ${actions.actions.length}`;
+  } else if (actions.actions.length === 1) {
+    return getActionDescription(actions.actions[0]);
+  } else {
+    return "No actions";
+  }
 }
 
 /*
@@ -76,7 +102,8 @@ export function useMacros<P extends MacroProps>(props: P): AnyProps {
     pv_name: pvName
       ? pvQualifiedName(pvName)
       : pvName || displayMacros.pv_name || globalMacros.pv_name || "",
-    ...propMacros
+    ...propMacros,
+    actions: resolveActionsMacro(props.actions)
   };
   return recursiveResolve(props, allMacros);
 }
