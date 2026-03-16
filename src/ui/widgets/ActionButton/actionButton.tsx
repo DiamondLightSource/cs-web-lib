@@ -1,5 +1,11 @@
 import React, { useContext } from "react";
-import { DynamicAction, WidgetActions, executeActions } from "../widgetActions";
+import {
+  WidgetAction,
+  WidgetActions,
+  executeAction,
+  executeActions,
+  getActionDescription
+} from "../widgetActions";
 import { Widget } from "../widget";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import classes from "./actionButton.module.css";
@@ -12,7 +18,6 @@ import {
   FontPropOpt,
   BorderPropOpt,
   BoolPropOpt,
-  FuncPropOpt,
   FloatPropOpt,
   StringOrNumPropOpt
 } from "../propTypes";
@@ -24,27 +29,6 @@ import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "actionbutton";
-
-export interface ActionButtonProps {
-  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
-}
-
-const ActionButtonPropType = {
-  text: StringPropOpt,
-  actions: ActionsPropType,
-  image: StringPropOpt,
-  backgroundColor: ColorPropOpt,
-  foregroundColor: ColorPropOpt,
-  font: FontPropOpt,
-  border: BorderPropOpt,
-  visible: BoolPropOpt,
-  enabled: BoolPropOpt,
-  onClick: FuncPropOpt,
-  transparent: BoolPropOpt,
-  rotationStep: FloatPropOpt,
-  height: StringOrNumPropOpt,
-  width: StringOrNumPropOpt
-};
 
 const Button = styled(MuiButton)({
   display: "flex",
@@ -62,9 +46,36 @@ const Button = styled(MuiButton)({
   }
 });
 
+const ActionButtonProps = {
+  pvName: StringPropOpt,
+  text: StringPropOpt,
+  actions: ActionsPropType,
+  image: StringPropOpt,
+  backgroundColor: ColorPropOpt,
+  foregroundColor: ColorPropOpt,
+  font: FontPropOpt,
+  border: BorderPropOpt,
+  visible: BoolPropOpt,
+  enabled: BoolPropOpt,
+  transparent: BoolPropOpt,
+  rotationStep: FloatPropOpt,
+  height: StringOrNumPropOpt,
+  width: StringOrNumPropOpt
+};
+
+export type ActionButtonComponentProps = InferWidgetProps<
+  typeof ActionButtonProps
+> &
+  PVComponent;
+
 export const ActionButtonComponent = (
-  props: InferWidgetProps<typeof ActionButtonPropType> & ActionButtonProps
+  props: ActionButtonComponentProps
 ): JSX.Element => {
+  // Function to send the value on to the PV
+  const files = useContext(FileContext);
+  const exitContext = useContext(ExitFileContext);
+  const parentMacros = useContext(MacroContext).macros;
+
   const style = useStyle(
     {
       ...props,
@@ -81,6 +92,34 @@ export const ActionButtonComponent = (
     height = WIDGET_DEFAULT_SIZES["action_button"][1],
     width = WIDGET_DEFAULT_SIZES["action_button"][0]
   } = props;
+
+  function onClick(event: React.MouseEvent<HTMLButtonElement>): void {
+    // Check if execute all actions as one
+    if (props.actions !== undefined)
+      if (props.actions.executeAsOne) {
+        executeActions(
+          props.actions as WidgetActions,
+          files,
+          exitContext,
+          parentMacros
+        );
+      } else {
+        executeAction(
+          props.actions.actions[0] as WidgetAction,
+          files,
+          exitContext,
+          parentMacros
+        );
+      }
+  }
+  const text =
+    props.text === "$(actions)" && props.actions
+      ? props.actions.actions.length === 1 && props.actions.actions[0]
+        ? getActionDescription(props.actions.actions[0] as WidgetAction)
+        : props.actions?.executeAsOne
+          ? `${props.actions.actions.length} actions`
+          : `Choose 1 of ${props.actions?.actions.length}`
+      : "";
 
   const [inputWidth, inputHeight, transform] = calculateRotationTransform(
     rotationStep,
@@ -99,7 +138,7 @@ export const ActionButtonComponent = (
         width: typeof width === "string" ? "100%" : inputWidth,
         transform: transform
       }}
-      onClick={props.onClick}
+      onClick={onClick}
     >
       {props.image !== undefined ? (
         <figure className={classes.figure}>
@@ -122,13 +161,7 @@ export const ActionButtonComponent = (
             whiteSpace: "pre-wrap"
           }}
         >
-          {props.text || // where there is no text, look for an action description.
-            ((
-              props.actions?.actions?.find(
-                x => (x as DynamicAction)?.dynamicInfo?.description
-              ) as DynamicAction
-            )?.dynamicInfo?.description ??
-              "")}
+          {props.text || text}
         </span>
       )}
     </Button>
@@ -136,49 +169,12 @@ export const ActionButtonComponent = (
 };
 
 const ActionButtonWidgetProps = {
-  ...ActionButtonPropType,
+  ...ActionButtonProps,
   ...PVWidgetPropType
-};
-
-// Menu button which also knows how to write to a PV
-export const ActionButtonWidget = (
-  props: InferWidgetProps<typeof ActionButtonWidgetProps> & PVComponent
-): JSX.Element => {
-  // Function to send the value on to the PV
-  const files = useContext(FileContext);
-  const exitContext = useContext(ExitFileContext);
-  const parentMacros = useContext(MacroContext).macros;
-  function onClick(event: React.MouseEvent<HTMLButtonElement>): void {
-    if (props.actions !== undefined)
-      executeActions(
-        props.actions as WidgetActions,
-        files,
-        exitContext,
-        parentMacros
-      );
-  }
-  return (
-    <ActionButtonComponent
-      text={props.text ?? ""}
-      enabled={props.enabled}
-      onClick={onClick}
-      image={props.image}
-      backgroundColor={props.backgroundColor}
-      foregroundColor={props.foregroundColor}
-      font={props.font}
-      border={props.border}
-      actions={props.actions as WidgetActions}
-      visible={props.visible}
-      transparent={props.transparent}
-      rotationStep={props.rotationStep}
-      height={props.height}
-      width={props.width}
-    />
-  );
 };
 
 export const ActionButton = (
   props: InferWidgetProps<typeof ActionButtonWidgetProps>
-): JSX.Element => <Widget baseWidget={ActionButtonWidget} {...props} />;
+): JSX.Element => <Widget baseWidget={ActionButtonComponent} {...props} />;
 
 registerWidget(ActionButton, ActionButtonWidgetProps, widgetName);

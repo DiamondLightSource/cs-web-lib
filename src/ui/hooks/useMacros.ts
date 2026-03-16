@@ -2,12 +2,11 @@ import React, { useContext } from "react";
 import { useSelector } from "react-redux";
 import { MacroMap, resolveMacros, MacroContext } from "../../types/macros";
 import { selectGlobalMacros } from "../../redux/csState";
-import { PV } from "../../types/pv";
+import { pvQualifiedName } from "../../types/pv";
 import { AnyProps } from "../widgets/widgetProps";
 
 export interface MacroProps extends React.PropsWithChildren<any> {
   macroMap?: MacroMap;
-  pvName?: PV;
 }
 
 /*
@@ -65,14 +64,18 @@ export function useMacros<P extends MacroProps>(props: P): AnyProps {
   const globalMacros = useSelector(selectGlobalMacros);
   // In Phoebus, some components e.g. Shape have a macros field
   const propMacros = props.macros;
+  const pvName = props.pvMetadataList?.at(0)?.pvName;
   const allMacros = {
     ...globalMacros, // lower priority
     ...displayMacros, // higher priority
     // Temporary special case for pv_name in macros.
-    pvName:
-      props.pvName?.name || displayMacros.pvName || globalMacros.pvName || "",
-    pv_name:
-      props.pvName?.name || displayMacros.pv_name || globalMacros.pv_name || "",
+    // We convert it to a qualified name to match Phoebus
+    pvName: pvName
+      ? pvQualifiedName(pvName)
+      : pvName || displayMacros.pvName || globalMacros.pvName || "",
+    pv_name: pvName
+      ? pvQualifiedName(pvName)
+      : pvName || displayMacros.pv_name || globalMacros.pv_name || "",
     ...propMacros
   };
   return recursiveResolve(props, allMacros);
