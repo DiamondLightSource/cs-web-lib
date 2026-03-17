@@ -3,8 +3,7 @@ import {
   WidgetAction,
   WidgetActions,
   executeAction,
-  executeActions,
-  getActionDescription
+  executeActions
 } from "../widgetActions";
 import { Widget } from "../widget";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
@@ -27,6 +26,7 @@ import { styled, Button as MuiButton } from "@mui/material";
 import { calculateRotationTransform } from "../utils";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { useStyle } from "../../hooks/useStyle";
+import { resolveActionsMacro } from "../../hooks/useMacros";
 
 const widgetName = "actionbutton";
 
@@ -90,7 +90,8 @@ export const ActionButtonComponent = (
     transparent = false,
     visible = true,
     height = WIDGET_DEFAULT_SIZES["action_button"][1],
-    width = WIDGET_DEFAULT_SIZES["action_button"][0]
+    width = WIDGET_DEFAULT_SIZES["action_button"][0],
+    text = resolveActionsMacro(props.actions as WidgetActions, true)
   } = props;
 
   function onClick(event: React.MouseEvent<HTMLButtonElement>): void {
@@ -112,14 +113,6 @@ export const ActionButtonComponent = (
         );
       }
   }
-  const text =
-    props.text === "$(actions)" && props.actions
-      ? props.actions.actions.length === 1 && props.actions.actions[0]
-        ? getActionDescription(props.actions.actions[0] as WidgetAction)
-        : props.actions?.executeAsOne
-          ? `${props.actions.actions.length} actions`
-          : `Choose 1 of ${props.actions?.actions.length}`
-      : "";
 
   const [inputWidth, inputHeight, transform] = calculateRotationTransform(
     rotationStep,
@@ -147,7 +140,7 @@ export const ActionButtonComponent = (
             src={props.image}
             alt={props.image}
           ></img>
-          <figcaption>{props.text}</figcaption>
+          <figcaption>{text}</figcaption>
         </figure>
       ) : (
         <span
@@ -161,7 +154,7 @@ export const ActionButtonComponent = (
             whiteSpace: "pre-wrap"
           }}
         >
-          {props.text || text}
+          {text}
         </span>
       )}
     </Button>

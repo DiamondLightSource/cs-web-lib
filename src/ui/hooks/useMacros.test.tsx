@@ -1,9 +1,11 @@
 /* eslint no-template-curly-in-string: 0 */
 import React from "react";
-import { useMacros } from "./useMacros";
+import { resolveActionsMacro, resolveRulesMacro, useMacros } from "./useMacros";
 import { newPV, pvQualifiedName } from "../../types/pv";
 import { contextRender, createRootStoreState } from "../../testResources";
 import { CsState } from "../../redux/csState";
+import { WidgetActions } from "../widgets/widgetActions";
+import { Rule } from "../../types/props";
 
 /* Use one of the techniques described here for testing hooks without
   excessive mocking.
@@ -164,5 +166,83 @@ describe("useMacros", (): void => {
     const resolvedProps = substituteMacros(props, undefined, contextMacros);
     expect(resolvedProps.prop1).toEqual("the_pv_name_b");
     expect(resolvedProps.prop2).toEqual("thePvName_D");
+  });
+});
+
+describe("resolveActionsMacro()", (): void => {
+  it("resolves for no actions", (): void => {
+    const props = { actions: { actions: [], executeAsOne: false } };
+    const resolvedText = resolveActionsMacro(props.actions, true);
+    expect(resolvedText).toEqual("No actions");
+  });
+  it("resolves for 1 action", (): void => {
+    const props = {
+      executeAsOne: false,
+      actions: [
+        {
+          type: "WRITE_PV",
+          writePvInfo: {
+            pvName: "${c}:SUFFIX",
+            value: 1,
+            description: "Action description"
+          }
+        }
+      ]
+    };
+    const resolvedText = resolveActionsMacro(props as WidgetActions, true);
+    expect(resolvedText).toEqual("Action description");
+  });
+  it("resolves for multiple actions executed at once", (): void => {
+    const props = { ...actionsProp, executeAsOne: true };
+    const resolvedText = resolveActionsMacro(props as WidgetActions, true);
+    expect(resolvedText).toEqual("2 actions");
+  });
+  it("resolves for multiple actions on a non-action button widget", (): void => {
+    const resolvedText = resolveActionsMacro(
+      actionsProp as WidgetActions,
+      false
+    );
+    expect(resolvedText).toEqual("2 actions");
+  });
+  it("resolves for multiple individually executed actions", (): void => {
+    const resolvedText = resolveActionsMacro(
+      actionsProp as WidgetActions,
+      true
+    );
+    expect(resolvedText).toEqual("Choose 1 of 2");
+  });
+});
+
+describe("resolveRulesMacro()", (): void => {
+  it("resolves empty for no rules", (): void => {
+    const rules: Rule[] = [];
+    const resolvedText = resolveRulesMacro(rules);
+    expect(resolvedText).toEqual("");
+  });
+  it("resolves correctly for a rule", (): void => {
+    const rules: Rule[] = [
+      {
+        name: "rule",
+        prop: "text",
+        outExp: false,
+        pvs: [{ pvName: newPV("PV1"), trigger: true }],
+        expressions: [
+          {
+            boolExp: "pv0 > 1",
+            value: "yes",
+            convertedValue: "yes"
+          },
+          {
+            boolExp: "true",
+            value: "no",
+            convertedValue: "no"
+          }
+        ]
+      }
+    ];
+    const resolvedText = resolveRulesMacro(rules);
+    expect(resolvedText).toEqual(
+      "RuleInfo('rule: [(pv0 > 1) ? 'text' = yes,(true) ? 'text' = no]', [PV 'PV1'])"
+    );
   });
 });

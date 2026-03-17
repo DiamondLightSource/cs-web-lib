@@ -4,9 +4,56 @@ import { MacroMap, resolveMacros, MacroContext } from "../../types/macros";
 import { selectGlobalMacros } from "../../redux/csState";
 import { pvQualifiedName } from "../../types/pv";
 import { AnyProps } from "../widgets/widgetProps";
+import { getActionDescription, WidgetActions } from "../widgets/widgetActions";
+import { Rule } from "../../types/props";
 
 export interface MacroProps extends React.PropsWithChildren<any> {
   macroMap?: MacroMap;
+}
+
+/**
+ * Creates the correct string to substitute for
+ * the $(actions) macro
+ * @param actions array of available actions on widget
+ * @param isActionButton whether the actions are called on the
+ * actionbutton widget
+ * @returns
+ */
+export function resolveActionsMacro(
+  actions: WidgetActions,
+  isActionButton?: boolean
+): string {
+  if (!actions) return "No actions";
+  if (actions.actions.length > 1) {
+    // Only actionbutton can execute components individually
+    if (actions.executeAsOne || !isActionButton)
+      return `${actions.actions.length} actions`;
+    return `Choose 1 of ${actions.actions.length}`;
+  } else if (actions.actions.length === 1) {
+    return getActionDescription(actions.actions[0]);
+  } else {
+    return "No actions";
+  }
+}
+
+/**
+ * Creates a human-readable string to substitute for the
+ * $(rules) macro
+ * @param rules list of rules on widget
+ * @returns human-readable string of rules
+ */
+export function resolveRulesMacro(rules: Rule[] | undefined): string {
+  if (!rules) return "";
+  const rulesList = rules.map((rule: Rule) => {
+    return `RuleInfo('${rule.name}: [${rule.expressions.map(
+      (expression: any) => {
+        return `(${expression.boolExp}) ? '${rule.prop}' = ${expression.value?._text || expression.value}`;
+      }
+    )}]', [${rule.pvs.map(pv => {
+      return `PV '${pv.pvName.name}'`;
+    })}])`;
+  });
+  return rulesList.join(",");
 }
 
 /*
@@ -76,7 +123,9 @@ export function useMacros<P extends MacroProps>(props: P): AnyProps {
     pv_name: pvName
       ? pvQualifiedName(pvName)
       : pvName || displayMacros.pv_name || globalMacros.pv_name || "",
-    ...propMacros
+    ...propMacros,
+    actions: resolveActionsMacro(props.actions),
+    rules: resolveRulesMacro(props.rules)
   };
   return recursiveResolve(props, allMacros);
 }
