@@ -5,6 +5,7 @@ import { selectGlobalMacros } from "../../redux/csState";
 import { pvQualifiedName } from "../../types/pv";
 import { AnyProps } from "../widgets/widgetProps";
 import { getActionDescription, WidgetActions } from "../widgets/widgetActions";
+import { Rule } from "../../types/props";
 
 export interface MacroProps extends React.PropsWithChildren<any> {
   macroMap?: MacroMap;
@@ -33,6 +34,28 @@ export function resolveActionsMacro(
   } else {
     return "No actions";
   }
+}
+
+/**
+ * Creates a human-readable string to substiture for the
+ * $(rules) macro
+ * @param rules list of rules on widget
+ * @returns human-readable string of rules
+ */
+export function resolveRulesMacro(rules: Rule[] | undefined): string {
+  const rulesList: string[] = [];
+  if (rules) {
+    rules.forEach((rule: Rule) => {
+      rulesList.push(
+        `RuleInfo('${rule.name}: [${rule.expressions.map((expression: any) => {
+          return `(${expression.boolExp}) ? '${rule.prop}' = ${expression.value._text || expression.value}`;
+        })}]', [${rule.pvs.map(pv => {
+          return `PV '${pv.pvName.name}'`;
+        })}])`
+      );
+    });
+  }
+  return rulesList.toString();
 }
 
 /*
@@ -103,7 +126,8 @@ export function useMacros<P extends MacroProps>(props: P): AnyProps {
       ? pvQualifiedName(pvName)
       : pvName || displayMacros.pv_name || globalMacros.pv_name || "",
     ...propMacros,
-    actions: resolveActionsMacro(props.actions)
+    actions: resolveActionsMacro(props.actions),
+    rules: resolveRulesMacro(props.rules)
   };
   return recursiveResolve(props, allMacros);
 }

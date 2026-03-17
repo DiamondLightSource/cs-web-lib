@@ -3,8 +3,7 @@ import {
   WidgetAction,
   WidgetActions,
   executeAction,
-  executeActions,
-  getActionDescription
+  executeActions
 } from "../widgetActions";
 import { Widget } from "../widget";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
