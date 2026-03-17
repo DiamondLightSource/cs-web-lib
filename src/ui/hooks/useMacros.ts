@@ -37,25 +37,23 @@ export function resolveActionsMacro(
 }
 
 /**
- * Creates a human-readable string to substiture for the
+ * Creates a human-readable string to substitute for the
  * $(rules) macro
  * @param rules list of rules on widget
  * @returns human-readable string of rules
  */
 export function resolveRulesMacro(rules: Rule[] | undefined): string {
-  const rulesList: string[] = [];
-  if (rules) {
-    rules.forEach((rule: Rule) => {
-      rulesList.push(
-        `RuleInfo('${rule.name}: [${rule.expressions.map((expression: any) => {
-          return `(${expression.boolExp}) ? '${rule.prop}' = ${expression.value._text || expression.value}`;
-        })}]', [${rule.pvs.map(pv => {
-          return `PV '${pv.pvName.name}'`;
-        })}])`
-      );
-    });
-  }
-  return rulesList.toString();
+  if (!rules) return "";
+  const rulesList = rules.map((rule: Rule) => {
+    return `RuleInfo('${rule.name}: [${rule.expressions.map(
+      (expression: any) => {
+        return `(${expression.boolExp}) ? '${rule.prop}' = ${expression.value?._text || expression.value}`;
+      }
+    )}]', [${rule.pvs.map(pv => {
+      return `PV '${pv.pvName.name}'`;
+    })}])`;
+  });
+  return rulesList.join(",");
 }
 
 /*
