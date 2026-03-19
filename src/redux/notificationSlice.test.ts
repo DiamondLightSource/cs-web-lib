@@ -69,6 +69,30 @@ describe("notifications slice", () => {
         expect(state.notifications[0].message).toBe("First notification");
         expect(state.notifications[1].message).toBe("Second notification");
       });
+
+      it("should not add dublicate notifications", () => {
+        const first_notification = {
+          message: "Test duplicate notification",
+          severity: "error" as TypeOptions
+        };
+
+        const nextState = notificationsReducer(
+          initialNotificationsState,
+          addNotification(first_notification)
+        );
+
+        const second_notification = {
+          message: "Test duplicate notification",
+          severity: "error" as TypeOptions
+        };
+
+        const finalState = notificationsReducer(
+          nextState,
+          addNotification(second_notification)
+        );
+
+        expect(finalState.notifications).toHaveLength(1);
+      });
     });
 
     describe("removeNotificationById", () => {
