@@ -70,7 +70,7 @@ describe("notifications slice", () => {
         expect(state.notifications[1].message).toBe("Second notification");
       });
 
-      it("should not add dublicate notifications", () => {
+      it("should not add duplicate notifications", () => {
         const first_notification = {
           message: "Test duplicate notification",
           severity: "error" as TypeOptions
