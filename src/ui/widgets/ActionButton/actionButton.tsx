@@ -1,9 +1,10 @@
-import React, { useContext } from "react";
+import React, { useContext, useMemo } from "react";
 import {
   WidgetAction,
   WidgetActions,
   executeAction,
-  executeActions
+  executeActions,
+  getActionDescription
 } from "../widgetActions";
 import { Widget } from "../widget";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
@@ -22,7 +23,7 @@ import {
 } from "../propTypes";
 import { MacroContext } from "../../../types/macros";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
-import { styled, Button as MuiButton } from "@mui/material";
+import { styled, Button as MuiButton, Menu, MenuItem } from "@mui/material";
 import { calculateRotationTransform } from "../utils";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { useStyle } from "../../hooks/useStyle";
@@ -75,6 +76,8 @@ export const ActionButtonComponent = (
   const files = useContext(FileContext);
   const exitContext = useContext(ExitFileContext);
   const parentMacros = useContext(MacroContext).macros;
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const menuOpen = Boolean(anchorEl);
 
   const style = useStyle(
     {
@@ -94,24 +97,45 @@ export const ActionButtonComponent = (
     text = resolveActionsMacro(props.actions as WidgetActions, true)
   } = props;
 
+  // Whether we are executing a single action at once or multiple
+  const executeMultiple = useMemo(
+    () =>
+      props.actions &&
+      !props.actions?.executeAsOne &&
+      props.actions.actions?.length > 1
+        ? true
+        : false,
+    [props.actions]
+  );
+
   function onClick(event: React.MouseEvent<HTMLButtonElement>): void {
     // Check if execute all actions as one
-    if (props.actions !== undefined)
-      if (props.actions.executeAsOne) {
+    if (executeMultiple) {
+      // Open a Menu that has list of actions
+      setAnchorEl(event.currentTarget);
+    } else {
+      if (props.actions !== undefined)
         executeActions(
           props.actions as WidgetActions,
           files,
           exitContext,
           parentMacros
         );
-      } else {
-        executeAction(
-          props.actions.actions[0] as WidgetAction,
-          files,
-          exitContext,
-          parentMacros
-        );
-      }
+    }
+  }
+
+  function handleSelect(idx: number): void {
+    executeAction(
+      props.actions?.actions[idx] as WidgetAction,
+      files,
+      exitContext,
+      parentMacros
+    );
+    setAnchorEl(null);
+  }
+
+  function handleClose() {
+    setAnchorEl(null);
   }
 
   const [inputWidth, inputHeight, transform] = calculateRotationTransform(
@@ -120,44 +144,65 @@ export const ActionButtonComponent = (
     height
   );
   return (
-    <Button
-      variant={transparent ? "text" : "contained"}
-      disabled={!enabled}
-      fullWidth={true}
-      sx={{
-        ...style.colors,
-        display: visible ? "flex" : "none",
-        height: typeof height === "string" ? "100%" : inputHeight,
-        width: typeof width === "string" ? "100%" : inputWidth,
-        transform: transform
-      }}
-      onClick={onClick}
-    >
-      {props.image !== undefined ? (
-        <figure className={classes.figure}>
-          <img
-            style={{ width: "100%", display: "block" }}
-            src={props.image}
-            alt={props.image}
-          ></img>
-          <figcaption>{text}</figcaption>
-        </figure>
-      ) : (
-        <span
-          style={{
-            display: "flex",
-            height: "100%",
-            width: "100%",
-            wordBreak: "break-word",
-            justifyContent: "center",
-            alignItems: "center",
-            whiteSpace: "pre-wrap"
-          }}
-        >
-          {text}
-        </span>
-      )}
-    </Button>
+    <>
+      <Button
+        variant={transparent ? "text" : "contained"}
+        disabled={!enabled}
+        fullWidth={true}
+        sx={{
+          ...style.colors,
+          display: visible ? "flex" : "none",
+          height: typeof height === "string" ? "100%" : inputHeight,
+          width: typeof width === "string" ? "100%" : inputWidth,
+          transform: transform
+        }}
+        onClick={onClick}
+      >
+        {props.image !== undefined ? (
+          <figure className={classes.figure}>
+            <img
+              style={{ width: "100%", display: "block" }}
+              src={props.image}
+              alt={props.image}
+            ></img>
+            <figcaption>{text}</figcaption>
+          </figure>
+        ) : (
+          <span
+            style={{
+              display: "flex",
+              height: "100%",
+              width: "100%",
+              wordBreak: "break-word",
+              justifyContent: "center",
+              alignItems: "center",
+              whiteSpace: "pre-wrap"
+            }}
+          >
+            {text}
+          </span>
+        )}
+      </Button>
+      <Menu
+        id="actions-menu"
+        anchorEl={anchorEl}
+        open={menuOpen}
+        onClose={handleClose}
+        slotProps={{
+          list: {
+            "aria-labelledby": "actions-button"
+          }
+        }}
+      >
+        {props.actions?.actions.map((action, idx) => {
+          return (
+            <MenuItem onClick={() => handleSelect(idx)} key={`action_${idx}`}>
+              {getActionDescription(action as WidgetAction)}
+            </MenuItem>
+          );
+        })}
+      </Menu>
+    </>
   );
 };
 
