@@ -91,4 +91,44 @@ describe("<ActionButton />", (): void => {
     fireEvent.click(button);
     await waitFor(() => expect(mockWritePv).toHaveBeenCalled());
   });
+
+  test("multiple actions called at once when executeAsOne set", async (): Promise<void> => {
+    const { getByRole } = render(actionButton({}));
+    const button = getByRole("button") as HTMLButtonElement;
+    fireEvent.click(button);
+    await waitFor(() => expect(mockWritePv).toHaveBeenCalled());
+  });
+
+  test("menu opened on click for multiple actions", async (): Promise<void> => {
+    const { getByRole, getAllByRole } = render(
+      actionButton({
+        actions: { actions: [WRITE_PV_ACTION, WRITE_PV_ACTION] },
+        executeAsOne: false
+      })
+    );
+    const button = getByRole("button") as HTMLButtonElement;
+    fireEvent.click(button);
+    const menu = getByRole("menu");
+    expect(menu).toBeVisible();
+
+    const menuItems = getAllByRole("menuitem");
+    expect(menuItems[0].innerHTML).toEqual("write value to PV");
+  });
+
+  test("action triggered from menu", async (): Promise<void> => {
+    const { getByRole, getAllByRole } = render(
+      actionButton({
+        actions: { actions: [WRITE_PV_ACTION, WRITE_PV_ACTION] },
+        executeAsOne: false
+      })
+    );
+    const button = getByRole("button") as HTMLButtonElement;
+    fireEvent.click(button);
+    const menu = getByRole("menu");
+    expect(menu).toBeVisible();
+
+    const menuItems = getAllByRole("menuitem");
+    fireEvent.click(menuItems[1]);
+    await waitFor(() => expect(mockWritePv).toHaveBeenCalled());
+  });
 });

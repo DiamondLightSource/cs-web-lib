@@ -112,17 +112,22 @@ export function useMacros<P extends MacroProps>(props: P): AnyProps {
   // In Phoebus, some components e.g. Shape have a macros field
   const propMacros = props.macros;
   const pvName = props.pvMetadataList?.at(0)?.pvName;
+  const pvMacroRegex = /\$[({]pv_name[)}]/;
+  // We convert it to a qualified name to match Phoebus
+  // If pv name is a macro, ignore it and let it be overwritten
+  // with the real PV value
+  const qualifiedPvName =
+    !pvName || pvMacroRegex.test(pvName.name)
+      ? undefined
+      : pvQualifiedName(pvName);
   const allMacros = {
     ...globalMacros, // lower priority
     ...displayMacros, // higher priority
     // Temporary special case for pv_name in macros.
-    // We convert it to a qualified name to match Phoebus
-    pvName: pvName
-      ? pvQualifiedName(pvName)
-      : pvName || displayMacros.pvName || globalMacros.pvName || "",
-    pv_name: pvName
-      ? pvQualifiedName(pvName)
-      : pvName || displayMacros.pv_name || globalMacros.pv_name || "",
+    pvName:
+      qualifiedPvName || displayMacros.pvName || globalMacros.pvName || "",
+    pv_name:
+      qualifiedPvName || displayMacros.pv_name || globalMacros.pv_name || "",
     ...propMacros,
     actions: resolveActionsMacro(props.actions),
     rules: resolveRulesMacro(props.rules)
