@@ -1,44 +1,17 @@
 import log from "loglevel";
-import { Connection, ConnectionState } from "../connection/plugin";
+import { Connection } from "../connection/plugin";
 import { DType } from "../types/dtypes";
-import { Middleware, MiddlewareAPI } from "@reduxjs/toolkit";
+import { Middleware } from "@reduxjs/toolkit";
 import {
-  connectionChanged,
-  deviceQueried,
   queryDevice,
   selectDevice,
   selectEffectivePvName,
   selectSubscriptions,
   subscribe,
   unsubscribe,
-  valueChanged,
   writePv
 } from "./csState";
 import { notificationDispatcher } from "./notificationUtils";
-
-function connectionChangedDispatch(
-  store: MiddlewareAPI,
-  pvName: string,
-  value: ConnectionState
-): void {
-  store.dispatch(connectionChanged({ pvName, value }));
-}
-
-function valueChangedDispatch(
-  store: MiddlewareAPI,
-  pvName: string,
-  value: DType
-): void {
-  store.dispatch(valueChanged({ pvName, value }));
-}
-
-function deviceQueriedDispatch(
-  store: MiddlewareAPI,
-  device: string,
-  value: DType
-): void {
-  store.dispatch(deviceQueried({ device, value }));
-}
 
 export const connectionMiddleware =
   (connection: Connection): Middleware =>
@@ -46,18 +19,7 @@ export const connectionMiddleware =
   next =>
   action => {
     const { showError } = notificationDispatcher(store.dispatch);
-    if (!connection.isConnected()) {
-      connection.connect(
-        // Partial function application.
-        (pvName: string, value: ConnectionState): void =>
-          connectionChangedDispatch(store, pvName, value),
-        (pvName: string, value: DType): void =>
-          valueChangedDispatch(store, pvName, value),
-        (device: string, value: DType): void =>
-          deviceQueriedDispatch(store, device, value),
-        (message: string): void => showError(message)
-      );
-    }
+    connection.setDispatch(store.dispatch);
 
     if (subscribe.match(action)) {
       const { pvName, type } = action.payload;

@@ -1,3 +1,4 @@
+import { Dispatch } from "@reduxjs/toolkit";
 import { DType } from "../types/dtypes";
 
 export interface SubscriptionType {
@@ -15,7 +16,7 @@ export const nullDeviceCallback: DeviceQueriedCallback = (_d, _V): void => {};
 
 export interface ConnectionState {
   isConnected: boolean;
-  isReadonly: boolean;
+  isReadonly?: boolean;
 }
 
 export type ConnectionChangedCallback = (
@@ -27,14 +28,8 @@ export type DeviceQueriedCallback = (device: string, value: DType) => void;
 
 export interface Connection {
   subscribe: (pvName: string, type: SubscriptionType) => string; // must be idempotent
+  setDispatch: (dispatch: Dispatch) => void;
   putPv: (pvName: string, value: DType) => void;
-  connect: (
-    connectionCallback: ConnectionChangedCallback,
-    valueCallback: ValueChangedCallback,
-    deviceQueried: DeviceQueriedCallback,
-    showError: (message: string) => void
-  ) => void;
-  isConnected: () => boolean;
   unsubscribe: (pvName: string) => void;
   getDevice: (device: string) => void;
 }

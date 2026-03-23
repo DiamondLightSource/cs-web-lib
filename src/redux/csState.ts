@@ -90,25 +90,36 @@ const csSlice = createSlice({
         updateValueCache(state.valueCache, valueAction);
       }
     },
-
+    connectionClosed(
+      state,
+      action: PayloadAction<{
+        pvName: string;
+      }>
+    ) {
+      log.debug(action);
+      const { pvName } = action.payload;
+      if (pvName in state.valueCache) {
+        delete state.valueCache[pvName];
+      }
+    },
     connectionChanged(
       state,
       action: PayloadAction<{
         pvName: string;
-        value: { isConnected: boolean; isReadonly: boolean };
+        value: { isConnected: boolean; isReadonly?: boolean };
       }>
     ) {
       log.debug(action);
       const { pvName, value } = action.payload;
       const existing = state.valueCache[pvName] ?? {
         connected: false,
-        readonly: false,
+        readonly: true,
         initializingPvName: pvName
       };
       state.valueCache[pvName] = {
         ...existing,
         connected: value.isConnected,
-        readonly: value.isReadonly
+        readonly: value.isReadonly ?? existing.readonly
       };
     },
 
@@ -205,6 +216,7 @@ const csSlice = createSlice({
 export const {
   valueChanged,
   valuesChanged,
+  connectionClosed,
   connectionChanged,
   subscribe,
   unsubscribe,

@@ -2,15 +2,7 @@
    See https://github.com/ornl-epics/pvws
  */
 import base64js from "base64-js";
-import {
-  Connection,
-  ConnectionChangedCallback,
-  ValueChangedCallback,
-  nullConnCallback,
-  nullValueCallback,
-  SubscriptionType,
-  DeviceQueriedCallback
-} from "./plugin";
+import { Connection, SubscriptionType, ConnectionState } from "./plugin";
 
 import {
   newDRange,
@@ -22,6 +14,15 @@ import {
   newDAlarm
 } from "../types/dtypes";
 import log from "loglevel";
+import { PvwsClient } from "./pvwsClient";
+import { Dispatch } from "@reduxjs/toolkit";
+import {
+  connectionChanged,
+  deviceQueried,
+  connectionClosed,
+  valueChanged
+} from "../redux/csState";
+import { notificationDispatcher } from "../redux/notificationUtils";
 
 export interface PvwsStatus {
   quality: "ALARM" | "WARNING" | "VALID" | "INVALID" | "UNDEFINED" | "CHANGING";
@@ -132,105 +133,117 @@ function pvwsToDType(data: any): DType {
   );
 }
 
+function connectionChangedDispatch(
+  dispatch: Dispatch | undefined,
+  pvName: string,
+  value: ConnectionState
+): void {
+  if (dispatch) {
+    dispatch(connectionChanged({ pvName, value }));
+  }
+}
+
+function valueChangedDispatch(
+  dispatch: Dispatch | undefined,
+  pvName: string,
+  value: DType
+): void {
+  if (dispatch) {
+    dispatch(valueChanged({ pvName, value }));
+  }
+}
+
+function deviceQueriedDispatch(
+  dispatch: Dispatch | undefined,
+  device: string,
+  value: DType
+): void {
+  if (dispatch) {
+    dispatch(deviceQueried({ device, value }));
+  }
+}
+
 export class PvwsPlugin implements Connection {
   private wsProtocol = "ws";
-  private onConnectionUpdate: ConnectionChangedCallback;
-  private onValueUpdate: ValueChangedCallback;
-  private showError: (message: string) => void;
-  private connected: boolean;
-  private disconnected: string[] = [];
+  private disconnected: Set<string> = new Set<string>();
   private subscriptions: { [pvName: string]: boolean };
-  private initMsgRcvd: { [pvName: string]: boolean };
   private url = "";
-  private socket!: WebSocket;
-  private reconnect_ms = 5000;
+  private reconnect_ms = 500;
+  private dispatch: Dispatch | undefined;
+  private client: PvwsClient | undefined;
 
   public constructor(socket: string, ssl: boolean) {
     if (ssl) {
       this.wsProtocol = "wss";
     }
     this.url = `${this.wsProtocol}://${socket}/pvws/pv`;
-    this.open(false);
-    this.onConnectionUpdate = nullConnCallback;
-    this.onValueUpdate = nullValueCallback;
-    this.showError = () => null;
-    this.connected = false;
     this.subscriptions = {};
-    this.initMsgRcvd = {};
+
+    this.client = new PvwsClient(
+      this.url,
+      this.handleConnection,
+      this.handleMessage,
+      this.handleClose,
+      this.handleError
+    );
   }
 
-  /** Open the web socket, i.e. start PV communication */
-  private open(reconnection: boolean) {
-    this.socket = new WebSocket(this.url);
-    this.socket.onopen = event => this.handleConnection();
-    this.socket.onmessage = event => this.handleMessage(event.data);
-    this.socket.onclose = event => this.handleClose(event);
-    this.socket.onerror = event => this.handleError(event);
-
-    if (reconnection) {
-      this.connected = true;
+  public setDispatch(dispatch: Dispatch) {
+    if (!this.dispatch) {
+      console.log("setDispatch" + !!dispatch);
+      this.dispatch = dispatch;
     }
   }
 
-  private handleConnection() {
+  handleConnection = () => {
     log.debug("Connected to " + this.url);
-    while (this.disconnected.length) {
-      const pvName = this.disconnected.pop();
+    console.log("Connected to " + this.url);
+    console.log(this.disconnected);
+    while (this.disconnected.size) {
+      const pvName = this.disconnected.values().next().value;
       if (pvName !== undefined) {
+        this.disconnected.delete(pvName);
+        console.log("handleConnection subscribe: " + pvName);
         this.subscribe(pvName);
         this.subscriptions[pvName] = true;
       }
     }
-  }
+  };
 
-  private handleMessage(message: string) {
-    const jm = JSON.parse(message);
+  handleMessage = (event: MessageEvent) => {
+    const jm = JSON.parse(event.data);
     if (jm.type === "update") {
-      let updateConnection = false;
-      // PVWS only sends the readonly attribute if false
-      // so set true by default and update later.
-      let readonly = true;
-      if (!this.initMsgRcvd[jm.pv]) {
-        updateConnection = true;
-        this.initMsgRcvd[jm.pv] = true;
-      } else if (jm.readonly !== undefined) {
-        updateConnection = true;
-        // Update readonly from PVWS message
-        readonly = jm.readonly;
-      }
-      if (updateConnection) {
-        this.onConnectionUpdate(jm.pv, {
-          isConnected: true,
-          isReadonly: readonly
-        });
-      }
+      connectionChangedDispatch(this.dispatch, jm.pv, {
+        isConnected: true,
+        isReadonly: jm.readonly
+      });
 
       const dtype = pvwsToDType(jm);
-      this.onValueUpdate(jm.pv, dtype);
+      valueChangedDispatch(this.dispatch, jm.pv, dtype);
     } else if (jm.type === "error") {
+      if (this.dispatch) {
+        const { showError } = notificationDispatcher(this.dispatch);
+        showError(`${jm?.message}`);
+      }
+
       log.error(`PVWS error message: ${jm?.message}`);
-      this.showError(`${jm?.message}`);
     }
-  }
+  };
 
   private sendMessage(message: string) {
-    if (this.socket.readyState === 1) {
-      // Socket is set up, we can send message
-      this.socket.send(message);
-    } else if (!this.socket.readyState) {
-      // Socket is not set up, wait until open to send message
-      this.socket.addEventListener("open", _ev => {
-        this.socket.send(message);
-      });
+    if (!this.client) {
+      log.error("Attempted to send message when not connected to a websocket.");
     }
+
+    this.client?.sendMessage(message);
   }
 
-  private handleError(event: Event) {
+  handleError = (event: Event) => {
     log.error("Error from " + this.url);
-    this.close();
-  }
+    this.client?.close();
+  };
 
-  private handleClose(event: CloseEvent) {
+  handleClose = (event: CloseEvent) => {
     let message = "Web socket closed (" + event.code;
     if (event.reason) {
       message += ", " + event.reason;
@@ -241,41 +254,29 @@ export class PvwsPlugin implements Connection {
       "Scheduling re-connect to " + this.url + " in " + this.reconnect_ms + "ms"
     );
 
-    if (this.connected) {
-      for (const pvName of Object.keys(this.subscriptions)) {
-        // Websocket closed so set connection status to disconnected and
-        // readonly
-        this.onConnectionUpdate(pvName, {
-          isConnected: false,
-          isReadonly: true
-        });
-        this.unsubscribe(pvName);
-        this.disconnected.push(pvName);
-      }
+    for (const pvName of Object.keys(this.subscriptions)) {
+      connectionChangedDispatch(this.dispatch, pvName, {
+        isConnected: false,
+        isReadonly: true
+      });
+
+      // Adding to the disconnected list
+      this.disconnected.add(pvName);
     }
-    this.connected = false;
-    setTimeout(() => this.open(true), this.reconnect_ms);
-  }
 
-  private close() {
-    this.socket.close();
-  }
+    // clear subscriptions
+    this.subscriptions = {};
 
-  public connect(
-    connectionCallback: ConnectionChangedCallback,
-    valueCallback: ValueChangedCallback,
-    _deviceCallback: DeviceQueriedCallback,
-    showErrorCallback: (message: string) => void
-  ): void {
-    this.onConnectionUpdate = connectionCallback;
-    this.onValueUpdate = valueCallback;
-    this.showError = showErrorCallback;
-    this.connected = true;
-  }
-
-  public isConnected(): boolean {
-    return this.connected;
-  }
+    setTimeout(() => {
+      this.client = new PvwsClient(
+        this.url,
+        this.handleConnection,
+        this.handleMessage,
+        this.handleClose,
+        this.handleError
+      );
+    }, this.reconnect_ms);
+  };
 
   private _subscribe(pvName: string) {
     this.sendMessage(JSON.stringify({ type: "subscribe", pvs: [pvName] }));
@@ -286,13 +287,12 @@ export class PvwsPlugin implements Connection {
     if (this.subscriptions[pvName] === undefined) {
       this._subscribe(pvName);
       this.subscriptions[pvName] = true;
-      this.initMsgRcvd[pvName] = false;
     }
     return pvName;
   }
 
   public getDevice(device: string): void {
-    //console.log("Not implemented");
+    // Not implemented;
   }
 
   public putPv(pvName: string, value: DType): void {
@@ -315,6 +315,10 @@ export class PvwsPlugin implements Connection {
     if (this.subscriptions[pvName]) {
       this.sendMessage(JSON.stringify({ type: "clear", pvs: [pvName] }));
       delete this.subscriptions[pvName];
+    }
+
+    if (this.dispatch) {
+      this.dispatch(connectionClosed({ pvName }));
     }
   }
 }

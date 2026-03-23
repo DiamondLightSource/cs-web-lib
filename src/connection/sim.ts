@@ -21,6 +21,8 @@ import {
   DAlarmNONE,
   newDAlarm
 } from "../types/dtypes";
+import { connectionChanged, valueChanged } from "../redux/csState";
+import { Dispatch } from "@reduxjs/toolkit";
 
 type SimArgs = [
   string,
@@ -360,18 +362,48 @@ class SimCache {
   }
 }
 
+function connectionChangedDispatch(
+  dispatch: Dispatch | undefined,
+  pvName: string,
+  value: ConnectionState
+): void {
+  if (dispatch) {
+    dispatch(connectionChanged({ pvName, value }));
+  }
+}
+
+function valueChangedDispatch(
+  dispatch: Dispatch | undefined,
+  pvName: string,
+  value: DType
+): void {
+  if (dispatch) {
+    dispatch(valueChanged({ pvName, value }));
+  }
+}
+
 export class SimulatorPlugin implements Connection {
   private simPvs: SimCache;
   private onConnectionUpdate: ConnectionChangedCallback;
   private onValueUpdate: ValueChangedCallback;
-  private connected: boolean;
+  private dispatch: Dispatch | undefined;
 
   public constructor(updateRate?: number) {
     this.simPvs = new SimCache();
     this.onConnectionUpdate = nullConnCallback;
     this.onValueUpdate = nullValueCallback;
     this.putPv = this.putPv.bind(this);
-    this.connected = false;
+
+    this.onConnectionUpdate = (pvName: string, value: ConnectionState) =>
+      connectionChangedDispatch(this.dispatch, pvName, value);
+    this.onValueUpdate = (pvName: string, value: DType) =>
+      valueChangedDispatch(this.dispatch, pvName, value);
+  }
+
+  public setDispatch(dispatch: Dispatch) {
+    if (!this.dispatch) {
+      this.dispatch = dispatch;
+    }
   }
 
   public subscribe(pvName: string): string {
@@ -380,23 +412,6 @@ export class SimulatorPlugin implements Connection {
       simulator.subscribe();
     }
     return (simulator && simulator.pvName) || pvName;
-  }
-
-  public connect(
-    connectionCallback: ConnectionChangedCallback,
-    valueCallback: ValueChangedCallback
-  ): void {
-    if (this.connected) {
-      throw new Error("Can only connect once");
-    }
-
-    this.onConnectionUpdate = connectionCallback;
-    this.onValueUpdate = valueCallback;
-    this.connected = true;
-  }
-
-  public isConnected(): boolean {
-    return this.onConnectionUpdate !== nullConnCallback;
   }
 
   public getDevice(device: string): void {
