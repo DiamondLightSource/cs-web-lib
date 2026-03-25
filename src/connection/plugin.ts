@@ -28,7 +28,6 @@ export type DeviceQueriedCallback = (device: string, value: DType) => void;
 
 export interface Connection {
   subscribe: (pvName: string, type: SubscriptionType) => string; // must be idempotent
-  setDispatch: (dispatch: Dispatch) => void;
   putPv: (pvName: string, value: DType) => void;
   unsubscribe: (pvName: string) => void;
   getDevice: (device: string) => void;

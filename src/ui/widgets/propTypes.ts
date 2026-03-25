@@ -6,6 +6,7 @@ import { Trace } from "../../types/trace";
 import { Axis } from "../../types/axis";
 import { Plt } from "../../types/plt";
 import { PositionType } from "../../types/position";
+import { PvwsClient } from "../../connection/pvwsClient";
 
 export type ExcludeNulls<T> = {
   [P in keyof T]: Exclude<T[P], null>;
@@ -210,6 +211,7 @@ export const FilePropType = PropTypes.shape({
 export const DynamicContentPropType = PropTypes.shape({
   name: StringProp,
   location: StringProp,
+  pvwsHost: StringPropOpt,
   description: StringPropOpt,
   file: FilePropType
 });
@@ -217,12 +219,13 @@ export const DynamicContentPropType = PropTypes.shape({
 export interface DynamicContent {
   name: string; // Name associated with the content
   location: string; // Location of component to target
+  pvwsHost?: string; // location
   description?: string; // Optional description of action
   file: FileDescription;
 }
+
 // I would like this line to work but unfortunately it doesn't
 // export type DynamicContent = InferWidgetProps<typeof DynamicContentPropType>;
-
 const DynamicActionPropType = PropTypes.shape({
   type: StringProp,
   dynamicInfo: DynamicContentPropType

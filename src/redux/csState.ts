@@ -11,7 +11,8 @@ export const initialCsState: CsState = {
   effectivePvNameMap: {},
   subscriptions: {},
   deviceCache: {},
-  fileCache: {}
+  fileCache: {},
+  pvwsSettings: {}
 };
 
 export interface PvState {
@@ -48,6 +49,11 @@ export interface FileCache {
   [fileName: string]: WidgetDescription;
 }
 
+export interface PvwsSettings {
+  pvwsHost?: string;
+  fallbackPvwsHost?: string;
+}
+
 export interface PvArrayResults {
   [pvName: string]: [PvState, string];
 }
@@ -60,6 +66,7 @@ export interface CsState {
   subscriptions: Subscriptions;
   deviceCache: DeviceCache;
   fileCache: FileCache;
+  pvwsSettings: PvwsSettings;
 }
 
 type ValueChangedActionType = PayloadAction<{ pvName: string; value: DType }>;
@@ -79,6 +86,12 @@ const csSlice = createSlice({
   name: "cs",
   initialState: initialCsState,
   reducers: {
+    setPvwsSettings(state, action: PayloadAction<PvwsSettings>) {
+      log.debug(action);
+      state.pvwsSettings.fallbackPvwsHost =
+        action.payload.fallbackPvwsHost ?? state.pvwsSettings.fallbackPvwsHost;
+      state.pvwsSettings.pvwsHost = action.payload.pvwsHost;
+    },
     valueChanged(state, action: ValueChangedActionType) {
       log.debug(action);
       updateValueCache(state.valueCache, action);
@@ -214,6 +227,7 @@ const csSlice = createSlice({
 });
 
 export const {
+  setPvwsSettings,
   valueChanged,
   valuesChanged,
   connectionClosed,

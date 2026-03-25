@@ -1,4 +1,3 @@
-import { Dispatch } from "@reduxjs/toolkit";
 import { DType } from "../types/dtypes";
 import { Connection, SubscriptionType } from "./plugin";
 
@@ -39,11 +38,5 @@ export class ConnectionForwarder implements Connection {
   public getDevice(device: string): void {
     const connection = this.getConnection(device);
     return connection.getDevice(device);
-  }
-
-  public setDispatch(dispatch: Dispatch) {
-    for (const [, connection] of this.prefixConnections) {
-      connection?.setDispatch(dispatch);
-    }
   }
 }

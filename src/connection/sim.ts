@@ -23,6 +23,7 @@ import {
 } from "../types/dtypes";
 import { connectionChanged, valueChanged } from "../redux/csState";
 import { Dispatch } from "@reduxjs/toolkit";
+import { SipSharp } from "@mui/icons-material";
 
 type SimArgs = [
   string,
@@ -386,9 +387,10 @@ export class SimulatorPlugin implements Connection {
   private simPvs: SimCache;
   private onConnectionUpdate: ConnectionChangedCallback;
   private onValueUpdate: ValueChangedCallback;
-  private dispatch: Dispatch | undefined;
+  private dispatch: Dispatch;
 
-  public constructor(updateRate?: number) {
+  public constructor(dispatch: Dispatch, updateRate?: number) {
+    this.dispatch = dispatch;
     this.simPvs = new SimCache();
     this.onConnectionUpdate = nullConnCallback;
     this.onValueUpdate = nullValueCallback;
@@ -398,12 +400,6 @@ export class SimulatorPlugin implements Connection {
       connectionChangedDispatch(this.dispatch, pvName, value);
     this.onValueUpdate = (pvName: string, value: DType) =>
       valueChangedDispatch(this.dispatch, pvName, value);
-  }
-
-  public setDispatch(dispatch: Dispatch) {
-    if (!this.dispatch) {
-      this.dispatch = dispatch;
-    }
   }
 
   public subscribe(pvName: string): string {

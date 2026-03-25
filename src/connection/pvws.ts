@@ -2,7 +2,7 @@
    See https://github.com/ornl-epics/pvws
  */
 import base64js from "base64-js";
-import { Connection, SubscriptionType, ConnectionState } from "./plugin";
+import { Connection, SubscriptionType } from "./plugin";
 
 import {
   newDRange,
@@ -18,7 +18,6 @@ import { PvwsClient } from "./pvwsClient";
 import { Dispatch } from "@reduxjs/toolkit";
 import {
   connectionChanged,
-  deviceQueried,
   connectionClosed,
   valueChanged
 } from "../redux/csState";
@@ -133,54 +132,25 @@ function pvwsToDType(data: any): DType {
   );
 }
 
-function connectionChangedDispatch(
-  dispatch: Dispatch | undefined,
-  pvName: string,
-  value: ConnectionState
-): void {
-  if (dispatch) {
-    dispatch(connectionChanged({ pvName, value }));
-  }
-}
-
-function valueChangedDispatch(
-  dispatch: Dispatch | undefined,
-  pvName: string,
-  value: DType
-): void {
-  if (dispatch) {
-    dispatch(valueChanged({ pvName, value }));
-  }
-}
-
-function deviceQueriedDispatch(
-  dispatch: Dispatch | undefined,
-  device: string,
-  value: DType
-): void {
-  if (dispatch) {
-    dispatch(deviceQueried({ device, value }));
-  }
-}
-
 export class PvwsPlugin implements Connection {
   private wsProtocol = "ws";
   private disconnected: Set<string> = new Set<string>();
   private subscriptions: { [pvName: string]: boolean };
-  private url = "";
+  private fallbackUrl = "";
   private reconnect_ms = 500;
-  private dispatch: Dispatch | undefined;
-  private client: PvwsClient | undefined;
+  private dispatch: Dispatch;
+  private client: PvwsClient;
 
-  public constructor(socket: string, ssl: boolean) {
+  public constructor(socket: string, ssl: boolean, dispatch: Dispatch) {
     if (ssl) {
       this.wsProtocol = "wss";
     }
-    this.url = `${this.wsProtocol}://${socket}/pvws/pv`;
+    this.fallbackUrl = `${this.wsProtocol}://${socket}/pvws/pv`;
     this.subscriptions = {};
+    this.dispatch = dispatch;
 
     this.client = new PvwsClient(
-      this.url,
+      this.fallbackUrl,
       this.handleConnection,
       this.handleMessage,
       this.handleClose,
@@ -188,22 +158,12 @@ export class PvwsPlugin implements Connection {
     );
   }
 
-  public setDispatch(dispatch: Dispatch) {
-    if (!this.dispatch) {
-      console.log("setDispatch" + !!dispatch);
-      this.dispatch = dispatch;
-    }
-  }
-
   handleConnection = () => {
-    log.debug("Connected to " + this.url);
-    console.log("Connected to " + this.url);
-    console.log(this.disconnected);
+    log.debug("Connected to " + this.fallbackUrl);
     while (this.disconnected.size) {
       const pvName = this.disconnected.values().next().value;
       if (pvName !== undefined) {
         this.disconnected.delete(pvName);
-        console.log("handleConnection subscribe: " + pvName);
         this.subscribe(pvName);
         this.subscriptions[pvName] = true;
       }
@@ -213,13 +173,19 @@ export class PvwsPlugin implements Connection {
   handleMessage = (event: MessageEvent) => {
     const jm = JSON.parse(event.data);
     if (jm.type === "update") {
-      connectionChangedDispatch(this.dispatch, jm.pv, {
-        isConnected: true,
-        isReadonly: jm.readonly
-      });
+      if (this.dispatch) {
+        this.dispatch(
+          connectionChanged({
+            pvName: jm.pv,
+            value: {
+              isConnected: true,
+              isReadonly: jm.readonly
+            }
+          })
+        );
 
-      const dtype = pvwsToDType(jm);
-      valueChangedDispatch(this.dispatch, jm.pv, dtype);
+        this.dispatch(valueChanged({ pvName: jm.pv, value: pvwsToDType(jm) }));
+      }
     } else if (jm.type === "error") {
       if (this.dispatch) {
         const { showError } = notificationDispatcher(this.dispatch);
@@ -239,7 +205,7 @@ export class PvwsPlugin implements Connection {
   }
 
   handleError = (event: Event) => {
-    log.error("Error from " + this.url);
+    log.error("Error from " + this.fallbackUrl);
     this.client?.close();
   };
 
@@ -251,14 +217,25 @@ export class PvwsPlugin implements Connection {
     message += ")";
     log.debug(message);
     log.debug(
-      "Scheduling re-connect to " + this.url + " in " + this.reconnect_ms + "ms"
+      "Scheduling re-connect to " +
+        this.fallbackUrl +
+        " in " +
+        this.reconnect_ms +
+        "ms"
     );
 
     for (const pvName of Object.keys(this.subscriptions)) {
-      connectionChangedDispatch(this.dispatch, pvName, {
-        isConnected: false,
-        isReadonly: true
-      });
+      if (this.dispatch) {
+        this.dispatch(
+          connectionChanged({
+            pvName,
+            value: {
+              isConnected: false,
+              isReadonly: true
+            }
+          })
+        );
+      }
 
       // Adding to the disconnected list
       this.disconnected.add(pvName);
@@ -269,7 +246,7 @@ export class PvwsPlugin implements Connection {
 
     setTimeout(() => {
       this.client = new PvwsClient(
-        this.url,
+        this.fallbackUrl,
         this.handleConnection,
         this.handleMessage,
         this.handleClose,

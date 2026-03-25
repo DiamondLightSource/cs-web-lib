@@ -10,6 +10,8 @@ import React from "react";
 import log from "loglevel";
 import { MacroMap, macrosEqual } from "../types/macros";
 import { useLocation, useNavigate } from "react-router";
+import { useDispatch } from "react-redux";
+import { setPvwsSettings } from "../redux/csState";
 
 export interface FileDescription {
   // All information required for an embedded display
@@ -175,7 +177,8 @@ export type FileContextType = {
   addPage: (
     location: string,
     fileDesc: FileDescription,
-    pathname?: string
+    pathname?: string,
+    pvwsHost?: string
   ) => void;
   removePage: (location: string, fileDesc?: FileDescription) => void;
   addTab: (
@@ -222,6 +225,7 @@ interface FileProviderProps {
 export const FileProvider: React.FC<FileProviderProps> = (
   props: FileProviderProps
 ): JSX.Element => {
+  const dispatch = useDispatch();
   const initialPageState = props.initialPageState ?? INITIAL_PAGE_STATE;
   const initialTabState = props.initialTabState ?? {};
   // Set up the file context, which contains information about
@@ -244,8 +248,11 @@ export const FileProvider: React.FC<FileProviderProps> = (
     addPage: (
       location: string,
       fileDesc: FileDescription,
-      pathname?: string
+      pathname?: string,
+      pvwsHost?: string
     ): void => {
+      dispatch(setPvwsSettings({ pvwsHost }));
+      console.log("fileContext.addPage: " + pvwsHost);
       const newPageState = addPage(pageState, location, fileDesc);
       navigate(pathname ?? historyLocation.pathname, {
         state: {
