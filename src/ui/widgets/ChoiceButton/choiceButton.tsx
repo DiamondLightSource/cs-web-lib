@@ -88,7 +88,11 @@ export const ChoiceButtonComponent = (
     items = ["Item 1", "Item 2"],
     horizontal = true
   } = props;
-  const { value, effectivePvName: pvName, readOnly } = getPvValueAndName(pvData);
+  const {
+    value,
+    effectivePvName: pvName,
+    readOnly
+  } = getPvValueAndName(pvData);
 
   const valueType = dTypeGetType(value);
   const [selected, setSelected] = useState(
@@ -157,7 +161,7 @@ export const ChoiceButtonComponent = (
             key={item}
             value={idx}
             sx={{
-              cursor: readOnly ? 'not-allowed' : 'default',
+              cursor: readOnly ? "not-allowed" : "default",
               ...style.font,
               ...style.colors,
               width: buttonWidth,

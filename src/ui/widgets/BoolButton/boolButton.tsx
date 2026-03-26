@@ -106,7 +106,11 @@ export const BoolButtonComponent = (
     textAlign = "center",
     textAlignV = "center"
   } = props;
-  const { value, effectivePvName: pvName, readOnly } = getPvValueAndName(pvData);
+  const {
+    value,
+    effectivePvName: pvName,
+    readOnly
+  } = getPvValueAndName(pvData);
 
   // These could be overwritten by  PV labels
   let { onLabel = "On", offLabel = "Off" } = props;
@@ -171,7 +175,7 @@ export const BoolButtonComponent = (
         onClick={handleClick}
         disabled={readOnly || !enabled}
         sx={{
-          cursor: readOnly ? 'not-allowed' : 'default',
+          cursor: readOnly ? "not-allowed" : "default",
           ...style.colors,
           ...style.font,
           // If no LED, use on/off colours as background
