@@ -12,10 +12,11 @@ import {
   writePv
 } from "./csState";
 import { notificationDispatcher } from "./notificationUtils";
-import { CsWebLibConfig } from "./CsWebLibConfig";
+import { CsWebLibConfig } from "./csWebLibConfig";
 import {
   buildServiceConnection,
-  getServiceConnection
+  getServiceConnection,
+  updatePvwsHostname
 } from "../connection/serviceConnection";
 
 export const connectionMiddleware =
@@ -23,7 +24,6 @@ export const connectionMiddleware =
   store => {
     const { showError } = notificationDispatcher(store.dispatch);
     buildServiceConnection(store.dispatch, config);
-    store.dispatch(setPvwsSettings({ fallbackPvwsHost: config?.PVWS_SOCKET }));
 
     return next => action => {
       if (subscribe.match(action)) {
@@ -92,6 +92,8 @@ export const connectionMiddleware =
           log.error(`Failed to query device ${device}`);
           log.error(error);
         }
+      } else if (setPvwsSettings.match(action)) {
+        updatePvwsHostname(action.payload.pvwsHost);
       }
 
       return next(action);

@@ -8,7 +8,7 @@ import csReducer from "./csState";
 import notificationsReducer from "./notificationsSlice";
 import { connectionMiddleware } from "./connectionMiddleware";
 import { throttleMiddleware, UpdateThrottle } from "./throttleMiddleware";
-import { CsWebLibConfig } from "./CsWebLibConfig";
+import { CsWebLibConfig } from "./csWebLibConfig";
 
 // Store singleton
 let storeInstance: ReturnType<typeof configureStore> | null = null;

@@ -1,18 +1,21 @@
+import log from "loglevel";
+
 export class PvwsClient {
-  private socket: WebSocket | undefined;
+  private socket: WebSocket;
+  private url: string;
 
   public constructor(
     url: string,
     handleConnection: (event: Event) => void,
     handleMessage: (event: MessageEvent) => void,
     handleClose: (event: CloseEvent) => void,
-    handleError: (event: Event) => void
   ) {
+    this.url = url;
     this.socket = new WebSocket(url);
     this.socket.onopen = handleConnection;
     this.socket.onmessage = handleMessage;
     this.socket.onclose = handleClose;
-    this.socket.onerror = handleError;
+    this.socket.onerror = this.handleError;
   }
 
   public connectionState(): number {
@@ -31,7 +34,19 @@ export class PvwsClient {
     }
   }
 
-  public close() {
-    this.socket?.close();
+  public close(code?: number, reason?: string) {
+    this.socket?.close(code, reason);
   }
+
+  public getUrl(): string {
+    return this.url;
+  }
+
+  handleError = (event: Event) => {
+    console.log("handleError");
+    console.log(event);
+
+    log.error("Error from " + this.getUrl());
+    this.close();
+  };
 }

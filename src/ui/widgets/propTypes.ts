@@ -6,7 +6,6 @@ import { Trace } from "../../types/trace";
 import { Axis } from "../../types/axis";
 import { Plt } from "../../types/plt";
 import { PositionType } from "../../types/position";
-import { PvwsClient } from "../../connection/pvwsClient";
 
 export type ExcludeNulls<T> = {
   [P in keyof T]: Exclude<T[P], null>;

@@ -133,12 +133,15 @@ function pvwsToDType(data: any): DType {
 }
 
 export class PvwsPlugin implements Connection {
+  private CLOSE_SOCKET_FOR_SERVICE_SWITCH = 3001;
   private wsProtocol = "ws";
+  
   private disconnected: Set<string> = new Set<string>();
   private subscriptions: { [pvName: string]: boolean };
-  private fallbackUrl = "";
-  private reconnect_ms = 500;
   private dispatch: Dispatch;
+  
+  private fallbackUrl: string;
+  private reconnect_ms = 500;
   private client: PvwsClient;
 
   public constructor(socket: string, ssl: boolean, dispatch: Dispatch) {
@@ -149,13 +152,7 @@ export class PvwsPlugin implements Connection {
     this.subscriptions = {};
     this.dispatch = dispatch;
 
-    this.client = new PvwsClient(
-      this.fallbackUrl,
-      this.handleConnection,
-      this.handleMessage,
-      this.handleClose,
-      this.handleError
-    );
+    this.client = this.newConnection(this.fallbackUrl);
   }
 
   handleConnection = () => {
@@ -204,11 +201,6 @@ export class PvwsPlugin implements Connection {
     this.client?.sendMessage(message);
   }
 
-  handleError = (event: Event) => {
-    log.error("Error from " + this.fallbackUrl);
-    this.client?.close();
-  };
-
   handleClose = (event: CloseEvent) => {
     let message = "Web socket closed (" + event.code;
     if (event.reason) {
@@ -216,13 +208,6 @@ export class PvwsPlugin implements Connection {
     }
     message += ")";
     log.debug(message);
-    log.debug(
-      "Scheduling re-connect to " +
-        this.fallbackUrl +
-        " in " +
-        this.reconnect_ms +
-        "ms"
-    );
 
     for (const pvName of Object.keys(this.subscriptions)) {
       if (this.dispatch) {
@@ -244,15 +229,19 @@ export class PvwsPlugin implements Connection {
     // clear subscriptions
     this.subscriptions = {};
 
-    setTimeout(() => {
-      this.client = new PvwsClient(
-        this.fallbackUrl,
-        this.handleConnection,
-        this.handleMessage,
-        this.handleClose,
-        this.handleError
+    if (event.code !== this.CLOSE_SOCKET_FOR_SERVICE_SWITCH) {
+      log.debug(
+        "Scheduling re-connect to " +
+          this.fallbackUrl +
+          " in " +
+          this.reconnect_ms +
+          "ms"
       );
-    }, this.reconnect_ms);
+
+      setTimeout(() => {
+        this.client = this.newConnection(this.client?.getUrl() ?? this.fallbackUrl);
+      }, this.reconnect_ms);
+    }
   };
 
   private _subscribe(pvName: string) {
@@ -297,5 +286,56 @@ export class PvwsPlugin implements Connection {
     if (this.dispatch) {
       this.dispatch(connectionClosed({ pvName }));
     }
+  }
+
+  public updatePvwsHost(hostname: string | undefined) {
+    const url = hostname
+      ? `${this.wsProtocol}://${hostname}/pvws/pv`
+      : this.fallbackUrl;
+
+    if (url === this.client?.getUrl()) {
+      // Already connected to the desired websocket
+      return;
+    }
+
+    if (hostname) {
+      let socketUrl = this.fallbackUrl;
+      // Make a GET request to the PVWS info endpoint to ensure it is accessible
+      fetch(`https://${hostname}/pvws/info`)
+        .then(response => {
+          if (response.ok) {
+            socketUrl = url;
+          }
+        })
+        .catch(error => {
+          log.debug("pvws.updatePvwsHostname");
+          console.log("updatePvwsHostname, ERROR response" + error);
+        })
+        .finally(() => {
+          if(socketUrl != this.client?.getUrl()) {
+            this.client.close(
+              this.CLOSE_SOCKET_FOR_SERVICE_SWITCH,
+              "Closing socket for PVWS service endpoint change"
+            );          
+            this.client = this.newConnection(socketUrl);
+          }
+        });
+    } else {
+      this.client.close(
+        this.CLOSE_SOCKET_FOR_SERVICE_SWITCH,
+        "Closing socket for PVWS service endpoint change"
+      );
+      // New hostname is undefined, connect to the fallback PVWS service.
+      this.client = this.newConnection(this.fallbackUrl);
+    }
+  }
+
+  private newConnection(url: string) {
+    return new PvwsClient(
+      url,
+      this.handleConnection,
+      this.handleMessage,
+      this.handleClose
+    );
   }
 }

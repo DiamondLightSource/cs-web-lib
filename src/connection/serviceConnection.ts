@@ -2,16 +2,22 @@ import { Connection } from ".";
 import { ConnectionForwarder } from "./forwarder";
 import { PvwsPlugin } from "./pvws";
 import { SimulatorPlugin } from "./sim";
-import { CsWebLibConfig } from "../redux/CsWebLibConfig";
+import { CsWebLibConfig } from "../redux/csWebLibConfig";
 import { Dispatch } from "@reduxjs/toolkit";
 
 // This is the common connection forwarder singleton for all service types
 let connection: ConnectionForwarder | undefined;
+let pvwsConnection: PvwsPlugin | undefined;
 
-const buildConnection = (
+export const buildServiceConnection = (
   dispatch: Dispatch,
   config?: CsWebLibConfig
-): ConnectionForwarder => {
+): void => {
+  if (connection) {
+    // Should only be called once
+    return;
+  }
+
   const PVWS_SOCKET =
     config?.PVWS_SOCKET ??
     process.env.VITE_PVWS_SOCKET ??
@@ -25,26 +31,17 @@ const buildConnection = (
   const plugins: [string, Connection][] = [["sim://", simulator]];
 
   if (PVWS_SOCKET !== undefined) {
-    const pvws = new PvwsPlugin(PVWS_SOCKET, PVWS_SSL, dispatch);
-    plugins.unshift(["pva://", pvws]);
-    plugins.unshift(["ca://", pvws]);
-    plugins.unshift(["loc://", pvws]);
-    plugins.unshift(["sim://", pvws]);
-    plugins.unshift(["ssim://", pvws]);
-    plugins.unshift(["dev://", pvws]);
-    plugins.unshift(["eq://", pvws]);
+    pvwsConnection = new PvwsPlugin(PVWS_SOCKET, PVWS_SSL, dispatch);
+    plugins.unshift(["pva://", pvwsConnection]);
+    plugins.unshift(["ca://", pvwsConnection]);
+    plugins.unshift(["loc://", pvwsConnection]);
+    plugins.unshift(["sim://", pvwsConnection]);
+    plugins.unshift(["ssim://", pvwsConnection]);
+    plugins.unshift(["dev://", pvwsConnection]);
+    plugins.unshift(["eq://", pvwsConnection]);
   }
 
-  return new ConnectionForwarder(plugins);
-};
-
-export const buildServiceConnection = (
-  dispatch: Dispatch,
-  config?: CsWebLibConfig
-): void => {
-  if (!connection) {
-    connection = buildConnection(dispatch, config);
-  }
+  connection = new ConnectionForwarder(plugins);
 };
 
 export const getServiceConnection = (): ConnectionForwarder => {
@@ -55,4 +52,8 @@ export const getServiceConnection = (): ConnectionForwarder => {
   }
 
   return connection;
+};
+
+export const updatePvwsHostname = (pvwsHost: string | undefined) => {
+  pvwsConnection?.updatePvwsHost(pvwsHost);
 };

@@ -23,7 +23,6 @@ import {
 } from "../types/dtypes";
 import { connectionChanged, valueChanged } from "../redux/csState";
 import { Dispatch } from "@reduxjs/toolkit";
-import { SipSharp } from "@mui/icons-material";
 
 type SimArgs = [
   string,

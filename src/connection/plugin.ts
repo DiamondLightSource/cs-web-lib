@@ -1,4 +1,3 @@
-import { Dispatch } from "@reduxjs/toolkit";
 import { DType } from "../types/dtypes";
 
 export interface SubscriptionType {
