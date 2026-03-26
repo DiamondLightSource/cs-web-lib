@@ -14,14 +14,8 @@ import {
   newDAlarm
 } from "../types/dtypes";
 import log from "loglevel";
-import { PvwsClient } from "./pvwsClient";
+import { CLOSE_SOCKET_FOR_SERVICE_SWITCH, PvwsClient } from "./pvwsClient";
 import { Dispatch } from "@reduxjs/toolkit";
-import {
-  connectionChanged,
-  connectionClosed,
-  valueChanged
-} from "../redux/csState";
-import { notificationDispatcher } from "../redux/notificationUtils";
 
 export interface PvwsStatus {
   quality: "ALARM" | "WARNING" | "VALID" | "INVALID" | "UNDEFINED" | "CHANGING";
@@ -133,14 +127,9 @@ function pvwsToDType(data: any): DType {
 }
 
 export class PvwsPlugin implements Connection {
-  private CLOSE_SOCKET_FOR_SERVICE_SWITCH = 3001;
   private wsProtocol = "ws";
-  
-  private subscriptions: { [pvName: string]: boolean };
   private dispatch: Dispatch;
-  
   private fallbackUrl: string;
-  private reconnect_ms = 500;
   private client: PvwsClient;
 
   public constructor(socket: string, ssl: boolean, dispatch: Dispatch) {
@@ -148,45 +137,9 @@ export class PvwsPlugin implements Connection {
       this.wsProtocol = "wss";
     }
     this.fallbackUrl = `${this.wsProtocol}://${socket}/pvws/pv`;
-    this.subscriptions = {};
     this.dispatch = dispatch;
-
     this.client = this.newConnection(this.fallbackUrl);
   }
-
-  handleConnection = () => {
-    log.debug("Connected to " + this.fallbackUrl);
-    for (const pvName of Object.keys(this.subscriptions)) {
-      // reinstate the existing subscriptions
-      this.subscribe(pvName);
-    }
-  };
-
-  handleMessage = (event: MessageEvent) => {
-    const jm = JSON.parse(event.data);
-    if (jm.type === "update") {
-      if (this.dispatch) {
-        this.dispatch(
-          connectionChanged({
-            pvName: jm.pv,
-            value: {
-              isConnected: true,
-              isReadonly: jm.readonly
-            }
-          })
-        );
-
-        this.dispatch(valueChanged({ pvName: jm.pv, value: pvwsToDType(jm) }));
-      }
-    } else if (jm.type === "error") {
-      if (this.dispatch) {
-        const { showError } = notificationDispatcher(this.dispatch);
-        showError(`${jm?.message}`);
-      }
-
-      log.error(`PVWS error message: ${jm?.message}`);
-    }
-  };
 
   private sendMessage(message: string) {
     if (!this.client) {
@@ -196,52 +149,9 @@ export class PvwsPlugin implements Connection {
     this.client?.sendMessage(message);
   }
 
-  handleClose = (event: CloseEvent) => {
-    let message = "Web socket closed (" + event.code;
-    if (event.reason) {
-      message += ", " + event.reason;
-    }
-    message += ")";
-    log.debug(message);
-
-    for (const pvName of Object.keys(this.subscriptions)) {
-      this.subscriptions[pvName] = false;
-      if (this.dispatch) {
-        this.dispatch(
-          connectionChanged({
-            pvName,
-            value: {
-              isConnected: false,
-              isReadonly: true
-            }
-          })
-        );
-      }
-    }
-  
-    if (event.code !== this.CLOSE_SOCKET_FOR_SERVICE_SWITCH) {
-      log.debug(
-        "Scheduling re-connect to " +
-          this.fallbackUrl +
-          " in " +
-          this.reconnect_ms +
-          "ms"
-      );
-
-      setTimeout(() => {
-        this.client = this.newConnection(this.client?.getUrl() ?? this.fallbackUrl);
-      }, this.reconnect_ms);
-    }
-  };
-
-  public subscribe(pvName: string, type?: SubscriptionType): string {
-    // TODO: How to handle multiple subscriptions of different types to the same channel?
-    if (!this.subscriptions[pvName] ) {
-      this.sendMessage(JSON.stringify({ type: "subscribe", pvs: [pvName] }));
-      this.subscriptions[pvName] = true;
-    }
-    return pvName;
-  }
+  subscribe = (pvName: string, type?: SubscriptionType): string =>
+    this.client?.subscribe(pvName, type);
+  unsubscribe = (pvName: string): void => this.client?.unsubscribe(pvName);
 
   public getDevice(device: string): void {
     // Not implemented;
@@ -258,20 +168,6 @@ export class PvwsPlugin implements Connection {
             : value.value.stringValue
       })
     );
-  }
-
-  public unsubscribe(pvName: string): void {
-    // Note that connectionMiddleware handles multiple subscriptions
-    // for the same PV at present, so if this method is called then
-    // there is no further need for this PV.
-    if (this.subscriptions[pvName]) {
-      this.sendMessage(JSON.stringify({ type: "clear", pvs: [pvName] }));
-      delete this.subscriptions[pvName];
-    }
-
-    if (this.dispatch) {
-      this.dispatch(connectionClosed({ pvName }));
-    }
   }
 
   public updatePvwsHost(hostname: string | undefined) {
@@ -298,17 +194,17 @@ export class PvwsPlugin implements Connection {
           console.log("updatePvwsHostname, ERROR response" + error);
         })
         .finally(() => {
-          if(socketUrl != this.client?.getUrl()) {
+          if (socketUrl != this.client?.getUrl()) {
             this.client.close(
-              this.CLOSE_SOCKET_FOR_SERVICE_SWITCH,
+              CLOSE_SOCKET_FOR_SERVICE_SWITCH,
               "Closing socket for PVWS service endpoint change"
-            );          
+            );
             this.client = this.newConnection(socketUrl);
           }
         });
     } else {
       this.client.close(
-        this.CLOSE_SOCKET_FOR_SERVICE_SWITCH,
+        CLOSE_SOCKET_FOR_SERVICE_SWITCH,
         "Closing socket for PVWS service endpoint change"
       );
       // New hostname is undefined, connect to the fallback PVWS service.
@@ -317,11 +213,6 @@ export class PvwsPlugin implements Connection {
   }
 
   private newConnection(url: string) {
-    return new PvwsClient(
-      url,
-      this.handleConnection,
-      this.handleMessage,
-      this.handleClose
-    );
+    return new PvwsClient(url, this.dispatch);
   }
 }
