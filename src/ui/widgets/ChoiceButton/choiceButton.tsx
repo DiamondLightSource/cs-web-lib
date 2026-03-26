@@ -88,7 +88,11 @@ export const ChoiceButtonComponent = (
     items = ["Item 1", "Item 2"],
     horizontal = true
   } = props;
-  const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
+  const {
+    value,
+    effectivePvName: pvName,
+    readOnly
+  } = getPvValueAndName(pvData);
 
   const valueType = dTypeGetType(value);
   const [selected, setSelected] = useState(
@@ -125,7 +129,7 @@ export const ChoiceButtonComponent = (
 
   const handleChange = (event: any, newSelect: number) => {
     // Write to PV
-    if (pvName)
+    if (pvName && readOnly)
       writePv(
         pvName,
         newDType(
@@ -140,7 +144,7 @@ export const ChoiceButtonComponent = (
     <ToggleButtonGroup
       exclusive
       fullWidth={true}
-      disabled={!enabled}
+      disabled={readOnly || !enabled}
       value={selected}
       onChange={handleChange}
       orientation={horizontal ? "horizontal" : "vertical"}
@@ -157,6 +161,7 @@ export const ChoiceButtonComponent = (
             key={item}
             value={idx}
             sx={{
+              cursor: readOnly ? "not-allowed" : "default",
               ...style.font,
               ...style.colors,
               width: buttonWidth,

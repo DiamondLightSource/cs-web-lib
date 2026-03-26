@@ -24,7 +24,7 @@ import {
 import { MacroContext } from "../../../types/macros";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 import { styled, Button as MuiButton, Menu, MenuItem } from "@mui/material";
-import { calculateRotationTransform } from "../utils";
+import { calculateRotationTransform, getPvValueAndName } from "../utils";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { useStyle } from "../../hooks/useStyle";
 import { resolveActionsMacro } from "../../hooks/useMacros";
@@ -88,6 +88,7 @@ export const ActionButtonComponent = (
   );
 
   const {
+    pvData,
     enabled = true,
     rotationStep = 0,
     transparent = false,
@@ -96,6 +97,8 @@ export const ActionButtonComponent = (
     width = WIDGET_DEFAULT_SIZES["action_button"][0],
     text = resolveActionsMacro(props.actions as WidgetActions, true)
   } = props;
+
+  const { readOnly } = getPvValueAndName(pvData);
 
   // Whether we are executing a single action at once or multiple
   const executeMultiple = useMemo(
@@ -147,9 +150,10 @@ export const ActionButtonComponent = (
     <>
       <Button
         variant={transparent ? "text" : "contained"}
-        disabled={!enabled}
+        disabled={readOnly || !enabled}
         fullWidth={true}
         sx={{
+          cursor: readOnly || !enabled ? "not-allowed" : "default",
           ...style.colors,
           display: visible ? "flex" : "none",
           height: typeof height === "string" ? "100%" : inputHeight,
