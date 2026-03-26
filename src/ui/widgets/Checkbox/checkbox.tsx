@@ -69,11 +69,11 @@ export const CheckboxComponent = (
 ): JSX.Element => {
   const style = useStyle(props, widgetName);
   const { enabled = true, label = "Label", pvData } = props;
-  const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
+  const { value, effectivePvName: pvName, readOnly } = getPvValueAndName(pvData);
   const checked = Boolean(dTypeGetDoubleValue(value));
 
   const handleChange = (event: any): void => {
-    if (pvName) {
+    if (pvName && !readOnly) {
       writePv(pvName, newDType({ doubleValue: Number(event.target.checked) }));
     }
   };
@@ -87,10 +87,12 @@ export const CheckboxComponent = (
       }}
       control={
         <MuiCheckbox
+          disabled = {readOnly}
           color="default"
           checked={checked}
           onChange={handleChange}
           sx={{
+            cursor: readOnly ? 'not-allowed' : 'default',
             padding: 0,
             "&.MuiSvgIcon-root": {
               fontSize: style?.font?.fontSize

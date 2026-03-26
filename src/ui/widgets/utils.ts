@@ -206,6 +206,7 @@ export const getPvValueAndName = (pvDataCollection: PvDatum[], index = 0) => {
   const value = pvData[index]?.value;
   const effectivePvName = pvData[index]?.effectivePvName;
   const connected = pvData[index]?.connected;
+  const readOnly = pvData[index]?.readonly;
 
-  return { value, effectivePvName, connected };
+  return { value, effectivePvName, connected, readOnly };
 };
