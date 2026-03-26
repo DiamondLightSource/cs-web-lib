@@ -76,7 +76,7 @@ export const SlideControlComponent = (
   } = props;
 
   let { minimum = 0, maximum = 100 } = props;
-  const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
+  const { value, effectivePvName: pvName, readOnly} = getPvValueAndName(pvData);
 
   if (limitsFromPv && value?.display.controlRange) {
     minimum = value.display.controlRange?.min;
@@ -184,7 +184,7 @@ export const SlideControlComponent = (
   return (
     <Slider
       value={inputValue}
-      disabled={!enabled}
+      disabled={readOnly || !enabled}
       orientation={horizontal ? "horizontal" : "vertical"}
       onChange={(_, newValue) => setInputValue(newValue as number)}
       onChangeCommitted={(_, newValue) => onMouseUp(newValue as number)}
@@ -194,6 +194,7 @@ export const SlideControlComponent = (
       marks={marks}
       step={increment}
       sx={{
+        cursor: readOnly ? "not-allowed" : "default",
         color: style?.colors?.color,
         "& .MuiSlider-thumb": {
           height: 16,

@@ -68,12 +68,13 @@ export const MenuButtonComponent = (
   const {
     value,
     effectivePvName: pvName,
-    connected
+    connected,
+    readOnly
   } = getPvValueAndName(pvData);
   const enumPv = value?.display.choices ? true : false;
 
   // Store whether component is disabled or not
-  let disabled = !enabled;
+  let disabled = readOnly || !enabled;
 
   // Using value to dictate displayed value as described here: https://reactjs.org/docs/forms.html#the-select-tag
   // Show nothing by default where there is only one option, or warning of no PV
