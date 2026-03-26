@@ -98,7 +98,7 @@ export const ActionButtonComponent = (
     text = resolveActionsMacro(props.actions as WidgetActions, true)
   } = props;
 
-  const {readOnly} = getPvValueAndName(pvData);
+  const { readOnly } = getPvValueAndName(pvData);
 
   // Whether we are executing a single action at once or multiple
   const executeMultiple = useMemo(

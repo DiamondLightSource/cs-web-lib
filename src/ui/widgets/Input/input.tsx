@@ -102,7 +102,11 @@ export const SmartInputComponent = (
     formatType = "default"
   } = props;
 
-  const { value, effectivePvName: pvName, readOnly} = getPvValueAndName(pvData);
+  const {
+    value,
+    effectivePvName: pvName,
+    readOnly
+  } = getPvValueAndName(pvData);
   // Decide what to display.
   const display = dTypeGetDisplay(value);
   // In Phoebus, default precision -1 seems to usually be 3. The toFixed functions
@@ -217,15 +221,15 @@ export const SmartInputComponent = (
         input: {
           onKeyDown: onKeyPress
         },
-        htmlInput:{
-          readOnly: readOnly,
+        htmlInput: {
+          readOnly: readOnly
         }
       }}
       onChange={event => setInputValue(event.target.value)}
       sx={{
-        cursor: readOnly ? 'not-allowed' : 'default', 
+        cursor: readOnly ? "not-allowed" : "default",
         "& .MuiInputBase-input": {
-          cursor: readOnly ? 'not-allowed' : 'default',
+          cursor: readOnly ? "not-allowed" : "default",
           textAlign: textAlign,
           ...style.font,
           "& .MuiOutlinedInput-input": {

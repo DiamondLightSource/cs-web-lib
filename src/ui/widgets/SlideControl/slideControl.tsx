@@ -76,7 +76,11 @@ export const SlideControlComponent = (
   } = props;
 
   let { minimum = 0, maximum = 100 } = props;
-  const { value, effectivePvName: pvName, readOnly} = getPvValueAndName(pvData);
+  const {
+    value,
+    effectivePvName: pvName,
+    readOnly
+  } = getPvValueAndName(pvData);
 
   if (limitsFromPv && value?.display.controlRange) {
     minimum = value.display.controlRange?.min;
