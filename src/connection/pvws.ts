@@ -136,7 +136,6 @@ export class PvwsPlugin implements Connection {
   private CLOSE_SOCKET_FOR_SERVICE_SWITCH = 3001;
   private wsProtocol = "ws";
   
-  private disconnected: Set<string> = new Set<string>();
   private subscriptions: { [pvName: string]: boolean };
   private dispatch: Dispatch;
   
@@ -157,13 +156,9 @@ export class PvwsPlugin implements Connection {
 
   handleConnection = () => {
     log.debug("Connected to " + this.fallbackUrl);
-    while (this.disconnected.size) {
-      const pvName = this.disconnected.values().next().value;
-      if (pvName !== undefined) {
-        this.disconnected.delete(pvName);
-        this.subscribe(pvName);
-        this.subscriptions[pvName] = true;
-      }
+    for (const pvName of Object.keys(this.subscriptions)) {
+      // reinstate the existing subscriptions
+      this.subscribe(pvName);
     }
   };
 
@@ -210,6 +205,7 @@ export class PvwsPlugin implements Connection {
     log.debug(message);
 
     for (const pvName of Object.keys(this.subscriptions)) {
+      this.subscriptions[pvName] = false;
       if (this.dispatch) {
         this.dispatch(
           connectionChanged({
@@ -221,14 +217,8 @@ export class PvwsPlugin implements Connection {
           })
         );
       }
-
-      // Adding to the disconnected list
-      this.disconnected.add(pvName);
     }
-
-    // clear subscriptions
-    this.subscriptions = {};
-
+  
     if (event.code !== this.CLOSE_SOCKET_FOR_SERVICE_SWITCH) {
       log.debug(
         "Scheduling re-connect to " +
@@ -244,14 +234,10 @@ export class PvwsPlugin implements Connection {
     }
   };
 
-  private _subscribe(pvName: string) {
-    this.sendMessage(JSON.stringify({ type: "subscribe", pvs: [pvName] }));
-  }
-
   public subscribe(pvName: string, type?: SubscriptionType): string {
     // TODO: How to handle multiple subscriptions of different types to the same channel?
-    if (this.subscriptions[pvName] === undefined) {
-      this._subscribe(pvName);
+    if (!this.subscriptions[pvName] ) {
+      this.sendMessage(JSON.stringify({ type: "subscribe", pvs: [pvName] }));
       this.subscriptions[pvName] = true;
     }
     return pvName;
