@@ -1,33 +1,32 @@
 import log from "loglevel";
-import { SubscriptionType } from "./plugin";
+import { SubscriptionType } from "../plugin";
 import { Dispatch } from "@reduxjs/toolkit";
 import {
   connectionChanged,
   connectionClosed,
   valueChanged
-} from "../redux/csState";
-import { notificationDispatcher } from "../redux/notificationUtils";
+} from "../../redux/csState";
+import { notificationDispatcher } from "../../redux/notificationUtils";
 import { pvwsToDType } from "./pvwsToDType";
 
 export const CLOSE_SOCKET_FOR_SERVICE_SWITCH = 3001;
 export const RECONNECT_MILLISECONDS = 500;
+const HEARTBEAT_INTERVAL_SECONDS = 29.929;
 
 export class PvwsClient {
   private socket: WebSocket;
   private url: string;
   private subscriptions: { [pvName: string]: boolean };
   private dispatch: Dispatch;
-  private keepAliveInterval: ReturnType<typeof setTimeout> | undefined;
 
   public constructor(url: string, dispatch: Dispatch) {
     this.url = url;
-    this.socket = this.newConnection();
+    this.socket = this.newSocket();
     this.dispatch = dispatch;
     this.subscriptions = {};
-    this.newConnection();
   }
 
-  private newConnection(): WebSocket {
+  private newSocket(): WebSocket {
     const socket = new WebSocket(this.url);
     socket.onopen = this.handleConnection;
     socket.onmessage = this.handleMessage;
@@ -61,9 +60,6 @@ export class PvwsClient {
   }
 
   handleError = (event: Event) => {
-    console.log("handleError");
-    console.log(event);
-
     log.error("Error from " + this.getUrl());
     this.close();
   };
@@ -75,8 +71,8 @@ export class PvwsClient {
       this.subscribe(pvName);
     }
 
-    // start sending periodic echo messages
-    this.startKeepAlive();
+    // This forces a periodic message from pvws to keep the connection open.
+    this.subscribe(`sim://flipflop(${HEARTBEAT_INTERVAL_SECONDS})`);
   };
 
   handleClose = (event: CloseEvent) => {
@@ -86,8 +82,6 @@ export class PvwsClient {
     }
     message += ")";
     log.debug(message);
-
-    this.stopKeepAlive();
 
     for (const pvName of Object.keys(this.subscriptions)) {
       this.subscriptions[pvName] = false;
@@ -114,7 +108,7 @@ export class PvwsClient {
       );
 
       setTimeout(() => {
-        this.socket = this.newConnection();
+        this.socket = this.newSocket();
       }, RECONNECT_MILLISECONDS);
     }
   };
@@ -144,21 +138,6 @@ export class PvwsClient {
       log.error(`PVWS error message: ${jm?.message}`);
     }
   };
-
-  private startKeepAlive() {
-    this.keepAliveInterval = setInterval(() => {
-      if (this.socket.readyState === WebSocket.OPEN) {
-        this.socket.send(
-          JSON.stringify({ type: "echo", timestamp: Date.now() })
-        );
-      }
-    }, 10_000);
-  }
-
-  private stopKeepAlive() {
-    clearInterval(this.keepAliveInterval);
-    this.keepAliveInterval = undefined;
-  }
 
   public subscribe(pvName: string, type?: SubscriptionType): string {
     // TODO: How to handle multiple subscriptions of different types to the same channel?

@@ -1,9 +1,9 @@
 /* Module that handles a GraphQL connection to the PVWS server.
    See https://github.com/ornl-epics/pvws
  */
-import { Connection, SubscriptionType } from "./plugin";
+import { Connection, SubscriptionType } from "../plugin";
 
-import { DType } from "../types/dtypes";
+import { DType } from "../../types/dtypes";
 import log from "loglevel";
 import { CLOSE_SOCKET_FOR_SERVICE_SWITCH, PvwsClient } from "./pvwsClient";
 import { Dispatch } from "@reduxjs/toolkit";
@@ -20,7 +20,7 @@ export class PvwsPlugin implements Connection {
     }
     this.fallbackUrl = `${this.wsProtocol}://${socket}/pvws/pv`;
     this.dispatch = dispatch;
-    this.client = this.newConnection(this.fallbackUrl);
+    this.client = this.newPvwsClient(this.fallbackUrl);
   }
 
   public subscribe = (pvName: string, type?: SubscriptionType): string =>
@@ -65,8 +65,9 @@ export class PvwsPlugin implements Connection {
           }
         })
         .catch(error => {
-          log.debug("pvws.updatePvwsHostname");
-          console.log("updatePvwsHostname, ERROR response" + error);
+          log.debug(
+            "PvwsPlugin.updatePvwsHostname: Could not connect to the preferred PVWS instance falling back to the default"
+          );
         })
         .finally(() => {
           if (socketUrl !== this.client?.getUrl()) {
@@ -74,7 +75,7 @@ export class PvwsPlugin implements Connection {
               CLOSE_SOCKET_FOR_SERVICE_SWITCH,
               "Closing socket for PVWS service endpoint change"
             );
-            this.client = this.newConnection(socketUrl);
+            this.client = this.newPvwsClient(socketUrl);
           }
         });
     } else {
@@ -83,11 +84,11 @@ export class PvwsPlugin implements Connection {
         "Closing socket for PVWS service endpoint change"
       );
       // New hostname is undefined, connect to the fallback PVWS service.
-      this.client = this.newConnection(this.fallbackUrl);
+      this.client = this.newPvwsClient(this.fallbackUrl);
     }
   }
 
-  private newConnection(url: string) {
+  private newPvwsClient(url: string) {
     return new PvwsClient(url, this.dispatch);
   }
 

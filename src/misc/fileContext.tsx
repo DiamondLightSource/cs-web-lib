@@ -252,7 +252,6 @@ export const FileProvider: React.FC<FileProviderProps> = (
       pvwsHost?: string
     ): void => {
       dispatch(setPvwsSettings({ pvwsHost }));
-      console.log("fileContext.addPage: " + pvwsHost);
       const newPageState = addPage(pageState, location, fileDesc);
       navigate(pathname ?? historyLocation.pathname, {
         state: {

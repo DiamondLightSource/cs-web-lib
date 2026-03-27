@@ -7,7 +7,7 @@ import {
   newDRange,
   newDTime,
   newDType
-} from "../types/dtypes";
+} from "../../types/dtypes";
 
 export const ARRAY_TYPES = {
   INT8: Int8Array,

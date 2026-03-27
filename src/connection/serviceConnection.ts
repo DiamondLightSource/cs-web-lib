@@ -1,6 +1,6 @@
 import { Connection } from ".";
 import { ConnectionForwarder } from "./forwarder";
-import { PvwsPlugin } from "./pvws";
+import { PvwsPlugin } from "./pvws/pvwsPlugin";
 import { SimulatorPlugin } from "./sim";
 import { CsWebLibConfig } from "../redux/csWebLibConfig";
 import { Dispatch } from "@reduxjs/toolkit";
@@ -8,15 +8,18 @@ import { Dispatch } from "@reduxjs/toolkit";
 // This is the common connection forwarder singleton for all service types
 let connection: ConnectionForwarder | undefined;
 let pvwsConnection: PvwsPlugin | undefined;
+let buildServiceConnectionCalled = false;
 
 export const buildServiceConnection = (
   dispatch: Dispatch,
   config?: CsWebLibConfig
 ): void => {
-  if (connection) {
+  if (connection || buildServiceConnectionCalled) {
     // Should only be called once
     return;
   }
+
+  buildServiceConnectionCalled = true;
 
   const PVWS_SOCKET =
     config?.PVWS_SOCKET ??
@@ -31,7 +34,8 @@ export const buildServiceConnection = (
   const plugins: [string, Connection][] = [["sim://", simulator]];
 
   if (PVWS_SOCKET !== undefined) {
-    pvwsConnection = new PvwsPlugin(PVWS_SOCKET, PVWS_SSL, dispatch);
+    pvwsConnection =
+      pvwsConnection ?? new PvwsPlugin(PVWS_SOCKET, PVWS_SSL, dispatch);
     plugins.unshift(["pva://", pvwsConnection]);
     plugins.unshift(["ca://", pvwsConnection]);
     plugins.unshift(["loc://", pvwsConnection]);
