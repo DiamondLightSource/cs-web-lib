@@ -112,7 +112,6 @@ describe.sequential("PvwsClient with vitest-websocket-mock", () => {
 
     await server.send(errorMessage);
 
-    console.log(logErrorSpy.mock.calls);
     expect(logErrorSpy).toHaveBeenCalledWith(
       "PVWS error message: Connection timeout"
     );
