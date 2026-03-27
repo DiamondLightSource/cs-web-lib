@@ -7,6 +7,7 @@ import {
   valueChanged
 } from "../redux/csState";
 import { notificationDispatcher } from "../redux/notificationUtils";
+import { pvwsToDType } from "./pvwsToDType";
 
 export const CLOSE_SOCKET_FOR_SERVICE_SWITCH = 3001;
 export const RECONNECT_MILLISECONDS = 500;
@@ -16,6 +17,7 @@ export class PvwsClient {
   private url: string;
   private subscriptions: { [pvName: string]: boolean };
   private dispatch: Dispatch;
+  private keepAliveInterval: ReturnType<typeof setTimeout> | undefined;
 
   public constructor(url: string, dispatch: Dispatch) {
     this.url = url;
@@ -72,6 +74,9 @@ export class PvwsClient {
       // reinstate the existing subscriptions
       this.subscribe(pvName);
     }
+
+    // start sending periodic echo messages
+    this.startKeepAlive();
   };
 
   handleClose = (event: CloseEvent) => {
@@ -81,6 +86,8 @@ export class PvwsClient {
     }
     message += ")";
     log.debug(message);
+
+    this.stopKeepAlive();
 
     for (const pvName of Object.keys(this.subscriptions)) {
       this.subscriptions[pvName] = false;
@@ -137,6 +144,21 @@ export class PvwsClient {
       log.error(`PVWS error message: ${jm?.message}`);
     }
   };
+
+  private startKeepAlive() {
+    this.keepAliveInterval = setInterval(() => {
+      if (this.socket.readyState === WebSocket.OPEN) {
+        this.socket.send(
+          JSON.stringify({ type: "echo", timestamp: Date.now() })
+        );
+      }
+    }, 10_000);
+  }
+
+  private stopKeepAlive() {
+    clearInterval(this.keepAliveInterval);
+    this.keepAliveInterval = undefined;
+  }
 
   public subscribe(pvName: string, type?: SubscriptionType): string {
     // TODO: How to handle multiple subscriptions of different types to the same channel?
