@@ -14,11 +14,11 @@ export class PvwsPlugin implements Connection {
   private fallbackUrl: string;
   private client: PvwsClient;
 
-  public constructor(socket: string, ssl: boolean, dispatch: Dispatch) {
+  public constructor(socketHost: string, ssl: boolean, dispatch: Dispatch) {
     if (ssl) {
       this.wsProtocol = "wss";
     }
-    this.fallbackUrl = `${this.wsProtocol}://${socket}/pvws/pv`;
+    this.fallbackUrl = `${this.wsProtocol}://${socketHost}/pvws/pv`;
     this.dispatch = dispatch;
     this.client = this.newPvwsClient(this.fallbackUrl);
   }

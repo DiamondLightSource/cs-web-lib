@@ -11,13 +11,15 @@ import { pvwsToDType } from "./pvwsToDType";
 
 export const CLOSE_SOCKET_FOR_SERVICE_SWITCH = 3001;
 export const RECONNECT_MILLISECONDS = 500;
-const HEARTBEAT_INTERVAL_SECONDS = 29.929;
+export const HEARTBEAT_INTERVAL_SECONDS = 29.929;
+const flipFlopHeartBeatPvName = `sim://flipflop(${HEARTBEAT_INTERVAL_SECONDS})`;
 
 export class PvwsClient {
   private socket: WebSocket;
   private url: string;
   private subscriptions: { [pvName: string]: boolean };
   private dispatch: Dispatch;
+  private isConnected = false;
 
   public constructor(url: string, dispatch: Dispatch) {
     this.url = url;
@@ -45,9 +47,11 @@ export class PvwsClient {
       this.socket?.send(message);
     } else if (this.socket?.readyState !== WebSocket.OPEN) {
       // Socket is not set up, wait until open to send message
-      this.socket?.addEventListener("open", _ev => {
+      const sendOnOpen = () => {
         this.socket?.send(message);
-      });
+        this.socket?.removeEventListener("open", sendOnOpen);
+      };
+      this.socket?.addEventListener("open", sendOnOpen, { once: true });
     }
   }
 
@@ -65,6 +69,12 @@ export class PvwsClient {
   };
 
   handleConnection = () => {
+    if (this.isConnected) {
+      log.debug("handleConnection called but already connected");
+      return;
+    }
+
+    this.isConnected = true;
     log.debug("Connected to " + this.url);
     for (const pvName of Object.keys(this.subscriptions)) {
       // reinstate the existing subscriptions
@@ -72,10 +82,13 @@ export class PvwsClient {
     }
 
     // This forces a periodic message from pvws to keep the connection open.
-    this.subscribe(`sim://flipflop(${HEARTBEAT_INTERVAL_SECONDS})`);
+    this.sendMessage(
+      JSON.stringify({ type: "subscribe", pvs: [flipFlopHeartBeatPvName] })
+    );
   };
 
   handleClose = (event: CloseEvent) => {
+    this.isConnected = false;
     let message = "Web socket closed (" + event.code;
     if (event.reason) {
       message += ", " + event.reason;

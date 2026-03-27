@@ -9,14 +9,15 @@ describe("PvwsPlugin", (): void => {
   let mockValUpdate: Mock;
   let mockShowError: Mock;
   let ws: WS;
+  let mockDispatch: Mock;
+
   beforeEach(async () => {
+    mockDispatch = vi.fn();
     ws = new WS("ws://a.b.c:100/pvws/pv");
-    cp = new PvwsPlugin("a.b.c:100", false);
+    cp = new PvwsPlugin("a.b.c:100", false, mockDispatch);
     mockConnUpdate = vi.fn();
     mockValUpdate = vi.fn();
     mockShowError = vi.fn();
-    // @ts-expect-error: testing behaviour with undefined callback
-    cp.connect(mockConnUpdate, mockValUpdate, undefined, mockShowError);
     await ws.connected;
   });
   afterEach(() => {
@@ -86,6 +87,7 @@ describe("PvwsPlugin", (): void => {
   it("handles update readonly value", (): void => {
     cp.subscribe("hello", { string: true });
     ws.send(JSON.stringify({ type: "update", pv: "hello", value: 42 }));
+
     expect(mockConnUpdate).toHaveBeenLastCalledWith("hello", {
       isConnected: true,
       isReadonly: true
