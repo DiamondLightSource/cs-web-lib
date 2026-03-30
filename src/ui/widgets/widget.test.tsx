@@ -8,6 +8,7 @@ import { contextRender, createRootStoreState } from "../../testResources";
 import { fireEvent } from "@testing-library/react";
 import copyToClipboard from "clipboard-copy";
 import { vi } from "vitest";
+import { CsState } from "../../redux/csState";
 
 const PV_NAME = "ca://pv";
 
@@ -41,7 +42,7 @@ describe("<Widget />", (): void => {
       valueCache: {},
       deviceCache: {},
       fileCache: {}
-    };
+    } as Partial<CsState>;
     const pv = newPV("pv");
 
     const { getByText } = contextRender(
@@ -53,7 +54,7 @@ describe("<Widget />", (): void => {
       />,
       {},
       {},
-      createRootStoreState(initialCsState)
+      createRootStoreState(initialCsState as CsState)
     );
     const label = getByText("Test");
     // simulate middle click

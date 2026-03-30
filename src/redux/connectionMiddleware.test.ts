@@ -29,7 +29,7 @@ vi.mock("../connection/serviceConnection", () => {
 });
 
 const config: CsWebLibConfig = {
-  PVWS_SOCKET: "",
+  PVWS_SOCKET: "SomeSocket",
   PVWS_SSL: true,
   storeMode: "DEV",
   THROTTLE_PERIOD: 100

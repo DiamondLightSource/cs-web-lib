@@ -39,7 +39,8 @@ function getConnectionState(pvName: string, value: DType): CsState {
     globalMacros: {},
     effectivePvNameMap: {},
     deviceCache: {},
-    fileCache: {}
+    fileCache: {},
+    pvwsSettings: {}
   };
 }
 

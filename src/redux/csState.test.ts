@@ -57,7 +57,8 @@ const initialState: CsState = {
       type: "ellipse",
       position: newAbsolutePosition("0", "0", "0", "0")
     }
-  }
+  },
+  pvwsSettings: {}
 };
 
 describe("VALUES_CHANGED", (): void => {
@@ -282,7 +283,8 @@ describe("Selectors", () => {
     effectivePvNameMap: { pv1: "pv1", pv2: "pv3" },
     subscriptions: {},
     deviceCache: {},
-    fileCache: {}
+    fileCache: {},
+    pvwsSettings: {}
   };
 
   const state = createRootStoreState(testCsState);

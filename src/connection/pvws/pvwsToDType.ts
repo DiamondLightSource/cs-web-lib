@@ -38,12 +38,14 @@ export const pvwsToDType = (data: any): DType => {
     description: undefined,
     role: undefined,
     controlRange: undefined,
-    alarmRange: data.alarm_low
-      ? newDRange(data.alarm_low, data.alarm_high)
-      : undefined,
-    warningRange: data.warn_low
-      ? newDRange(data.warn_low, data.warn_high)
-      : undefined,
+    alarmRange:
+      data.alarm_low != null
+        ? newDRange(data.alarm_low, data.alarm_high)
+        : undefined,
+    warningRange:
+      data.warn_low != null
+        ? newDRange(data.warn_low, data.warn_high)
+        : undefined,
     units: data.units,
     precision: data.precision,
     form: undefined,

@@ -51,7 +51,6 @@ export interface FileCache {
 
 export interface PvwsSettings {
   pvwsHost?: string;
-  fallbackPvwsHost?: string;
 }
 
 export interface PvArrayResults {
@@ -88,8 +87,6 @@ const csSlice = createSlice({
   reducers: {
     setPvwsSettings(state, action: PayloadAction<PvwsSettings>) {
       log.debug(action);
-      state.pvwsSettings.fallbackPvwsHost =
-        action.payload.fallbackPvwsHost ?? state.pvwsSettings.fallbackPvwsHost;
       state.pvwsSettings.pvwsHost = action.payload.pvwsHost;
     },
     valueChanged(state, action: ValueChangedActionType) {

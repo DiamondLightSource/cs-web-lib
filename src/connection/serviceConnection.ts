@@ -90,7 +90,7 @@ export const buildServiceConnection = (
   );
   const plugins: [string, Connection][] = [["sim://", simulator]];
 
-  if (PVWS_SOCKET !== undefined) {
+  if (PVWS_SOCKET && PVWS_SOCKET !== "") {
     pvwsConnection =
       pvwsConnection ??
       new PvwsPlugin(
@@ -125,4 +125,10 @@ export const getServiceConnection = (): ConnectionForwarder => {
 
 export const updatePvwsHostname = (pvwsHost: string | undefined) => {
   pvwsConnection?.updatePvwsHost(pvwsHost);
+};
+
+export const clearStateForTests = () => {
+  connection = undefined;
+  pvwsConnection = undefined;
+  buildServiceConnectionCalled = false;
 };

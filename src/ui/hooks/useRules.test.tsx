@@ -38,7 +38,8 @@ function getCsState(value: DType): CsState {
     globalMacros: {},
     effectivePvNameMap: {},
     deviceCache: {},
-    fileCache: {}
+    fileCache: {},
+    pvwsSettings: {}
   };
 }
 
