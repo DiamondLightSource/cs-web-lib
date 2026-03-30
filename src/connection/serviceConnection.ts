@@ -1,4 +1,4 @@
-import { Connection } from ".";
+import { Connection, ConnectionState } from ".";
 import { ConnectionForwarder } from "./forwarder";
 import { PvwsPlugin } from "./pvws/pvwsPlugin";
 import { SimulatorPlugin } from "./sim";
@@ -78,7 +78,16 @@ export const buildServiceConnection = (
     (process.env.VITE_PVWS_SSL ?? import.meta.env.VITE_PVWS_SSL) === "true"
   );
 
-  const simulator = new SimulatorPlugin(dispatch);
+  const simulator = new SimulatorPlugin();
+  simulator.connect(
+    (pvName: string, value: ConnectionState) =>
+      onConnectionChangedCallback(dispatch)(
+        pvName,
+        value.isConnected,
+        value.isReadonly ?? true
+      ),
+    onValueChangedCallback(dispatch)
+  );
   const plugins: [string, Connection][] = [["sim://", simulator]];
 
   if (PVWS_SOCKET !== undefined) {
