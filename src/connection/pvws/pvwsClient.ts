@@ -1,13 +1,7 @@
 import log from "loglevel";
 import { SubscriptionType } from "../plugin";
-import { Dispatch } from "@reduxjs/toolkit";
-import {
-  connectionChanged,
-  connectionClosed,
-  valueChanged
-} from "../../redux/csState";
-import { notificationDispatcher } from "../../redux/notificationUtils";
 import { pvwsToDType } from "./pvwsToDType";
+import { DType } from "../../types/dtypes";
 
 export const CLOSE_SOCKET_FOR_SERVICE_SWITCH = 3001;
 export const RECONNECT_MILLISECONDS = 500;
@@ -18,14 +12,35 @@ export class PvwsClient {
   private socket: WebSocket;
   private url: string;
   private subscriptions: { [pvName: string]: boolean };
-  private dispatch: Dispatch;
   private isConnected = false;
 
-  public constructor(url: string, dispatch: Dispatch) {
+  private onErrorMessageCallback: (message: string | undefined) => void;
+  private onConnectionClosedCallback: (message: string | undefined) => void;
+  private onValueChangedCallback: (pvName: string, value: DType) => void;
+  private onConnectionChangedCallback: (
+    pvName: string,
+    isConnected: boolean,
+    isReadonly: boolean
+  ) => void;
+
+  public constructor(
+    url: string,
+    onConnectionChangedCallback: (
+      pvName: string,
+      isConnected: boolean,
+      isReadonly: boolean
+    ) => void,
+    onValueChangedCallback: (pvName: string, value: DType) => void,
+    onConnectionClosedCallback: (message: string | undefined) => void,
+    onErrorMessageCallback: (message: string | undefined) => void
+  ) {
     this.url = url;
     this.socket = this.newSocket();
-    this.dispatch = dispatch;
     this.subscriptions = {};
+    this.onErrorMessageCallback = onErrorMessageCallback;
+    this.onValueChangedCallback = onValueChangedCallback;
+    this.onConnectionChangedCallback = onConnectionChangedCallback;
+    this.onConnectionClosedCallback = onConnectionClosedCallback;
   }
 
   private newSocket(): WebSocket {
@@ -98,16 +113,8 @@ export class PvwsClient {
 
     for (const pvName of Object.keys(this.subscriptions)) {
       this.subscriptions[pvName] = false;
-      if (this.dispatch) {
-        this.dispatch(
-          connectionChanged({
-            pvName,
-            value: {
-              isConnected: false,
-              isReadonly: true
-            }
-          })
-        );
+      if (this.onConnectionChangedCallback) {
+        this.onConnectionChangedCallback(pvName, false, true);
       }
     }
 
@@ -129,23 +136,15 @@ export class PvwsClient {
   handleMessage = (event: MessageEvent) => {
     const jm = JSON.parse(event.data);
     if (jm.type === "update") {
-      if (this.dispatch) {
-        this.dispatch(
-          connectionChanged({
-            pvName: jm.pv,
-            value: {
-              isConnected: true,
-              isReadonly: jm.readonly
-            }
-          })
-        );
-
-        this.dispatch(valueChanged({ pvName: jm.pv, value: pvwsToDType(jm) }));
+      if (this.onConnectionChangedCallback) {
+        this.onConnectionChangedCallback(jm.pv, true, jm.readonly);
+      }
+      if (this.onValueChangedCallback) {
+        this.onValueChangedCallback(jm.pv, pvwsToDType(jm));
       }
     } else if (jm.type === "error") {
-      if (this.dispatch) {
-        const { showError } = notificationDispatcher(this.dispatch);
-        showError(`${jm?.message}`);
+      if (this.onErrorMessageCallback) {
+        this.onErrorMessageCallback(jm?.message);
       }
 
       log.error(`PVWS error message: ${jm?.message}`);
@@ -167,8 +166,8 @@ export class PvwsClient {
       delete this.subscriptions[pvName];
     }
 
-    if (this.dispatch) {
-      this.dispatch(connectionClosed({ pvName }));
+    if (this.onConnectionClosedCallback) {
+      this.onConnectionClosedCallback(pvName);
     }
   }
 }

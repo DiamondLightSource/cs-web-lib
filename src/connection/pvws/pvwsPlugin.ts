@@ -6,20 +6,42 @@ import { Connection, SubscriptionType } from "../plugin";
 import { DType } from "../../types/dtypes";
 import log from "loglevel";
 import { CLOSE_SOCKET_FOR_SERVICE_SWITCH, PvwsClient } from "./pvwsClient";
-import { Dispatch } from "@reduxjs/toolkit";
 
 export class PvwsPlugin implements Connection {
   private wsProtocol = "ws";
-  private dispatch: Dispatch;
   private fallbackUrl: string;
   private client: PvwsClient;
 
-  public constructor(socketHost: string, ssl: boolean, dispatch: Dispatch) {
+  private onErrorMessageCallback: (message: string | undefined) => void;
+  private onConnectionClosedCallback: (message: string | undefined) => void;
+  private onValueChangedCallback: (pvName: string, value: DType) => void;
+  private onConnectionChangedCallback: (
+    pvName: string,
+    isConnected: boolean,
+    isReadonly: boolean
+  ) => void;
+
+  public constructor(
+    socketHost: string,
+    ssl: boolean,
+    onConnectionChangedCallback: (
+      pvName: string,
+      isConnected: boolean,
+      isReadonly: boolean
+    ) => void,
+    onValueChangedCallback: (pvName: string, value: DType) => void,
+    onConnectionClosedCallback: (message: string | undefined) => void,
+    onErrorMessageCallback: (message: string | undefined) => void
+  ) {
     if (ssl) {
       this.wsProtocol = "wss";
     }
     this.fallbackUrl = `${this.wsProtocol}://${socketHost}/pvws/pv`;
-    this.dispatch = dispatch;
+    this.onErrorMessageCallback = onErrorMessageCallback;
+    this.onValueChangedCallback = onValueChangedCallback;
+    this.onConnectionChangedCallback = onConnectionChangedCallback;
+    this.onConnectionClosedCallback = onConnectionClosedCallback;
+
     this.client = this.newPvwsClient(this.fallbackUrl);
   }
 
@@ -89,7 +111,13 @@ export class PvwsPlugin implements Connection {
   }
 
   private newPvwsClient(url: string) {
-    return new PvwsClient(url, this.dispatch);
+    return new PvwsClient(
+      url,
+      this.onConnectionChangedCallback,
+      this.onValueChangedCallback,
+      this.onConnectionClosedCallback,
+      this.onErrorMessageCallback
+    );
   }
 
   private sendMessage(message: string) {

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach, Mock } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { PvwsPlugin } from "./pvwsPlugin";
 import { DType } from "../../types/dtypes";
 
@@ -18,7 +18,7 @@ const mockClientInstance = {
 vi.mock("./pvwsClient", () => {
   return {
     PvwsClient: class MockPvwsClient {
-      constructor(url: string, dispatch: any) {
+      constructor(url: string) {
         return mockClientInstance;
       }
     },
@@ -33,14 +33,26 @@ vi.mock("loglevel", () => ({
   }
 }));
 
+const onErrorMessageCallback = vi.fn();
+const onValueChangedCallback = vi.fn();
+const onConnectionChangedCallback = vi.fn();
+const onConnectionClosedCallback = vi.fn();
+
+const newPvwsPlugin = (url: string, ssl: boolean) =>
+  new PvwsPlugin(
+    url,
+    ssl,
+    onConnectionChangedCallback,
+    onValueChangedCallback,
+    onConnectionClosedCallback,
+    onErrorMessageCallback
+  );
+
 describe("PvwsPlugin", () => {
   let plugin: PvwsPlugin;
-  let mockDispatch: Mock;
 
   beforeEach(() => {
     vi.clearAllMocks();
-
-    mockDispatch = vi.fn();
 
     // Reset mock implementations
     mockClientInstance.subscribe.mockReturnValue("sub-id-123");
@@ -55,20 +67,20 @@ describe("PvwsPlugin", () => {
 
   describe("constructor", () => {
     it("should initialize with ws protocol when SSL is false", () => {
-      plugin = new PvwsPlugin("localhost:8080", false, mockDispatch);
+      plugin = newPvwsPlugin("localhost:8080", false);
 
       // Verify client was created (constructor was called)
       expect(plugin).toBeDefined();
     });
 
     it("should initialize with wss protocol when SSL is true", () => {
-      plugin = new PvwsPlugin("localhost:8080", true, mockDispatch);
+      plugin = newPvwsPlugin("localhost:8080", true);
 
       expect(plugin).toBeDefined();
     });
 
     it("should store the fallback URL correctly", () => {
-      plugin = new PvwsPlugin("example.com:9090", false, mockDispatch);
+      plugin = newPvwsPlugin("example.com:9090", false);
 
       expect(plugin).toBeDefined();
     });
@@ -76,7 +88,7 @@ describe("PvwsPlugin", () => {
 
   describe("subscribe", () => {
     beforeEach(() => {
-      plugin = new PvwsPlugin("localhost:8080", false, mockDispatch);
+      plugin = newPvwsPlugin("localhost:8080", false);
       vi.clearAllMocks();
     });
 
@@ -103,7 +115,7 @@ describe("PvwsPlugin", () => {
 
   describe("unsubscribe", () => {
     beforeEach(() => {
-      plugin = new PvwsPlugin("localhost:8080", false, mockDispatch);
+      plugin = newPvwsPlugin("localhost:8080", false);
       vi.clearAllMocks();
     });
 
@@ -118,7 +130,7 @@ describe("PvwsPlugin", () => {
 
   describe("getDevice", () => {
     beforeEach(() => {
-      plugin = new PvwsPlugin("localhost:8080", false, mockDispatch);
+      plugin = newPvwsPlugin("localhost:8080", false);
     });
 
     it("should not throw error when called", () => {
@@ -128,7 +140,7 @@ describe("PvwsPlugin", () => {
 
   describe("putPv", () => {
     beforeEach(() => {
-      plugin = new PvwsPlugin("localhost:8080", false, mockDispatch);
+      plugin = newPvwsPlugin("localhost:8080", false);
       vi.clearAllMocks();
     });
 
@@ -190,7 +202,7 @@ describe("PvwsPlugin", () => {
 
   describe("updatePvwsHost", () => {
     beforeEach(() => {
-      plugin = new PvwsPlugin("localhost:8080", false, mockDispatch);
+      plugin = newPvwsPlugin("localhost:8080", false);
       vi.clearAllMocks();
     });
 
@@ -271,7 +283,7 @@ describe("PvwsPlugin", () => {
     });
 
     it("should use wss protocol when SSL is enabled", async () => {
-      plugin = new PvwsPlugin("localhost:8080", true, mockDispatch);
+      plugin = newPvwsPlugin("localhost:8080", true);
       vi.clearAllMocks();
 
       mockClientInstance.getUrl.mockReturnValue("wss://localhost:8080/pvws/pv");
@@ -287,7 +299,7 @@ describe("PvwsPlugin", () => {
 
   describe("sendMessage error handling", () => {
     it("should log error when client is null", () => {
-      plugin = new PvwsPlugin("localhost:8080", false, mockDispatch);
+      plugin = newPvwsPlugin("localhost:8080", false);
 
       (plugin as any).client = null;
 

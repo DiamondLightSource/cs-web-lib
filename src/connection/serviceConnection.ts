@@ -4,11 +4,59 @@ import { PvwsPlugin } from "./pvws/pvwsPlugin";
 import { SimulatorPlugin } from "./sim";
 import { CsWebLibConfig } from "../redux/csWebLibConfig";
 import { Dispatch } from "@reduxjs/toolkit";
+import {
+  connectionChanged,
+  connectionClosed,
+  valueChanged
+} from "../redux/csState";
+import { notificationDispatcher } from "../redux/notificationUtils";
+import { DType } from "../types/dtypes";
 
 // This is the common connection forwarder singleton for all service types
 let connection: ConnectionForwarder | undefined;
 let pvwsConnection: PvwsPlugin | undefined;
 let buildServiceConnectionCalled = false;
+
+const onErrorMessageCallback =
+  (dispatch: Dispatch) => (message: string | undefined) => {
+    const { showError } = notificationDispatcher(dispatch);
+    showError(`${message}`);
+  };
+
+const onConnectionClosedCallback =
+  (dispatch: Dispatch) => (pvName: string | undefined) => {
+    if (!pvName) {
+      return;
+    }
+    dispatch(connectionClosed({ pvName }));
+  };
+
+const onValueChangedCallback =
+  (dispatch: Dispatch) => (pvName: string, value: DType) => {
+    if (!pvName) {
+      return;
+    }
+
+    dispatch(valueChanged({ pvName, value }));
+  };
+
+const onConnectionChangedCallback =
+  (dispatch: Dispatch) =>
+  (pvName: string, isConnected: boolean, isReadonly: boolean) => {
+    if (!pvName) {
+      return;
+    }
+
+    dispatch(
+      connectionChanged({
+        pvName,
+        value: {
+          isConnected,
+          isReadonly
+        }
+      })
+    );
+  };
 
 export const buildServiceConnection = (
   dispatch: Dispatch,
@@ -35,7 +83,15 @@ export const buildServiceConnection = (
 
   if (PVWS_SOCKET !== undefined) {
     pvwsConnection =
-      pvwsConnection ?? new PvwsPlugin(PVWS_SOCKET, PVWS_SSL, dispatch);
+      pvwsConnection ??
+      new PvwsPlugin(
+        PVWS_SOCKET,
+        PVWS_SSL,
+        onConnectionChangedCallback(dispatch),
+        onValueChangedCallback(dispatch),
+        onConnectionClosedCallback(dispatch),
+        onErrorMessageCallback(dispatch)
+      );
     plugins.unshift(["pva://", pvwsConnection]);
     plugins.unshift(["ca://", pvwsConnection]);
     plugins.unshift(["loc://", pvwsConnection]);

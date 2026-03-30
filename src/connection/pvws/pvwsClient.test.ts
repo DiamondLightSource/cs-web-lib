@@ -7,20 +7,8 @@ import {
   RECONNECT_MILLISECONDS
 } from "./pvwsClient";
 
-import {
-  connectionChanged,
-  connectionClosed,
-  valueChanged
-} from "../../redux/csState";
 import { pvwsToDType } from "./pvwsToDType";
 import log from "loglevel";
-
-// mock notification dispatcher
-vi.mock("../../redux/notificationUtils", () => ({
-  notificationDispatcher: () => ({
-    showError: vi.fn()
-  })
-}));
 
 vi.mock("../pvwsToDType", () => ({
   pvwsToDType: vi.fn().mockReturnValue("converted")
@@ -29,18 +17,29 @@ vi.mock("../pvwsToDType", () => ({
 // Spy on loglevel
 vi.spyOn(log, "error");
 
-let mockDispatch = vi.fn();
+const onErrorMessageCallback = vi.fn();
+const onValueChangedCallback = vi.fn();
+const onConnectionChangedCallback = vi.fn();
+const onConnectionClosedCallback = vi.fn();
+
+const newPvwsClient = (): PvwsClient =>
+  new PvwsClient(
+    "ws://test",
+    onConnectionChangedCallback,
+    onValueChangedCallback,
+    onConnectionClosedCallback,
+    onErrorMessageCallback
+  );
 
 describe.sequential("PvwsClient with vitest-websocket-mock", () => {
   beforeEach(() => {
-    mockDispatch = vi.fn();
     vi.clearAllMocks();
     WS.clean(); // reset all WebSocket servers
   });
 
   it("sends heartbeat subscription on connect", async () => {
     const server = new WS("ws://test", { jsonProtocol: true });
-    const client = new PvwsClient("ws://test", mockDispatch);
+    const client = newPvwsClient();
 
     const serverIncomingFlipFlop = await server.nextMessage;
 
@@ -56,7 +55,7 @@ describe.sequential("PvwsClient with vitest-websocket-mock", () => {
   it("sends subscription message to server", async () => {
     const server = new WS("ws://test", { jsonProtocol: true });
 
-    const client = new PvwsClient("ws://test", mockDispatch);
+    const client = newPvwsClient();
     await server.connected;
     client.subscribe("sim://foo");
 
@@ -77,21 +76,13 @@ describe.sequential("PvwsClient with vitest-websocket-mock", () => {
     const message = { type: "update", pv: "X", readonly: false };
     const processedMessage = pvwsToDType(message);
 
-    const client = new PvwsClient("ws://test", mockDispatch);
+    const client = newPvwsClient();
     await server.connected;
 
     await server.send(message);
 
-    expect(mockDispatch).toHaveBeenCalledWith(
-      connectionChanged({
-        pvName: "X",
-        value: { isConnected: true, isReadonly: false }
-      })
-    );
-
-    expect(mockDispatch).toHaveBeenCalledWith(
-      valueChanged({ pvName: "X", value: processedMessage })
-    );
+    expect(onConnectionChangedCallback).toHaveBeenCalledWith("X", true, false);
+    expect(onValueChangedCallback).toHaveBeenCalledWith("X", processedMessage);
 
     client.close(CLOSE_SOCKET_FOR_SERVICE_SWITCH, "Clean up");
     server.close();
@@ -107,10 +98,12 @@ describe.sequential("PvwsClient with vitest-websocket-mock", () => {
     // Spy on log.error
     const logErrorSpy = vi.spyOn(log, "error");
 
-    const client = new PvwsClient("ws://test", mockDispatch);
+    const client = newPvwsClient();
     await server.connected;
 
     await server.send(errorMessage);
+
+    expect(onErrorMessageCallback).toHaveBeenCalledWith("Connection timeout");
 
     expect(logErrorSpy).toHaveBeenCalledWith(
       "PVWS error message: Connection timeout"
@@ -124,7 +117,7 @@ describe.sequential("PvwsClient with vitest-websocket-mock", () => {
 
   it("handles close + reconnect", async () => {
     const server = new WS("ws://test", { jsonProtocol: true });
-    const client = new PvwsClient("ws://test", mockDispatch);
+    const client = newPvwsClient();
 
     await server.connected;
     expect(client.connectionState()).toBe(WebSocket.OPEN);
@@ -144,7 +137,7 @@ describe.sequential("PvwsClient with vitest-websocket-mock", () => {
 
   it("handles close + not reconnect", async () => {
     const server = new WS("ws://test", { jsonProtocol: true });
-    const client = new PvwsClient("ws://test", mockDispatch);
+    const client = newPvwsClient();
 
     await server.connected;
     expect(client.connectionState()).toBe(WebSocket.OPEN);
@@ -163,7 +156,7 @@ describe.sequential("PvwsClient with vitest-websocket-mock", () => {
 
   it("handles close + reconnect + resubscribe", async () => {
     const server = new WS("ws://test", { jsonProtocol: true });
-    const client = new PvwsClient("ws://test", mockDispatch);
+    const client = newPvwsClient();
 
     await server.connected;
 
@@ -195,7 +188,7 @@ describe.sequential("PvwsClient with vitest-websocket-mock", () => {
   it("unsubscribe sends clear and dispatches connectionClosed", async () => {
     const server = new WS("ws://test", { jsonProtocol: true });
 
-    const client = new PvwsClient("ws://test", mockDispatch);
+    const client = newPvwsClient();
     await server.connected;
 
     client.subscribe("sim://foo");
@@ -215,9 +208,7 @@ describe.sequential("PvwsClient with vitest-websocket-mock", () => {
       pvs: ["sim://foo"]
     });
 
-    expect(mockDispatch).toHaveBeenCalledWith(
-      connectionClosed({ pvName: "sim://foo" })
-    );
+    expect(onConnectionClosedCallback).toHaveBeenCalledWith("sim://foo");
 
     server.close();
     client.close(CLOSE_SOCKET_FOR_SERVICE_SWITCH, "Clean up");
