@@ -123,8 +123,8 @@ export const getServiceConnection = (): ConnectionForwarder => {
   return connection;
 };
 
-export const updatePvwsHostname = (pvwsHost: string | undefined) => {
-  pvwsConnection?.updatePvwsHost(pvwsHost);
+export const updatePvwsHostname = async (pvwsHost: string | undefined) => {
+  await pvwsConnection?.updatePvwsHost(pvwsHost);
 };
 
 export const clearStateForTests = () => {

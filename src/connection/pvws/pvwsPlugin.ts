@@ -11,6 +11,7 @@ export class PvwsPlugin implements Connection {
   private wsProtocol = "ws";
   private fallbackUrl: string;
   private client: PvwsClient;
+  private currentFetchAbort?: AbortController;
 
   private onErrorMessageCallback: (message: string | undefined) => void;
   private onConnectionClosedCallback: (message: string | undefined) => void;
@@ -67,46 +68,60 @@ export class PvwsPlugin implements Connection {
     );
   }
 
-  public updatePvwsHost(hostname: string | undefined) {
-    const url = hostname
+  public async updatePvwsHost(hostname: string | undefined) {
+    const desiredUrl = hostname
       ? `${this.wsProtocol}://${hostname}/pvws/pv`
       : this.fallbackUrl;
 
-    if (url === this.client?.getUrl()) {
-      // Already connected to the desired websocket
-      return;
+    // No-op if already connected
+    if (desiredUrl === this.client?.getUrl()) return;
+
+    this.currentFetchAbort?.abort();
+
+    const controller = new AbortController();
+    this.currentFetchAbort = controller;
+
+    let socketUrl = this.fallbackUrl;
+    let fetchTimedOut = false;
+    if (hostname) {
+      const id = setTimeout(() => controller.abort("TIMEOUT"), 2000);
+      try {
+        const response = await fetch(`https://${hostname}/pvws/info`, {
+          signal: controller.signal
+        });
+
+        if (response.ok) {
+          socketUrl = desiredUrl;
+        }
+      } catch (err) {
+        if (!(err instanceof DOMException && err.name === "AbortError")) {
+          log.debug(
+            "PvwsPlugin.updatePvwsHostname: Could not connect to preferred PVWS instance; using fallback"
+          );
+        } else if (err instanceof DOMException && err.name === "AbortError") {
+          const reason = (err as any).reason;
+          if (reason === "TIMEOUT") {
+            log.debug(
+              `PvwsPlugin.updatePvwsHostname: Timed out when connecting to PVWS - https://${hostname}/pvws/info`
+            );
+            fetchTimedOut = true;
+          }
+        }
+
+        clearTimeout(id);
+      }
     }
 
-    if (hostname) {
-      let socketUrl = this.fallbackUrl;
-      // Make a GET request to the PVWS info endpoint to ensure it is accessible
-      fetch(`https://${hostname}/pvws/info`)
-        .then(response => {
-          if (response.ok) {
-            socketUrl = url;
-          }
-        })
-        .catch(error => {
-          log.debug(
-            "PvwsPlugin.updatePvwsHostname: Could not connect to the preferred PVWS instance falling back to the default"
-          );
-        })
-        .finally(() => {
-          if (socketUrl !== this.client?.getUrl()) {
-            this.client.close(
-              CLOSE_SOCKET_FOR_SERVICE_SWITCH,
-              "Closing socket for PVWS service endpoint change"
-            );
-            this.client = this.newPvwsClient(socketUrl);
-          }
-        });
-    } else {
+    // If fetch was aborted due to newer request → do nothing
+    if (controller.signal.aborted && !fetchTimedOut) return;
+
+    // Switch the socket
+    if (socketUrl !== this.client?.getUrl()) {
       this.client.close(
         CLOSE_SOCKET_FOR_SERVICE_SWITCH,
         "Closing socket for PVWS service endpoint change"
       );
-      // New hostname is undefined, connect to the fallback PVWS service.
-      this.client = this.newPvwsClient(this.fallbackUrl);
+      this.client = this.newPvwsClient(socketUrl);
     }
   }
 

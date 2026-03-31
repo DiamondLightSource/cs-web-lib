@@ -122,12 +122,12 @@ describe("updatePvwsHostname", () => {
     vi.clearAllMocks();
   });
 
-  it("forwards hostname update to pvwsConnection", () => {
+  it("forwards hostname update to pvwsConnection", async () => {
     vi.stubEnv("VITE_PVWS_SOCKET", "ws://dummy");
 
     buildServiceConnection(vi.fn(), config);
 
-    updatePvwsHostname("new-host");
+    await updatePvwsHostname("new-host");
 
     expect(mockPvwsUpdateHost).toHaveBeenCalledWith("new-host");
   });

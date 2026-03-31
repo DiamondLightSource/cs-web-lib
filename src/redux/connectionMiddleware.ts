@@ -25,7 +25,7 @@ export const connectionMiddleware =
     const { showError } = notificationDispatcher(store.dispatch);
     buildServiceConnection(store.dispatch, config);
 
-    return next => action => {
+    return next => async action => {
       if (subscribe.match(action)) {
         const { pvName, type } = action.payload;
         // Are we already subscribed?
@@ -93,7 +93,7 @@ export const connectionMiddleware =
           log.error(error);
         }
       } else if (setPvwsSettings.match(action)) {
-        updatePvwsHostname(action.payload.pvwsHost);
+        await updatePvwsHostname(action.payload.pvwsHost);
       }
 
       return next(action);
