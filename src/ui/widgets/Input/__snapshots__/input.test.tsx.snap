@@ -4,7 +4,45 @@ exports[`<Input /> > renders an input 1`] = `
 <DocumentFragment>
   <div
     aria-label="input"
-    class="MuiFormControl-root MuiTextField-root css-9k9xqu-MuiFormControl-root-MuiTextField-root"
+    class="MuiFormControl-root MuiTextField-root css-174u7mi-MuiFormControl-root-MuiTextField-root"
+  >
+    <div
+      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-quhxjy-MuiInputBase-root-MuiOutlinedInput-root"
+    >
+      <input
+        aria-invalid="false"
+        class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
+        disabled=""
+        id=":r0:"
+        readonly=""
+        type="text"
+        value="hello"
+      />
+      <fieldset
+        aria-hidden="true"
+        class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+      >
+        <legend
+          class="css-1nf2c5d-MuiNotchedOutlined-root"
+        >
+          <span
+            aria-hidden="true"
+            class="notranslate"
+          >
+            ​
+          </span>
+        </legend>
+      </fieldset>
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`<Input /> > renders an input with readonly parameters 1`] = `
+<DocumentFragment>
+  <div
+    aria-label="input"
+    class="MuiFormControl-root MuiTextField-root css-5jxj9a-MuiFormControl-root-MuiTextField-root"
   >
     <div
       class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-quhxjy-MuiInputBase-root-MuiOutlinedInput-root"

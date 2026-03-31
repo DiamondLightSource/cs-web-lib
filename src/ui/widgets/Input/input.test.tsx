@@ -20,7 +20,7 @@ beforeEach((): void => {
         {
           effectivePvName: "TEST:PV",
           connected: true,
-          readonly: true,
+          readOnly: true,
           value: dstring("hello", DAlarmMINOR())
         } as Partial<PvDatum> as PvDatum
       ]}
@@ -29,7 +29,7 @@ beforeEach((): void => {
   );
 });
 describe("<Input />", (): void => {
-  it("renders an input", (): void => {
+  it("renders an input with readonly parameters", (): void => {
     const { asFragment } = render(input);
     expect(asFragment()).toMatchSnapshot();
   });

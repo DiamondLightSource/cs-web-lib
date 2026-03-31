@@ -33,3 +33,24 @@ test("slideControl", () => {
   expect(slider?.min).toEqual("0");
   expect(slider?.max).toEqual("10");
 });
+
+test("slideControl is disabled when readonly is set to true", () => {
+  const { container } = render(
+    <SlideControlComponent
+      pvData={[
+        {
+          value: ddouble(5),
+          connected: true,
+          readonly: true,
+          effectivePvName: "pv"
+        }
+      ]}
+      maximum={10}
+      minimum={0}
+    ></SlideControlComponent>
+  );
+
+  // The slider element.
+  const slider = container.querySelector("input");
+  expect(slider?.disabled).toBeTruthy();
+});

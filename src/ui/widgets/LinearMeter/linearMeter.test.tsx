@@ -206,7 +206,8 @@ describe("LinearMeterComponent", () => {
         controlRange: { min: 0, max: 100 }
       }),
       effectivePvName: "test:pv",
-      connected: true
+      connected: true,
+      readOnly: true
     });
 
     vi.spyOn(meterUtilities, "convertInfAndNanToUndefined").mockImplementation(
