@@ -45,7 +45,8 @@ const newPvwsPlugin = (url: string, ssl: boolean) =>
     onConnectionChangedCallback,
     onValueChangedCallback,
     onConnectionClosedCallback,
-    onErrorMessageCallback
+    onErrorMessageCallback,
+    200
   );
 
 describe("PvwsPlugin", () => {
@@ -206,18 +207,18 @@ describe("PvwsPlugin", () => {
       vi.clearAllMocks();
     });
 
-    it("should not reconnect if URL is the same", () => {
+    it("should not reconnect if URL is the same", async () => {
       mockClientInstance.getUrl.mockReturnValue("ws://localhost:8080/pvws/pv");
 
-      plugin.updatePvwsHost("localhost:8080");
+      await plugin.updatePvwsHost("localhost:8080");
 
       expect(mockClientInstance.close).not.toHaveBeenCalled();
     });
 
-    it("should connect to fallback when hostname is undefined", () => {
+    it("should connect to fallback when hostname is undefined", async () => {
       mockClientInstance.getUrl.mockReturnValue("ws://other:8080/pvws/pv");
 
-      plugin.updatePvwsHost(undefined);
+      await plugin.updatePvwsHost(undefined);
 
       expect(mockClientInstance.close).toHaveBeenCalledWith(
         CLOSE_SOCKET_FOR_SERVICE_SWITCH,
@@ -229,14 +230,17 @@ describe("PvwsPlugin", () => {
       mockClientInstance.getUrl.mockReturnValue("ws://localhost:8080/pvws/pv");
       (global.fetch as any).mockResolvedValue({ ok: true });
 
-      plugin.updatePvwsHost("newhost:9090");
+      await plugin.updatePvwsHost("newhost:9090");
 
       await vi.waitFor(() => {
         expect(mockClientInstance.close).toHaveBeenCalled();
       });
 
       expect(global.fetch).toHaveBeenCalledWith(
-        "https://newhost:9090/pvws/info"
+        "https://newhost:9090/pvws/info",
+        expect.objectContaining({
+          signal: expect.any(AbortSignal)
+        })
       );
       expect(mockClientInstance.close).toHaveBeenCalledWith(
         CLOSE_SOCKET_FOR_SERVICE_SWITCH,
@@ -248,17 +252,20 @@ describe("PvwsPlugin", () => {
       mockClientInstance.getUrl.mockReturnValue("ws://oldhost:8080/pvws/pv");
       (global.fetch as any).mockRejectedValue(new Error("Network error"));
 
-      plugin.updatePvwsHost("newhost:9090");
+      await plugin.updatePvwsHost("newhost:9090");
 
       await vi.waitFor(() => {
         expect(log.debug).toHaveBeenCalled();
       });
 
       expect(global.fetch).toHaveBeenCalledWith(
-        "https://newhost:9090/pvws/info"
+        "https://newhost:9090/pvws/info",
+        expect.objectContaining({
+          signal: expect.any(AbortSignal)
+        })
       );
       expect(log.debug).toHaveBeenCalledWith(
-        "PvwsPlugin.updatePvwsHostname: Could not connect to the preferred PVWS instance falling back to the default"
+        "PvwsPlugin.updatePvwsHostname: Could not connect to preferred PVWS instance; using fallback"
       );
       expect(mockClientInstance.close).toHaveBeenCalledWith(
         CLOSE_SOCKET_FOR_SERVICE_SWITCH,
@@ -270,7 +277,7 @@ describe("PvwsPlugin", () => {
       mockClientInstance.getUrl.mockReturnValue("ws://oldhost:8080/pvws/pv");
       (global.fetch as any).mockResolvedValue({ ok: false });
 
-      plugin.updatePvwsHost("newhost:9090");
+      await plugin.updatePvwsHost("newhost:9090");
 
       await vi.waitFor(() => {
         expect(mockClientInstance.close).toHaveBeenCalled();
@@ -289,7 +296,7 @@ describe("PvwsPlugin", () => {
       mockClientInstance.getUrl.mockReturnValue("wss://localhost:8080/pvws/pv");
       (global.fetch as any).mockResolvedValue({ ok: true });
 
-      plugin.updatePvwsHost("newhost:9090");
+      await plugin.updatePvwsHost("newhost:9090");
 
       await vi.waitFor(() => {
         expect(mockClientInstance.close).toHaveBeenCalled();
@@ -312,6 +319,93 @@ describe("PvwsPlugin", () => {
       expect(log.error).toHaveBeenCalledWith(
         "Attempted to send message when not connected to a websocket."
       );
+    });
+  });
+
+  describe("updatePvwsHost - timeout and abort", () => {
+    beforeEach(() => {
+      plugin = newPvwsPlugin("localhost:8080", false);
+      vi.clearAllMocks();
+    });
+
+    it("should timeout and fallback to default URL", async () => {
+      mockClientInstance.getUrl.mockReturnValue("ws://oldhost:8080/pvws/pv");
+      let fetchAbortedByTimeOut = false;
+
+      // Mock fetch to delay longer than timeout
+      (global.fetch as any).mockImplementation(
+        (url: string, options?: { signal?: AbortSignal }) => {
+          return new Promise((resolve, reject) => {
+            if (options?.signal) {
+              options.signal.addEventListener("abort", err => {
+                fetchAbortedByTimeOut = options.signal?.reason === "TIMEOUT";
+                const error = new DOMException("Aborted", "AbortError");
+                (error as any).reason = options.signal?.reason;
+                reject(error);
+              });
+            }
+          });
+        }
+      );
+
+      await plugin.updatePvwsHost("newhost:9090");
+
+      expect(fetchAbortedByTimeOut).toBe(true);
+
+      expect(log.debug).toHaveBeenCalledWith(
+        expect.stringContaining("Timed out when getting from PVWS -")
+      );
+      expect(mockClientInstance.close).toHaveBeenCalledWith(
+        CLOSE_SOCKET_FOR_SERVICE_SWITCH,
+        "Closing socket for PVWS service endpoint change"
+      );
+    });
+
+    it("should abort previous fetch when new updatePvwsHost is called", async () => {
+      mockClientInstance.getUrl.mockReturnValue("ws://oldhost:8080/pvws/pv");
+
+      let firstFetchAborted = false;
+      let secondFetchResolved = false;
+
+      // First fetch - will be aborted, with conflict error
+      (global.fetch as any).mockImplementationOnce(
+        (url: string, options?: { signal?: AbortSignal }) => {
+          return new Promise((resolve, reject) => {
+            if (options?.signal) {
+              options.signal.addEventListener("abort", err => {
+                firstFetchAborted = options.signal?.reason === "CONFLICT";
+                const error = new DOMException("Aborted", "AbortError");
+                (error as any).reason = options.signal?.reason;
+                reject(error);
+              });
+            }
+          });
+        }
+      );
+
+      // Second fetch - will succeed
+      (global.fetch as any).mockImplementationOnce(() => {
+        secondFetchResolved = true;
+        return Promise.resolve({ ok: true });
+      });
+
+      // Start first update
+      const firstUpdate = plugin.updatePvwsHost("first:9090");
+
+      // Start second update before first completes (this should abort the first)
+      const secondUpdate = plugin.updatePvwsHost("second:9090");
+
+      await Promise.all([firstUpdate, secondUpdate]);
+
+      expect(log.debug).toHaveBeenCalledWith(
+        expect.stringContaining("Aborted GET from PVWS -")
+      );
+
+      expect(firstFetchAborted).toBe(true);
+      expect(secondFetchResolved).toBe(true);
+
+      // Should only close once for the successful second update
+      expect(mockClientInstance.close).toHaveBeenCalledTimes(1);
     });
   });
 });

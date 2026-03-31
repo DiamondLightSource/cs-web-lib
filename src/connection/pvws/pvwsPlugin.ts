@@ -21,6 +21,7 @@ export class PvwsPlugin implements Connection {
     isConnected: boolean,
     isReadonly: boolean
   ) => void;
+  private fetchTimeout: number;
 
   public constructor(
     socketHost: string,
@@ -32,7 +33,8 @@ export class PvwsPlugin implements Connection {
     ) => void,
     onValueChangedCallback: (pvName: string, value: DType) => void,
     onConnectionClosedCallback: (message: string | undefined) => void,
-    onErrorMessageCallback: (message: string | undefined) => void
+    onErrorMessageCallback: (message: string | undefined) => void,
+    fetchTimeout = 2000
   ) {
     if (ssl) {
       this.wsProtocol = "wss";
@@ -42,6 +44,7 @@ export class PvwsPlugin implements Connection {
     this.onValueChangedCallback = onValueChangedCallback;
     this.onConnectionChangedCallback = onConnectionChangedCallback;
     this.onConnectionClosedCallback = onConnectionClosedCallback;
+    this.fetchTimeout = fetchTimeout;
 
     this.client = this.newPvwsClient(this.fallbackUrl);
   }
@@ -76,7 +79,7 @@ export class PvwsPlugin implements Connection {
     // No-op if already connected
     if (desiredUrl === this.client?.getUrl()) return;
 
-    this.currentFetchAbort?.abort();
+    this.currentFetchAbort?.abort("CONFLICT");
 
     const controller = new AbortController();
     this.currentFetchAbort = controller;
@@ -84,7 +87,10 @@ export class PvwsPlugin implements Connection {
     let socketUrl = this.fallbackUrl;
     let fetchTimedOut = false;
     if (hostname) {
-      const id = setTimeout(() => controller.abort("TIMEOUT"), 2000);
+      const id = setTimeout(
+        () => controller.abort("TIMEOUT"),
+        this.fetchTimeout
+      );
       try {
         const response = await fetch(`https://${hostname}/pvws/info`, {
           signal: controller.signal
@@ -102,9 +108,13 @@ export class PvwsPlugin implements Connection {
           const reason = (err as any).reason;
           if (reason === "TIMEOUT") {
             log.debug(
-              `PvwsPlugin.updatePvwsHostname: Timed out when connecting to PVWS - https://${hostname}/pvws/info`
+              `PvwsPlugin.updatePvwsHostname: Timed out when getting from PVWS - https://${hostname}/pvws/info`
             );
             fetchTimedOut = true;
+          } else {
+            log.debug(
+              `PvwsPlugin.updatePvwsHostname: Aborted GET from PVWS - https://${hostname}/pvws/info`
+            );
           }
         }
 
