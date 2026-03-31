@@ -123,12 +123,12 @@ export const openPage = (
   parentMacros?: MacroMap,
   pathname?: string
 ): void => {
-  const { location, file } = action.dynamicInfo;
+  const { location, file, pvwsHost } = action.dynamicInfo;
   file.macros = {
     ...(parentMacros ?? {}),
     ...file.macros
   };
-  fileContext?.addPage(location, file, pathname);
+  fileContext?.addPage(location, file, pathname, pvwsHost);
 };
 
 export const closePage = (

@@ -1,131 +1,101 @@
 import log from "loglevel";
-import { Connection, ConnectionState } from "../connection/plugin";
 import { DType } from "../types/dtypes";
-import { Middleware, MiddlewareAPI } from "@reduxjs/toolkit";
+import { Middleware } from "@reduxjs/toolkit";
 import {
-  connectionChanged,
-  deviceQueried,
   queryDevice,
   selectDevice,
   selectEffectivePvName,
   selectSubscriptions,
+  setPvwsSettings,
   subscribe,
   unsubscribe,
-  valueChanged,
   writePv
 } from "./csState";
 import { notificationDispatcher } from "./notificationUtils";
-
-function connectionChangedDispatch(
-  store: MiddlewareAPI,
-  pvName: string,
-  value: ConnectionState
-): void {
-  store.dispatch(connectionChanged({ pvName, value }));
-}
-
-function valueChangedDispatch(
-  store: MiddlewareAPI,
-  pvName: string,
-  value: DType
-): void {
-  store.dispatch(valueChanged({ pvName, value }));
-}
-
-function deviceQueriedDispatch(
-  store: MiddlewareAPI,
-  device: string,
-  value: DType
-): void {
-  store.dispatch(deviceQueried({ device, value }));
-}
+import { CsWebLibConfig } from "./csWebLibConfig";
+import {
+  buildServiceConnection,
+  getServiceConnection,
+  updatePvwsHostname
+} from "../connection/serviceConnection";
 
 export const connectionMiddleware =
-  (connection: Connection): Middleware =>
-  store =>
-  next =>
-  action => {
+  (config?: CsWebLibConfig): Middleware =>
+  store => {
     const { showError } = notificationDispatcher(store.dispatch);
-    if (!connection.isConnected()) {
-      connection.connect(
-        // Partial function application.
-        (pvName: string, value: ConnectionState): void =>
-          connectionChangedDispatch(store, pvName, value),
-        (pvName: string, value: DType): void =>
-          valueChangedDispatch(store, pvName, value),
-        (device: string, value: DType): void =>
-          deviceQueriedDispatch(store, device, value),
-        (message: string): void => showError(message)
-      );
-    }
+    buildServiceConnection(store.dispatch, config);
 
-    if (subscribe.match(action)) {
-      const { pvName, type } = action.payload;
-      // Are we already subscribed?
-      let effectivePvName = pvName;
-      try {
-        effectivePvName = connection.subscribe(pvName, type);
-      } catch (error) {
-        showError(`Failed to subscribe to pv ${pvName}`);
-        log.error(`Failed to subscribe to pv ${pvName}`);
-        log.error(error);
-      }
-      // Even if there is a problem subscribing, the action is passed
-      // on so that there is a record of this subscription. This
-      // allows the unsubscription mechanism still to work.
-      action = {
-        ...action,
-        payload: {
-          ...action.payload,
-          effectivePvName: effectivePvName,
-          pvName: pvName
-        }
-      };
-    } else if (writePv.match(action)) {
-      const { pvName, value } = action.payload;
-      const effectivePvName =
-        selectEffectivePvName(store.getState(), pvName) || pvName;
-      try {
-        connection.putPv(effectivePvName, value as DType);
-      } catch (error) {
-        showError(`Failed to put to pv ${pvName}`);
-        log.error(`Failed to put to pv ${pvName}`);
-        log.error(error);
-      }
-    } else if (unsubscribe.match(action)) {
-      const { componentId, pvName } = action.payload;
-      const subs = selectSubscriptions(store.getState());
-      // Is this the last subscriber?
-      // The reference will be removed in csReducer.
-      const effectivePvName =
-        selectEffectivePvName(store.getState(), pvName) || pvName;
-
-      if (
-        subs[effectivePvName] &&
-        subs[effectivePvName].length === 1 &&
-        subs[effectivePvName][0] === componentId
-      ) {
+    return next => async action => {
+      if (subscribe.match(action)) {
+        const { pvName, type } = action.payload;
+        // Are we already subscribed?
+        let effectivePvName = pvName;
         try {
-          connection.unsubscribe(pvName);
+          effectivePvName = getServiceConnection().subscribe(pvName, type);
         } catch (error) {
-          showError(`Failed to unsubscribe from pv ${pvName}`);
-          log.error(`Failed to unsubscribe from pv ${pvName}`);
+          showError(`Failed to subscribe to pv ${pvName}`);
+          log.error(`Failed to subscribe to pv ${pvName}`);
           log.error(error);
         }
-      }
-    } else if (queryDevice.match(action)) {
-      const { device } = action.payload;
-      try {
-        // Devices should be queried once and then stored
-        if (!selectDevice(store.getState(), device)) {
-          connection.getDevice(device);
+        // Even if there is a problem subscribing, the action is passed
+        // on so that there is a record of this subscription. This
+        // allows the unsubscription mechanism still to work.
+        action = {
+          ...action,
+          payload: {
+            ...action.payload,
+            effectivePvName: effectivePvName,
+            pvName: pvName
+          }
+        };
+      } else if (writePv.match(action)) {
+        const { pvName, value } = action.payload;
+        const effectivePvName =
+          selectEffectivePvName(store.getState(), pvName) || pvName;
+        try {
+          getServiceConnection().putPv(effectivePvName, value as DType);
+        } catch (error) {
+          showError(`Failed to put to pv ${pvName}`);
+          log.error(`Failed to put to pv ${pvName}`);
+          log.error(error);
         }
-      } catch (error) {
-        showError(`Failed to query device ${device}`);
-        log.error(`Failed to query device ${device}`);
-        log.error(error);
-      }
-    }
+      } else if (unsubscribe.match(action)) {
+        const { componentId, pvName } = action.payload;
+        const subs = selectSubscriptions(store.getState());
+        // Is this the last subscriber?
+        // The reference will be removed in csReducer.
+        const effectivePvName =
+          selectEffectivePvName(store.getState(), pvName) || pvName;
 
-    return next(action);
+        if (
+          subs[effectivePvName] &&
+          subs[effectivePvName].length === 1 &&
+          subs[effectivePvName][0] === componentId
+        ) {
+          try {
+            getServiceConnection().unsubscribe(pvName);
+          } catch (error) {
+            showError(`Failed to unsubscribe from pv ${pvName}`);
+            log.error(`Failed to unsubscribe from pv ${pvName}`);
+            log.error(error);
+          }
+        }
+      } else if (queryDevice.match(action)) {
+        const { device } = action.payload;
+        try {
+          // Devices should be queried once and then stored
+          if (!selectDevice(store.getState(), device)) {
+            getServiceConnection().getDevice(device);
+          }
+        } catch (error) {
+          showError(`Failed to query device ${device}`);
+          log.error(`Failed to query device ${device}`);
+          log.error(error);
+        }
+      } else if (setPvwsSettings.match(action)) {
+        await updatePvwsHostname(action.payload.pvwsHost);
+      }
+
+      return next(action);
+    };
   };

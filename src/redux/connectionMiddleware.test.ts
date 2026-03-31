@@ -3,28 +3,54 @@ import { createRootStoreState, ddouble } from "../testResources";
 import { newDType } from "../types/dtypes";
 import { vi } from "vitest";
 import { initialCsState, queryDevice, subscribe, writePv } from "./csState";
+import { CsWebLibConfig } from "./csWebLibConfig";
 
 const mockStore = { dispatch: vi.fn(), getState: vi.fn() };
 
-const mockConnection = {
-  subscribe: vi.fn(),
-  putPv: vi.fn(),
-  connect: vi.fn(),
-  isConnected: vi.fn(),
-  unsubscribe: vi.fn(),
-  getDevice: vi.fn()
+vi.mock("../connection/serviceConnection", () => {
+  const subscribe = vi.fn();
+  const putPv = vi.fn();
+  const getDevice = vi.fn();
+  const mockConnection = vi.fn(() => ({
+    subscribe,
+    unsubscribe: vi.fn(),
+    putPv,
+    getDevice
+  }));
+
+  return {
+    buildServiceConnection: vi.fn(),
+    updatePvwsHostname: vi.fn(),
+    getServiceConnection: mockConnection,
+    __subscribe: subscribe,
+    __putPv: putPv,
+    __getDevice: getDevice
+  };
+});
+
+const config: CsWebLibConfig = {
+  PVWS_SOCKET: "SomeSocket",
+  PVWS_SSL: true,
+  storeMode: "DEV",
+  THROTTLE_PERIOD: 100
 };
 
+let mockSubscribe: any;
+let mockPutPv: any;
+let mockGetDevice: any;
+
 describe("connectionMiddleware", (): void => {
-  beforeEach((): void => {
-    mockConnection.subscribe.mockClear();
-    mockConnection.connect.mockClear();
-    mockConnection.putPv.mockClear();
-    mockStore.dispatch.mockClear();
-    mockConnection.getDevice.mockClear();
+  beforeEach(async (): Promise<void> => {
+    vi.clearAllMocks();
+
+    const mod = await vi.importMock("../connection/serviceConnection");
+    mockSubscribe = mod.__subscribe;
+    mockPutPv = mod.__putPv;
+    mockGetDevice = mod.__getDevice;
   });
+
   it("calls subscribe() when receiving Subscribe", (): void => {
-    const middleware = connectionMiddleware(mockConnection);
+    const middleware = connectionMiddleware(config);
     // nextHandler takes next() and returns the actual middleware function
     const nextHandler = middleware(mockStore);
     const mockNext = vi.fn();
@@ -41,7 +67,7 @@ describe("connectionMiddleware", (): void => {
       }
     };
     actionHandler(subscribeAction);
-    expect(mockConnection.subscribe).toHaveBeenCalledTimes(1);
+    expect(mockSubscribe).toHaveBeenCalledTimes(1);
     // The action is passed on.
     expect(mockNext).toHaveBeenCalledTimes(1);
     expect(mockNext.mock.calls[0][0].type).toEqual("cs/subscribe");
@@ -52,7 +78,7 @@ describe("connectionMiddleware", (): void => {
     mockStore.getState.mockReturnValue(
       createRootStoreState({ ...initialCsState, effectivePvNameMap: {} })
     );
-    const middleware = connectionMiddleware(mockConnection);
+    const middleware = connectionMiddleware(config);
     // nextHandler takes next() and returns the actual middleware function
     const nextHandler = middleware(mockStore);
     const mockNext = vi.fn();
@@ -65,7 +91,7 @@ describe("connectionMiddleware", (): void => {
     };
 
     actionHandler(writeAction);
-    expect(mockConnection.putPv).toHaveBeenCalledTimes(1);
+    expect(mockPutPv).toHaveBeenCalledTimes(1);
     // The action is passed on.
     expect(mockNext).toHaveBeenCalledTimes(1);
     expect(mockNext.mock.calls[0][0].type).toEqual("cs/writePv");
@@ -75,7 +101,7 @@ describe("connectionMiddleware", (): void => {
     mockStore.getState.mockReturnValue(
       createRootStoreState({ ...initialCsState, deviceCache: {} })
     );
-    const middleware = connectionMiddleware(mockConnection);
+    const middleware = connectionMiddleware(config);
     const nextHandler = middleware(mockStore);
     const mockNext = vi.fn();
     const actionHandler = nextHandler(mockNext);
@@ -84,7 +110,7 @@ describe("connectionMiddleware", (): void => {
       payload: { device: "dev://device" }
     };
     actionHandler(queryAction);
-    expect(mockConnection.getDevice).toHaveBeenCalledTimes(1);
+    expect(mockGetDevice).toHaveBeenCalledTimes(1);
     expect(mockNext).toHaveBeenCalledTimes(1);
     expect(mockNext.mock.calls[0][0].type).toEqual("cs/queryDevice");
   });
@@ -96,7 +122,7 @@ describe("connectionMiddleware", (): void => {
         deviceCache: { testDevice: newDType({ stringValue: "42" }) }
       })
     );
-    const middleware = connectionMiddleware(mockConnection);
+    const middleware = connectionMiddleware(config);
     const nextHandler = middleware(mockStore);
     const mockNext = vi.fn();
     const actionHandler = nextHandler(mockNext);
@@ -105,6 +131,6 @@ describe("connectionMiddleware", (): void => {
       payload: { device: "testDevice" }
     };
     actionHandler(queryAction);
-    expect(mockConnection.getDevice).toHaveBeenCalledTimes(0);
+    expect(mockGetDevice).toHaveBeenCalledTimes(0);
   });
 });

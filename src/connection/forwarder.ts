@@ -1,18 +1,11 @@
 import { DType } from "../types/dtypes";
-import {
-  Connection,
-  ConnectionChangedCallback,
-  ValueChangedCallback,
-  SubscriptionType,
-  DeviceQueriedCallback
-} from "./plugin";
+import { Connection, SubscriptionType } from "./plugin";
 
 export class ConnectionForwarder implements Connection {
   private prefixConnections: [string, Connection | undefined][];
-  private connected: boolean;
+
   public constructor(prefixConnections: [string, Connection | undefined][]) {
     this.prefixConnections = prefixConnections;
-    this.connected = false;
   }
   private getConnection(pvName: string): Connection {
     for (const [prefix, connection] of this.prefixConnections) {
@@ -37,10 +30,6 @@ export class ConnectionForwarder implements Connection {
     return connection.unsubscribe(pvName);
   }
 
-  public isConnected(): boolean {
-    return this.connected;
-  }
-
   public putPv(pvName: string, value: DType): void {
     const connection = this.getConnection(pvName);
     return connection.putPv(pvName, value);
@@ -49,25 +38,5 @@ export class ConnectionForwarder implements Connection {
   public getDevice(device: string): void {
     const connection = this.getConnection(device);
     return connection.getDevice(device);
-  }
-
-  public connect(
-    connectionCallback: ConnectionChangedCallback,
-    valueCallback: ValueChangedCallback,
-    deviceCallback: DeviceQueriedCallback,
-    showErrorCallback: (message: string) => void
-  ): void {
-    for (const [, connection] of this.prefixConnections) {
-      if (connection !== undefined) {
-        if (!connection.isConnected()) {
-          connection.connect(
-            connectionCallback,
-            valueCallback,
-            deviceCallback,
-            showErrorCallback
-          );
-        }
-      }
-    }
   }
 }

@@ -11,7 +11,8 @@ export const initialCsState: CsState = {
   effectivePvNameMap: {},
   subscriptions: {},
   deviceCache: {},
-  fileCache: {}
+  fileCache: {},
+  pvwsSettings: {}
 };
 
 export interface PvState {
@@ -48,6 +49,10 @@ export interface FileCache {
   [fileName: string]: WidgetDescription;
 }
 
+export interface PvwsSettings {
+  pvwsHost?: string;
+}
+
 export interface PvArrayResults {
   [pvName: string]: [PvState, string];
 }
@@ -60,6 +65,7 @@ export interface CsState {
   subscriptions: Subscriptions;
   deviceCache: DeviceCache;
   fileCache: FileCache;
+  pvwsSettings: PvwsSettings;
 }
 
 type ValueChangedActionType = PayloadAction<{ pvName: string; value: DType }>;
@@ -79,6 +85,10 @@ const csSlice = createSlice({
   name: "cs",
   initialState: initialCsState,
   reducers: {
+    setPvwsSettings(state, action: PayloadAction<PvwsSettings>) {
+      log.debug(action);
+      state.pvwsSettings.pvwsHost = action.payload.pvwsHost;
+    },
     valueChanged(state, action: ValueChangedActionType) {
       log.debug(action);
       updateValueCache(state.valueCache, action);
@@ -90,25 +100,36 @@ const csSlice = createSlice({
         updateValueCache(state.valueCache, valueAction);
       }
     },
-
+    connectionClosed(
+      state,
+      action: PayloadAction<{
+        pvName: string;
+      }>
+    ) {
+      log.debug(action);
+      const { pvName } = action.payload;
+      if (pvName in state.valueCache) {
+        delete state.valueCache[pvName];
+      }
+    },
     connectionChanged(
       state,
       action: PayloadAction<{
         pvName: string;
-        value: { isConnected: boolean; isReadonly: boolean };
+        value: { isConnected: boolean; isReadonly?: boolean };
       }>
     ) {
       log.debug(action);
       const { pvName, value } = action.payload;
       const existing = state.valueCache[pvName] ?? {
         connected: false,
-        readonly: false,
+        readonly: true,
         initializingPvName: pvName
       };
       state.valueCache[pvName] = {
         ...existing,
         connected: value.isConnected,
-        readonly: value.isReadonly
+        readonly: value.isReadonly ?? existing.readonly
       };
     },
 
@@ -203,8 +224,10 @@ const csSlice = createSlice({
 });
 
 export const {
+  setPvwsSettings,
   valueChanged,
   valuesChanged,
+  connectionClosed,
   connectionChanged,
   subscribe,
   unsubscribe,
