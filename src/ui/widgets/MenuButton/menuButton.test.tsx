@@ -189,6 +189,17 @@ describe("<MenuButton />", (): void => {
     expect(select).toHaveAttribute("aria-disabled");
   });
 
+  test("the widget is disabled when readonly is true", (): void => {
+    const props = {
+      ...BASE_PROPS,
+      enabled: true,
+      pvData: [{ readonly: true }]
+    };
+    const { getByRole } = render(MenuButtonRenderer(props));
+    const select = getByRole("combobox");
+    expect(select).toHaveAttribute("aria-disabled");
+  });
+
   test("it defaults to `No PV` value if no PV", (): void => {
     const props = {
       ...BASE_PROPS,

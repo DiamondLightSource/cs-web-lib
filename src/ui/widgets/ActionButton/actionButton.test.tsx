@@ -131,4 +131,17 @@ describe("<ActionButton />", (): void => {
     fireEvent.click(menuItems[1]);
     await waitFor(() => expect(mockWritePv).toHaveBeenCalled());
   });
+
+  test("it is diabled when readOnly is true", (): void => {
+    const { getByRole } = render(
+      actionButton({
+        actions: { actions: [WRITE_PV_ACTION, WRITE_PV_ACTION] },
+        executeAsOne: false,
+        pvData: [{ readonly: true }]
+      })
+    );
+    const button = getByRole("button") as HTMLButtonElement;
+
+    expect(button).toBeDisabled();
+  });
 });

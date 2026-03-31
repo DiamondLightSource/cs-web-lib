@@ -156,4 +156,15 @@ describe("<ChoiceButton />", (): void => {
       "background-color": "rgb(0, 0, 0)"
     });
   });
+
+  test("it is diabled when readOnly is true", (): void => {
+    const choiceButtonProps = {
+      pvData: [{ readonly: true }]
+    };
+    const { getAllByRole } = render(ChoiceButtonRenderer(choiceButtonProps));
+    const buttons = getAllByRole("button") as Array<HTMLButtonElement>;
+
+    expect(buttons[0]).toBeDisabled();
+    expect(buttons[1]).toBeDisabled();
+  });
 });

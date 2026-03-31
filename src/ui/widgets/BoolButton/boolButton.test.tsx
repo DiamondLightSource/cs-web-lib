@@ -151,6 +151,17 @@ describe("<BoolButton />", (): void => {
       newDType({ doubleValue: 0 })
     );
   });
+
+  test("it is diabled when readOnly is true", (): void => {
+    const boolButtonProps = {
+      ...TEST_PROPS,
+      pvData: [{ ...TEST_PVDATUM, readonly: true }]
+    };
+    const { getByRole } = render(BoolButtonRenderer(boolButtonProps));
+    const button = getByRole("button") as HTMLButtonElement;
+
+    expect(button).toBeDisabled();
+  });
 });
 
 describe("getDimensions()", (): void => {
