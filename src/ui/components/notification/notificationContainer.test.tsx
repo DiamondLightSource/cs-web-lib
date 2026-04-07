@@ -4,8 +4,8 @@ import { render, screen } from "@testing-library/react";
 import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
 import NotificationContainer from "./notificationContainer";
-import * as notificationsSlice from "../../../redux/notificationsSlice";
-import { NotificationWithId } from "../../../redux/notificationsSlice";
+import * as notificationsSlice from "../../../redux/slices/notificationsSlice";
+import { NotificationWithId } from "../../../redux/slices/notificationsSlice";
 
 import { toast, ToastContainer } from "react-toastify";
 

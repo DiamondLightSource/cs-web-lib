@@ -11,7 +11,7 @@ import {
   selectNotifications,
   removeNotificationById,
   NotificationWithId
-} from "../../../redux/notificationsSlice";
+} from "../../../redux/slices/notificationsSlice";
 
 interface Props {
   position?: ToastPosition;

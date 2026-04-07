@@ -16,6 +16,7 @@ import {
 } from "../widgets/EmbeddedDisplay/scripts/scriptExecutor";
 import { Script } from "../../types/props";
 import { pvQualifiedName } from "../../types/pv";
+import { selectEnableDynamicScripts } from "../../redux/slices/configurationSlice";
 
 export const useScripts = (
   scriptsProp: Script[],
@@ -41,6 +42,11 @@ export const useScripts = (
     (state): PvArrayResults => selectPvStates(state, allPvs),
     pvStateComparator
   );
+
+  const enableDynamicScripts = useSelector(selectEnableDynamicScripts);
+  if (!enableDynamicScripts) {
+    return;
+  }
 
   for (const script of scripts) {
     const { pvs: pvMetadataList } = script;
