@@ -251,16 +251,18 @@ const postTestMessageToIframe = async (
   postMessageMock: Mock<Procedure>,
   messageData: { functionCode: string; id: number; pvs: any[] }
 ) => {
+  const windowParentStub = {
+    postMessage: postMessageMock
+  } as Partial<MessageEventSource>;
+
   Object.defineProperty(iframe.contentWindow, "parent", {
-    value: {
-      postMessage: postMessageMock
-    },
+    value: windowParentStub,
     configurable: true
   });
 
   const messageEvent = new MessageEvent("message", {
     data: messageData,
-    source: null
+    source: windowParentStub as MessageEventSource
   });
 
   expect(iframe.contentWindow).not.toBeNull();
