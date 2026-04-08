@@ -13,7 +13,7 @@ describe("configurationSlice", () => {
     PVWS_SOCKET: "",
     PVWS_SSL: true,
     THROTTLE_PERIOD: 100,
-    featureFlags: {
+    csWebLibFeatureFlags: {
       enableDynamicScripts: false
     }
   };
@@ -55,7 +55,7 @@ describe("configurationSlice", () => {
     it("selectEnableDynamicScripts should return true when flag is enabled", () => {
       const state: CsWebLibConfig = {
         ...defaultState,
-        featureFlags: {
+        csWebLibFeatureFlags: {
           enableDynamicScripts: true
         }
       };
@@ -67,7 +67,7 @@ describe("configurationSlice", () => {
     it("selectEnableDynamicScripts should return false if featureFlags is empty", () => {
       const state = {
         ...defaultState,
-        featureFlags: {}
+        csWebLibFeatureFlags: {}
       } as CsWebLibConfig;
 
       const result = selectEnableDynamicScripts({ configuration: state });

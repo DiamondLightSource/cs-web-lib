@@ -7,5 +7,5 @@ export type CsWebLibConfig = {
   PVWS_SOCKET: string | undefined;
   PVWS_SSL: boolean | undefined;
   THROTTLE_PERIOD: number | undefined;
-  featureFlags: FeatureFlags;
+  csWebLibFeatureFlags: FeatureFlags;
 };

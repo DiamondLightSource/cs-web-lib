@@ -45,6 +45,15 @@ export const useScripts = (
 
   const enableDynamicScripts = useSelector(selectEnableDynamicScripts);
   if (!enableDynamicScripts) {
+    if (scripts && scripts.length > 0) {
+      log.warn(
+        "Dynamic script loading is disabled by default. " +
+          "Enable it with the `enableDynamicScripts` feature flag.\n" +
+          "Dynamic scripts may introduce security risks, " +
+          "ensure all script sources are trusted."
+      );
+    }
+
     return;
   }
 

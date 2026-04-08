@@ -10,7 +10,7 @@ const initialState: CsWebLibConfig = {
   PVWS_SOCKET: "",
   PVWS_SSL: true,
   THROTTLE_PERIOD: 100,
-  featureFlags: {
+  csWebLibFeatureFlags: {
     enableDynamicScripts: false
   }
 };
@@ -27,9 +27,9 @@ export const configurationSlice = createSlice({
   },
   selectors: {
     selectConfiguration: state => state,
-    selectFeatureFlags: state => state.featureFlags,
+    selectFeatureFlags: state => state.csWebLibFeatureFlags,
     selectEnableDynamicScripts: state =>
-      state.featureFlags?.enableDynamicScripts ?? false
+      state.csWebLibFeatureFlags?.enableDynamicScripts ?? false
   }
 });
 
