@@ -17,6 +17,7 @@ import {
 import { Script } from "../../types/props";
 import { pvQualifiedName } from "../../types/pv";
 import { selectEnableDynamicScripts } from "../../redux/slices/configurationSlice";
+import { useEffect } from "react";
 
 export const useScripts = (
   scriptsProp: Script[],
@@ -44,8 +45,10 @@ export const useScripts = (
   );
 
   const enableDynamicScripts = useSelector(selectEnableDynamicScripts);
-  if (!enableDynamicScripts) {
-    if (scripts && scripts.length > 0) {
+  const hasScripts = !!scripts?.length;
+
+  useEffect(() => {
+    if (!enableDynamicScripts && hasScripts) {
       log.warn(
         "Dynamic script loading is disabled by default. " +
           "Enable it with the `enableDynamicScripts` feature flag.\n" +
@@ -53,7 +56,9 @@ export const useScripts = (
           "ensure all script sources are trusted."
       );
     }
+  }, [enableDynamicScripts, hasScripts]);
 
+  if (!enableDynamicScripts) {
     return;
   }
 
