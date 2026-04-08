@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import { notificationDispatcher } from "./notificationUtils";
-import { addNotification } from "./notificationsSlice";
+import { addNotification } from "./slices/notificationsSlice";
 
-vi.mock("./notificationsSlice", () => ({
+vi.mock("./slices/notificationsSlice", () => ({
   addNotification: vi.fn(notification => ({
     type: "notifications/addNotification",
     payload: notification

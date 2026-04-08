@@ -25,6 +25,14 @@ export const connectionMiddleware =
     const { showError } = notificationDispatcher(store.dispatch);
     buildServiceConnection(store.dispatch, config);
 
+    if (config?.csWebLibFeatureFlags?.enableDynamicScripts) {
+      log.warn(
+        "Dynamic script loading is enabled via enableDynamicScripts`.\n" +
+          "Dynamic scripts may introduce security risks. " +
+          "Only load scripts from trusted sources."
+      );
+    }
+
     return next => async action => {
       if (subscribe.match(action)) {
         const { pvName, type } = action.payload;

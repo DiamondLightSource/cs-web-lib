@@ -1,6 +1,9 @@
 import log from "loglevel";
 import { v4 as uuidv4 } from "uuid";
 
+const parentOrigin = window.location.origin;
+const SANDBOX_ORIGIN = "null";
+
 let iFrameSandboxScriptRunner: HTMLIFrameElement | null = null;
 let iFrameSandboxReady = false;
 
@@ -17,7 +20,9 @@ export const iFrameScriptExecutionHandlerCode = `
   <!DOCTYPE html>
   <html>
     <head>
+      <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-eval' 'unsafe-inline'; connect-src 'none'; frame-src 'none'; object-src 'none';">
       <script>
+        const PARENT_ORIGIN = "${parentOrigin}"
         const mockPhoebusApi = {
           importClass: (a) => {},
           importPackage: (a) => {},
@@ -47,7 +52,16 @@ export const iFrameScriptExecutionHandlerCode = `
         };
 
         window.addEventListener('message', async (event) => {
+          if (event.origin !== PARENT_ORIGIN) {
+            return;
+          }        
+          // Validate message origin
+          if (event.source !== window.parent) {
+            return;
+          }
           const id = event?.data?.id;
+          if (!id) return;
+
           try {
             const widget = {
               props: {},
@@ -61,12 +75,20 @@ export const iFrameScriptExecutionHandlerCode = `
 
             const fn = new Function(...Object.keys(mockPhoebusApi), 'widget', 'pvs', functionCode);
             const result = await fn(...Object.values(mockPhoebusApi), widget, pvs);
-            window.parent.postMessage({widgetProps: widget.props, functionReturnValue: result, id: id}, '*');
+
+            window.parent.postMessage({
+              widgetProps: widget.props, 
+              functionReturnValue: result, 
+              id: id
+            }, PARENT_ORIGIN);
           } catch (error) {
-            window.parent.postMessage({error: "Error: " + error.message, id: id}, '*');
+            window.parent.postMessage({
+              error: "Error: " + error.message, 
+              id: id
+            }, PARENT_ORIGIN);
           }
         });
-        window.parent.postMessage('IFRAME_READY', '*');
+        window.parent.postMessage('IFRAME_READY', PARENT_ORIGIN);
       </script>
     </head>
   </html>
@@ -92,6 +114,15 @@ const buildSandboxIframe = async (): Promise<HTMLIFrameElement> => {
 
     // This adds an event listen to receive the IFRAME_READY message, that is sent by the iFrame when it is ready to run scripts.
     const onMessage = (event: MessageEvent) => {
+      if (event.origin !== SANDBOX_ORIGIN) {
+        return;
+      }
+
+      // Accept only messages from the IFrame sandbox
+      if (iFrameSandboxScriptRunner?.contentWindow !== event.source) {
+        return;
+      }
+
       if (
         event.data === "IFRAME_READY" &&
         event.source === iFrameSandboxScriptRunner?.contentWindow
@@ -107,6 +138,7 @@ const buildSandboxIframe = async (): Promise<HTMLIFrameElement> => {
 
     setTimeout(() => {
       window.removeEventListener("message", onMessage);
+      resetSandbox();
       reject(new Error("The creation of a script execution iframe timed out"));
     }, 1000);
 
@@ -153,6 +185,15 @@ export const executeDynamicScriptInSandbox = async (
 
     // Define a message handler to receive the responses from the IFrame.
     const messageHandler = (event: MessageEvent) => {
+      if (event.origin !== SANDBOX_ORIGIN) {
+        return;
+      }
+
+      // Accept only messages from the IFrame sandbox
+      if (event.source !== iFrameSandboxScriptRunner?.contentWindow) {
+        return;
+      }
+
       if (
         event.data?.id === id &&
         event.source === iFrameSandboxScriptRunner?.contentWindow &&
@@ -175,13 +216,31 @@ export const executeDynamicScriptInSandbox = async (
 
     setTimeout(() => {
       window.removeEventListener("message", messageHandler);
+      resetSandbox();
       reject(new Error("Dynamic script execution timed out"));
     }, 1000);
 
     // Send a message containing the script and pv values to the IFrame to trigger the execution of the script.
     iFrameSandboxScriptRunner?.contentWindow?.postMessage(
-      { functionCode: dynamicScriptCode, id, pvs },
+      {
+        functionCode: dynamicScriptCode,
+        id,
+        pvs
+      },
       "*"
     );
   });
+};
+
+const resetSandbox = () => {
+  if (iFrameSandboxScriptRunner) {
+    try {
+      iFrameSandboxScriptRunner.remove();
+    } catch {
+      // ignore
+    }
+  }
+
+  iFrameSandboxScriptRunner = null;
+  iFrameSandboxReady = false;
 };

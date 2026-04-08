@@ -52,7 +52,7 @@ describe("iFrameScriptExecutionHandlerCode", () => {
     // Validate that the dynamic script executed as expected
     expect(postMessageMock).toHaveBeenCalledWith(
       { id: 1234, functionReturnValue: 42, widgetProps: {} },
-      "*"
+      window.location.origin
     );
   });
 
@@ -70,7 +70,7 @@ describe("iFrameScriptExecutionHandlerCode", () => {
     // Validate that the dynamic script executed as expected
     expect(postMessageMock).toHaveBeenCalledWith(
       { id: 1234, functionReturnValue: "A value string", widgetProps: {} },
-      "*"
+      window.location.origin
     );
   });
 
@@ -88,7 +88,7 @@ describe("iFrameScriptExecutionHandlerCode", () => {
     // Validate that the dynamic script executed as expected
     expect(postMessageMock).toHaveBeenCalledWith(
       { id: 1234, functionReturnValue: 3, widgetProps: {} },
-      "*"
+      window.location.origin
     );
   });
 
@@ -111,7 +111,7 @@ describe("iFrameScriptExecutionHandlerCode", () => {
 
     expect(postMessageMock).toHaveBeenCalledWith(
       { id: 3456, functionReturnValue: "A value string", widgetProps: {} },
-      "*"
+      window.location.origin
     );
   });
 
@@ -132,7 +132,7 @@ describe("iFrameScriptExecutionHandlerCode", () => {
 
     expect(postMessageMock).toHaveBeenCalledWith(
       { id: 3456, functionReturnValue: 3, widgetProps: {} },
-      "*"
+      window.location.origin
     );
   });
 
@@ -167,7 +167,7 @@ describe("iFrameScriptExecutionHandlerCode", () => {
           }
         }
       },
-      "*"
+      window.location.origin
     );
   });
 
@@ -209,7 +209,7 @@ describe("iFrameScriptExecutionHandlerCode", () => {
           }
         }
       },
-      "*"
+      window.location.origin
     );
 
     expect(postMessageMock).toHaveBeenCalledWith(
@@ -223,7 +223,7 @@ describe("iFrameScriptExecutionHandlerCode", () => {
           }
         }
       },
-      "*"
+      window.location.origin
     );
   });
 
@@ -241,7 +241,7 @@ describe("iFrameScriptExecutionHandlerCode", () => {
     // Check if postMessage was called with the expected error message
     expect(postMessageMock).toHaveBeenCalledWith(
       { id: 6789, error: "Error: Test error" },
-      "*"
+      window.location.origin
     );
   });
 });
@@ -251,16 +251,19 @@ const postTestMessageToIframe = async (
   postMessageMock: Mock<Procedure>,
   messageData: { functionCode: string; id: number; pvs: any[] }
 ) => {
+  const windowParentStub = {
+    postMessage: postMessageMock
+  } as Partial<MessageEventSource>;
+
   Object.defineProperty(iframe.contentWindow, "parent", {
-    value: {
-      postMessage: postMessageMock
-    },
+    value: windowParentStub,
     configurable: true
   });
 
   const messageEvent = new MessageEvent("message", {
     data: messageData,
-    source: null
+    source: windowParentStub as MessageEventSource,
+    origin: window.location.origin
   });
 
   expect(iframe.contentWindow).not.toBeNull();

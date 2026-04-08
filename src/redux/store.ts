@@ -5,7 +5,8 @@ import {
 } from "@reduxjs/toolkit";
 
 import csReducer from "./csState";
-import notificationsReducer from "./notificationsSlice";
+import notificationsReducer from "./slices/notificationsSlice";
+import configurationReducer from "./slices/configurationSlice";
 import { connectionMiddleware } from "./connectionMiddleware";
 import { throttleMiddleware, UpdateThrottle } from "./throttleMiddleware";
 import { CsWebLibConfig } from "./csWebLibConfig";
@@ -14,6 +15,7 @@ import { CsWebLibConfig } from "./csWebLibConfig";
 let storeInstance: ReturnType<typeof configureStore> | null = null;
 
 export const rootReducer = combineReducers({
+  configuration: configurationReducer,
   cs: csReducer,
   notifications: notificationsReducer
 });
@@ -23,6 +25,9 @@ const createStoreInstance = (config?: CsWebLibConfig) => {
 
   return configureStore({
     reducer: rootReducer,
+    preloadedState: {
+      configuration: config
+    },
     middleware: getDefaultMiddleware => {
       const mw = getDefaultMiddleware({
         immutableCheck: isDevMode,

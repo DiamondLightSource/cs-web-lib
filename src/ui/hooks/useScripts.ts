@@ -16,6 +16,8 @@ import {
 } from "../widgets/EmbeddedDisplay/scripts/scriptExecutor";
 import { Script } from "../../types/props";
 import { pvQualifiedName } from "../../types/pv";
+import { selectEnableDynamicScripts } from "../../redux/slices/configurationSlice";
+import { useEffect } from "react";
 
 export const useScripts = (
   scriptsProp: Script[],
@@ -41,6 +43,24 @@ export const useScripts = (
     (state): PvArrayResults => selectPvStates(state, allPvs),
     pvStateComparator
   );
+
+  const enableDynamicScripts = useSelector(selectEnableDynamicScripts);
+  const hasScripts = !!scripts?.length;
+
+  useEffect(() => {
+    if (!enableDynamicScripts && hasScripts) {
+      log.warn(
+        "Dynamic script loading is disabled by default. " +
+          "Enable it with the `enableDynamicScripts` feature flag.\n" +
+          "Dynamic scripts may introduce security risks, " +
+          "ensure all script sources are trusted."
+      );
+    }
+  }, [enableDynamicScripts, hasScripts]);
+
+  if (!enableDynamicScripts) {
+    return;
+  }
 
   for (const script of scripts) {
     const { pvs: pvMetadataList } = script;

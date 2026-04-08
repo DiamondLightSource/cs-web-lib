@@ -1,5 +1,5 @@
 import { Dispatch } from "react";
-import { addNotification, Notification } from "./notificationsSlice";
+import { addNotification, Notification } from "./slices/notificationsSlice";
 
 export const notificationDispatcher = (dispatch: Dispatch<any>) => {
   const showNotification = (notification: Notification) => {

@@ -32,7 +32,10 @@ const config: CsWebLibConfig = {
   PVWS_SOCKET: "SomeSocket",
   PVWS_SSL: true,
   storeMode: "DEV",
-  THROTTLE_PERIOD: 100
+  THROTTLE_PERIOD: 100,
+  csWebLibFeatureFlags: {
+    enableDynamicScripts: false
+  }
 };
 
 let mockSubscribe: any;

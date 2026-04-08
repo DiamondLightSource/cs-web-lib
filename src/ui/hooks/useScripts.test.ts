@@ -94,6 +94,7 @@ describe("useScripts", () => {
         { number: undefined, string: "" }
       ]
     );
+
     expect(mockCallback).toHaveBeenCalledWith({
       success: true,
       result: "test result"
@@ -156,5 +157,47 @@ describe("useScripts", () => {
       "return pvs[0]",
       [{ number: undefined, string: "" }]
     );
+  });
+
+  it("should not execute scripts when enableDynamicScripts is false", () => {
+    const scripts = [
+      {
+        text: "return pvs[0]",
+        pvs: [{ pvName: newPV("pv1") }]
+      } as Partial<Script> as Script
+    ];
+
+    // Mock useSelector to return false for enableDynamicScripts
+    (useSelector as ReturnType<typeof vi.fn>).mockImplementation(selector => {
+      // First call returns the PV data map
+      if (selector.toString().includes("selectPvStates")) {
+        return {
+          "ca://pv1": [
+            {
+              value: newDType({
+                doubleValue: 10,
+                stringValue: "10",
+                arrayValue: new Float64Array([10])
+              })
+            }
+          ]
+        };
+      }
+      // Second call returns enableDynamicScripts value
+      return false;
+    });
+
+    renderHook(() => useScripts(scripts, mockWidgetId, mockCallback));
+
+    // Should still subscribe to PVs
+    expect(useSubscription).toHaveBeenCalledWith(
+      mockWidgetId,
+      ["ca://pv1"],
+      [{ string: true, double: true }]
+    );
+
+    // Should NOT execute scripts or call the callback
+    expect(executeDynamicScriptInSandbox).not.toHaveBeenCalled();
+    expect(mockCallback).not.toHaveBeenCalled();
   });
 });

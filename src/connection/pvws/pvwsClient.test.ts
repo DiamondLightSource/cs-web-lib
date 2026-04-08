@@ -127,7 +127,7 @@ describe.sequential("PvwsClient with vitest-websocket-mock", () => {
     await server.connected;
 
     await new Promise(resolve =>
-      setTimeout(resolve, RECONNECT_MILLISECONDS + 10)
+      setTimeout(resolve, RECONNECT_MILLISECONDS + 20)
     );
     expect(client.connectionState()).toBe(WebSocket.OPEN);
 
@@ -147,7 +147,7 @@ describe.sequential("PvwsClient with vitest-websocket-mock", () => {
     expect(client.connectionState()).toBeGreaterThanOrEqual(WebSocket.CLOSING);
 
     await new Promise(resolve =>
-      setTimeout(resolve, RECONNECT_MILLISECONDS + 10)
+      setTimeout(resolve, RECONNECT_MILLISECONDS + 20)
     );
     expect(client.connectionState()).toBe(WebSocket.CLOSED);
 

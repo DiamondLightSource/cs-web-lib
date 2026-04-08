@@ -18,7 +18,7 @@ import { rootReducer } from "./redux/store";
 import {
   initialNotificationsState,
   NotificationStack
-} from "./redux/notificationsSlice";
+} from "./redux/slices/notificationsSlice";
 
 // Helper functions for dtypes.
 export function ddouble(
