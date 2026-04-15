@@ -17,14 +17,15 @@ import {
 import { Script } from "../../types/props";
 import { pvQualifiedName } from "../../types/pv";
 import { selectEnableDynamicScripts } from "../../redux/slices/configurationSlice";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 export const useScripts = (
   scriptsProp: Script[],
   widgetId: string,
   callback: (scriptResponse: ScriptResponse) => void
 ) => {
-  const scripts = scriptsProp ?? [];
+  const scripts = useMemo(() => scriptsProp ?? [], [scriptsProp]);
+
   const allPvs: string[] = [];
   const allTypes: SubscriptionType[] = [];
 
@@ -64,50 +65,40 @@ export const useScripts = (
     }
     let cancelled = false;
 
-    for (const script of scripts) {
-      const { pvs: pvMetadataList } = script;
+    const runScript = async (script: Script) => {
+      const pvValues = script.pvs.map(pvMetadata => {
+        const pvDatum = pvDataMap[pvQualifiedName(pvMetadata.pvName)]?.[0];
 
-      // Build array of pv values
-      const pvValues: {
-        number: number | undefined;
-        string: string | undefined;
-      }[] = [];
-      for (const pvMetadata of pvMetadataList) {
-        const pvDatum = pvDataMap[pvQualifiedName(pvMetadata.pvName)][0];
-
-        let value: { number: number | undefined; string: string | undefined } = {
-          number: undefined,
-          string: undefined
-        };
-
-        if (pvDatum?.value) {
-          const doubleValue = dTypeGetDoubleValue(pvDatum.value);
-          const stringValue = dTypeCoerceString(pvDatum.value);
-          value = { number: doubleValue, string: stringValue };
+        if (!pvDatum?.value) {
+          return { number: undefined, string: undefined };
         }
-        pvValues.push(value);
+
+        return {
+          number: dTypeGetDoubleValue(pvDatum.value),
+          string: dTypeCoerceString(pvDatum.value)
+        };
+      });
+
+      try {
+        const result = await executeDynamicScriptInSandbox(
+          script.text,
+          pvValues
+        );
+
+        if (!cancelled) {
+          callback(result);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          log.warn(err);
+        }
       }
+    };
 
-      log.debug(`Executing script:\n ${script.text}`);
-      log.debug(`PV values ${pvValues}`);
-
-      executeDynamicScriptInSandbox(script.text, pvValues)
-        .then(result => {
-          if (!cancelled) {
-            log.debug(`Script completed execution`);
-            log.debug(result);
-            callback(result);
-          }
-        })
-        .catch(reason => {
-          if (!cancelled) {
-            log.warn(reason);
-          }
-        })
-    }
+    scripts.forEach(runScript);
 
     return () => {
       cancelled = true;
     };
-  }, [scripts, pvDataMap, enableDynamicScripts, callback]);    
+  }, [scripts, pvDataMap, enableDynamicScripts, callback]);
 };
