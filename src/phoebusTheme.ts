@@ -26,10 +26,10 @@ export const phoebusTheme = createTheme({
       offColor: "rgba(0,100,0,1)",
       borderColor: "rgba(50,50,50,0.7)"
     },
-    choiceButton: {
+    choicebutton: {
       main: "#D2D2D2",
       contrastText: "#000000",
-      selectedColor: "rgba(200,200,200,1)"
+      selectedColor: "rgba(170,170,170,1)"
     },
     display: {
       main: "#ffffffff", // ensures a white background for the display

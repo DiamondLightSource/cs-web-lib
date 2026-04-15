@@ -129,7 +129,7 @@ export const ChoiceButtonComponent = (
 
   const handleChange = (event: any, newSelect: number) => {
     // Write to PV
-    if (pvName && readOnly)
+    if (pvName && !readOnly)
       writePv(
         pvName,
         newDType(
@@ -159,7 +159,7 @@ export const ChoiceButtonComponent = (
         .map((item, idx) => (
           <ToggleButton
             key={item}
-            value={idx}
+            value={item}
             sx={{
               cursor: readOnly ? "not-allowed" : "default",
               ...style.font,
