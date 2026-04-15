@@ -58,45 +58,56 @@ export const useScripts = (
     }
   }, [enableDynamicScripts, hasScripts]);
 
-  if (!enableDynamicScripts) {
-    return;
-  }
+  useEffect(() => {
+    if (!enableDynamicScripts || !scripts.length) {
+      return;
+    }
+    let cancelled = false;
 
-  for (const script of scripts) {
-    const { pvs: pvMetadataList } = script;
+    for (const script of scripts) {
+      const { pvs: pvMetadataList } = script;
 
-    // Build array of pv values
-    const pvValues: {
-      number: number | undefined;
-      string: string | undefined;
-    }[] = [];
-    for (const pvMetadata of pvMetadataList) {
-      const pvDatum = pvDataMap[pvQualifiedName(pvMetadata.pvName)][0];
+      // Build array of pv values
+      const pvValues: {
+        number: number | undefined;
+        string: string | undefined;
+      }[] = [];
+      for (const pvMetadata of pvMetadataList) {
+        const pvDatum = pvDataMap[pvQualifiedName(pvMetadata.pvName)][0];
 
-      let value: { number: number | undefined; string: string | undefined } = {
-        number: undefined,
-        string: undefined
-      };
+        let value: { number: number | undefined; string: string | undefined } = {
+          number: undefined,
+          string: undefined
+        };
 
-      if (pvDatum?.value) {
-        const doubleValue = dTypeGetDoubleValue(pvDatum.value);
-        const stringValue = dTypeCoerceString(pvDatum.value);
-        value = { number: doubleValue, string: stringValue };
+        if (pvDatum?.value) {
+          const doubleValue = dTypeGetDoubleValue(pvDatum.value);
+          const stringValue = dTypeCoerceString(pvDatum.value);
+          value = { number: doubleValue, string: stringValue };
+        }
+        pvValues.push(value);
       }
-      pvValues.push(value);
+
+      log.debug(`Executing script:\n ${script.text}`);
+      log.debug(`PV values ${pvValues}`);
+
+      executeDynamicScriptInSandbox(script.text, pvValues)
+        .then(result => {
+          if (!cancelled) {
+            log.debug(`Script completed execution`);
+            log.debug(result);
+            callback(result);
+          }
+        })
+        .catch(reason => {
+          if (!cancelled) {
+            log.warn(reason);
+          }
+        })
     }
 
-    log.debug(`Executing script:\n ${script.text}`);
-    log.debug(`PV values ${pvValues}`);
-
-    executeDynamicScriptInSandbox(script.text, pvValues)
-      .then(result => {
-        log.debug(`Script completed execution`);
-        log.debug(result);
-        callback(result);
-      })
-      .catch(reason => {
-        log.warn(reason);
-      });
-  }
+    return () => {
+      cancelled = true;
+    };
+  }, [scripts, pvDataMap, enableDynamicScripts, callback]);    
 };
