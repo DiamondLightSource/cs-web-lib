@@ -33,7 +33,7 @@ declare module "@mui/material/styles" {
       offColor: string;
       borderColor: string;
     };
-    choiceButton: Palette["primary"] & {
+    choicebutton: Palette["primary"] & {
       selectedColor: string;
     };
     display: Palette["primary"];
@@ -70,7 +70,7 @@ declare module "@mui/material/styles" {
       offColor: string;
       borderColor: string;
     };
-    choiceButton?: Partial<PaletteOptions["primary"]> & {
+    choicebutton?: Partial<PaletteOptions["primary"]> & {
       selectedColor: string;
     };
     display?: PaletteOptions["primary"];

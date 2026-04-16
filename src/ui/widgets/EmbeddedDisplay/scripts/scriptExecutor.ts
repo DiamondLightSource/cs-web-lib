@@ -109,11 +109,32 @@ const buildSandboxIframe = async (): Promise<HTMLIFrameElement> => {
 
     iFrameSandboxScriptRunner = document.createElement("iframe");
     iFrameSandboxScriptRunner.setAttribute("sandbox", "allow-scripts");
-    iFrameSandboxScriptRunner.style.display = "none";
+    iFrameSandboxScriptRunner.style.width = "0";
+    iFrameSandboxScriptRunner.style.height = "0";
+    iFrameSandboxScriptRunner.style.visibility = "hidden";
+    iFrameSandboxScriptRunner.style.border = "0";
+    iFrameSandboxScriptRunner.style.pointerEvents = "none";
+    iFrameSandboxScriptRunner.setAttribute("tabindex", "-1");
+    iFrameSandboxScriptRunner.setAttribute("aria-hidden", "true");
     iFrameSandboxScriptRunner.id = "script-runner-iframe";
+
+    let hasTimedOut = false;
+
+    const cleanup = () => {
+      window.removeEventListener("message", onMessage);
+    };
+
+    const timeoutId = setTimeout(() => {
+      hasTimedOut = true;
+      cleanup();
+      log.warn("The creation of a script execution iframe timed out.");
+      reject(new Error("The creation of a script execution iframe timed out"));
+    }, 5000);
 
     // This adds an event listen to receive the IFRAME_READY message, that is sent by the iFrame when it is ready to run scripts.
     const onMessage = (event: MessageEvent) => {
+      if (hasTimedOut) return;
+
       if (event.origin !== SANDBOX_ORIGIN) {
         return;
       }
@@ -123,24 +144,16 @@ const buildSandboxIframe = async (): Promise<HTMLIFrameElement> => {
         return;
       }
 
-      if (
-        event.data === "IFRAME_READY" &&
-        event.source === iFrameSandboxScriptRunner?.contentWindow
-      ) {
+      if (event.data === "IFRAME_READY") {
+        clearTimeout(timeoutId);
+        cleanup();
         log.debug("The script runner iframe has started");
         iFrameSandboxReady = true;
-        window.removeEventListener("message", onMessage);
         resolve(iFrameSandboxScriptRunner as HTMLIFrameElement);
       }
     };
 
     window.addEventListener("message", onMessage);
-
-    setTimeout(() => {
-      window.removeEventListener("message", onMessage);
-      resetSandbox();
-      reject(new Error("The creation of a script execution iframe timed out"));
-    }, 1000);
 
     iFrameSandboxScriptRunner.srcdoc = iFrameScriptExecutionHandlerCode;
 
@@ -183,42 +196,49 @@ export const executeDynamicScriptInSandbox = async (
   return new Promise<any>((resolve, reject) => {
     const id = uuidv4();
 
+    let hasTimedOut = false;
+
+    const cleanup = () => {
+      window.removeEventListener("message", messageHandler);
+    };
+
+    const timeoutId = setTimeout(() => {
+      hasTimedOut = true;
+      cleanup();
+      reject(new Error("Dynamic script execution timed out"));
+    }, 1000);
+
     // Define a message handler to receive the responses from the IFrame.
     const messageHandler = (event: MessageEvent) => {
+      if (hasTimedOut) return;
+
       if (event.origin !== SANDBOX_ORIGIN) {
         return;
       }
 
-      // Accept only messages from the IFrame sandbox
       if (event.source !== iFrameSandboxScriptRunner?.contentWindow) {
         return;
       }
 
-      if (
-        event.data?.id === id &&
-        event.source === iFrameSandboxScriptRunner?.contentWindow &&
-        event.data !== "IFRAME_READY"
-      ) {
-        window.removeEventListener("message", messageHandler);
-        if (!event.data?.error) {
-          // Success return the response data.
-          resolve({
-            functionReturnValue: event.data?.functionReturnValue,
-            widgetProps: event.data?.widgetProps
-          });
-        } else {
-          reject(event.data?.error);
-        }
+      if (event.data?.id !== id) {
+        return;
+      }
+
+      clearTimeout(timeoutId);
+      cleanup();
+
+      if (!event.data?.error) {
+        // Success return the response data.
+        resolve({
+          functionReturnValue: event.data?.functionReturnValue,
+          widgetProps: event.data?.widgetProps
+        });
+      } else {
+        reject(event.data?.error);
       }
     };
 
     window.addEventListener("message", messageHandler);
-
-    setTimeout(() => {
-      window.removeEventListener("message", messageHandler);
-      resetSandbox();
-      reject(new Error("Dynamic script execution timed out"));
-    }, 1000);
 
     // Send a message containing the script and pv values to the IFrame to trigger the execution of the script.
     iFrameSandboxScriptRunner?.contentWindow?.postMessage(
@@ -230,17 +250,4 @@ export const executeDynamicScriptInSandbox = async (
       "*"
     );
   });
-};
-
-const resetSandbox = () => {
-  if (iFrameSandboxScriptRunner) {
-    try {
-      iFrameSandboxScriptRunner.remove();
-    } catch {
-      // ignore
-    }
-  }
-
-  iFrameSandboxScriptRunner = null;
-  iFrameSandboxReady = false;
 };
