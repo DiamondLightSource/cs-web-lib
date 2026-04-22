@@ -21,6 +21,8 @@ export const StringArrayPropOpt = PropTypes.arrayOf(PropTypes.string);
 export const IntProp = PropTypes.number.isRequired;
 export const IntPropOpt = PropTypes.number;
 
+export const IntArrayPropOpt = PropTypes.arrayOf(PropTypes.number.isRequired);
+
 export const FloatProp = PropTypes.number.isRequired;
 export const FloatPropOpt = PropTypes.number;
 

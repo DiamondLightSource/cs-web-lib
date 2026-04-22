@@ -18,6 +18,7 @@ import { newAbsolutePosition } from "../../types/position";
 
 const EMPTY_WIDGET: WidgetDescription = {
   type: "shape",
+  id: "123",
   position: newAbsolutePosition("0", "0", "0", "0")
 };
 
@@ -76,7 +77,6 @@ export function useFile(file: File, macros?: MacroMap): WidgetDescription {
   );
 
   useEffect(() => {
-    let isMounted = true;
     const fetchData = async (): Promise<void> => {
       const widgetDescription = await fetchAndConvert(
         file.path,
@@ -89,7 +89,11 @@ export function useFile(file: File, macros?: MacroMap): WidgetDescription {
         dispatch(fileChanged({ file: file.path, contents: widgetDescription }));
       }
     };
-    fetchData();
+
+    if (contents == null) {
+      fetchData();
+    }
+    let isMounted = true;
 
     // Tidy up in case component is unmounted
     return () => {

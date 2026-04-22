@@ -49,6 +49,13 @@ import { Trace } from "../../../types/trace";
 import { parsePlt } from "./pltParser";
 import { scriptParser } from "./scripts/scriptParser";
 import { MacroMap } from "../../../types/macros";
+import { bobParseNumber } from "./BobParsers/baseBobParsers";
+import {
+  bobParseResponsiveBreakpoints,
+  bobParseResponsiveColumns,
+  bobParseResponsiveLayout,
+  bobParseResponsiveMargins
+} from "./BobParsers/responsiveLayoutBobParser";
 
 const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   action_button: "actionbutton",
@@ -59,6 +66,7 @@ const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   combo: "menubutton",
   databrowser: "databrowser",
   display: "display",
+  displayResponsive: "displayResponsive",
   ellipse: "ellipse",
   embedded: "embeddedDisplay",
   group: "groupbox",
@@ -96,6 +104,7 @@ export const WIDGET_DEFAULT_SIZES: { [key: string]: [number, number] } = {
   combo: [100, 30],
   databrowser: [400, 300],
   display: [800, 800],
+  displayResponsive: [800, 800],
   ellipse: [100, 50],
   embedded: [400, 300],
   group: [300, 200],
@@ -126,14 +135,6 @@ function bobParseType(props: any): string {
     return BOB_WIDGET_MAPPING[typeId];
   } else {
     return typeId;
-  }
-}
-
-export function bobParseNumber(jsonProp: ElementCompact): number | undefined {
-  try {
-    return Number(jsonProp._text);
-  } catch {
-    return undefined;
   }
 }
 
@@ -494,6 +495,7 @@ function bobGetTargetWidget(props: any): {
 
 export const BOB_SIMPLE_PARSERS: ParserDict = {
   ...OPI_SIMPLE_PARSERS,
+  id: ["id", opiParseString],
   font: ["font", bobParseFont],
   items: ["items", bobParseItems],
   imageFile: ["file", opiParseString],
@@ -555,6 +557,14 @@ export const BOB_SIMPLE_PARSERS: ParserDict = {
   end: ["end", opiParseString],
   arrayIndex: ["array_index", bobParseNumber],
   direction: ["direction", bobParseNumber],
+  responsiveLayouts: ["responsive_layouts", bobParseResponsiveLayout],
+  responsiveBreakpoints: [
+    "responsive_breakpoints",
+    bobParseResponsiveBreakpoints
+  ],
+  responsiveColumns: ["responsive_columns", bobParseResponsiveColumns],
+  responsiveCellMargins: ["responsive_cell_margins", bobParseResponsiveMargins],
+  responsiveCellHeight: ["responsive_cell_height", bobParseNumber],
   tabWidth: ["tab_width", bobParseNumber],
   tabHeight: ["tab_height", bobParseNumber],
   tabSpacing: ["tab_spacing", bobParseNumber],
@@ -581,7 +591,18 @@ export async function parseBob(
   const compactJSON = xml2js(xmlString, {
     compact: true
   }) as XmlDescription;
-  compactJSON.display._attributes.type = "display";
+  const display = compactJSON?.display ?? compactJSON?.displayResponsive;
+  const displayAttributes = {
+    ...display,
+    _attributes: {
+      ...display._attributes,
+      type: compactJSON?.display ? "display" : "displayResponsive"
+    },
+    x: { _text: "0" },
+    y: { _text: "0" }
+  };
+
+  compactJSON["display"] = displayAttributes;
   log.debug(compactJSON);
 
   const simpleParsers: ParserDict = {

@@ -9,12 +9,18 @@ import { Archiver, Trace } from "./trace";
 import { Axes, Axis } from "./axis";
 import { Points } from "./points";
 import { Plt } from "./plt";
+import {
+  ResponsiveBreakpoints,
+  ResponsiveColumns,
+  ResponsiveGridLayout
+} from "./responsiveBreakpoints";
 
 export type GenericProp =
   | string
   | string[]
   | boolean
   | number
+  | [number, number]
   | PV
   | { pvName: PV }[]
   | Color
@@ -31,7 +37,10 @@ export type GenericProp =
   | Axis
   | Points
   | Archiver
-  | Plt;
+  | Plt
+  | ResponsiveBreakpoints
+  | ResponsiveColumns
+  | ResponsiveGridLayout;
 
 export interface Expression {
   boolExp: string;

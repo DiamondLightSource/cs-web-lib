@@ -37,6 +37,7 @@ declare module "@mui/material/styles" {
       selectedColor: string;
     };
     display: Palette["primary"];
+    displayResponsive: Palette["primary"];
     image: Palette["primary"];
     input: Palette["primary"];
     led: Palette["primary"] & {
@@ -74,6 +75,7 @@ declare module "@mui/material/styles" {
       selectedColor: string;
     };
     display?: PaletteOptions["primary"];
+    displayResponsive?: PaletteOptions["primary"];
     image?: PaletteOptions["primary"];
     input?: PaletteOptions["primary"];
     led?: Partial<PaletteOptions["primary"]> & {

@@ -327,7 +327,7 @@ export const Widget = (props: PVWidgetComponent): JSX.Element => {
   };
 
   return (
-    <>
+    <div id={`WidgetContainer_${props?.id ?? id}`}>
       {actionsPresent && contextOpen && (
         <ContextMenu
           actions={ruleProps.actions as WidgetActions}
@@ -341,6 +341,6 @@ export const Widget = (props: PVWidgetComponent): JSX.Element => {
         containerStyle={containerStyle}
         onContextMenu={onContextMenu}
       />
-    </>
+    </div>
   );
 };

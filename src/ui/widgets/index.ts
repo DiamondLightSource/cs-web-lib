@@ -3,6 +3,7 @@ import log from "loglevel";
 export { EmbeddedDisplay } from "./EmbeddedDisplay/embeddedDisplay";
 export { Label } from "./Label/label";
 export { Display } from "./Display/display";
+export { DisplayResponsive } from "./DisplayResponsive/displayResponsive";
 export { Shape } from "./Shape/shape";
 export { FlexContainer } from "./FlexContainer/flexContainer";
 export { DynamicPageWidget } from "./DynamicPage/dynamicPage";
