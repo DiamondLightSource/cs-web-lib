@@ -17,11 +17,13 @@ import { registerWidget } from "../register";
 import { executeActions, WidgetActions } from "../widgetActions";
 import { MacroContext } from "../../../types/macros";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
+import { parseToPixelInt } from "../utils";
+import { useMeasuredSize } from "../../hooks/useMeasuredSize";
 
 const SimpleSymbolProps = {
   imageFile: StringProp,
   imageIndex: IntProp,
-  width: IntProp,
+  width: StringProp,
   height: IntProp,
   backgroundColor: ColorPropOpt,
   border: BorderPropOpt,
@@ -58,13 +60,20 @@ export const SimpleSymbolComponent = (
     }
   }
   // Render the imageIndex-th part of the larger png.
-  const left = props.width * props.imageIndex;
-  const right = props.width * (props.imageIndex + 1);
-  const clip = `rect(0 ${right}px ${props.height}px ${left}px)`;
+  const pixelWidth = parseToPixelInt(props.width, 50);
+  const [ref, size] = useMeasuredSize<HTMLImageElement>(
+    pixelWidth,
+    props.height
+  );
+
+  const left = size.width * props.imageIndex;
+  const right = size.width * (props.imageIndex + 1);
+  const clip = `rect(0 ${right}px ${size.height}px ${left}px)`;
   const margin = `0 -${left}px 0 -${left}px`;
 
   return (
     <img
+      ref={ref}
       src={props.imageFile}
       alt="Simple symbol widget"
       onClick={onClick}

@@ -4,20 +4,22 @@ import {
   InferWidgetProps,
   ColorPropOpt,
   IntPropOpt,
-  BoolPropOpt
+  BoolPropOpt,
+  StringPropOpt
 } from "../propTypes";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import classes from "./byteMonitor.module.css";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
-import { getPvValueAndName } from "../utils";
+import { getPvValueAndName, parseToPixelInt } from "../utils";
 import { dTypeGetDoubleValue } from "../../../types/dtypes";
 import { useStyle } from "../../hooks/useStyle";
+import { useMeasuredSize } from "../../hooks/useMeasuredSize";
 
 const widgetName = "bytemonitor";
 
 export const ByteMonitorProps = {
-  width: IntPropOpt,
+  width: StringPropOpt,
   height: IntPropOpt,
   onColor: ColorPropOpt,
   offColor: ColorPropOpt,
@@ -77,13 +79,18 @@ export const ByteMonitorComponent = (
   if (numBits < 1) numBits = 1;
   if (numBits > 64) numBits = 64;
 
+  const [ref, size] = useMeasuredSize<HTMLDivElement>(
+    parseToPixelInt(width, WIDGET_DEFAULT_SIZES["byte_monitor"][0]),
+    height
+  );
+
   const dataValues = getBytes(doubleValue, numBits, startBit, bitReverse);
   // If 3D effect, there is no border but we must leave space for shadow
   const border = effect3d ? 2 : ledBorder;
   const [bitWidth, bitHeight, borderWidth] = recalculateDimensions(
     numBits,
-    width,
-    height,
+    size.width,
+    size.height,
     border,
     horizontal,
     square
@@ -146,6 +153,7 @@ export const ByteMonitorComponent = (
 
   return (
     <div
+      ref={ref}
       className={classes.ByteMonitor}
       style={{ height: "100%", width: "100%" }}
     >

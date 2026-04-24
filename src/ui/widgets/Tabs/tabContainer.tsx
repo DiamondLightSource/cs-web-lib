@@ -15,7 +15,8 @@ import {
   ColorPropOpt,
   IntPropOpt,
   FontPropOpt,
-  ChildrenPropOpt
+  ChildrenPropOpt,
+  StringPropOpt
 } from "../propTypes";
 
 import { TabBar } from "./tabs";
@@ -25,6 +26,7 @@ import log from "loglevel";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { newColor } from "../../../types/color";
 import { useStyle } from "../../hooks/useStyle";
+import { parseToPixelInt } from "../utils";
 
 const widgetName = "tabcontainer";
 
@@ -36,7 +38,7 @@ export const TabContainerProps = {
   tabHeight: IntPropOpt,
   font: FontPropOpt,
   children: ChildrenPropOpt,
-  width: IntPropOpt,
+  width: StringPropOpt,
   height: IntPropOpt
 };
 
@@ -54,6 +56,10 @@ export const TabContainerComponent = (
   const tabChildren = useMemo(() => {
     return props.tabs.map((tab, idx) => {
       try {
+        const pixelWidth = parseToPixelInt(
+          width,
+          WIDGET_DEFAULT_SIZES["tabs"][0]
+        );
         return {
           name: tab.name,
           children: widgetDescriptionToComponent({
@@ -62,7 +68,7 @@ export const TabContainerComponent = (
             position: newRelativePosition(
               "0px",
               `${tabHeight}px`,
-              `${width}px`,
+              `${pixelWidth}px`,
               `${height - tabHeight}px`
             ),
             backgroundColor: newColor(colors?.backgroundColor as string),

@@ -17,16 +17,17 @@ import { writePv } from "../../hooks/useSubscription";
 import { dTypeGetDoubleValue, newDType } from "../../../types/dtypes";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { Button as MuiButton, styled } from "@mui/material";
-import { getPvValueAndName } from "../utils";
+import { getPvValueAndName, parseToPixelInt } from "../utils";
 import { LedComponent } from "../LED/led";
 import { useStyle } from "../../hooks/useStyle";
+import { useMeasuredSize } from "../../hooks/useMeasuredSize";
 
 const widgetName = "boolbutton";
 
 const BoolButtonProps = {
   pvName: StringPropOpt,
   height: IntPropOpt,
-  width: IntPropOpt,
+  width: StringPropOpt,
   onState: IntPropOpt,
   offState: IntPropOpt,
   onColor: ColorPropOpt,
@@ -112,6 +113,13 @@ export const BoolButtonComponent = (
     readOnly
   } = getPvValueAndName(pvData);
 
+  const pixelWidth = parseToPixelInt(
+    width,
+    WIDGET_DEFAULT_SIZES["bool_button"][0]
+  );
+
+  const [ref, size] = useMeasuredSize<HTMLDivElement>(pixelWidth, height);
+
   // These could be overwritten by  PV labels
   let { onLabel = "On", offLabel = "Off" } = props;
 
@@ -131,7 +139,7 @@ export const BoolButtonComponent = (
   const [ledColor, setLedColor] = useState(style?.customColors?.offColor);
 
   // Establish LED style
-  const ledDiameter = showLed ? getDimensions(width, height) : 0;
+  const ledDiameter = showLed ? getDimensions(size.width, size.height) : 0;
 
   // This is necessary in order to set the initial label value
   // after connection to PV established, as setState cannot be
@@ -169,7 +177,7 @@ export const BoolButtonComponent = (
   }
 
   return (
-    <>
+    <div ref={ref} style={{ width: "100%", height: "100%" }}>
       <Button
         variant="contained"
         onClick={handleClick}
@@ -192,13 +200,13 @@ export const BoolButtonComponent = (
         }}
         startIcon={
           showLed ? (
-            <LedComponent
-              pvData={pvData}
-              onColor={newColor(style?.customColors?.onColor)}
-              offColor={newColor(style?.customColors?.offColor)}
-              width={ledDiameter}
-              height={ledDiameter}
-            />
+            <div style={{ width: `${ledDiameter}`, height: ledDiameter }}>
+              <LedComponent
+                pvData={pvData}
+                onColor={newColor(style?.customColors?.onColor)}
+                offColor={newColor(style?.customColors?.offColor)}
+              />
+            </div>
           ) : (
             <></>
           )
@@ -206,7 +214,7 @@ export const BoolButtonComponent = (
       >
         {label}
       </Button>
-    </>
+    </div>
   );
 };
 

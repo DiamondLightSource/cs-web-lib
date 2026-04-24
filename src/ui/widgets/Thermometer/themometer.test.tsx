@@ -39,6 +39,10 @@ vi.mock("d3", () => {
   };
 });
 
+vi.mock("../../hooks/useMeasuredSize", () => ({
+  useMeasuredSize: () => [{ current: null }, { width: 60, height: 150 }]
+}));
+
 vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() => createMockStyle())
 }));
@@ -342,7 +346,7 @@ describe("Thermometer Component", () => {
           minimum={10}
           maximum={90}
           height={200}
-          width={50}
+          width={"50"}
           fillColor={ColorUtils.fromRgba(255, 0, 0, 1)}
           pvData={[{ ...pvDatum, value: mockValue }]}
         />

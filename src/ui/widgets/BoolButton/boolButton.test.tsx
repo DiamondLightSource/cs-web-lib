@@ -28,6 +28,13 @@ vi.mock("../../hooks/useStyle", () => ({
   )
 }));
 
+vi.mock("../../hooks/useMeasuredSize", () => ({
+  useMeasuredSize: (width: number, height: number) => [
+    { current: null },
+    { width, height }
+  ]
+}));
+
 beforeEach((): void => {
   mockWritePv.mockReset();
 });
@@ -67,7 +74,7 @@ describe("<BoolButton />", (): void => {
     const { getByRole } = render(BoolButtonRenderer(boolButtonProps));
     const button = getByRole("button") as HTMLButtonElement;
     const spanElement = button.firstChild as HTMLSpanElement;
-    const led = spanElement.children[0] as HTMLSpanElement;
+    const led = spanElement.children[0].children[0] as HTMLSpanElement;
 
     expect(button).toHaveStyle({
       "background-color": "rgba(0, 0, 0, 1)",
@@ -77,7 +84,7 @@ describe("<BoolButton />", (): void => {
     });
 
     expect(led.style.backgroundColor).toEqual("rgb(0, 235, 10)");
-    expect(led.style.height).toEqual("16px");
+    expect(led.style.height).toEqual("100%");
   });
 
   test("it renders a button with led and overwrites default values", (): void => {
@@ -88,12 +95,12 @@ describe("<BoolButton />", (): void => {
     const { getByRole } = render(BoolButtonRenderer(boolButtonProps));
     const button = getByRole("button") as HTMLButtonElement;
     const spanElement = button.firstChild as HTMLSpanElement;
-    const led = spanElement.children[0] as HTMLSpanElement;
+    const led = spanElement.children[0].children[0] as HTMLSpanElement;
 
     expect(button.textContent).toEqual("Enabled");
     expect(led.className).toContain("Led");
     expect(led.style.backgroundColor).toEqual("rgb(0, 235, 10)");
-    expect(led.style.height).toEqual("11px");
+    expect(led.style.height).toEqual("100%");
 
     expect(button).toHaveStyle({
       "background-color": "rgba(0, 0, 0, 1)",
@@ -137,7 +144,7 @@ describe("<BoolButton />", (): void => {
     const { getByRole } = render(BoolButtonRenderer(boolButtonProps));
     const button = getByRole("button") as HTMLButtonElement;
     const spanElement = button.firstChild as HTMLSpanElement;
-    const led = spanElement.children[0] as HTMLSpanElement;
+    const led = spanElement.children[0].children[0] as HTMLSpanElement;
     // Original on values
     expect(button.textContent).toEqual("Enabled");
     expect(led.style.backgroundColor).toEqual("rgb(0, 235, 10)");

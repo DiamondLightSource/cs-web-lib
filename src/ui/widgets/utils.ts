@@ -67,6 +67,63 @@ export function trimFromString(value: string): number {
 }
 
 /**
+ * Parse a string in the form of 100px or 100% to extract the number and the unit.
+ * If ths fails return the default value and "px"
+ * @param value The value to parse
+ * @param defaultValue the default numeric value
+ * @returns the parsed value and units
+ */
+export const parseCssPositionValue = (
+  value: string | number,
+  defaultValue: number
+): { value: number; unit: string } => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return { value, unit: "px" };
+  }
+
+  if (typeof value !== "string") {
+    return { value: defaultValue, unit: "px" };
+  }
+
+  const trimmed = value.trim();
+
+  // Match: number + optional unit
+  const match = trimmed.match(/^(-?\d+(?:\.\d+)?)([a-z%]+)?$/i);
+
+  if (!match) {
+    return { value: defaultValue, unit: "px" };
+  }
+
+  return {
+    value: Number(match[1]),
+    unit: match[2] ?? "px"
+  };
+};
+
+/**
+ * If a string is expected to take the form of either a integer or an integer suffixed with px
+ * return the string converted to a number, or the default value if the string cannot be converted
+ * @param value The string
+ * @param defaultValue The default value
+ * @returns The string converted to a Number or the default value
+ */
+export const parseToPixelInt = (
+  value: string | number,
+  defaultValue: number
+): number => {
+  if (typeof value === "number") {
+    return value;
+  }
+
+  if (typeof value !== "string") {
+    return defaultValue;
+  }
+
+  const match = value.trim().match(/^(-?\d+)(px)?$/);
+  return match ? Number(match[1]) : defaultValue;
+};
+
+/**
  * Return the value of an optional parameter that may be undefined.
  * If it is undefined (i.e. not set) then return the default value
  * (defValue) provided in the input.

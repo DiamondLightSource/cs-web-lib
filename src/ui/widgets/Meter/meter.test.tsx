@@ -20,6 +20,10 @@ vi.mock("../../hooks/useStyle", () => ({
   )
 }));
 
+vi.mock("../../hooks/useMeasuredSize", () => ({
+  useMeasuredSize: () => [{ current: null }, { width: 240, height: 120 }]
+}));
+
 vi.mock("react-gauge-component", () => ({
   GaugeComponent: vi.fn(({ value, minValue, maxValue, labels, style }) => (
     <div
@@ -170,32 +174,32 @@ describe("MeterComponent", () => {
   });
 
   it("scales width correctly based on height/width ratio", () => {
-    render(<MeterComponent {...defaultProps} height={100} width={300} />);
+    render(<MeterComponent {...defaultProps} height={100} width={"300"} />);
 
     const gauge = screen.getByTestId("gauge-component");
     expect(JSON.parse(gauge.getAttribute("data-style") ?? "{}").width).toBe(
-      190
+      "190px"
     ); // scaled width
   });
 
   it("uses 100% parent box width when width/height ratio is greater than 1.9", () => {
-    render(<MeterComponent {...defaultProps} height={100} width={300} />);
+    render(<MeterComponent {...defaultProps} height={100} width={"300"} />);
 
     const box = screen.getByTestId("gauge-component").parentElement;
     expect(box).toHaveStyle("width: 100%");
   });
 
   it("uses width when width/height ratio is less than 1.9", () => {
-    render(<MeterComponent {...defaultProps} height={100} width={150} />);
+    render(<MeterComponent {...defaultProps} height={100} width={"150"} />);
 
     const gauge = screen.getByTestId("gauge-component");
     expect(JSON.parse(gauge.getAttribute("data-style") ?? "{}").width).toBe(
-      150
+      "190px"
     ); // specified width
   });
 
   it("uses 100% parent box width when width/height ratio is less than 1.9", () => {
-    render(<MeterComponent {...defaultProps} height={100} width={150} />);
+    render(<MeterComponent {...defaultProps} height={100} width={"150"} />);
 
     const box = screen.getByTestId("gauge-component").parentElement;
     expect(box).toHaveStyle("width: 100%");

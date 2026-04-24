@@ -73,28 +73,37 @@ export const DisplayResponsiveComponent = (
   const [displayMacros, setDisplayMacros] = useState<MacroMap>(
     props.macros ?? {}
   );
-  const displayMacroContext: MacroContextType = {
-    updateMacro: (key: string, value: string): void => {
-      setDisplayMacros({ ...displayMacros, [key]: value });
-    },
-    macros: {
-      ...inheritedMacros, // lower priority
-      ...displayMacros, // higher priority
-      DID: props.id // highest priority
-    }
-  };
+
+  const updateMacro = React.useCallback((key: string, value: string) => {
+    setDisplayMacros(prev => ({ ...prev, [key]: value }));
+  }, []);
+
+  const displayMacroContext = React.useMemo<MacroContextType>(
+    () => ({
+      updateMacro,
+      macros: {
+        ...inheritedMacros,
+        ...displayMacros,
+        DID: props.id
+      }
+    }),
+    [updateMacro, inheritedMacros, displayMacros, props.id]
+  );
 
   // Get base style from common CSS
   const style = useStyle(props, widgetName);
-  const extendedStyle: React.CSSProperties = {
-    ...style.colors,
-    ...style.border,
-    ...style.other,
-    ...style.font,
-    position: "relative",
-    overflow: props.overflow,
-    height: "100%"
-  };
+  const extendedStyle = React.useMemo<React.CSSProperties>(
+    () => ({
+      ...style.colors,
+      ...style.border,
+      ...style.other,
+      ...style.font,
+      position: "relative",
+      overflow: props.overflow,
+      height: "100%"
+    }),
+    [style, props.overflow]
+  );
 
   const cellMargins = (props.responsiveCellMargins ?? defaultMArgins) as [
     number,
@@ -146,6 +155,7 @@ export const DisplayResponsiveComponent = (
       >
         {mounted && (
           <Responsive
+            key={`grid-${props.id}`}
             className="layout"
             layouts={layouts}
             breakpoints={breakpoints}

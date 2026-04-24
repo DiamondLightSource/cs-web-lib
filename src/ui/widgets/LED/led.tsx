@@ -4,13 +4,11 @@ import {
   InferWidgetProps,
   ColorPropOpt,
   IntPropOpt,
-  BoolPropOpt,
-  FloatPropOpt
+  BoolPropOpt
 } from "../propTypes";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import classes from "./led.module.css";
-import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { getPvValueAndName } from "../utils";
 import {
   dTypeGetAlarm,
@@ -25,8 +23,6 @@ const widgetName = "led";
  * width: the diameter of the LED
  */
 export const LedProps = {
-  width: FloatPropOpt,
-  height: FloatPropOpt,
   onColor: ColorPropOpt,
   offColor: ColorPropOpt,
   lineColor: ColorPropOpt,
@@ -44,14 +40,7 @@ export type LedComponentProps = InferWidgetProps<typeof LedProps> & PVComponent;
  * tooltip property in a json file containing a led
  */
 export const LedComponent = (props: LedComponentProps): JSX.Element => {
-  const {
-    pvData,
-    width = WIDGET_DEFAULT_SIZES["led"][0],
-    height = WIDGET_DEFAULT_SIZES["led"][1],
-    alarmSensitive = false,
-    bit = -1,
-    square = false
-  } = props;
+  const { pvData, alarmSensitive = false, bit = -1, square = false } = props;
 
   const style = useStyle(
     {
@@ -86,11 +75,8 @@ export const LedComponent = (props: LedComponentProps): JSX.Element => {
     : style?.customColors?.offColor;
   divStyle["border"] = `2px solid ${style?.customColors?.lineColor}`;
   divStyle["borderRadius"] = square ? "0%" : "50%";
-
-  // make sizes similar to size in CS-Studio, five taken
-  // away from default in css file too
-  divStyle.width = `${width}px`;
-  divStyle.height = `${height}px`;
+  divStyle.width = "100%";
+  divStyle.height = "100%";
 
   let className = classes.Led;
   if (alarmSensitive) {

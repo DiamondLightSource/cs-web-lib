@@ -670,7 +670,7 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   tooltip: ["tooltip", opiParseString],
   stretchToFit: ["stretch_to_fit", opiParseBoolean],
   lineWidth: ["line_width", opiParseNumber],
-  width: ["width", opiParseNumber],
+  width: ["width", opiParseString],
   height: ["height", opiParseNumber],
   label: ["label", opiParseString],
   opiFile: ["opi_file", opiParseString],

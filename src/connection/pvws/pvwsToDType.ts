@@ -37,7 +37,7 @@ export const pvwsToDType = (data: any): DType => {
   ddisplay = newDDisplay({
     description: undefined,
     role: undefined,
-    controlRange: undefined,
+    controlRange: data.min != null ? newDRange(data.min, data.max) : undefined,
     alarmRange:
       data.alarm_low != null
         ? newDRange(data.alarm_low, data.alarm_high)

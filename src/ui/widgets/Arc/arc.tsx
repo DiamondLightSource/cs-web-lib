@@ -7,18 +7,21 @@ import {
   InferWidgetProps,
   ColorPropOpt,
   IntPropOpt,
-  MacrosPropOpt
+  MacrosPropOpt,
+  StringPropOpt
 } from "../propTypes";
 import classes from "./arc.module.css";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { useStyle } from "../../hooks/useStyle";
 import { calculateArc } from "./arcUtils";
+import { parseToPixelInt } from "../utils";
+import { useMeasuredSize } from "../../hooks/useMeasuredSize";
 
 const widgetName = "arc";
 
 const ArcProps = {
   macros: MacrosPropOpt,
-  width: IntPropOpt,
+  width: StringPropOpt,
   height: IntPropOpt,
   backgroundColor: ColorPropOpt,
   foregroundColor: ColorPropOpt,
@@ -54,13 +57,20 @@ export const ArcComponent = (
     totalAngle = 90,
     lineWidth = 3
   } = props;
+
+  const [ref, size] = useMeasuredSize<SVGSVGElement>(
+    parseToPixelInt(width, WIDGET_DEFAULT_SIZES["arc"][0]),
+    height
+  );
+
   const [arc, edge] = calculateArc(
-    width,
-    height,
+    size.width,
+    size.height,
     startAngle,
     totalAngle,
     lineWidth
   );
+
   // Combine edge if not full circle or filled
   const shape = transparent || totalAngle === 360 ? arc : arc.concat(edge);
 
@@ -76,7 +86,13 @@ export const ArcComponent = (
   );
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} overflow={"visible"}>
+    <svg
+      ref={ref}
+      width="100%"
+      height="100%"
+      viewBox={`0 0 ${size.width} ${size.height}`}
+      overflow={"visible"}
+    >
       {element}
     </svg>
   );

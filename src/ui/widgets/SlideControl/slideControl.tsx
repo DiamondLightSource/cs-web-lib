@@ -11,14 +11,16 @@ import {
   FloatPropOpt,
   FontPropOpt,
   InferWidgetProps,
-  IntPropOpt
+  IntPropOpt,
+  StringPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
 import { dTypeGetDoubleValue, newDType } from "../../../types/dtypes";
 import { Slider } from "@mui/material";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
-import { getPvValueAndName } from "../utils";
+import { getPvValueAndName, parseCssPositionValue } from "../utils";
 import { useStyle } from "../../hooks/useStyle";
+import { useMeasuredSize } from "../../hooks/useMeasuredSize";
 
 const widgetName = "slidecontrol";
 
@@ -47,7 +49,7 @@ export const SliderControlProps = {
   showLolo: BoolPropOpt,
   increment: FloatPropOpt,
   majorTickStepHint: IntPropOpt,
-  width: FloatPropOpt,
+  width: StringPropOpt,
   height: FloatPropOpt
 };
 
@@ -93,8 +95,14 @@ export const SlideControlComponent = (
   let tickInterval;
 
   // Calculate number of ticks to show
+  const { value: widthNum } = parseCssPositionValue(
+    width,
+    WIDGET_DEFAULT_SIZES["scaledslider"][0]
+  );
+  const [ref, size] = useMeasuredSize<HTMLDivElement>(widthNum, height);
+
   let numOfTicks = Math.round(
-    (horizontal ? width : height) / majorTickStepHint
+    (horizontal ? size.width : size.height) / majorTickStepHint
   );
   if (numOfTicks > 15) numOfTicks = 15; // Phoebus roughly has a maximum of 15 ticks
   // Check if the number of ticks makes equal markers, iterate until we find good value
@@ -186,45 +194,55 @@ export const SlideControlComponent = (
   ]);
 
   return (
-    <Slider
-      value={inputValue}
-      disabled={readOnly || !enabled}
-      orientation={horizontal ? "horizontal" : "vertical"}
-      onChange={(_, newValue) => setInputValue(newValue as number)}
-      onChangeCommitted={(_, newValue) => onMouseUp(newValue as number)}
-      valueLabelDisplay="auto"
-      min={minimum}
-      max={maximum}
-      marks={marks}
-      step={increment}
-      sx={{
-        cursor: readOnly ? "not-allowed" : "default",
-        color: style?.colors?.color,
-        "& .MuiSlider-thumb": {
-          height: 16,
-          width: 16,
-          backgroundColor: "white",
-          border: "2px solid currentColor",
-          "&:focus, &:hover, &.Mui-active, &.Mui-focusVisible": {
-            boxShadow: "inherit"
-          }
-        },
-        "& .MuiSlider-valueLabelOpen": {
-          ...style?.colors,
-          ...style?.font,
-          opacity: 0.6
-        },
-        "& .MuiSlider-markLabel": {
-          color: style?.colors?.color,
-          ...style?.font,
-          whiteSpace: "pre"
-        },
-        "&.Mui-disabled": {
-          cursor: "not-allowed",
-          pointerEvents: "all !important"
-        }
+    <div
+      ref={ref}
+      style={{
+        width: "100%",
+        height: "100%",
+        paddingInline: horizontal ? "6px" : 0,
+        boxSizing: "border-box"
       }}
-    />
+    >
+      <Slider
+        value={inputValue}
+        disabled={readOnly || !enabled}
+        orientation={horizontal ? "horizontal" : "vertical"}
+        onChange={(_, newValue) => setInputValue(newValue as number)}
+        onChangeCommitted={(_, newValue) => onMouseUp(newValue as number)}
+        valueLabelDisplay="auto"
+        min={minimum}
+        max={maximum}
+        marks={marks}
+        step={increment}
+        sx={{
+          cursor: readOnly ? "not-allowed" : "default",
+          color: style?.colors?.color,
+          "& .MuiSlider-thumb": {
+            height: 16,
+            width: 16,
+            backgroundColor: "white",
+            border: "2px solid currentColor",
+            "&:focus, &:hover, &.Mui-active, &.Mui-focusVisible": {
+              boxShadow: "inherit"
+            }
+          },
+          "& .MuiSlider-valueLabelOpen": {
+            ...style?.colors,
+            ...style?.font,
+            opacity: 0.6
+          },
+          "& .MuiSlider-markLabel": {
+            color: style?.colors?.color,
+            ...style?.font,
+            whiteSpace: "pre"
+          },
+          "&.Mui-disabled": {
+            cursor: "not-allowed",
+            pointerEvents: "all !important"
+          }
+        }}
+      />
+    </div>
   );
 };
 
