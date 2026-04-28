@@ -138,13 +138,39 @@ function bobParseType(props: any): string {
   }
 }
 
+export const normalizeCssPosition = (
+  value: string | undefined,
+  defaultValue: number
+) => {
+  if (value == null) {
+    return `${defaultValue}px`;
+  }
+
+  if (typeof value === "number") {
+    return `${value}px`;
+  }
+
+  if (typeof value !== "string") {
+    return value;
+  }
+
+  const trimmed = value.trim();
+
+  // numeric string, append px
+  if (/^-?\d+(\.\d+)?$/.test(trimmed)) {
+    return `${trimmed}px`;
+  }
+
+  return value;
+};
+
 function bobParsePosition(props: any): Position {
   // Find type of widget and map to default width and height for that widget
   const widget = props._attributes.type;
   return newAbsolutePosition(
     `${bobParseNumber(props.x) ?? 0}px`,
     `${bobParseNumber(props.y) ?? 0}px`,
-    `${bobParseNumber(props.width) ?? WIDGET_DEFAULT_SIZES[widget][0]}px`,
+    normalizeCssPosition(props.width?._text, WIDGET_DEFAULT_SIZES[widget][0]),
     `${bobParseNumber(props.height) ?? WIDGET_DEFAULT_SIZES[widget][1]}px`
   );
 }

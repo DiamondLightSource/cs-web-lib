@@ -9,6 +9,13 @@ vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() => createMockStyle())
 }));
 
+vi.mock("../../hooks/useMeasuredSize", () => ({
+  useMeasuredSize: (width: number, height: number) => [
+    { current: null },
+    { width, height }
+  ]
+}));
+
 test("slideControl", () => {
   const { container } = render(
     <SlideControlComponent

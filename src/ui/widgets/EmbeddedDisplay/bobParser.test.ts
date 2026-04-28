@@ -1,6 +1,10 @@
 import { ColorUtils } from "../../../types/color";
 import { newAbsolutePosition } from "../../../types/position";
-import { BOB_SIMPLE_PARSERS, parseBob } from "./bobParser";
+import {
+  BOB_SIMPLE_PARSERS,
+  normalizeCssPosition,
+  parseBob
+} from "./bobParser";
 import { PVUtils } from "../../../types/pv";
 import { ensureWidgetsRegistered } from "..";
 import { WidgetDescription } from "../createComponent";
@@ -340,5 +344,56 @@ describe("bobParseSymbols", () => {
 
     expect(() => bobParseSymbols(input)).not.toThrow();
     expect(bobParseSymbols(input)).toEqual(["IBM", "ORCL"]);
+  });
+});
+
+describe("normalizeCssPosition", () => {
+  const DEFAULT = 10;
+
+  it("returns defaultValue in px when value is null or undefined", () => {
+    expect(normalizeCssPosition(null as any, DEFAULT)).toBe("10px");
+    expect(normalizeCssPosition(undefined as any, DEFAULT)).toBe("10px");
+  });
+
+  it("appends px when value is a number", () => {
+    expect(normalizeCssPosition(0 as any, DEFAULT)).toBe("0px");
+    expect(normalizeCssPosition(25 as any, DEFAULT)).toBe("25px");
+    expect(normalizeCssPosition(-5 as any, DEFAULT)).toBe("-5px");
+  });
+
+  it("returns value unchanged when value is not a string or number", () => {
+    const obj = { top: 10 };
+    const arr = [10];
+
+    expect(normalizeCssPosition(obj as any, DEFAULT)).toBe(obj);
+    expect(normalizeCssPosition(arr as any, DEFAULT)).toBe(arr);
+  });
+
+  it("appends px when value is a numeric string", () => {
+    expect(normalizeCssPosition("10", DEFAULT)).toBe("10px");
+    expect(normalizeCssPosition(" 20 ", DEFAULT)).toBe("20px");
+    expect(normalizeCssPosition("-5", DEFAULT)).toBe("-5px");
+    expect(normalizeCssPosition("2.5", DEFAULT)).toBe("2.5px");
+  });
+
+  it("returns original string when value already contains a CSS unit", () => {
+    expect(normalizeCssPosition("10px", DEFAULT)).toBe("10px");
+    expect(normalizeCssPosition("50%", DEFAULT)).toBe("50%");
+    expect(normalizeCssPosition("2rem", DEFAULT)).toBe("2rem");
+    expect(normalizeCssPosition("1.5em", DEFAULT)).toBe("1.5em");
+  });
+
+  it("returns original string for non-numeric CSS values", () => {
+    expect(normalizeCssPosition("auto", DEFAULT)).toBe("auto");
+    expect(normalizeCssPosition("inherit", DEFAULT)).toBe("inherit");
+    expect(normalizeCssPosition("calc(100% - 10px)", DEFAULT)).toBe(
+      "calc(100% - 10px)"
+    );
+  });
+
+  it("does not partially parse invalid numeric strings", () => {
+    expect(normalizeCssPosition("10pxfoo", DEFAULT)).toBe("10pxfoo");
+    expect(normalizeCssPosition("px10", DEFAULT)).toBe("px10");
+    expect(normalizeCssPosition("10.5.3", DEFAULT)).toBe("10.5.3");
   });
 });

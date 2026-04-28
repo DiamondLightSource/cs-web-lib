@@ -8,12 +8,15 @@ import {
   FloatPropOpt,
   BoolPropOpt,
   InferWidgetProps,
-  ColorPropOpt
+  ColorPropOpt,
+  StringPropOpt
 } from "../propTypes";
 import { Box } from "@mui/material";
-import { getPvValueAndName } from "../utils";
+import { getPvValueAndName, parseToPixelInt } from "../utils";
 import { dTypeGetDoubleValue, DType } from "../../../types/dtypes";
 import { useStyle } from "../../hooks/useStyle";
+import { useMeasuredSize } from "../../hooks/useMeasuredSize";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const widgetName = "thermometer";
 
@@ -25,7 +28,7 @@ export const ThermometerComponentProps = {
   minimum: FloatPropOpt,
   maximum: FloatPropOpt,
   height: FloatPropOpt,
-  width: FloatPropOpt,
+  width: StringPropOpt,
   limitsFromPv: BoolPropOpt,
   fillColor: ColorPropOpt
 };
@@ -50,7 +53,12 @@ export const ThermometerComponent = (
   const svgRef = useRef<SVGSVGElement>(null);
   const style = useStyle({ foregroundColor: props.fillColor }, widgetName);
 
-  const { pvData, limitsFromPv = false, height = 160, width = 40 } = props;
+  const {
+    pvData,
+    limitsFromPv = false,
+    height = WIDGET_DEFAULT_SIZES[widgetName][1],
+    width = WIDGET_DEFAULT_SIZES[widgetName][0]
+  } = props;
   const { value } = getPvValueAndName(pvData);
 
   const colors = useMemo(
@@ -66,9 +74,14 @@ export const ThermometerComponent = (
     ]
   );
 
+  const [ref, size] = useMeasuredSize(
+    parseToPixelInt(width, WIDGET_DEFAULT_SIZES[widgetName][0]),
+    height
+  );
+
   const thermometerDimensions = useMemo(
-    () => calculateThermometerDimensions(width, height),
-    [width, height]
+    () => calculateThermometerDimensions(size.width, size.height),
+    [size]
   );
 
   let { minimum = 0, maximum = 100 } = props;
@@ -131,16 +144,21 @@ export const ThermometerComponent = (
       .attr("fill", colors.mercuryColor as string);
   }, [value, maximum, minimum, thermometerDimensions, colors]);
 
+  const remountKey = useMemo(() => {
+    if (!size.width || size.width < 10) return "thermo-init";
+    return `thermo-${Math.round(size.width)}`;
+  }, [size]);
+
   return (
     <Box
+      ref={ref}
       sx={{
         height: "100%",
         width: "100%",
-        position: "absolute",
         backgroundColor: "transparent"
       }}
     >
-      <svg ref={svgRef} />
+      <svg key={remountKey} ref={svgRef} />
     </Box>
   );
 };

@@ -105,7 +105,104 @@ describe("<ChoiceButton />", (): void => {
 
     expect(buttons[3]).toHaveStyle({
       cursor: "not-allowed",
-      height: "35px"
+      height: "35px",
+      width: "60px"
+    });
+  });
+
+  test("pass props to widget, for horizontal layout and pixel width", (): void => {
+    const choiceButtonProps = {
+      pvData: [
+        {
+          effectivePvName: "TEST:PV",
+          connected: true,
+          readonly: true,
+          value: newDType({ doubleValue: 0 })
+        } as Partial<PvDatum> as PvDatum
+      ],
+      width: 60,
+      height: 140,
+      font: newFont(12),
+      items: ["Choice", "Option", "Setting", "Custom"],
+      horizontal: true,
+      backgroundColor: ColorUtils.fromRgba(20, 20, 200),
+      selectedColor: ColorUtils.fromRgba(10, 60, 40),
+      itemsFromPv: false,
+      enabled: false
+    };
+    const { getAllByRole } = render(ChoiceButtonRenderer(choiceButtonProps));
+    const buttons = getAllByRole("button") as Array<HTMLButtonElement>;
+
+    expect(buttons.length).toEqual(4);
+    expect(buttons[2].textContent).toEqual("Setting");
+    expect(buttons[3]).toHaveProperty("disabled", true);
+
+    expect(buttons[0]).toHaveStyle({
+      "background-color": "rgb(0, 0, 0)",
+      "font-size": "0.75rem",
+      height: "140px",
+      width: "15px"
+    });
+    expect(buttons[1]).toHaveStyle({
+      height: "140px",
+      width: "15px"
+    });
+    expect(buttons[2]).toHaveStyle({
+      height: "140px",
+      width: "15px"
+    });
+    expect(buttons[3]).toHaveStyle({
+      cursor: "not-allowed",
+      height: "140px",
+      width: "15px"
+    });
+  });
+
+  test("pass props to widget, for horizontal layout and percentage width", (): void => {
+    const choiceButtonProps = {
+      pvData: [
+        {
+          effectivePvName: "TEST:PV",
+          connected: true,
+          readonly: true,
+          value: newDType({ doubleValue: 0 })
+        } as Partial<PvDatum> as PvDatum
+      ],
+      width: "100%",
+      height: 140,
+      font: newFont(12),
+      items: ["Choice", "Option", "Setting", "Custom"],
+      horizontal: true,
+      backgroundColor: ColorUtils.fromRgba(20, 20, 200),
+      selectedColor: ColorUtils.fromRgba(10, 60, 40),
+      itemsFromPv: false,
+      enabled: false
+    };
+    const { getAllByRole } = render(ChoiceButtonRenderer(choiceButtonProps));
+    const buttons = getAllByRole("button") as Array<HTMLButtonElement>;
+
+    expect(buttons.length).toEqual(4);
+    expect(buttons[2].textContent).toEqual("Setting");
+    expect(buttons[3]).toHaveProperty("disabled", true);
+
+    expect(buttons[0]).toHaveStyle({
+      "background-color": "rgb(0, 0, 0)",
+      "font-size": "0.75rem",
+      height: "140px",
+      width: "25%"
+    });
+    expect(buttons[1]).toHaveStyle({
+      height: "140px",
+      width: "25%"
+    });
+    expect(buttons[2]).toHaveStyle({
+      height: "140px",
+      width: "25%"
+    });
+    expect(buttons[3]).toHaveStyle({
+      cursor: "not-allowed",
+      height: "140px",
+      width: "25%"
     });
   });
 

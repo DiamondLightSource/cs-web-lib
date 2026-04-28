@@ -25,7 +25,7 @@ import {
   styled,
   ToggleButtonGroup
 } from "@mui/material";
-import { getPvValueAndName } from "../utils";
+import { getPvValueAndName, parseCssPositionValue } from "../utils";
 import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "choicebutton";
@@ -33,7 +33,7 @@ const widgetName = "choicebutton";
 const ChoiceButtonProps = {
   pvName: StringPropOpt,
   height: IntPropOpt,
-  width: IntPropOpt,
+  width: StringPropOpt,
   items: StringArrayPropOpt,
   selectedColor: ColorPropOpt,
   itemsFromPv: BoolPropOpt,
@@ -80,7 +80,7 @@ export const ChoiceButtonComponent = (
     widgetName
   );
   const {
-    width = 100,
+    width = "100",
     height = 43,
     pvData,
     enabled = true,
@@ -123,9 +123,11 @@ export const ChoiceButtonComponent = (
 
   // Number of buttons to create
   const numButtons = options.length || 1;
+
   // Determine width and height of buttons if horizontal or vertically placed
+  const { value: pixelWidth, unit } = parseCssPositionValue(width, 100);
   const buttonHeight = horizontal ? height : height / numButtons;
-  const buttonWidth = horizontal ? width / numButtons : width;
+  const buttonWidth = horizontal ? `${pixelWidth / numButtons}${unit}` : width;
 
   const handleChange = (event: any, newSelect: number) => {
     // Write to PV

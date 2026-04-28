@@ -96,31 +96,30 @@ describe("background color changes depending on value", (): void => {
   });
 });
 
-describe("width property is used", (): void => {
-  it("width changes the size of the LED", (): void => {
-    const renderedLed = renderLed({ ...DEFAULT_PROPS, width: 10 });
+describe("Round LED", (): void => {
+  it("width and height set to 100%", (): void => {
+    const renderedLed = renderLed({ ...DEFAULT_PROPS });
 
     // Width in CS-Studio doesn't quite match width in the browser,
     // so whatever is input has 5 subtracted from it, this makes it
     // look more like CS-Studio
-    expect(renderedLed.props.style.width).toBe("10px");
-    expect(renderedLed.props.style.height).toBe("20px");
+    expect(renderedLed.props.style.width).toBe("100%");
+    expect(renderedLed.props.style.height).toBe("100%");
   });
 });
 
-describe("height property is used", (): void => {
-  it("height changes the size of the LED", (): void => {
+describe("Square LED", (): void => {
+  it("width and height set to 100%", (): void => {
     const renderedLed = renderLed({
       ...DEFAULT_PROPS,
-      height: 10,
       square: true
     });
 
     // Width in CS-Studio doesn't quite match width in the browser,
     // so whatever is input has 5 subtracted from it, this makes it
     // look more like CS-Studio
-    expect(renderedLed.props.style.width).toBe("20px");
-    expect(renderedLed.props.style.height).toBe("10px");
+    expect(renderedLed.props.style.width).toBe("100%");
+    expect(renderedLed.props.style.height).toBe("100%");
     expect(renderedLed.props.style.borderRadius).toBe("0%");
   });
 });

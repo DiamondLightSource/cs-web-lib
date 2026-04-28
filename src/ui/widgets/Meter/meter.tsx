@@ -9,7 +9,8 @@ import {
   IntPropOpt,
   InferWidgetProps,
   FontPropOpt,
-  ColorPropOpt
+  ColorPropOpt,
+  StringPropOpt
 } from "../propTypes";
 import { GaugeComponent } from "react-gauge-component";
 import {
@@ -20,9 +21,10 @@ import {
   formatValue,
   NumberFormatEnum
 } from "./meterUtilities";
-import { getPvValueAndName } from "../utils";
+import { getPvValueAndName, parseCssPositionValue } from "../utils";
 import { dTypeGetDoubleValue } from "../../../types/dtypes";
 import { useStyle } from "../../hooks/useStyle";
+import { useMeasuredSize } from "../../hooks/useMeasuredSize";
 
 const widgetName = "meter";
 
@@ -39,7 +41,7 @@ export const MeterProps = {
   transparent: BoolPropOpt,
   showUnits: BoolPropOpt,
   showValue: BoolPropOpt,
-  width: FloatPropOpt,
+  width: StringPropOpt,
   height: FloatPropOpt
 };
 
@@ -56,6 +58,9 @@ export const MeterComponent = (
     showUnits = true,
     showValue = true
   } = props;
+  const { value: widthNum } = parseCssPositionValue(width, 240);
+  const [ref, size] = useMeasuredSize(widthNum, height);
+
   const style = useStyle(
     { ...props, customColors: { needleColor: props?.needleColor } },
     widgetName
@@ -86,37 +91,40 @@ export const MeterComponent = (
       display?.controlRange?.min ?? alarmRangeMin ?? warningRangeMin;
     const pvMax =
       display?.controlRange?.max ?? alarmRangeMax ?? warningRangeMax;
-    minimum = pvMin ?? 0;
-    maximum = pvMax ?? 100;
+    minimum = pvMin ?? minimum;
+    maximum = pvMax ?? maximum;
   }
 
   // For a semi semicircle height / width is 2, but allow extra height for some padding
-  const scaledWidth = width / height > 1.9 ? 1.9 * height : width;
+  const scaledWidth =
+    size.width && size.width / height > 1.9 ? 1.9 * height : (size.width ?? 0);
 
   // Calculate the tick positions and the string labels
   const tickPositions = createTickPositions(minimum, maximum);
   const tickLabels = formatTickLabels(tickPositions);
 
+  const remountKey = useMemo(() => {
+    if (!scaledWidth || scaledWidth < 10) return "gauge-init";
+    return `gauge-${Math.round(scaledWidth)}`;
+  }, [scaledWidth]);
+
   return (
     <Box
-      alignItems="center"
-      justifyItems="center"
-      alignContent="center"
-      justifyContent="center"
+      ref={ref}
       sx={{
         ...style.colors,
         display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
         height: "100%",
-        width: "100%",
-        position: "absolute"
+        width: "100%"
       }}
     >
       <GaugeComponent
+        key={remountKey}
         style={{
           height: "100%",
-          width: scaledWidth,
-          display: "flex",
-          position: "absolute",
+          width: `${scaledWidth}px`,
           backgroundColor: "transparent"
         }}
         value={numValue}
@@ -134,7 +142,7 @@ export const MeterComponent = (
           color: style?.customColors?.needleColor,
           baseColor: style?.customColors?.needleColor,
           elastic: false,
-          animate: false,
+          animate: true,
           length: 0.95,
           width: 15
         }}
