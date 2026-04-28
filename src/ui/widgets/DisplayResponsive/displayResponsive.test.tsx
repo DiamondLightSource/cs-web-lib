@@ -1,9 +1,15 @@
 import React from "react";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 import { DisplayResponsiveComponent } from "./displayResponsive";
+
+let capturedLayouts: any;
+let capturedBreakpoints: any;
+let capturedCols: any;
+let capturedDragEnabled: boolean | undefined;
+let capturedResizeEnabled: boolean | undefined;
 
 vi.mock("react-grid-layout", async () => {
   const actual = await vi.importActual<any>("react-grid-layout");
@@ -11,9 +17,22 @@ vi.mock("react-grid-layout", async () => {
   return {
     ...actual,
 
-    Responsive: ({ children }: any) => (
-      <div data-testid="rgl-responsive">{children}</div>
-    ),
+    Responsive: ({
+      children,
+      layouts,
+      breakpoints,
+      cols,
+      dragConfig,
+      resizeConfig
+    }: any) => {
+      capturedLayouts = layouts;
+      capturedBreakpoints = breakpoints;
+      capturedCols = cols;
+      capturedDragEnabled = dragConfig?.enabled;
+      capturedResizeEnabled = resizeConfig?.enabled;
+
+      return <div data-testid="rgl-responsive">{children}</div>;
+    },
 
     useContainerWidth: () => ({
       width: 1200,
@@ -27,30 +46,42 @@ const MockWidget = ({ id }: { id: string }) => (
   <div data-testid={`widget-${id}`}>Widget {id}</div>
 );
 
-describe("DisplayResponsiveComponent", () => {
-  it("renders the responsive container", () => {
+beforeEach(() => {
+  capturedLayouts = undefined;
+  capturedBreakpoints = undefined;
+  capturedCols = undefined;
+  capturedDragEnabled = undefined;
+  capturedResizeEnabled = undefined;
+});
+
+describe("DisplayResponsiveComponent – high‑value behaviors", () => {
+  it("renders the responsive container and grid when mounted", () => {
     render(
       <DisplayResponsiveComponent id="display-1">
         <MockWidget id="a" />
       </DisplayResponsiveComponent>
     );
 
-    const container = document.querySelector(".display-responsive-container");
-
-    expect(container).toBeTruthy();
-  });
-
-  it("renders the Responsive grid when mounted", () => {
-    render(
-      <DisplayResponsiveComponent id="display-1">
-        <MockWidget id="a" />
-      </DisplayResponsiveComponent>
-    );
+    expect(
+      document.querySelector(".display-responsive-container")
+    ).toBeInTheDocument();
 
     expect(screen.getByTestId("rgl-responsive")).toBeInTheDocument();
   });
 
-  it("renders child widgets", () => {
+  it("throws an error if a child widget has no id", () => {
+    const BrokenWidget = () => <div />;
+
+    expect(() =>
+      render(
+        <DisplayResponsiveComponent id="display-1">
+          <BrokenWidget />
+        </DisplayResponsiveComponent>
+      )
+    ).toThrow("All grid items must have a stable id");
+  });
+
+  it("computes default layouts when responsiveLayouts are not provided", () => {
     render(
       <DisplayResponsiveComponent id="display-1">
         <MockWidget id="a" />
@@ -58,46 +89,79 @@ describe("DisplayResponsiveComponent", () => {
       </DisplayResponsiveComponent>
     );
 
-    expect(screen.getByTestId("widget-a")).toBeInTheDocument();
-    expect(screen.getByTestId("widget-b")).toBeInTheDocument();
+    expect(capturedLayouts).toBeDefined();
+    expect(capturedLayouts.lg).toHaveLength(2);
+
+    expect(capturedLayouts.lg[0]).toMatchObject({
+      i: "a",
+      w: 8,
+      h: 4
+    });
+
+    expect(capturedLayouts.lg[1]).toMatchObject({
+      i: "b",
+      w: 8,
+      h: 4
+    });
   });
 
-  it("wraps each child in a grid item div", () => {
-    render(
-      <DisplayResponsiveComponent id="display-1">
-        <MockWidget id="a" />
-        <MockWidget id="b" />
-      </DisplayResponsiveComponent>
-    );
+  it("honors provided responsiveLayouts values", () => {
+    const customLayouts = {
+      lg: [{ i: "a", x: 1, y: 2, w: 4, h: 3 }]
+    };
 
-    const grid = screen.getByTestId("rgl-responsive");
-
-    expect(grid.children.length).toBe(2);
-
-    expect(grid.children[0].firstElementChild).toHaveAttribute(
-      "data-testid",
-      "widget-a"
-    );
-
-    expect(grid.children[1].firstElementChild).toHaveAttribute(
-      "data-testid",
-      "widget-b"
-    );
-  });
-
-  it("accepts responsive configuration props", () => {
     render(
       <DisplayResponsiveComponent
         id="display-1"
-        responsiveBreakpoints={{ lg: 1000, sm: 0 }}
-        responsiveColumns={{ lg: 10, sm: 4 }}
-        responsiveCellMargins={[8, 8]}
-        rowHeight="20"
+        responsiveLayouts={customLayouts}
       >
         <MockWidget id="a" />
       </DisplayResponsiveComponent>
     );
 
-    expect(screen.getByTestId("widget-a")).toBeInTheDocument();
+    expect(capturedLayouts.lg).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          i: "a",
+          x: 1,
+          y: 2,
+          w: 4,
+          h: 3
+        })
+      ])
+    );
+  });
+
+  it("merges responsiveBreakpoints and responsiveColumns with defaults", () => {
+    render(
+      <DisplayResponsiveComponent
+        id="display-1"
+        responsiveBreakpoints={{ md: 700 }}
+        responsiveColumns={{ sm: 4 }}
+      >
+        <MockWidget id="a" />
+      </DisplayResponsiveComponent>
+    );
+
+    expect(capturedBreakpoints.lg).toBeDefined();
+    expect(capturedBreakpoints.md).toBe(700);
+
+    expect(capturedCols.lg).toBeDefined();
+    expect(capturedCols.sm).toBe(4);
+  });
+
+  it("respects responsiveDragEnabled and responsiveResizeEnabled props", () => {
+    render(
+      <DisplayResponsiveComponent
+        id="display-1"
+        responsiveDragEnabled={false}
+        responsiveResizeEnabled={false}
+      >
+        <MockWidget id="a" />
+      </DisplayResponsiveComponent>
+    );
+
+    expect(capturedDragEnabled).toBe(false);
+    expect(capturedResizeEnabled).toBe(false);
   });
 });

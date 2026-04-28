@@ -671,7 +671,7 @@ export const OPI_SIMPLE_PARSERS: ParserDict = {
   stretchToFit: ["stretch_to_fit", opiParseBoolean],
   lineWidth: ["line_width", opiParseNumber],
   width: ["width", opiParseString],
-  height: ["height", opiParseNumber],
+  height: ["height", opiParseString],
   label: ["label", opiParseString],
   opiFile: ["opi_file", opiParseString],
   rotationAngle: ["rotation_angle", opiParseNumber],

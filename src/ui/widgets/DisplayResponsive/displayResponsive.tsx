@@ -4,7 +4,10 @@ import {
   ResponsiveLayouts,
   Responsive,
   useContainerWidth,
-  Breakpoints
+  Breakpoints,
+  useResponsiveLayout,
+  DefaultBreakpoints,
+  Breakpoint
 } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
@@ -32,11 +35,12 @@ import {
   MacroContextType
 } from "../../../types/macros";
 import { useStyle } from "../../hooks/useStyle";
+import { useDebouncedValue } from "../../hooks/useDebounce";
 
 const widgetName = "displayResponsive";
 
 // Default grid configuration
-const defaultBreakpoints = { lg: 1200, md: 600, sm: 0 }; // These are minimum widths in pixels
+const defaultBreakpoints = { lg: 1200, md: 600, sm: 300 }; // These are minimum widths in pixels
 const defaultCols = { lg: 32, md: 16, sm: 8 };
 const defaultRowHeight = 15;
 const defaultMArgins = [6, 6];
@@ -54,6 +58,8 @@ const DisplayResponsiveProps = {
   responsiveLayouts: ObjectPropOpt,
   responsiveBreakpoints: ObjectPropOpt,
   responsiveColumns: ObjectPropOpt,
+  responsiveDragEnabled: BoolPropOpt,
+  responsiveResizeEnabled: BoolPropOpt,
   responsiveCellMargins: IntArrayPropOpt,
   responsiveCellHeight: IntPropOpt,
   rowHeight: StringPropOpt,
@@ -68,7 +74,17 @@ export const DisplayResponsiveComponent = (
   // Macros specific to this display. Children of this component
   // can set macros by using the updateMacro function on the
   // context.
-  const { width, containerRef, mounted } = useContainerWidth();
+  const { width, containerRef, mounted } = useContainerWidth({
+    measureBeforeMount: false
+  });
+  const debouncedWidth = useDebouncedValue(width, 150);
+  const responsiveDragEnabled =
+    props?.responsiveDragEnabled == null ? true : props?.responsiveDragEnabled;
+  const responsiveResizeEnabled =
+    props?.responsiveResizeEnabled == null
+      ? true
+      : props?.responsiveResizeEnabled;
+
   const inheritedMacros: MacroMap = useContext(MacroContext).macros;
   const [displayMacros, setDisplayMacros] = useState<MacroMap>(
     props.macros ?? {}
@@ -110,13 +126,6 @@ export const DisplayResponsiveComponent = (
     number
   ];
 
-  const breakpoints = (props?.responsiveBreakpoints ??
-    defaultBreakpoints) as Breakpoints<string>;
-  const columns = (props.responsiveColumns ?? defaultCols) as Record<
-    string,
-    number
-  >;
-
   const childrenArray = React.useMemo(
     () =>
       React.Children.toArray(props.children as ReactNode[]).filter(child =>
@@ -125,12 +134,37 @@ export const DisplayResponsiveComponent = (
     [props.children]
   );
 
-  const layouts = React.useMemo(
+  const breakpoints = React.useMemo(
     () =>
-      props?.responsiveLayouts ??
-      calculateDefaultLayouts(childrenArray, cellMargins),
-    [props.responsiveLayouts, childrenArray, cellMargins]
+      (props?.responsiveBreakpoints
+        ? { ...defaultBreakpoints, ...props.responsiveBreakpoints }
+        : defaultBreakpoints) as Breakpoints<string>,
+    [props.responsiveBreakpoints]
   );
+
+  const columns = React.useMemo(
+    () =>
+      (props.responsiveColumns
+        ? { ...defaultCols, ...props.responsiveColumns }
+        : defaultCols) as Breakpoints<DefaultBreakpoints>,
+    [props.responsiveColumns]
+  );
+
+  const initialLayouts = React.useMemo(
+    () =>
+      (props.responsiveLayouts ??
+        calculateDefaultLayouts(
+          childrenArray
+        )) as ResponsiveLayouts<Breakpoint>,
+    [props.responsiveLayouts, childrenArray]
+  );
+
+  const { layouts } = useResponsiveLayout({
+    breakpoints,
+    cols: columns,
+    layouts: initialLayouts,
+    width: 0
+  });
 
   // Wrap the child components in a div keyed by the child id. The key MUST map to the i field of Layout item for the component.
   const gridChildren = React.useMemo(
@@ -141,7 +175,11 @@ export const DisplayResponsiveComponent = (
           throw new Error("All grid items must have a stable id");
         }
 
-        return <div key={id}>{child}</div>;
+        return (
+          <div key={id} style={{ cursor: "grab" }}>
+            {child}
+          </div>
+        );
       }),
     [childrenArray]
   );
@@ -162,8 +200,32 @@ export const DisplayResponsiveComponent = (
             cols={columns}
             rowHeight={Number(props.rowHeight ?? defaultRowHeight)}
             margin={cellMargins}
-            width={width}
-            resizeConfig={{ enabled: false }}
+            width={debouncedWidth}
+            dragConfig={{
+              enabled: responsiveDragEnabled,
+              cancel: ".no-drag"
+            }}
+            resizeConfig={{
+              enabled: responsiveResizeEnabled,
+              handles: ["se"]
+            }}
+            onDragStart={(
+              layout,
+              oldItem,
+              newItem,
+              placeholder,
+              e,
+              element
+            ) => {
+              if (element?.style != null) {
+                element.style.cursor = "grabbing";
+              }
+            }}
+            onDragStop={(layout, oldItem, newItem, placeholder, e, element) => {
+              if (element?.style != null) {
+                element.style.cursor = "grab";
+              }
+            }}
             style={{
               ...style.colors,
               ...style.font,
@@ -183,61 +245,35 @@ const DisplayResponsiveWidgetProps = {
   ...WidgetPropType
 };
 
-// This is a temporary function to calculate breakpoints if none are specified.
-// Note that width in columns and height should be defined by the parent not the child in RGL,
-// so this will need to change when we implement child resizing.
 const calculateDefaultLayouts = (
-  childrenArray: React.ReactElement<
-    PVWidgetComponent,
-    string | React.JSXElementConstructor<any>
-  >[],
-  cellMargins: [number, number]
+  childrenArray: React.ReactElement<PVWidgetComponent>[]
 ): ResponsiveLayouts => {
-  const gridMetadata = childrenArray.map(child => {
-    const width = child?.props?.position?.width
-      ? Math.ceil(
-          (Number(child?.props?.position?.width?.replace(/px$/, "")) +
-            cellMargins[0]) /
-            (40 + cellMargins[0])
-        )
-      : 1;
-    const height = child?.props?.position?.height
-      ? Math.ceil(
-          (Number(child?.props?.position?.height?.replace(/px$/, "")) +
-            cellMargins[1]) /
-            (defaultRowHeight + cellMargins[1])
-        )
-      : 1;
-    const id = child.props.id;
-
-    return { width, height, id };
-  });
-
   return {
-    lg: gridMetadata?.map((child, i) => ({
-      i: child?.id,
-      x: (i % 3) * 4,
-      y: Math.floor(i / 3),
-      w: child?.width,
-      h: child?.height
+    lg: childrenArray.map((child, i) => ({
+      i: child.props.id,
+      x: (i % 4) * 8,
+      y: Math.floor(i / 4),
+      w: 8,
+      h: 4
     })) as Layout,
-    md: gridMetadata?.map((child, i) => ({
-      i: child?.id,
-      x: (i % 2) * 5,
+
+    md: childrenArray.map((child, i) => ({
+      i: child.props.id,
+      x: (i % 2) * 8,
       y: Math.floor(i / 2),
-      w: child?.width,
-      h: child?.height
+      w: 8,
+      h: 4
     })) as Layout,
-    sm: gridMetadata?.map((child, i) => ({
-      i: child?.id,
+
+    sm: childrenArray.map((child, i) => ({
+      i: child.props.id,
       x: 0,
       y: i,
-      w: child?.width,
-      h: child?.height
+      w: 8,
+      h: 4
     })) as Layout
   };
 };
-
 export const DisplayResponsive = (
   props: InferWidgetProps<typeof DisplayResponsiveWidgetProps>
 ): JSX.Element => <Widget baseWidget={DisplayResponsiveComponent} {...props} />;

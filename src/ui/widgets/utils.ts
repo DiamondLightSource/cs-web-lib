@@ -67,40 +67,6 @@ export function trimFromString(value: string): number {
 }
 
 /**
- * Parse a string in the form of 100px or 100% to extract the number and the unit.
- * If ths fails return the default value and "px"
- * @param value The value to parse
- * @param defaultValue the default numeric value
- * @returns the parsed value and units
- */
-export const parseCssPositionValue = (
-  value: string | number,
-  defaultValue: number
-): { value: number; unit: string } => {
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return { value, unit: "px" };
-  }
-
-  if (typeof value !== "string") {
-    return { value: defaultValue, unit: "px" };
-  }
-
-  const trimmed = value.trim();
-
-  // Match: number + optional unit
-  const match = trimmed.match(/^(-?\d+(?:\.\d+)?)([a-z%]+)?$/i);
-
-  if (!match) {
-    return { value: defaultValue, unit: "px" };
-  }
-
-  return {
-    value: Number(match[1]),
-    unit: match[2] ?? "px"
-  };
-};
-
-/**
  * If a string is expected to take the form of either a integer or an integer suffixed with px
  * return the string converted to a number, or the default value if the string cannot be converted
  * @param value The string

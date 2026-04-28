@@ -11,14 +11,13 @@ import {
   FloatPropOpt,
   FontPropOpt,
   InferWidgetProps,
-  IntPropOpt,
-  StringPropOpt
+  IntPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
 import { dTypeGetDoubleValue, newDType } from "../../../types/dtypes";
 import { Slider } from "@mui/material";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
-import { getPvValueAndName, parseCssPositionValue } from "../utils";
+import { getPvValueAndName } from "../utils";
 import { useStyle } from "../../hooks/useStyle";
 import { useMeasuredSize } from "../../hooks/useMeasuredSize";
 
@@ -48,9 +47,7 @@ export const SliderControlProps = {
   showLow: BoolPropOpt,
   showLolo: BoolPropOpt,
   increment: FloatPropOpt,
-  majorTickStepHint: IntPropOpt,
-  width: StringPropOpt,
-  height: FloatPropOpt
+  majorTickStepHint: IntPropOpt
 };
 
 export const SlideControlComponent = (
@@ -72,9 +69,7 @@ export const SlideControlComponent = (
     showLow = true,
     showLolo = true,
     increment = 1,
-    majorTickStepHint = 40,
-    width = WIDGET_DEFAULT_SIZES["scaledslider"][0],
-    height = WIDGET_DEFAULT_SIZES["scaledslider"][1]
+    majorTickStepHint = 40
   } = props;
 
   let { minimum = 0, maximum = 100 } = props;
@@ -95,11 +90,10 @@ export const SlideControlComponent = (
   let tickInterval;
 
   // Calculate number of ticks to show
-  const { value: widthNum } = parseCssPositionValue(
-    width,
-    WIDGET_DEFAULT_SIZES["scaledslider"][0]
+  const [ref, size] = useMeasuredSize<HTMLDivElement>(
+    WIDGET_DEFAULT_SIZES["scaledslider"][0],
+    WIDGET_DEFAULT_SIZES["scaledslider"][1]
   );
-  const [ref, size] = useMeasuredSize<HTMLDivElement>(widthNum, height);
 
   let numOfTicks = Math.round(
     (horizontal ? size.width : size.height) / majorTickStepHint
@@ -199,6 +193,8 @@ export const SlideControlComponent = (
       style={{
         width: "100%",
         height: "100%",
+        minWidth: "30px",
+        minHeight: "30px",
         paddingInline: horizontal ? "6px" : 0,
         boxSizing: "border-box"
       }}

@@ -4,14 +4,13 @@ import {
   InferWidgetProps,
   ColorPropOpt,
   IntPropOpt,
-  BoolPropOpt,
-  StringPropOpt
+  BoolPropOpt
 } from "../propTypes";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
 import classes from "./byteMonitor.module.css";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
-import { getPvValueAndName, parseToPixelInt } from "../utils";
+import { getPvValueAndName } from "../utils";
 import { dTypeGetDoubleValue } from "../../../types/dtypes";
 import { useStyle } from "../../hooks/useStyle";
 import { useMeasuredSize } from "../../hooks/useMeasuredSize";
@@ -19,8 +18,6 @@ import { useMeasuredSize } from "../../hooks/useMeasuredSize";
 const widgetName = "bytemonitor";
 
 export const ByteMonitorProps = {
-  width: StringPropOpt,
-  height: IntPropOpt,
   onColor: ColorPropOpt,
   offColor: ColorPropOpt,
   numBits: IntPropOpt,
@@ -53,9 +50,7 @@ export const ByteMonitorComponent = (
     bitReverse = false,
     ledBorder = 2,
     square = false,
-    effect3d = false,
-    width = WIDGET_DEFAULT_SIZES["byte_monitor"][0],
-    height = WIDGET_DEFAULT_SIZES["byte_monitor"][1]
+    effect3d = false
   } = props;
 
   const style = useStyle(
@@ -80,8 +75,8 @@ export const ByteMonitorComponent = (
   if (numBits > 64) numBits = 64;
 
   const [ref, size] = useMeasuredSize<HTMLDivElement>(
-    parseToPixelInt(width, WIDGET_DEFAULT_SIZES["byte_monitor"][0]),
-    height
+    WIDGET_DEFAULT_SIZES["byte_monitor"][0],
+    WIDGET_DEFAULT_SIZES["byte_monitor"][1]
   );
 
   const dataValues = getBytes(doubleValue, numBits, startBit, bitReverse);

@@ -14,33 +14,41 @@ import { newDType, DType } from "../../../types/dtypes";
 import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
 // Mock d3 functionality
-vi.mock("d3", () => {
-  const actualD3 = vi.importActual("d3");
+
+vi.mock("d3", async () => {
+  const actualD3 = await vi.importActual<typeof import("d3")>("d3");
+
+  const mockSelection = {
+    attr: vi.fn().mockReturnThis(),
+    style: vi.fn().mockReturnThis(),
+    append: vi.fn(),
+    select: vi.fn(),
+    selectAll: vi.fn().mockReturnThis(),
+    remove: vi.fn()
+  };
+
+  // append() returns another selection
+  mockSelection.append.mockReturnValue(mockSelection);
+  mockSelection.select.mockReturnValue(mockSelection);
+
   return {
     ...actualD3,
-    select: vi.fn().mockReturnValue({
-      attr: vi.fn().mockReturnThis(),
-      append: vi.fn().mockReturnValue({
-        attr: vi.fn().mockReturnThis(),
-        style: vi.fn().mockReturnThis()
-      }),
-      selectAll: vi.fn().mockReturnValue({
-        remove: vi.fn()
-      })
-    }),
-    path: vi.fn().mockReturnValue({
+    select: vi.fn(() => mockSelection),
+    path: vi.fn(() => ({
       moveTo: vi.fn().mockReturnThis(),
       arcTo: vi.fn().mockReturnThis(),
       lineTo: vi.fn().mockReturnThis(),
       arc: vi.fn().mockReturnThis(),
       closePath: vi.fn().mockReturnThis(),
       toString: vi.fn().mockReturnValue("path-string")
-    })
+    }))
   };
 });
 
+const mockSize = { width: 60, height: 150 };
+
 vi.mock("../../hooks/useMeasuredSize", () => ({
-  useMeasuredSize: () => [{ current: null }, { width: 60, height: 150 }]
+  useMeasuredSize: () => [{ current: null }, mockSize]
 }));
 
 vi.mock("../../hooks/useStyle", () => ({
@@ -345,8 +353,6 @@ describe("Thermometer Component", () => {
         <ThermometerComponent
           minimum={10}
           maximum={90}
-          height={200}
-          width={"50"}
           fillColor={ColorUtils.fromRgba(255, 0, 0, 1)}
           pvData={[{ ...pvDatum, value: mockValue }]}
         />
