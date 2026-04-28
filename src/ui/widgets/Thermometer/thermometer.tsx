@@ -8,11 +8,10 @@ import {
   FloatPropOpt,
   BoolPropOpt,
   InferWidgetProps,
-  ColorPropOpt,
-  StringPropOpt
+  ColorPropOpt
 } from "../propTypes";
 import { Box } from "@mui/material";
-import { getPvValueAndName, parseToPixelInt } from "../utils";
+import { getPvValueAndName } from "../utils";
 import { dTypeGetDoubleValue, DType } from "../../../types/dtypes";
 import { useStyle } from "../../hooks/useStyle";
 import { useMeasuredSize } from "../../hooks/useMeasuredSize";
@@ -27,8 +26,6 @@ export const thermometerOutlineWidth = 2;
 export const ThermometerComponentProps = {
   minimum: FloatPropOpt,
   maximum: FloatPropOpt,
-  height: FloatPropOpt,
-  width: StringPropOpt,
   limitsFromPv: BoolPropOpt,
   fillColor: ColorPropOpt
 };
@@ -53,12 +50,7 @@ export const ThermometerComponent = (
   const svgRef = useRef<SVGSVGElement>(null);
   const style = useStyle({ foregroundColor: props.fillColor }, widgetName);
 
-  const {
-    pvData,
-    limitsFromPv = false,
-    height = WIDGET_DEFAULT_SIZES[widgetName][1],
-    width = WIDGET_DEFAULT_SIZES[widgetName][0]
-  } = props;
+  const { pvData, limitsFromPv = false } = props;
   const { value } = getPvValueAndName(pvData);
 
   const colors = useMemo(
@@ -75,8 +67,8 @@ export const ThermometerComponent = (
   );
 
   const [ref, size] = useMeasuredSize(
-    parseToPixelInt(width, WIDGET_DEFAULT_SIZES[widgetName][0]),
-    height
+    WIDGET_DEFAULT_SIZES[widgetName][0],
+    WIDGET_DEFAULT_SIZES[widgetName][1]
   );
 
   const thermometerDimensions = useMemo(
@@ -91,63 +83,59 @@ export const ThermometerComponent = (
   }
 
   useEffect(() => {
-    // Build the thermometer outline.
-    const thermometerPath = drawThermometerPathOutline(thermometerDimensions);
-    const mercuryBulbPath = drawMercuryBulbPath(thermometerDimensions);
+    if (!svgRef.current) return;
 
-    // Create SVG
-    const thermometerSvgGroup = d3
+    const svg = d3.select(svgRef.current);
+
+    svg.append("path").attr("class", "thermo-outline");
+    svg.append("path").attr("class", "thermo-bulb");
+    svg.append("rect").attr("class", "thermo-mercury");
+  }, []);
+
+  useEffect(() => {
+    if (!svgRef.current) return;
+
+    const dims = thermometerDimensions;
+    const svg = d3
       .select(svgRef.current)
-      .attr("width", thermometerDimensions.outerWidth)
-      .attr("height", thermometerDimensions.outerHeight);
+      .attr("width", dims.outerWidth)
+      .attr("height", dims.outerHeight);
 
-    // Add the thermometer outline
-    thermometerSvgGroup
-      .append("path")
-      .attr("d", thermometerPath.toString())
+    svg
+      .select(".thermo-outline")
+      .attr("d", drawThermometerPathOutline(dims).toString())
       .attr("fill", colors.backgroundColor as string)
       .attr("stroke", colors.borderColor as string)
       .style("stroke-width", thermometerOutlineWidth);
 
-    thermometerSvgGroup
-      .append("path")
-      .attr("d", mercuryBulbPath.toString())
+    svg
+      .select(".thermo-bulb")
+      .attr("d", drawMercuryBulbPath(dims).toString())
       .attr("fill", colors.mercuryColor as string);
   }, [thermometerDimensions, colors]);
 
   useEffect(() => {
-    // Fill stem with the correct amount of mercury
     if (!svgRef.current) return;
 
-    d3.select(svgRef.current).selectAll("rect").remove();
+    const dims = thermometerDimensions;
+    const svg = d3.select(svgRef.current);
 
     const { mercurySurfaceLevelY, mercuryHeight } = calculateMercuryHeight(
       value,
       minimum,
       maximum,
-      thermometerDimensions.verticalStemHeight,
-      thermometerDimensions.topOfStemY
+      dims.verticalStemHeight,
+      dims.topOfStemY
     );
 
-    d3.select(svgRef.current)
-      .append("rect")
-      .attr(
-        "x",
-        thermometerDimensions.leftSideStemX + thermometerOutlineWidth / 2
-      )
+    svg
+      .select(".thermo-mercury")
+      .attr("x", dims.leftSideStemX + thermometerOutlineWidth / 2)
       .attr("y", mercurySurfaceLevelY)
-      .attr(
-        "width",
-        2 * thermometerDimensions.stemHalfWidth - thermometerOutlineWidth
-      )
+      .attr("width", 2 * dims.stemHalfWidth - thermometerOutlineWidth)
       .attr("height", mercuryHeight + thermometerOutlineWidth)
       .attr("fill", colors.mercuryColor as string);
-  }, [value, maximum, minimum, thermometerDimensions, colors]);
-
-  const remountKey = useMemo(() => {
-    if (!size.width || size.width < 10) return "thermo-init";
-    return `thermo-${Math.round(size.width)}`;
-  }, [size]);
+  }, [value, minimum, maximum, thermometerDimensions, colors]);
 
   return (
     <Box
@@ -158,7 +146,7 @@ export const ThermometerComponent = (
         backgroundColor: "transparent"
       }}
     >
-      <svg key={remountKey} ref={svgRef} />
+      <svg ref={svgRef} />
     </Box>
   );
 };

@@ -8,7 +8,6 @@ import {
   ColorPropOpt,
   FontPropOpt,
   InferWidgetProps,
-  IntPropOpt,
   StringArrayPropOpt,
   StringPropOpt
 } from "../propTypes";
@@ -25,15 +24,15 @@ import {
   styled,
   ToggleButtonGroup
 } from "@mui/material";
-import { getPvValueAndName, parseCssPositionValue } from "../utils";
+import { getPvValueAndName } from "../utils";
 import { useStyle } from "../../hooks/useStyle";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
+import { useMeasuredSize } from "../../hooks/useMeasuredSize";
 
 const widgetName = "choicebutton";
 
 const ChoiceButtonProps = {
   pvName: StringPropOpt,
-  height: IntPropOpt,
-  width: StringPropOpt,
   items: StringArrayPropOpt,
   selectedColor: ColorPropOpt,
   itemsFromPv: BoolPropOpt,
@@ -80,8 +79,6 @@ export const ChoiceButtonComponent = (
     widgetName
   );
   const {
-    width = "100",
-    height = 43,
     pvData,
     enabled = true,
     itemsFromPv = true,
@@ -101,6 +98,11 @@ export const ChoiceButtonComponent = (
         ? dTypeGetDoubleValue(value)
         : dTypeGetStringValue(value)
       : value
+  );
+
+  const [ref, size] = useMeasuredSize(
+    WIDGET_DEFAULT_SIZES["choice"][0],
+    WIDGET_DEFAULT_SIZES["choice"][1]
   );
 
   // Use items from file, unless itemsFromPv set
@@ -125,9 +127,8 @@ export const ChoiceButtonComponent = (
   const numButtons = options.length || 1;
 
   // Determine width and height of buttons if horizontal or vertically placed
-  const { value: pixelWidth, unit } = parseCssPositionValue(width, 100);
-  const buttonHeight = horizontal ? height : height / numButtons;
-  const buttonWidth = horizontal ? `${pixelWidth / numButtons}${unit}` : width;
+  const buttonHeight = horizontal ? size.height : size.height / numButtons;
+  const buttonWidth = horizontal ? size.width / numButtons : size.width;
 
   const handleChange = (event: any, newSelect: number) => {
     // Write to PV
@@ -144,6 +145,7 @@ export const ChoiceButtonComponent = (
 
   return (
     <ToggleButtonGroup
+      ref={ref}
       exclusive
       fullWidth={true}
       disabled={readOnly || !enabled}

@@ -35,6 +35,11 @@ vi.mock("../../hooks/useStyle", () => ({
   )
 }));
 
+let mockSize = { width: 15, height: 140 };
+
+vi.mock("../../hooks/useMeasuredSize", () => ({
+  useMeasuredSize: () => [{ current: null }, mockSize]
+}));
 const ChoiceButtonRenderer = (choiceButtonProps: any): JSX.Element => {
   return (
     <ThemeProvider theme={phoebusTheme}>
@@ -45,6 +50,7 @@ const ChoiceButtonRenderer = (choiceButtonProps: any): JSX.Element => {
 
 describe("<ChoiceButton />", (): void => {
   test("it renders ChoiceButton with default props", (): void => {
+    mockSize = { width: 100, height: 43 };
     const choiceButtonProps = {
       pvData: [
         {
@@ -72,6 +78,7 @@ describe("<ChoiceButton />", (): void => {
   });
 
   test("pass props to widget", (): void => {
+    mockSize = { width: 60, height: 140 };
     const choiceButtonProps = {
       pvData: [
         {
@@ -81,8 +88,6 @@ describe("<ChoiceButton />", (): void => {
           value: newDType({ doubleValue: 0 })
         } as Partial<PvDatum> as PvDatum
       ],
-      width: 60,
-      height: 140,
       font: newFont(12),
       items: ["Choice", "Option", "Setting", "Custom"],
       horizontal: false,
@@ -111,6 +116,7 @@ describe("<ChoiceButton />", (): void => {
   });
 
   test("pass props to widget, for horizontal layout and pixel width", (): void => {
+    mockSize = { width: 60, height: 140 };
     const choiceButtonProps = {
       pvData: [
         {
@@ -120,8 +126,6 @@ describe("<ChoiceButton />", (): void => {
           value: newDType({ doubleValue: 0 })
         } as Partial<PvDatum> as PvDatum
       ],
-      width: 60,
-      height: 140,
       font: newFont(12),
       items: ["Choice", "Option", "Setting", "Custom"],
       horizontal: true,
@@ -159,6 +163,8 @@ describe("<ChoiceButton />", (): void => {
   });
 
   test("pass props to widget, for horizontal layout and percentage width", (): void => {
+    mockSize = { width: 100, height: 140 };
+
     const choiceButtonProps = {
       pvData: [
         {
@@ -168,8 +174,6 @@ describe("<ChoiceButton />", (): void => {
           value: newDType({ doubleValue: 0 })
         } as Partial<PvDatum> as PvDatum
       ],
-      width: "100%",
-      height: 140,
       font: newFont(12),
       items: ["Choice", "Option", "Setting", "Custom"],
       horizontal: true,
@@ -189,20 +193,20 @@ describe("<ChoiceButton />", (): void => {
       "background-color": "rgb(0, 0, 0)",
       "font-size": "0.75rem",
       height: "140px",
-      width: "25%"
+      width: "25px"
     });
     expect(buttons[1]).toHaveStyle({
       height: "140px",
-      width: "25%"
+      width: "25px"
     });
     expect(buttons[2]).toHaveStyle({
       height: "140px",
-      width: "25%"
+      width: "25px"
     });
     expect(buttons[3]).toHaveStyle({
       cursor: "not-allowed",
       height: "140px",
-      width: "25%"
+      width: "25px"
     });
   });
 

@@ -1,4 +1,10 @@
-import React, { CSSProperties, useCallback, useContext, useState } from "react";
+import React, {
+  CSSProperties,
+  useCallback,
+  useContext,
+  useMemo,
+  useState
+} from "react";
 import log from "loglevel";
 import copyToClipboard from "clipboard-copy";
 
@@ -122,22 +128,25 @@ export const ConnectingComponent = (props: {
 
   // Popover logic, used for middle-click tooltip.
   const [popoverOpen, setPopoverOpen] = useState(false);
-  const mouseDown = (e: React.MouseEvent): void => {
-    if (e.button === 1) {
-      setPopoverOpen(true);
-      if (pvName && e.currentTarget) {
-        (e.currentTarget as HTMLDivElement).classList.add(
-          tooltipClasses.Copying
-        );
-        copyToClipboard(pvQualifiedName(pvName));
+  const mouseDown = useCallback(
+    (e: React.MouseEvent): void => {
+      if (e.button === 1) {
+        setPopoverOpen(true);
+        if (pvName && e.currentTarget) {
+          (e.currentTarget as HTMLDivElement).classList.add(
+            tooltipClasses.Copying
+          );
+          copyToClipboard(pvQualifiedName(pvName));
+        }
+        // Stop regular middle-click behaviour if showing tooltip.
+        e.preventDefault();
+        e.stopPropagation();
       }
-      // Stop regular middle-click behaviour if showing tooltip.
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  };
+    },
+    [pvName]
+  );
 
-  const mouseUp = (e: React.MouseEvent): void => {
+  const mouseUp = useCallback((e: React.MouseEvent): void => {
     if (e.button === 1 && e.currentTarget) {
       setPopoverOpen(false);
       (e.currentTarget as HTMLDivElement)?.classList.remove(
@@ -145,7 +154,7 @@ export const ConnectingComponent = (props: {
       );
       e.stopPropagation();
     }
-  };
+  }, []);
 
   const { pvData } = useConnectionMultiplePv(
     id,
@@ -176,24 +185,35 @@ export const ConnectingComponent = (props: {
     }
   }
 
-  const widgetTooltipProps = {
-    ...props.widgetProps,
-    tooltip: props.widgetProps.tooltip ?? "",
-    pvData,
-    border
-  };
+  const widgetTooltipProps = useMemo(
+    () => ({
+      ...props.widgetProps,
+      tooltip: props.widgetProps.tooltip ?? "",
+      pvData,
+      border
+    }),
+    [props.widgetProps, pvData, border]
+  );
+
+  const component = useMemo(
+    () => <Component {...widgetTooltipProps} />,
+    [widgetTooltipProps, Component]
+  );
 
   // The div rendered here is the container into which the widget
   // will render itself.
-  const widgetDiv = (
-    <div
-      onContextMenu={props.onContextMenu}
-      onMouseDown={mouseDown}
-      onMouseUp={mouseUp}
-      style={props.containerStyle}
-    >
-      <Component {...widgetTooltipProps} />
-    </div>
+  const widgetDiv = useMemo(
+    () => (
+      <div
+        onContextMenu={props.onContextMenu}
+        onMouseDown={mouseDown}
+        onMouseUp={mouseUp}
+        style={props.containerStyle}
+      >
+        {component}
+      </div>
+    ),
+    [component, props.onContextMenu, mouseDown, mouseUp, props.containerStyle]
   );
 
   if (widgetTooltipProps.tooltip) {

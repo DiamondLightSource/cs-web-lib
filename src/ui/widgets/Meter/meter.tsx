@@ -9,8 +9,7 @@ import {
   IntPropOpt,
   InferWidgetProps,
   FontPropOpt,
-  ColorPropOpt,
-  StringPropOpt
+  ColorPropOpt
 } from "../propTypes";
 import { GaugeComponent } from "react-gauge-component";
 import {
@@ -21,7 +20,7 @@ import {
   formatValue,
   NumberFormatEnum
 } from "./meterUtilities";
-import { getPvValueAndName, parseCssPositionValue } from "../utils";
+import { getPvValueAndName } from "../utils";
 import { dTypeGetDoubleValue } from "../../../types/dtypes";
 import { useStyle } from "../../hooks/useStyle";
 import { useMeasuredSize } from "../../hooks/useMeasuredSize";
@@ -40,9 +39,7 @@ export const MeterProps = {
   font: FontPropOpt,
   transparent: BoolPropOpt,
   showUnits: BoolPropOpt,
-  showValue: BoolPropOpt,
-  width: StringPropOpt,
-  height: FloatPropOpt
+  showValue: BoolPropOpt
 };
 
 export const MeterComponent = (
@@ -51,15 +48,12 @@ export const MeterComponent = (
   const {
     pvData,
     format = NumberFormatEnum.Default,
-    height = 120,
-    width = 240,
     limitsFromPv = true,
     precision = undefined,
     showUnits = true,
     showValue = true
   } = props;
-  const { value: widthNum } = parseCssPositionValue(width, 240);
-  const [ref, size] = useMeasuredSize(widthNum, height);
+  const [ref, size] = useMeasuredSize(240, 120);
 
   const style = useStyle(
     { ...props, customColors: { needleColor: props?.needleColor } },
@@ -97,7 +91,9 @@ export const MeterComponent = (
 
   // For a semi semicircle height / width is 2, but allow extra height for some padding
   const scaledWidth =
-    size.width && size.width / height > 1.9 ? 1.9 * height : (size.width ?? 0);
+    size.width && size.width / size.height > 1.9
+      ? 1.9 * size.height
+      : (size.width ?? 0);
 
   // Calculate the tick positions and the string labels
   const tickPositions = createTickPositions(minimum, maximum);

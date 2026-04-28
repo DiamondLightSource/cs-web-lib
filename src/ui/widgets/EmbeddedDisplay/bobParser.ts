@@ -171,7 +171,7 @@ function bobParsePosition(props: any): Position {
     `${bobParseNumber(props.x) ?? 0}px`,
     `${bobParseNumber(props.y) ?? 0}px`,
     normalizeCssPosition(props.width?._text, WIDGET_DEFAULT_SIZES[widget][0]),
-    `${bobParseNumber(props.height) ?? WIDGET_DEFAULT_SIZES[widget][1]}px`
+    normalizeCssPosition(props.height?._text, WIDGET_DEFAULT_SIZES[widget][1])
   );
 }
 
@@ -583,6 +583,8 @@ export const BOB_SIMPLE_PARSERS: ParserDict = {
   end: ["end", opiParseString],
   arrayIndex: ["array_index", bobParseNumber],
   direction: ["direction", bobParseNumber],
+  responsiveDragEnabled: ["responsive_drag_enabled", opiParseBoolean],
+  responsiveResizeEnabled: ["responsive_resize_enabled", opiParseBoolean],
   responsiveLayouts: ["responsive_layouts", bobParseResponsiveLayout],
   responsiveBreakpoints: [
     "responsive_breakpoints",

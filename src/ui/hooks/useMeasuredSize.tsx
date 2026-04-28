@@ -12,6 +12,7 @@ export const useMeasuredSize = <T extends Element>(
   initialHeight = 0
 ): [React.MutableRefObject<T | null>, { width: number; height: number }] => {
   const ref = useRef<T | null>(null);
+
   const [size, setSize] = useState({
     width: initialWidth,
     height: initialHeight

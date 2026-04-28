@@ -7,22 +7,18 @@ import {
   InferWidgetProps,
   ColorPropOpt,
   IntPropOpt,
-  MacrosPropOpt,
-  StringPropOpt
+  MacrosPropOpt
 } from "../propTypes";
 import classes from "./arc.module.css";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { useStyle } from "../../hooks/useStyle";
 import { calculateArc } from "./arcUtils";
-import { parseToPixelInt } from "../utils";
 import { useMeasuredSize } from "../../hooks/useMeasuredSize";
 
 const widgetName = "arc";
 
 const ArcProps = {
   macros: MacrosPropOpt,
-  width: StringPropOpt,
-  height: IntPropOpt,
   backgroundColor: ColorPropOpt,
   foregroundColor: ColorPropOpt,
   fill: BoolPropOpt,
@@ -50,17 +46,11 @@ export const ArcComponent = (
     widgetName
   );
 
-  const {
-    width = WIDGET_DEFAULT_SIZES["arc"][0],
-    height = WIDGET_DEFAULT_SIZES["arc"][1],
-    startAngle = 0,
-    totalAngle = 90,
-    lineWidth = 3
-  } = props;
+  const { startAngle = 0, totalAngle = 90, lineWidth = 3 } = props;
 
   const [ref, size] = useMeasuredSize<SVGSVGElement>(
-    parseToPixelInt(width, WIDGET_DEFAULT_SIZES["arc"][0]),
-    height
+    WIDGET_DEFAULT_SIZES["arc"][0],
+    WIDGET_DEFAULT_SIZES["arc"][1]
   );
 
   const [arc, edge] = calculateArc(
