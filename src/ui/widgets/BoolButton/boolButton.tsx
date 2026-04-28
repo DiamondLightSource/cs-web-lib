@@ -194,7 +194,9 @@ export const BoolButtonComponent = (
         }}
         startIcon={
           showLed ? (
-            <div style={{ width: `${ledDiameter}px`, height: `${ledDiameter}px` }}>
+            <div
+              style={{ width: `${ledDiameter}px`, height: `${ledDiameter}px` }}
+            >
               <LedComponent
                 pvData={pvData}
                 onColor={newColor(style?.customColors?.onColor)}

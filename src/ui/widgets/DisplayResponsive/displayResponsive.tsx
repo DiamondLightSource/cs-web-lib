@@ -78,8 +78,12 @@ export const DisplayResponsiveComponent = (
     measureBeforeMount: false
   });
   const debouncedWidth = useDebouncedValue(width, 150);
-  const responsiveDragEnabled = props?.responsiveDragEnabled == null ? true : props?.responsiveDragEnabled;
-  const responsiveResizeEnabled = props?.responsiveResizeEnabled == null ? true : props?.responsiveResizeEnabled;
+  const responsiveDragEnabled =
+    props?.responsiveDragEnabled == null ? true : props?.responsiveDragEnabled;
+  const responsiveResizeEnabled =
+    props?.responsiveResizeEnabled == null
+      ? true
+      : props?.responsiveResizeEnabled;
 
   const inheritedMacros: MacroMap = useContext(MacroContext).macros;
   const [displayMacros, setDisplayMacros] = useState<MacroMap>(
