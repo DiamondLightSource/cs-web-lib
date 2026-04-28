@@ -51,6 +51,7 @@ export const wordSplitter = (word: string): string =>
 
 export function createLabel(value: string): WidgetDescription {
   return {
+    id: "123",
     type: "label",
     position: "relative",
     text: `${wordSplitter(value)}`,
@@ -62,6 +63,7 @@ export function createLabel(value: string): WidgetDescription {
 
 export function createReadback(pv: string): WidgetDescription {
   return {
+    id: "123",
     type: "readback",
     position: "relative",
     width: "45%",
@@ -72,6 +74,7 @@ export function createReadback(pv: string): WidgetDescription {
 
 export function createInput(pv: string): WidgetDescription {
   return {
+    id: "123",
     type: "input",
     position: "relative",
     width: "45%",
@@ -85,6 +88,7 @@ export function createButton(
   description?: string
 ): WidgetDescription {
   return {
+    id: "123",
     type: "actionbutton",
     position: "relative",
     width: "45%",

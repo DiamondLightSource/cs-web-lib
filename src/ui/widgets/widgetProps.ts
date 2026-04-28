@@ -18,6 +18,7 @@ import { File } from "../hooks/useFile";
 
 // Internal prop types object for properties which are not in a standard widget
 const BasicPropsType = {
+  id: StringPropOpt,
   rules: RulesPropOpt,
   scripts: ScriptsPropOpt,
   actions: ActionsPropType,

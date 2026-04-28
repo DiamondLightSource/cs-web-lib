@@ -58,6 +58,7 @@ export const TabContainerComponent = (
           name: tab.name,
           children: widgetDescriptionToComponent({
             type: "display",
+            id: "123",
             position: newRelativePosition(
               "0px",
               `${tabHeight}px`,

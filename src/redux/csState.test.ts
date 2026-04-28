@@ -54,6 +54,7 @@ const initialState: CsState = {
   deviceCache: {},
   fileCache: {
     "mySecondFile.bob": {
+      id: "123",
       type: "ellipse",
       position: newAbsolutePosition("0", "0", "0", "0")
     }
@@ -239,6 +240,7 @@ test("handles initializers", (): void => {
 describe("FILE_CHANGED", (): void => {
   test("csReducer adds file to fileCache", (): void => {
     const contents: WidgetDescription = {
+      id: "123",
       type: "shape",
       position: newAbsolutePosition("0", "0", "0", "0")
     };
@@ -380,10 +382,12 @@ describe("Selectors", () => {
   describe("fileComparator", (): void => {
     it("returns false if string contents don't match", (): void => {
       const contents1: WidgetDescription = {
+        id: "123",
         type: "shape",
         position: newAbsolutePosition("0", "0", "0", "0")
       };
       const contents2: WidgetDescription = {
+        id: "123",
         type: "shape",
         position: newAbsolutePosition("1", "0", "0", "0")
       };
@@ -392,11 +396,13 @@ describe("Selectors", () => {
 
     it("returns false if number of keys changed", (): void => {
       const contents1: WidgetDescription = {
+        id: "123",
         type: "shape",
         position: newAbsolutePosition("0", "0", "0", "0"),
         backgroundColor: ColorUtils.TRANSPARENT
       };
       const contents2: WidgetDescription = {
+        id: "123",
         type: "shape",
         position: newAbsolutePosition("0", "0", "0", "0")
       };
@@ -406,6 +412,7 @@ describe("Selectors", () => {
 
     it("returns true if matches", (): void => {
       const contents: WidgetDescription = {
+        id: "123",
         type: "shape",
         position: newAbsolutePosition("0", "0", "0", "0")
       };
@@ -416,6 +423,7 @@ describe("Selectors", () => {
   describe("selectFile", (): void => {
     it("finds file in fileCache", (): void => {
       const contents: WidgetDescription = {
+        id: "123",
         type: "shape",
         position: newAbsolutePosition("0", "0", "0", "0")
       };

@@ -63,6 +63,7 @@ export const DeviceComponent = (
       }
       setComponent(
         widgetDescriptionToComponent({
+          id: "123",
           position: newRelativePosition("100%", "100%"),
           type: "display",
           children: [componentDescription]

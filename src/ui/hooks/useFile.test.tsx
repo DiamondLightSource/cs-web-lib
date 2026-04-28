@@ -53,6 +53,7 @@ describe("useFile", (): void => {
 
     const responseContent = JSON.stringify({
       type: "shape",
+      id: "123",
       position: newAbsolutePosition("0", "0", "0", "0")
     });
 
@@ -61,6 +62,7 @@ describe("useFile", (): void => {
 
   it("returns contents if file in cache", async (): Promise<void> => {
     const mockSuccessResponse = JSON.stringify({
+      id: "1234",
       type: "ellipse",
       backgroundColor: ColorUtils.GREEN,
       position: undefined
@@ -98,6 +100,7 @@ describe("useFile", (): void => {
         positionType: PositionType.RELATIVE
       },
       backgroundColor: { colorString: "rgba(0,128,0,1)" },
+      id: "1234",
       children: [],
       precisionFromPv: true,
       showUnits: true,

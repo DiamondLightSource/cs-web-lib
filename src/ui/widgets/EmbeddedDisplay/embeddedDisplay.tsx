@@ -62,7 +62,7 @@ export const EmbeddedDisplay = (
   props: InferWidgetProps<typeof EmbeddedDisplayProps> &
     EmbeddedDisplayPropsExtra
 ): JSX.Element => {
-  const id = useId();
+  const [id] = useId();
 
   // First resolve the macros
   // Include and override parent macros with those from the prop.
@@ -251,6 +251,7 @@ export const EmbeddedDisplay = (
   try {
     component = widgetDescriptionToComponent({
       type: "display",
+      id: `display_${crypto.randomUUID()}`,
       position: resolvedProps.position,
       backgroundColor:
         selectedDescription.backgroundColor ?? newColor("rgb(255,255,255"),

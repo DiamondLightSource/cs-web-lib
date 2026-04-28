@@ -10,12 +10,14 @@ import { BorderStyle, newBorder } from "../../types/border";
 
 export interface WidgetDescription {
   type: string;
+  id: string;
   // All other component properties
   [x: string]: any;
   children?: WidgetDescription[];
 }
 const ERROR_WIDGET: WidgetDescription = {
   type: "label",
+  id: `label_${crypto.randomUUID()}`,
   position: newRelativePosition(),
   font: newFont(16, FontStyle.Bold),
   backgroundColor: ColorUtils.TRANSPARENT,

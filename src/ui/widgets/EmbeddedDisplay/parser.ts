@@ -129,6 +129,11 @@ export async function genericParser(
     }));
   }
 
+  // attach an id if it does not exist
+  if (!newProps?.id) {
+    newProps["id"] = `${newProps.type}_${crypto.randomUUID()}`;
+  }
+
   return newProps;
 }
 
