@@ -150,12 +150,12 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
     expect(capturedCols.sm).toBe(4);
   });
 
-  it("respects responsiveDragEnabled and responsiveResizeEnabled props", () => {
+  it("respects gridCellDragEnabled and gridCellResizeEnabled props", () => {
     render(
       <DisplayResponsiveComponent
         id="display-1"
-        responsiveDragEnabled={false}
-        responsiveResizeEnabled={false}
+        gridCellDragEnabled={false}
+        gridCellResizeEnabled={false}
       >
         <MockWidget id="a" />
       </DisplayResponsiveComponent>

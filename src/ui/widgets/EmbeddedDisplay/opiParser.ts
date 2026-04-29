@@ -1001,7 +1001,9 @@ export async function parseOpi(
   };
 
   const displayWidget = await parseWidget(
-    compactJSON?.display ?? compactJSON?.displayResponsive,
+    compactJSON?.display ??
+      compactJSON?.displayResponsive ??
+      compactJSON?.displayGridLayout,
     opiGetTargetWidget,
     "widget",
     simpleParsers,

@@ -12,7 +12,8 @@ import { Plt } from "./plt";
 import {
   ResponsiveBreakpoints,
   ResponsiveColumns,
-  ResponsiveGridLayout
+  ResponsiveGridLayout,
+  ResponsiveLayout
 } from "./responsiveBreakpoints";
 
 export type GenericProp =
@@ -40,7 +41,8 @@ export type GenericProp =
   | Plt
   | ResponsiveBreakpoints
   | ResponsiveColumns
-  | ResponsiveGridLayout;
+  | ResponsiveGridLayout
+  | ResponsiveLayout;
 
 export interface Expression {
   boolExp: string;
