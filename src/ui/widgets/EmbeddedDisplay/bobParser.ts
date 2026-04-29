@@ -53,6 +53,7 @@ import { bobParseNumber } from "./BobParsers/baseBobParsers";
 import {
   bobParseResponsiveBreakpoints,
   bobParseResponsiveColumns,
+  bobParseResponsiveComponentLayouts,
   bobParseResponsiveLayout,
   bobParseResponsiveMargins
 } from "./BobParsers/responsiveLayoutBobParser";
@@ -67,6 +68,7 @@ const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   databrowser: "databrowser",
   display: "display",
   displayResponsive: "displayResponsive",
+  displayGridLayout: "displayGridLayout",
   ellipse: "ellipse",
   embedded: "embeddedDisplay",
   group: "groupbox",
@@ -105,6 +107,7 @@ export const WIDGET_DEFAULT_SIZES: { [key: string]: [number, number] } = {
   databrowser: [400, 300],
   display: [800, 800],
   displayResponsive: [800, 800],
+  displayGridLayout: [800, 800],
   ellipse: [100, 50],
   embedded: [400, 300],
   group: [300, 200],
@@ -583,16 +586,18 @@ export const BOB_SIMPLE_PARSERS: ParserDict = {
   end: ["end", opiParseString],
   arrayIndex: ["array_index", bobParseNumber],
   direction: ["direction", bobParseNumber],
-  responsiveDragEnabled: ["responsive_drag_enabled", opiParseBoolean],
-  responsiveResizeEnabled: ["responsive_resize_enabled", opiParseBoolean],
+  gridCellDragEnabled: ["grid_cell_drag_enabled", opiParseBoolean],
+  gridCellResizeEnabled: ["grid_cell_resize_enabled", opiParseBoolean],
   responsiveLayouts: ["responsive_layouts", bobParseResponsiveLayout],
   responsiveBreakpoints: [
     "responsive_breakpoints",
     bobParseResponsiveBreakpoints
   ],
   responsiveColumns: ["responsive_columns", bobParseResponsiveColumns],
-  responsiveCellMargins: ["responsive_cell_margins", bobParseResponsiveMargins],
-  responsiveCellHeight: ["responsive_cell_height", bobParseNumber],
+  gridCellMargins: ["grid_cell_margins", bobParseResponsiveMargins],
+  gridCellHeight: ["grid_cell_height", bobParseNumber],
+  gridLayoutColumns: ["grid_layout_columns", bobParseNumber],
+  gridLayout: ["grid_layout", bobParseResponsiveComponentLayouts],
   tabWidth: ["tab_width", bobParseNumber],
   tabHeight: ["tab_height", bobParseNumber],
   tabSpacing: ["tab_spacing", bobParseNumber],
@@ -619,12 +624,19 @@ export async function parseBob(
   const compactJSON = xml2js(xmlString, {
     compact: true
   }) as XmlDescription;
-  const display = compactJSON?.display ?? compactJSON?.displayResponsive;
+  const display =
+    compactJSON?.display ??
+    compactJSON?.displayResponsive ??
+    compactJSON?.displayGridLayout;
   const displayAttributes = {
     ...display,
     _attributes: {
       ...display._attributes,
-      type: compactJSON?.display ? "display" : "displayResponsive"
+      type: compactJSON?.display
+        ? "display"
+        : compactJSON?.displayResponsive
+          ? "displayResponsive"
+          : "displayGridLayout"
     },
     x: { _text: "0" },
     y: { _text: "0" }

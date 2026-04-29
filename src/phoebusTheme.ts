@@ -39,6 +39,10 @@ export const phoebusTheme = createTheme({
       main: "#ffffffff", // ensures a white background for the display
       contrastText: "#000000"
     },
+    displayGridLayout: {
+      main: "#ffffffff", // ensures a white background for the display
+      contrastText: "#000000"
+    },
     image: {
       main: "rgba(255,255,255,0)",
       contrastText: "#000000"

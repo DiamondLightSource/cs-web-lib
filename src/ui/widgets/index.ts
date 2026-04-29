@@ -4,6 +4,7 @@ export { EmbeddedDisplay } from "./EmbeddedDisplay/embeddedDisplay";
 export { Label } from "./Label/label";
 export { Display } from "./Display/display";
 export { DisplayResponsive } from "./DisplayResponsive/displayResponsive";
+export { DisplayGridLayout } from "./DisplayGridLayout/displayGridLayout";
 export { Shape } from "./Shape/shape";
 export { FlexContainer } from "./FlexContainer/flexContainer";
 export { DynamicPageWidget } from "./DynamicPage/dynamicPage";

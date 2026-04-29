@@ -45,6 +45,10 @@ export const ChildrenPropOpt = PropTypes.node;
 export const ObjectProp = PropTypes.object.isRequired;
 export const ObjectPropOpt = PropTypes.object;
 
+export const ObjectArrayPropOpt = PropTypes.arrayOf(
+  PropTypes.object.isRequired
+);
+
 export const ColorPropOpt = PropTypes.shape({
   colorString: StringProp
 });

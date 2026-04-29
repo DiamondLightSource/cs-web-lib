@@ -61,7 +61,7 @@ export const bobParseResponsiveLayout = (
   }
 };
 
-const bobParseResponsiveComponentLayouts = (
+export const bobParseResponsiveComponentLayouts = (
   jsonProp: ElementCompact
 ): ResponsiveLayout => {
   if (!jsonProp?.element_position || jsonProp?.element_position?.length === 0) {
