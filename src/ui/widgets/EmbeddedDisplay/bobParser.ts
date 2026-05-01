@@ -146,7 +146,7 @@ export const normalizeCssPosition = (
   defaultValue: number
 ) => {
   if (value == null) {
-    return `${defaultValue}px`;
+    return defaultValue ? `${defaultValue}px` : "20px";
   }
 
   if (typeof value === "number") {
@@ -173,8 +173,8 @@ function bobParsePosition(props: any): Position {
   return newAbsolutePosition(
     `${bobParseNumber(props.x) ?? 0}px`,
     `${bobParseNumber(props.y) ?? 0}px`,
-    normalizeCssPosition(props.width?._text, WIDGET_DEFAULT_SIZES[widget][0]),
-    normalizeCssPosition(props.height?._text, WIDGET_DEFAULT_SIZES[widget][1])
+    normalizeCssPosition(props.width?._text, WIDGET_DEFAULT_SIZES[widget]?.[0]),
+    normalizeCssPosition(props.height?._text, WIDGET_DEFAULT_SIZES[widget]?.[1])
   );
 }
 
