@@ -10,14 +10,12 @@ import {
 
 import { dTypeCoerceString, dTypeGetDoubleValue } from "../../types/dtypes";
 import { SubscriptionType } from "../../connection/plugin";
-import {
-  executeDynamicScriptInSandbox,
-  ScriptResponse
-} from "../widgets/EmbeddedDisplay/scripts/scriptExecutor";
+import { executeDynamicScriptInSandbox } from "../widgets/EmbeddedDisplay/scripts/scriptExecutor";
 import { Script } from "../../types/props";
 import { pvQualifiedName } from "../../types/pv";
 import { selectEnableDynamicScripts } from "../../redux/slices/configurationSlice";
 import { useEffect, useMemo } from "react";
+import { ScriptResponse } from "../widgets/EmbeddedDisplay/scripts/scriptTypes";
 
 export const useScripts = (
   scriptsProp: Script[],

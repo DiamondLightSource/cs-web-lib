@@ -1,5 +1,7 @@
 import log from "loglevel";
 import { v4 as uuidv4 } from "uuid";
+import { ScriptResponse } from "./scriptTypes";
+import { enqueueScript, executeAllScriptsInQueue } from "./scriptQueue";
 
 const parentOrigin = window.location.origin;
 
@@ -9,22 +11,6 @@ const SANDBOX_ORIGIN = "null";
 
 let iFrameSandboxScriptRunner: HTMLIFrameElement | null = null;
 let iFrameSandboxReady = false;
-
-export interface ScriptResponse {
-  functionReturnValue: any;
-  widgetProps: {
-    [key: string]: any;
-  };
-}
-
-type QueuedExecution = {
-  dynamicScriptCode: string;
-  pvs: { number: number | undefined; string: string | undefined }[];
-  resolve: (value: ScriptResponse) => void;
-  reject: (reason: any) => void;
-};
-
-const executionQueue: QueuedExecution[] = [];
 
 // Define the IFrame HTML and javascript to handle execution of dynamic scripts.
 // It also mocks/implements a small subset of the Phoebus script API sufficient for our PoC cases.
@@ -163,11 +149,7 @@ const buildSandboxIframe = async (): Promise<HTMLIFrameElement> => {
         log.debug("The script runner iframe has started");
         iFrameSandboxReady = true;
 
-        for (const item of executionQueue.splice(0)) {
-          postScriptToIframe(item.dynamicScriptCode, item.pvs)
-            .then(item.resolve)
-            .catch(item.reject);
-        }
+        executeAllScriptsInQueue(postScriptToIframe);
 
         resolve(iFrameSandboxScriptRunner as HTMLIFrameElement);
       }
@@ -257,16 +239,7 @@ export const executeDynamicScriptInSandbox = async (
 
   if (!iFrameSandboxReady) {
     return new Promise<ScriptResponse>((resolve, reject) => {
-      if (executionQueue.length < 200) {
-        executionQueue.push({
-          dynamicScriptCode,
-          pvs,
-          resolve,
-          reject
-        });
-      } else {
-        reject(new Error("Iframe script execution queue is full"));
-      }
+      enqueueScript(dynamicScriptCode, pvs, resolve, reject);
     });
   }
 

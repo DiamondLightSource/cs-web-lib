@@ -27,7 +27,7 @@ import { executeAction, WidgetAction, WidgetActions } from "./widgetActions";
 import { Popover } from "react-tiny-popover";
 import { resolveTooltip } from "./tooltip";
 import { useScripts } from "../hooks/useScripts";
-import { ScriptResponse } from "./EmbeddedDisplay/scripts/scriptExecutor";
+import { ScriptResponse } from "./EmbeddedDisplay/scripts/scriptTypes";
 import { OPI_SIMPLE_PARSERS } from "./EmbeddedDisplay/opiParser";
 import { PositionPropNames, positionToCss } from "../../types/position";
 import { AlarmQuality, dTypeGetAlarm } from "../../types/dtypes";
