@@ -1,18 +1,16 @@
 import log from "loglevel";
 import { v4 as uuidv4 } from "uuid";
+import { ScriptResponse } from "./scriptTypes";
+import { enqueueScript, executeAllScriptsInQueue } from "./scriptQueue";
 
 const parentOrigin = window.location.origin;
+
+// Sandboxed srcdoc iframe has an opaque origin, so postMessage events use event.origin === "null"
+// security is enforced by validating event.source against the known iframe.
 const SANDBOX_ORIGIN = "null";
 
 let iFrameSandboxScriptRunner: HTMLIFrameElement | null = null;
 let iFrameSandboxReady = false;
-
-export interface ScriptResponse {
-  functionReturnValue: any;
-  widgetProps: {
-    [key: string]: any;
-  };
-}
 
 // Define the IFrame HTML and javascript to handle execution of dynamic scripts.
 // It also mocks/implements a small subset of the Phoebus script API sufficient for our PoC cases.
@@ -64,7 +62,7 @@ export const iFrameScriptExecutionHandlerCode = `
 
           try {
             const widget = {
-              props: {},
+              props: Object.create(null),
               setPropertyValue(key, value) {
                 this.props[key] = value;
               },
@@ -108,6 +106,7 @@ const buildSandboxIframe = async (): Promise<HTMLIFrameElement> => {
     }
 
     iFrameSandboxScriptRunner = document.createElement("iframe");
+    // Execution in a sandbox iframe is extremely important for security
     iFrameSandboxScriptRunner.setAttribute("sandbox", "allow-scripts");
     iFrameSandboxScriptRunner.style.width = "0";
     iFrameSandboxScriptRunner.style.height = "0";
@@ -149,6 +148,9 @@ const buildSandboxIframe = async (): Promise<HTMLIFrameElement> => {
         cleanup();
         log.debug("The script runner iframe has started");
         iFrameSandboxReady = true;
+
+        executeAllScriptsInQueue(postScriptToIframe);
+
         resolve(iFrameSandboxScriptRunner as HTMLIFrameElement);
       }
     };
@@ -161,41 +163,16 @@ const buildSandboxIframe = async (): Promise<HTMLIFrameElement> => {
   });
 };
 
-/***
- * A function that executes a Phoebos embedded script within a sandbox iFrame.
- * On first execution it will set the singleton iFrameScriptRunner variable.
- * On subsequent execution it will use the existing instance of iFrameScriptRunner
- * @param dynamicScriptCode the code to execute in the sandbox
- * @param pvs an array of PV values that are used by the script
- * @returns A dictionary that contains the return value of the function and a dictionary of the widget props that have been updated
- */
-export const executeDynamicScriptInSandbox = async (
+const postScriptToIframe = (
   dynamicScriptCode: string,
   pvs: { number: number | undefined; string: string | undefined }[]
 ): Promise<ScriptResponse> => {
-  if (!iFrameSandboxScriptRunner) {
-    await buildSandboxIframe();
-  }
-
-  if (!iFrameSandboxReady) {
-    // The iFrame sandbox is still starting up, this can happen on app startup.
-    // We don't want to block, so log and return an empty response.
-    log.warn(
-      "The Iframe sandbox is starting up, dynamic script execution skipped on this occasion."
-    );
-    return {
-      functionReturnValue: "",
-      widgetProps: {}
-    };
-  }
-
   if (!iFrameSandboxScriptRunner?.contentWindow) {
-    throw new Error("Iframe content window not available");
+    return Promise.reject(new Error("Iframe content window not available"));
   }
 
-  return new Promise<any>((resolve, reject) => {
+  return new Promise<ScriptResponse>((resolve, reject) => {
     const id = uuidv4();
-
     let hasTimedOut = false;
 
     const cleanup = () => {
@@ -210,17 +187,12 @@ export const executeDynamicScriptInSandbox = async (
 
     // Define a message handler to receive the responses from the IFrame.
     const messageHandler = (event: MessageEvent) => {
-      if (hasTimedOut) return;
-
-      if (event.origin !== SANDBOX_ORIGIN) {
-        return;
-      }
-
-      if (event.source !== iFrameSandboxScriptRunner?.contentWindow) {
-        return;
-      }
-
-      if (event.data?.id !== id) {
+      if (
+        hasTimedOut ||
+        event.origin !== SANDBOX_ORIGIN ||
+        event.source !== iFrameSandboxScriptRunner?.contentWindow ||
+        event.data?.id !== id
+      ) {
         return;
       }
 
@@ -230,24 +202,46 @@ export const executeDynamicScriptInSandbox = async (
       if (!event.data?.error) {
         // Success return the response data.
         resolve({
-          functionReturnValue: event.data?.functionReturnValue,
-          widgetProps: event.data?.widgetProps
+          functionReturnValue: event.data.functionReturnValue,
+          widgetProps: event.data.widgetProps
         });
       } else {
-        reject(event.data?.error);
+        reject(event.data.error);
       }
     };
 
     window.addEventListener("message", messageHandler);
 
-    // Send a message containing the script and pv values to the IFrame to trigger the execution of the script.
     iFrameSandboxScriptRunner?.contentWindow?.postMessage(
-      {
-        functionCode: dynamicScriptCode,
-        id,
-        pvs
-      },
+      { functionCode: dynamicScriptCode, id, pvs },
       "*"
     );
   });
+};
+
+/***
+ * A function that executes a Phoebos embedded script within a sandbox iFrame.
+ * On first execution it will set the singleton iFrameScriptRunner variable.
+ * On subsequent execution it will use the existing instance of iFrameScriptRunner.
+ * In the event that the iFrameScriptRunner is starting up,
+ * scripts are placed in a queue for later execution.
+ * @param dynamicScriptCode the code to execute in the sandbox
+ * @param pvs an array of PV values that are used by the script
+ * @returns A dictionary that contains the return value of the function and a dictionary of the widget props that have been updated
+ */
+export const executeDynamicScriptInSandbox = async (
+  dynamicScriptCode: string,
+  pvs: { number: number | undefined; string: string | undefined }[]
+): Promise<ScriptResponse> => {
+  if (!iFrameSandboxScriptRunner) {
+    buildSandboxIframe().catch(log.error);
+  }
+
+  if (!iFrameSandboxReady) {
+    return new Promise<ScriptResponse>((resolve, reject) => {
+      enqueueScript(dynamicScriptCode, pvs, resolve, reject);
+    });
+  }
+
+  return postScriptToIframe(dynamicScriptCode, pvs);
 };
