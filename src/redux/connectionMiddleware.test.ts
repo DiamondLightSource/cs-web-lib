@@ -33,6 +33,7 @@ const config: CsWebLibConfig = {
   PVWS_SSL: true,
   storeMode: "DEV",
   THROTTLE_PERIOD: 100,
+  mjpgStreamEndPoint: "",
   csWebLibFeatureFlags: {
     enableDynamicScripts: false
   }

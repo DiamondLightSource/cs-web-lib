@@ -12,7 +12,11 @@ vi.mock("../../hooks/useStyle", () => ({
 describe("DemoImageComponent", () => {
   it("renders an img with the expected src and alt text", () => {
     render(
-      <DemoImageComponent macros={{}} backgroundColor={newColor("#123456")} />
+      <DemoImageComponent
+        macros={{}}
+        pvData={[]}
+        backgroundColor={newColor("#123456")}
+      />
     );
 
     const img = screen.getByRole("img", { name: /Static demo image/i });
@@ -22,7 +26,7 @@ describe("DemoImageComponent", () => {
   });
 
   it("handles undefined backgroundColor gracefully (no style set)", () => {
-    render((<DemoImageComponent macros={{}} />) as any);
+    render((<DemoImageComponent pvData={[]} macros={{}} />) as any);
 
     const img = screen.getByRole("img", { name: /Static demo image/i });
     expect((img as HTMLElement).getAttribute("style") || "").not.toMatch(

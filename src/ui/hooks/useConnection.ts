@@ -3,7 +3,6 @@ import { useSubscription } from "./useSubscription";
 import { useSelector } from "react-redux";
 import {
   CsState,
-  PvDataCollection,
   selectPvStates,
   pvStateComparator,
   PvArrayResults
@@ -49,28 +48,45 @@ export function useConnection(
 export const useConnectionMultiplePv = (
   id: string,
   pvNames: string[],
-  type?: SubscriptionType
-): PvDataCollection => {
+  subscriptionType?: SubscriptionType,
+  overridePvSubscriptionsCallback?: (pvNameArray: string[]) => {
+    pvNameSubscriptions: string[];
+    additionalPvData: PvArrayResults;
+  }
+) => {
   const pvNameArray = pvNames.filter(x => !!x);
-  const typeArray = !type ? [] : [type];
+  const typeArray = !subscriptionType ? [] : [subscriptionType];
 
-  useSubscription(id, pvNameArray, typeArray);
+  let additionalPvData: PvArrayResults = {};
 
-  const pvResults = useSelector(
-    (state: CsState): PvArrayResults => selectPvStates(state, pvNameArray),
+  let pvNameSubscriptions = pvNameArray;
+  if (overridePvSubscriptionsCallback) {
+    // This provides a mechanism for widgets to override the standard pv subscription
+    ({ pvNameSubscriptions, additionalPvData } =
+      overridePvSubscriptionsCallback(pvNameArray));
+  }
+
+  useSubscription(id, pvNameSubscriptions, typeArray);
+  const pvStates = useSelector(
+    (state: CsState): PvArrayResults =>
+      selectPvStates(state, pvNameSubscriptions),
     pvStateComparator
   );
 
-  return {
-    pvData: pvNameArray.map(pvName => {
-      const [pvState, effPvName] = pvResults[pvName];
+  const pvResults = { ...pvStates, ...additionalPvData };
 
-      return {
-        effectivePvName: effPvName,
-        connected: pvState?.connected ?? false,
-        readonly: pvState?.readonly ?? false,
-        value: pvState?.value
-      };
-    })
+  return {
+    pvData: pvNameArray
+      .filter(pvName => pvName in pvResults)
+      .map(pvName => {
+        const [pvState, effPvName] = pvResults[pvName];
+
+        return {
+          effectivePvName: effPvName,
+          connected: pvState?.connected ?? false,
+          readonly: pvState?.readonly ?? false,
+          value: pvState?.value
+        };
+      })
   };
 };
