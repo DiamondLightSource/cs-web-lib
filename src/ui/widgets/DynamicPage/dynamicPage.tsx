@@ -17,7 +17,8 @@ import {
   StringProp,
   InferWidgetProps,
   BorderPropOpt,
-  BoolPropOpt
+  BoolPropOpt,
+  StringPropOpt
 } from "../propTypes";
 import {
   EmbeddedDisplay,
@@ -36,7 +37,8 @@ const DynamicPageProps = {
   location: StringProp,
   border: BorderPropOpt,
   showCloseButton: BoolPropOpt,
-  scroll: BoolPropOpt
+  scroll: BoolPropOpt,
+  mjpgEndpoint: StringPropOpt
 };
 
 // Generic display widget to put other things inside
@@ -88,7 +90,7 @@ export const DynamicPageComponent = (
             scalingOrigin={"0 0"}
             scroll={props.scroll ?? false}
             theme={theme}
-            defaultMjpgEndpoint={defaultMjpgEndpoint}
+            mjpgEndpoints={[props?.mjpgEndpoint, defaultMjpgEndpoint]}
           />
           <div
             style={{
@@ -136,7 +138,9 @@ export const DynamicPageComponent = (
             scalingOrigin={"0 0"}
             scroll={props.scroll ?? false}
             theme={theme}
-            defaultMjpgEndpoint={defaultMjpgEndpoint}
+            mjpgEndpoints={[props?.mjpgEndpoint, defaultMjpgEndpoint].filter(
+              x => x != null
+            )}
           />
         </div>
       </ExitFileContext.Provider>

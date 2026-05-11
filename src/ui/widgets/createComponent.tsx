@@ -55,7 +55,7 @@ export function widgetDescriptionToComponent(
   // from the component dictionary provided. Uses recursion to generate children.
   widgetDescription: WidgetDescription,
   listIndex?: number,
-  defaultMjpgEndpoint?: string
+  mjpgEndpoints?: (string | undefined | null)[]
 ): JSX.Element {
   const { type, children = [], ...otherProps } = widgetDescription;
 
@@ -99,7 +99,8 @@ export function widgetDescriptionToComponent(
 
   // Create all children components - recursive
   const ChildComponents = children.map(
-    (child, index): JSX.Element => widgetDescriptionToComponent(child, index)
+    (child, index): JSX.Element =>
+      widgetDescriptionToComponent(child, index, mjpgEndpoints)
   );
   // Return the node with children as children
   return (
@@ -108,7 +109,7 @@ export function widgetDescriptionToComponent(
       key={listIndex}
       position={widgetDescription.position}
       {...otherProps}
-      defaultMjpgEndpoint={defaultMjpgEndpoint}
+      mjpgEndpoints={mjpgEndpoints}
     >
       {ChildComponents}
     </Component>

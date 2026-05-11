@@ -54,7 +54,7 @@ export const useConnectionMultiplePv = (
     additionalPvData: PvArrayResults;
   }
 ) => {
-  const pvNameArray = pvNames.filter(x => !!x);
+  let pvNameArray = pvNames.filter(x => !!x);
   const typeArray = !subscriptionType ? [] : [subscriptionType];
 
   let additionalPvData: PvArrayResults = {};
@@ -64,6 +64,9 @@ export const useConnectionMultiplePv = (
     // This provides a mechanism for widgets to override the standard pv subscription
     ({ pvNameSubscriptions, additionalPvData } =
       overridePvSubscriptionsCallback(pvNameArray));
+    pvNameArray = [
+      ...new Set([...pvNameArray, ...Object.keys(additionalPvData)])
+    ];
   }
 
   useSubscription(id, pvNameSubscriptions, typeArray);

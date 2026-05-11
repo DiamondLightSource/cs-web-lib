@@ -249,21 +249,25 @@ export const EmbeddedDisplay = (
 
   let component: JSX.Element;
   try {
-    component = widgetDescriptionToComponent({
-      type: "display",
-      id: `display_${crypto.randomUUID()}`,
-      position: resolvedProps.position,
-      backgroundColor:
-        selectedDescription.backgroundColor ?? newColor("rgb(255,255,255"),
-      border:
-        resolvedProps.border ??
-        newBorder(BorderStyle.Line, newColor("white"), 0),
-      overflow: overflow,
-      children: [selectedDescription],
-      scaling: [scaleFactorX, scaleFactorY],
-      autoZoomToFit: applyAutoZoomToFit,
-      scalingOrigin: resolvedProps.scalingOrigin
-    }, undefined, props?.defaultMjpgEndpoint);
+    component = widgetDescriptionToComponent(
+      {
+        type: "display",
+        id: `display_${crypto.randomUUID()}`,
+        position: resolvedProps.position,
+        backgroundColor:
+          selectedDescription.backgroundColor ?? newColor("rgb(255,255,255"),
+        border:
+          resolvedProps.border ??
+          newBorder(BorderStyle.Line, newColor("white"), 0),
+        overflow: overflow,
+        children: [selectedDescription],
+        scaling: [scaleFactorX, scaleFactorY],
+        autoZoomToFit: applyAutoZoomToFit,
+        scalingOrigin: resolvedProps.scalingOrigin
+      },
+      undefined,
+      props?.mjpgEndpoints
+    );
   } catch (e) {
     const message = `Error loading ${(resolvedProps.file as File)?.path}: ${e}.`;
     log.warn(message);

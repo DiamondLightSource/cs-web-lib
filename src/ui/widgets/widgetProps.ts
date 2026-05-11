@@ -9,7 +9,8 @@ import {
   RulesPropOpt,
   PvTypePropOpt,
   PVMetadataType,
-  ScriptsPropOpt
+  ScriptsPropOpt,
+  StringArrayPropOpt
 } from "./propTypes";
 
 import { GenericProp } from "../../types/props";
@@ -25,7 +26,7 @@ const BasicPropsType = {
   tooltip: StringPropOpt,
   border: BorderPropOpt,
   visible: BoolPropOpt,
-  defaultMjpgEndpoint: StringPropOpt
+  mjpgEndpoints: StringArrayPropOpt
 };
 
 const PositionPropsType = {

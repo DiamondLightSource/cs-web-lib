@@ -41,5 +41,5 @@ export const {
   selectConfiguration,
   selectFeatureFlags,
   selectEnableDynamicScripts,
-  selectDefaultMjpgEndpoint,
+  selectDefaultMjpgEndpoint
 } = configurationSlice.selectors;
