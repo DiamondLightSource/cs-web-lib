@@ -90,7 +90,9 @@ export const DynamicPageComponent = (
             scalingOrigin={"0 0"}
             scroll={props.scroll ?? false}
             theme={theme}
-            mjpgEndpoints={[props?.mjpgEndpoint, defaultMjpgEndpoint]}
+            mjpgEndpoints={[props?.mjpgEndpoint, defaultMjpgEndpoint].filter(
+              x => x != null
+            )}
           />
           <div
             style={{
