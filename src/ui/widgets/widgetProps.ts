@@ -1,4 +1,4 @@
-import { PvArrayResults, PvDataCollection } from "../../redux/csState";
+import { PvDataCollection } from "../../redux/csState";
 import {
   StringPropOpt,
   BoolPropOpt,
@@ -63,10 +63,6 @@ type AnyOtherProps = {
 
 type BaseWidgetProps = {
   baseWidget: React.FC<any>;
-  overridePvSubscriptionsCallback?: (pvNameArray: string[]) => {
-    pvNameSubscriptions: string[];
-    additionalPvData: PvArrayResults;
-  };
 };
 
 type ComponentProps = {

@@ -33,7 +33,6 @@ import { PositionPropNames, positionToCss } from "../../types/position";
 import { AlarmQuality, dTypeGetAlarm } from "../../types/dtypes";
 import { pvQualifiedName } from "../../types/pv";
 import { Box } from "@mui/material";
-import { PvArrayResults } from "../../redux/csState";
 
 const ALARM_SEVERITY_MAP = {
   [AlarmQuality.ALARM]: 1,
@@ -114,10 +113,6 @@ export const ConnectingComponent = (props: {
   widgetProps: ConnectingComponentWidgetProps;
   containerStyle: CSSProperties;
   onContextMenu?: (e: React.MouseEvent) => void;
-  overridePvSubscriptionsCallback?: (pvNameArray: string[]) => {
-    pvNameSubscriptions: string[];
-    additionalPvData: PvArrayResults;
-  };
 }): JSX.Element => {
   const Component = props.component;
   const { id, alarmBorder = false, pvMetadataList } = props.widgetProps;
@@ -164,8 +159,7 @@ export const ConnectingComponent = (props: {
   const { pvData } = useConnectionMultiplePv(
     id,
     pvNames.map(x => pvQualifiedName(x)),
-    undefined,
-    props?.overridePvSubscriptionsCallback
+    undefined
   );
 
   let border = props.widgetProps.border;
@@ -336,12 +330,7 @@ export const Widget = (props: PVWidgetComponent): JSX.Element => {
   log.debug(ruleProps);
 
   // Extract remaining parameters
-  const {
-    baseWidget,
-    overridePvSubscriptionsCallback,
-    position,
-    ...baseWidgetProps
-  } = {
+  const { baseWidget, position, ...baseWidgetProps } = {
     ...ruleProps,
     ...scriptProps,
     position: ruleProps.position
@@ -376,7 +365,6 @@ export const Widget = (props: PVWidgetComponent): JSX.Element => {
         widgetProps={baseWidgetProps as ConnectingComponentWidgetProps}
         containerStyle={containerStyle}
         onContextMenu={onContextMenu}
-        overridePvSubscriptionsCallback={overridePvSubscriptionsCallback}
       />
     </Box>
   );

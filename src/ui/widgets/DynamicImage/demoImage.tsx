@@ -1,37 +1,41 @@
 import React, { useState } from "react";
 import { Widget } from "../widget";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
-import { InferWidgetProps, MacrosPropOpt, ColorPropOpt } from "../propTypes";
+import {
+  InferWidgetProps,
+  MacrosPropOpt,
+  ColorPropOpt,
+  StringArrayPropOpt
+} from "../propTypes";
 import { registerWidget } from "../register";
 import { Box } from "@mui/material";
 import { useStyle } from "../../hooks/useStyle";
-import { PvArrayResults, PvState } from "../../../redux/csState";
 import { getPvValueAndName } from "../utils";
-import { DAlarmNONE, newDType } from "../../../types/dtypes";
 import { useNotification } from "../../hooks";
 
 const widgetName = "demoImage";
 
 const DemoImageProps = {
   macros: MacrosPropOpt,
-  backgroundColor: ColorPropOpt
+  backgroundColor: ColorPropOpt,
+  mjpgEndpoints: StringArrayPropOpt
 };
 
 export const DemoImageComponent = (
   props: InferWidgetProps<typeof DemoImageProps> & PVComponent
 ): JSX.Element => {
   const { colors } = useStyle(props, widgetName);
-  const { value, effectivePvName } = getPvValueAndName(props?.pvData);
+  const { effectivePvName } = getPvValueAndName(props?.pvData);
+  const urls = buildMjpgPvUrls(props?.mjpgEndpoints, effectivePvName);
 
-  const [src, setSrc] = useState(value?.value?.stringValue);
+  const [src, setSrc] = useState(urls?.[0]);
   const [numberOfFailures, setNumberOfFailures] = useState(0);
   const { showWarning } = useNotification();
 
   const handleError = () => {
-    if (numberOfFailures < (props?.pvData?.length ?? 0) - 1) {
-      const { value } = getPvValueAndName(props?.pvData, numberOfFailures + 1);
-      setSrc(value?.value?.stringValue);
-      setNumberOfFailures(numberOfFailures + 1);
+    if (numberOfFailures + 1 < (urls?.length ?? 0)) {
+      setSrc(urls?.[numberOfFailures + 1]);
+      setNumberOfFailures(prev => prev + 1);
     } else {
       // reset in case of re-render
       setNumberOfFailures(0);
@@ -58,45 +62,24 @@ export const DemoImageComponent = (
   );
 };
 
-export const overridePvSubscriptionsWithMjpgUrl =
-  (mjpgEndpoints?: (string | null | undefined)[]) =>
-  (
-    pvNameArray: string[]
-  ): { pvNameSubscriptions: string[]; additionalPvData: PvArrayResults } => {
-    let additionalPvData: PvArrayResults = {};
+export const buildMjpgPvUrls = (
+  mjpgEndpoints: (string | null | undefined)[] | undefined,
+  pvName: string
+): string[] => {
+  if (!pvName || !mjpgEndpoints || mjpgEndpoints?.length === 0) {
+    return [];
+  }
 
-    if (pvNameArray.length > 0 && mjpgEndpoints && mjpgEndpoints.length > 0) {
-      // remove leading pva protocol string and replace :ARRAY with :OUTPUT
-      const trimmedPvName = pvNameArray[0]
-        .replace(/^pva:\/\//, "")
-        .replace(/:ARRAY$/, ":OUTPUT");
+  const trimmedPvName = pvName
+    .replace(/^pva:\/\//, "")
+    .replace(/:ARRAY$/, ":OUTPUT");
 
-      // Create a dictionary of pv data values that contain the url of the mjpg,
-      // typically one primary, one fallback url
-      additionalPvData = mjpgEndpoints
-        ?.filter(x => x != null)
-        ?.map(
-          (endpoint, i) =>
-            [
-              {
-                value: newDType(
-                  { stringValue: `${endpoint}/${trimmedPvName}` },
-                  DAlarmNONE()
-                )
-              } as PvState,
-              trimmedPvName
-            ] as [PvState, string]
-        )
-        ?.reduce((acc, val, i) => {
-          acc[`${val[1]}_${i}`] = val;
-          return acc;
-        }, additionalPvData);
-    }
+  const additionalPvData = mjpgEndpoints
+    ?.filter(x => x != null)
+    ?.map((endpoint, i) => `${endpoint}/${trimmedPvName}`);
 
-    // don't subscribe to any other pvs via PVWS.
-    const pvNameSubscriptions: string[] = [];
-    return { pvNameSubscriptions, additionalPvData };
-  };
+  return additionalPvData ?? [];
+};
 
 const DemoImageWidgetProps = {
   ...DemoImageProps,
@@ -105,14 +88,6 @@ const DemoImageWidgetProps = {
 
 export const DemoImage = (
   props: InferWidgetProps<typeof DemoImageWidgetProps>
-): JSX.Element => (
-  <Widget
-    baseWidget={DemoImageComponent}
-    {...props}
-    overridePvSubscriptionsCallback={overridePvSubscriptionsWithMjpgUrl(
-      props?.mjpgEndpoints
-    )}
-  />
-);
+): JSX.Element => <Widget baseWidget={DemoImageComponent} {...props} />;
 
 registerWidget(DemoImage, DemoImageWidgetProps, widgetName);

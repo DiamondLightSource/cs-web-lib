@@ -48,41 +48,22 @@ export function useConnection(
 export const useConnectionMultiplePv = (
   id: string,
   pvNames: string[],
-  subscriptionType?: SubscriptionType,
-  overridePvSubscriptionsCallback?: (pvNameArray: string[]) => {
-    pvNameSubscriptions: string[];
-    additionalPvData: PvArrayResults;
-  }
+  subscriptionType?: SubscriptionType
 ) => {
-  let pvNameArray = pvNames.filter(x => !!x);
+  const pvNameArray = pvNames.filter(x => !!x);
   const typeArray = !subscriptionType ? [] : [subscriptionType];
 
-  let additionalPvData: PvArrayResults = {};
-
-  let pvNameSubscriptions = pvNameArray;
-  if (overridePvSubscriptionsCallback) {
-    // This provides a mechanism for widgets to override the standard pv subscription
-    ({ pvNameSubscriptions, additionalPvData } =
-      overridePvSubscriptionsCallback(pvNameArray));
-    pvNameArray = [
-      ...new Set([...pvNameArray, ...Object.keys(additionalPvData)])
-    ];
-  }
-
-  useSubscription(id, pvNameSubscriptions, typeArray);
+  useSubscription(id, pvNameArray, typeArray);
   const pvStates = useSelector(
-    (state: CsState): PvArrayResults =>
-      selectPvStates(state, pvNameSubscriptions),
+    (state: CsState): PvArrayResults => selectPvStates(state, pvNameArray),
     pvStateComparator
   );
 
-  const pvResults = { ...pvStates, ...additionalPvData };
-
   return {
     pvData: pvNameArray
-      .filter(pvName => pvName in pvResults)
+      .filter(pvName => pvName in pvStates)
       .map(pvName => {
-        const [pvState, effPvName] = pvResults[pvName];
+        const [pvState, effPvName] = pvStates[pvName];
 
         return {
           effectivePvName: effPvName,

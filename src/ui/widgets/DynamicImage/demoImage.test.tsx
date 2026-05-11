@@ -1,9 +1,6 @@
 import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
-import {
-  DemoImageComponent,
-  overridePvSubscriptionsWithMjpgUrl
-} from "./demoImage";
+import { DemoImageComponent, buildMjpgPvUrls } from "./demoImage";
 import { newColor } from "../../../types/color";
 import { vi } from "vitest";
 import { createMockStyle } from "../../../test-utils/styleTestUtils";
@@ -30,14 +27,14 @@ vi.mock("../utils", () => ({
 }));
 
 describe("DemoImageComponent", () => {
+  beforeEach(() => {
+    showWarningMock.mockClear();
+  });
+
   it("renders an img with the expected src and alt text", () => {
     const data = [
       {
-        value: newDType(
-          { stringValue: "/images/demoCameraImage.jpg" },
-          DAlarmNONE()
-        ),
-        effectivePvName: "demoImage"
+        value: newDType({ stringValue: "An ignored value" }, DAlarmNONE())
       } as PvDatum
     ];
 
@@ -45,13 +42,19 @@ describe("DemoImageComponent", () => {
       <DemoImageComponent
         macros={{}}
         pvData={data}
+        mjpgEndpoints={["http://www.images.diamond.ac.uk/abc"]}
         backgroundColor={newColor("#123456")}
       />
     );
 
-    const img = screen.getByRole("img", { name: /PvName: TEST:PV/i });
+    const img = screen.getByRole("img", {
+      name: /PvName: TEST:PV/i
+    });
     expect(img).toBeInTheDocument();
-    expect(img).toHaveAttribute("src", "/images/demoCameraImage.jpg");
+    expect(img).toHaveAttribute(
+      "src",
+      "http://www.images.diamond.ac.uk/abc/TEST:PV"
+    );
     expect(img).toHaveAttribute("alt", "PvName: TEST:PV");
   });
 
@@ -64,39 +67,81 @@ describe("DemoImageComponent", () => {
     );
   });
 
-  it("falls back to next src on error", () => {
+  it("cycles through URLs sequentially on repeated errors", () => {
     const data = [
-      { value: newDType({ stringValue: "bad-url-1" }) },
-      { value: newDType({ stringValue: "good-url-2" }) }
+      { value: newDType({ stringValue: "ignored" }, DAlarmNONE()) } as PvDatum
     ];
 
-    render(<DemoImageComponent pvData={data as any} macros={{}} />);
+    render(
+      <DemoImageComponent
+        macros={{}}
+        pvData={data}
+        mjpgEndpoints={["http://a", "http://b", "http://c"]}
+      />
+    );
 
     const img = screen.getByRole("img");
 
-    // initial src
-    expect(img).toHaveAttribute("src", "bad-url-1");
+    expect(img).toHaveAttribute("src", "http://a/TEST:PV");
 
-    // trigger error → should fallback
     fireEvent.error(img);
+    expect(img).toHaveAttribute("src", "http://b/TEST:PV");
 
-    expect(img).toHaveAttribute("src", "good-url-2");
+    fireEvent.error(img);
+    expect(img).toHaveAttribute("src", "http://c/TEST:PV");
   });
 
-  it("calls showWarning when all sources fail", () => {
+  it("shows warning when all URLs fail", () => {
     const data = [
-      { value: { stringValue: "bad-url-1" } },
-      { value: { stringValue: "bad-url-2" } }
+      { value: newDType({ stringValue: "ignored" }, DAlarmNONE()) } as PvDatum
     ];
 
-    render(<DemoImageComponent pvData={data as any} macros={{}} />);
+    render(
+      <DemoImageComponent
+        macros={{}}
+        pvData={data}
+        mjpgEndpoints={["http://a", "http://b"]}
+      />
+    );
 
     const img = screen.getByRole("img");
 
-    // first failure → fallback
+    fireEvent.error(img); // move to second URL
+    fireEvent.error(img); // no more URLs → warning
+
+    expect(showWarningMock).toHaveBeenCalledWith(
+      "Could not load mjpg image stream for the PV: TEST:PV"
+    );
+  });
+
+  it("resets failure counter after exhausting URLs", () => {
+    const data = [
+      { value: newDType({ stringValue: "ignored" }, DAlarmNONE()) } as PvDatum
+    ];
+
+    render(
+      <DemoImageComponent
+        macros={{}}
+        pvData={data}
+        mjpgEndpoints={["http://a", "http://b"]}
+      />
+    );
+
+    const img = screen.getByRole("img");
+
+    fireEvent.error(img); // → b
+    fireEvent.error(img); // → warning + reset
+
+    // Trigger again → should start sequence again from second URL
     fireEvent.error(img);
 
-    // second failure → warning
+    expect(img).toHaveAttribute("src", "http://b/TEST:PV");
+  });
+
+  it("handles missing endpoints without crashing", () => {
+    render(<DemoImageComponent macros={{}} pvData={[]} mjpgEndpoints={[]} />);
+
+    const img = screen.getByRole("img");
     fireEvent.error(img);
 
     expect(showWarningMock).toHaveBeenCalledWith(
@@ -105,82 +150,52 @@ describe("DemoImageComponent", () => {
   });
 });
 
-describe("overridePvSubscriptionsWithMjpgUrl", () => {
-  it("returns empty subscriptions and no additional data when no inputs provided", () => {
-    const fn = overridePvSubscriptionsWithMjpgUrl(undefined);
-
-    const result = fn([]);
-
-    expect(result.pvNameSubscriptions).toEqual([]);
-    expect(result.additionalPvData).toEqual({});
+describe("buildMjpgPvUrls", () => {
+  it("returns empty array if pvName is missing", () => {
+    const result = buildMjpgPvUrls(["http://test"], "");
+    expect(result).toEqual([]);
   });
 
-  it("returns empty additionalPvData when pvNameArray is empty", () => {
-    const fn = overridePvSubscriptionsWithMjpgUrl(["http://camera"]);
-
-    const result = fn([]);
-
-    expect(result.pvNameSubscriptions).toEqual([]);
-    expect(result.additionalPvData).toEqual({});
+  it("returns empty array if endpoints are undefined", () => {
+    const result = buildMjpgPvUrls(undefined, "TEST:PV");
+    expect(result).toEqual([]);
   });
 
-  it("creates pv entries for each valid endpoint", () => {
-    const endpoints = ["http://cam1", "http://cam2"];
-    const fn = overridePvSubscriptionsWithMjpgUrl(endpoints);
-
-    const result = fn(["TEST:ARRAY"]);
-
-    expect(result.pvNameSubscriptions).toEqual([]);
-
-    const keys = Object.keys(result.additionalPvData);
-    expect(keys).toHaveLength(2);
-
-    expect(keys).toContain("TEST:OUTPUT_0");
-    expect(keys).toContain("TEST:OUTPUT_1");
-
-    const entry = result.additionalPvData["TEST:OUTPUT_0"];
-    expect(entry[0].value?.value.stringValue).toBe("http://cam1/TEST:OUTPUT");
-    expect(entry[0].value?.alarm).toEqual(DAlarmNONE());
+  it("returns empty array if endpoints are empty", () => {
+    const result = buildMjpgPvUrls([], "TEST:PV");
+    expect(result).toEqual([]);
   });
 
-  it("removes pva:// prefix and replaces :ARRAY with :OUTPUT", () => {
-    const fn = overridePvSubscriptionsWithMjpgUrl(["http://cam"]);
+  it("filters out null/undefined endpoints", () => {
+    const result = buildMjpgPvUrls(
+      ["http://a", null, undefined, "http://b"],
+      "TEST:PV"
+    );
 
-    const result = fn(["pva://MY:PV:ARRAY"]);
-
-    const entry = result.additionalPvData["MY:PV:OUTPUT_0"];
-
-    expect(entry[0].value?.value.stringValue).toBe("http://cam/MY:PV:OUTPUT");
+    expect(result).toEqual(["http://a/TEST:PV", "http://b/TEST:PV"]);
   });
 
-  it("filters out null and undefined endpoints", () => {
-    const fn = overridePvSubscriptionsWithMjpgUrl([
-      "http://cam1",
-      null,
-      undefined,
-      "http://cam2"
-    ]);
+  it("removes pva:// prefix from pvName", () => {
+    const result = buildMjpgPvUrls(["http://a"], "pva://TEST:PV");
 
-    const result = fn(["TEST:ARRAY"]);
-
-    const keys = Object.keys(result.additionalPvData);
-    expect(keys).toHaveLength(2);
-
-    expect(
-      result?.additionalPvData?.["TEST:OUTPUT_0"]?.[0]?.value?.value.stringValue
-    ).toBe("http://cam1/TEST:OUTPUT");
-
-    expect(
-      result.additionalPvData["TEST:OUTPUT_1"][0].value?.value.stringValue
-    ).toBe("http://cam2/TEST:OUTPUT");
+    expect(result).toEqual(["http://a/TEST:PV"]);
   });
 
-  it("returns empty additionalPvData if all endpoints are null/undefined", () => {
-    const fn = overridePvSubscriptionsWithMjpgUrl([null, undefined]);
+  it("replaces :ARRAY suffix with :OUTPUT", () => {
+    const result = buildMjpgPvUrls(["http://a"], "TEST:PV:ARRAY");
 
-    const result = fn(["TEST:ARRAY"]);
+    expect(result).toEqual(["http://a/TEST:PV:OUTPUT"]);
+  });
 
-    expect(result.additionalPvData).toEqual({});
-    expect(result.pvNameSubscriptions).toEqual([]);
+  it("handles both prefix removal and suffix replacement together", () => {
+    const result = buildMjpgPvUrls(["http://a"], "pva://TEST:PV:ARRAY");
+
+    expect(result).toEqual(["http://a/TEST:PV:OUTPUT"]);
+  });
+
+  it("builds urls for multiple endpoints", () => {
+    const result = buildMjpgPvUrls(["http://a", "http://b"], "TEST:PV");
+
+    expect(result).toEqual(["http://a/TEST:PV", "http://b/TEST:PV"]);
   });
 });
