@@ -263,7 +263,7 @@ export const EmbeddedDisplay = (
       scaling: [scaleFactorX, scaleFactorY],
       autoZoomToFit: applyAutoZoomToFit,
       scalingOrigin: resolvedProps.scalingOrigin
-    });
+    }, undefined, props?.defaultMjpgEndpoint);
   } catch (e) {
     const message = `Error loading ${(resolvedProps.file as File)?.path}: ${e}.`;
     log.warn(message);

@@ -54,7 +54,8 @@ export function widgetDescriptionToComponent(
   // Converts a JS object matching a position description into React component
   // from the component dictionary provided. Uses recursion to generate children.
   widgetDescription: WidgetDescription,
-  listIndex?: number
+  listIndex?: number,
+  defaultMjpgEndpoint?: string
 ): JSX.Element {
   const { type, children = [], ...otherProps } = widgetDescription;
 
@@ -107,6 +108,7 @@ export function widgetDescriptionToComponent(
       key={listIndex}
       position={widgetDescription.position}
       {...otherProps}
+      defaultMjpgEndpoint={defaultMjpgEndpoint}
     >
       {ChildComponents}
     </Component>

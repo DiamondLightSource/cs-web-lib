@@ -6,8 +6,6 @@ import { registerWidget } from "../register";
 import { Box } from "@mui/material";
 import { useStyle } from "../../hooks/useStyle";
 import { PvArrayResults, PvState } from "../../../redux/csState";
-import { useSelector } from "react-redux";
-import { selectMjpgStreamEndPoint } from "../../../redux/slices/configurationSlice";
 import { getPvValueAndName } from "../utils";
 
 const widgetName = "demoImage";
@@ -81,18 +79,14 @@ const DemoImageWidgetProps = {
 
 export const DemoImage = (
   props: InferWidgetProps<typeof DemoImageWidgetProps>
-): JSX.Element => {
-  const mjpgEndpoint = useSelector(selectMjpgStreamEndPoint);
-
-  return (
+): JSX.Element => (
     <Widget
       baseWidget={DemoImageComponent}
       {...props}
       overridePvSubscriptionsCallback={overridePvSubscriptionsCallback(
-        mjpgEndpoint
+        props?.defaultMjpgEndpoint
       )}
     />
   );
-};
 
 registerWidget(DemoImage, DemoImageWidgetProps, widgetName);

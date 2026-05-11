@@ -13,7 +13,7 @@ describe("configurationSlice", () => {
     PVWS_SOCKET: "",
     PVWS_SSL: true,
     THROTTLE_PERIOD: 100,
-    mjpgStreamEndPoint: "",
+    defaultMjpgEndpoint: "",
     csWebLibFeatureFlags: {
       enableDynamicScripts: false
     }

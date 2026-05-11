@@ -27,6 +27,8 @@ import { newColor } from "../../../types/color";
 import { newRelativePosition } from "../../../types/position";
 import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 import { phoebusTheme } from "../../../phoebusTheme";
+import { useSelector } from "react-redux";
+import { selectDefaultMjpgEndpoint } from "../../../redux/slices/configurationSlice";
 
 const widgetName = "dynamicpage";
 
@@ -47,7 +49,7 @@ export const DynamicPageComponent = (
 
   const file = fileContext.pageState[props.location];
 
-  // Default behaviour is to show close button
+  // Default behavior is to show close button
   const showCloseButton =
     props.showCloseButton === undefined ? true : props.showCloseButton;
 
@@ -57,6 +59,8 @@ export const DynamicPageComponent = (
     ...style.font,
     ...style.other
   };
+
+  const defaultMjpgEndpoint = useSelector(selectDefaultMjpgEndpoint);
 
   if (file === undefined) {
     return (
@@ -84,6 +88,7 @@ export const DynamicPageComponent = (
             scalingOrigin={"0 0"}
             scroll={props.scroll ?? false}
             theme={theme}
+            defaultMjpgEndpoint={defaultMjpgEndpoint}
           />
           <div
             style={{
@@ -131,6 +136,7 @@ export const DynamicPageComponent = (
             scalingOrigin={"0 0"}
             scroll={props.scroll ?? false}
             theme={theme}
+            defaultMjpgEndpoint={defaultMjpgEndpoint}
           />
         </div>
       </ExitFileContext.Provider>
