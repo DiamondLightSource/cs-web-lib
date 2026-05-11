@@ -3,6 +3,7 @@ import { useSubscription } from "./useSubscription";
 import { useSelector } from "react-redux";
 import {
   CsState,
+  PvDataCollection,
   selectPvStates,
   pvStateComparator,
   PvArrayResults
@@ -48,29 +49,28 @@ export function useConnection(
 export const useConnectionMultiplePv = (
   id: string,
   pvNames: string[],
-  subscriptionType?: SubscriptionType
-) => {
+  type?: SubscriptionType
+): PvDataCollection => {
   const pvNameArray = pvNames.filter(x => !!x);
-  const typeArray = !subscriptionType ? [] : [subscriptionType];
+  const typeArray = !type ? [] : [type];
 
   useSubscription(id, pvNameArray, typeArray);
-  const pvStates = useSelector(
+
+  const pvResults = useSelector(
     (state: CsState): PvArrayResults => selectPvStates(state, pvNameArray),
     pvStateComparator
   );
 
   return {
-    pvData: pvNameArray
-      .filter(pvName => pvName in pvStates)
-      .map(pvName => {
-        const [pvState, effPvName] = pvStates[pvName];
+    pvData: pvNameArray.map(pvName => {
+      const [pvState, effPvName] = pvResults[pvName];
 
-        return {
-          effectivePvName: effPvName,
-          connected: pvState?.connected ?? false,
-          readonly: pvState?.readonly ?? false,
-          value: pvState?.value
-        };
-      })
+      return {
+        effectivePvName: effPvName,
+        connected: pvState?.connected ?? false,
+        readonly: pvState?.readonly ?? false,
+        value: pvState?.value
+      };
+    })
   };
 };
