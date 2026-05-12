@@ -1,7 +1,20 @@
 import { colord } from "colord";
+import { Font, newFont, FontStyle } from "./font";
 
 export interface Color {
   colorString: string;
+}
+
+// Map to names of Color Maps in h5web/lib
+export enum ColorMap {
+  VIRIDIS = "Viridis",
+  GRAY = "Greys",
+  JET = "Spectral",
+  SPECTRUM = "HSL",
+  HOT = "Warm",
+  COOL = "Cool",
+  SHADED = "Reds",
+  MAGMA = "Magma"
 }
 
 export const newColor = (colorString: string): Color => ({
@@ -40,6 +53,22 @@ export class ColorUtils {
     return newColor(`rgba(${r},${g},${b},${a})`);
   }
 }
+
+export interface ColorBar {
+  visible: boolean;
+  barSize: number;
+  scaleFont: Font;
+}
+
+export const newColorBar = (
+  visible?: boolean,
+  barSize?: number,
+  scaleFont?: Font
+): ColorBar => ({
+  visible: visible ?? false,
+  barSize: barSize ?? 40,
+  scaleFont: scaleFont ?? newFont(12, FontStyle.Regular)
+});
 
 export const colorChangeAlpha = (color: Color, a: number): Color => {
   return newColor(colord(color.colorString).alpha(a).toRgbString());

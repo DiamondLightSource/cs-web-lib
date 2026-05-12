@@ -5,30 +5,66 @@ import {
   InferWidgetProps,
   MacrosPropOpt,
   ColorPropOpt,
-  StringArrayPropOpt
+  StringArrayPropOpt,
+  AxisPropOpt,
+  FloatPropOpt,
+  IntPropOpt,
+  BoolPropOpt,
+  ColorBarPropOpt,
+  ColorMapPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
 import { Box } from "@mui/material";
 import { useStyle } from "../../hooks/useStyle";
 import { getPvValueAndName } from "../utils";
 import { useNotification } from "../../hooks";
+import { Axis } from "../../../types/axis";
+import { ColorMap, newColorBar } from "../../../types/color";
 
 const widgetName = "demoImage";
 
 const DemoImageProps = {
   macros: MacrosPropOpt,
   backgroundColor: ColorPropOpt,
-  mjpgEndpoints: StringArrayPropOpt
+  mjpgEndpoints: StringArrayPropOpt,
+  colorBar: ColorBarPropOpt,
+  colorMap: ColorMapPropOpt,
+  xAxis: AxisPropOpt,
+  yAxis: AxisPropOpt,
+  minimum: FloatPropOpt,
+  maximum: FloatPropOpt,
+  dataWidth: IntPropOpt,
+  dataHeight: IntPropOpt,
+  logScale: BoolPropOpt,
+  autoScale: BoolPropOpt,
+  cursorCrosshair: BoolPropOpt,
+  limitsFromPv: BoolPropOpt,
+  unsignedData: BoolPropOpt,
+  visible: BoolPropOpt
 };
 
 export const DemoImageComponent = (
   props: InferWidgetProps<typeof DemoImageProps> & PVComponent
 ): JSX.Element => {
+  const {
+    colorMap = ColorMap.VIRIDIS,
+    colorBar = newColorBar(),
+    xAxis = new Axis({ xAxis: true }),
+    yAxis = new Axis(),
+    limitsFromPv = false,
+    logScale = false,
+    minimum = 0, // These are color bar limits
+    maximum = 255,
+    dataWidth = 100,
+    dataHeight = 100,
+    visible = true
+  } = props;
   const { colors } = useStyle(props, widgetName);
   const { effectivePvName } = getPvValueAndName(props?.pvData);
   const urls = buildMjpgPvUrls(props?.mjpgEndpoints, effectivePvName);
 
   const [src, setSrc] = useState(urls?.[0]);
+
   const [numberOfFailures, setNumberOfFailures] = useState(0);
   const { showWarning } = useNotification();
 

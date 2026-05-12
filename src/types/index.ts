@@ -1,5 +1,5 @@
 export { type Position, newRelativePosition } from "./position";
-export { type Color, ColorUtils } from "./color";
+export { type Color, ColorUtils, type ColorBar } from "./color";
 export type { PV } from "./pv";
 export type { Font } from "./font";
 export { FontStyle } from "./font";

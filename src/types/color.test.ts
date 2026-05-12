@@ -1,4 +1,5 @@
-import { colorChangeAlpha, newColor } from "./color";
+import { colorChangeAlpha, newColor, newColorBar } from "./color";
+import { newFont } from "./font";
 
 describe("Color", (): void => {
   it.each<[string]>([["green"], ["red"]])(
@@ -31,6 +32,36 @@ describe("Color", (): void => {
       const initialColor = newColor("hsl(210, 50%, 50%)");
       const fadedColor = colorChangeAlpha(initialColor, 0.3);
       expect(fadedColor.colorString).toBe("rgba(64, 128, 191, 0.3)");
+    });
+  });
+});
+
+describe("newColorBar", (): void => {
+  it("sets default values on creation", () => {
+    const colorBar = newColorBar();
+    expect(colorBar).toEqual({
+      barSize: 40,
+      scaleFont: {
+        name: undefined,
+        size: 12,
+        style: "Regular",
+        typeface: "Liberation sans"
+      },
+      visible: false
+    });
+  });
+
+  it("correctly sets properties", () => {
+    const colorBar = newColorBar(false, 20, newFont(16));
+    expect(colorBar).toEqual({
+      barSize: 20,
+      scaleFont: {
+        name: undefined,
+        size: 16,
+        style: "Regular",
+        typeface: "Liberation sans"
+      },
+      visible: false
     });
   });
 });

@@ -54,6 +54,12 @@ export const ColorPropOpt = PropTypes.shape({
 });
 export const ColorProp = ColorPropOpt.isRequired;
 
+export const ColorMapPropOpt = PropTypes.shape({
+  name: StringPropOpt,
+  section: PropTypes.arrayOf(ColorPropOpt)
+});
+export const ColorMapProp = ColorMapPropOpt.isRequired;
+
 const FontStyleProp = PropTypes.oneOf(Object.values(FontStyle)).isRequired;
 
 export const FontPropOpt = PropTypes.shape({
@@ -63,6 +69,13 @@ export const FontPropOpt = PropTypes.shape({
   name: StringPropOpt
 });
 export const FontProp = FontPropOpt.isRequired;
+
+export const ColorBarPropOpt = PropTypes.shape({
+  visible: BoolPropOpt,
+  barSize: IntPropOpt,
+  scaleFont: FontPropOpt
+});
+export const ColorBarProp = ColorBarPropOpt.isRequired;
 
 export const BorderStyleProp = PropTypes.oneOf(
   Object.values(BorderStyle)

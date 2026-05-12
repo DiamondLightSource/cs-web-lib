@@ -41,7 +41,7 @@ import {
   BorderStyle,
   newBorder
 } from "../../../types/border";
-import { ColorUtils } from "../../../types/color";
+import { ColorBar, ColorUtils, newColorBar } from "../../../types/color";
 import { WidgetDescription } from "../createComponent";
 import { newPoint, newPoints, Point, Points } from "../../../types/points";
 import { Axis } from "../../../types/axis";
@@ -111,6 +111,7 @@ export const WIDGET_DEFAULT_SIZES: { [key: string]: [number, number] } = {
   ellipse: [100, 50],
   embedded: [400, 300],
   group: [300, 200],
+  image: [400, 300],
   label: [100, 20],
   led: [20, 20],
   linearmeter: [120, 120],
@@ -362,6 +363,27 @@ function bobParseXAxis(props: any): Axis {
 }
 
 /**
+ * Parses a color map, used in Heatmap and Image widgets
+ * @param props
+ * @returns
+ */
+function bobParseColorMap(props: any): string {
+  // Can also specify custom color maps with sections
+  // but for now we'll use named ones
+  const name = opiParseString(props.color_map.name);
+  return name;
+}
+
+/**
+ * Parses props for the color bar attached to a color map
+ * @param props
+ */
+function bobParseColorBar(props: any): ColorBar {
+  const parsedProps = parseChildProps(props.color_bar, BOB_SIMPLE_PARSERS) as ColorBar;
+  return parsedProps;
+}
+
+/**
  * Parses the tabs object, and any child widgets it may have
  * @param props tab object
  * @param simpleParsers object, property parser for children
@@ -585,6 +607,10 @@ export const BOB_SIMPLE_PARSERS: ParserDict = {
   start: ["start", opiParseString],
   end: ["end", opiParseString],
   arrayIndex: ["array_index", bobParseNumber],
+  barSize: ["bar_size", bobParseNumber],
+  dataWidth: ["data_width", bobParseNumber],
+  dataHeight: ["data_height", bobParseNumber],
+  section: ["section", opiParseColor],
   direction: ["direction", bobParseNumber],
   gridCellDragEnabled: ["grid_cell_drag_enabled", opiParseBoolean],
   gridCellResizeEnabled: ["grid_cell_resize_enabled", opiParseBoolean],
@@ -611,7 +637,9 @@ const BOB_COMPLEX_PARSERS: ComplexParserDict = {
   border: bobParseBorder,
   alarmSensitive: bobParseAlarmSensitive,
   file: bobParseFile,
-  xAxis: bobParseXAxis
+  xAxis: bobParseXAxis,
+  colorBar: bobParseColorBar,
+  colorMap: bobParseColorMap
 };
 
 export async function parseBob(
