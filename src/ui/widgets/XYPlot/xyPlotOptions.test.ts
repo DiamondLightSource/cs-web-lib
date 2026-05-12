@@ -1,4 +1,4 @@
-import { Axis } from "../../../types/axis";
+import { Axis, newAxis } from "../../../types/axis";
 import { newColor } from "../../../types/color";
 import { newDType } from "../../../types/dtypes";
 import { FontStyle, fontToCss, newFont } from "../../../types/font";
@@ -271,7 +271,7 @@ describe("Create trace options object", (): void => {
 describe("Create axis options object", (): void => {
   test("Create axis with title label", (): void => {
     const axes: Axis[] = [
-      new Axis({
+      newAxis({
         title: "Test Plot",
         visible: true,
         showGrid: true,
@@ -324,9 +324,9 @@ describe("Create axis options object", (): void => {
       xAxis: true
     };
     const axes: Axis[] = [
-      new Axis(axis),
-      new Axis({ ...axis, ...{ minimum: -5, xAxis: false } }),
-      new Axis({ ...axis, ...{ maximum: 50, xAxis: false } })
+      newAxis(axis),
+      newAxis({ ...axis, ...{ minimum: -5, xAxis: false } }),
+      newAxis({ ...axis, ...{ maximum: 50, xAxis: false } })
     ];
     const font = newFont(10, FontStyle.Regular, "sans");
     const axisOptions = createAxes(
@@ -376,9 +376,9 @@ describe("Create axis options object", (): void => {
     };
 
     const axes: Axis[] = [
-      new Axis(axis),
-      new Axis({ ...axis, ...{ minimum: -5, xAxis: false } }),
-      new Axis({ ...axis, ...{ maximum: 50, onRight: true } })
+      newAxis(axis),
+      newAxis({ ...axis, ...{ minimum: -5, xAxis: false } }),
+      newAxis({ ...axis, ...{ maximum: 50, onRight: true } })
     ];
     const font = newFont(10, FontStyle.Regular, "sans");
     const axisOptions = createAxes(

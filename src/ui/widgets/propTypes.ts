@@ -3,7 +3,6 @@ import { FontStyle } from "../../types/font";
 import { BorderStyle } from "../../types/border";
 import { FileDescription } from "../../misc/fileContext";
 import { Trace } from "../../types/trace";
-import { Axis } from "../../types/axis";
 import { Plt } from "../../types/plt";
 import { PositionType } from "../../types/position";
 
@@ -89,8 +88,21 @@ export const BorderProp = BorderPropOpt.isRequired;
 export const TraceProp = PropTypes.instanceOf(Trace).isRequired;
 export const TracePropOpt = PropTypes.instanceOf(Trace);
 
-export const AxisProp = PropTypes.instanceOf(Axis).isRequired;
-export const AxisPropOpt = PropTypes.instanceOf(Axis);
+export const AxisPropOpt = PropTypes.shape({
+  xAxis: BoolPropOpt,
+  color: ColorPropOpt,
+  title: StringPropOpt,
+  showGrid: BoolPropOpt,
+  visible: BoolPropOpt,
+  logScale: BoolPropOpt,
+  autoscale: BoolPropOpt,
+  maximum: FloatPropOpt,
+  minimum: FloatPropOpt,
+  titleFont: FontPropOpt,
+  scaleFont: FontPropOpt,
+  onRight: BoolPropOpt
+});
+export const AxisProp = AxisPropOpt.isRequired;
 
 export const TracesProp = PropTypes.arrayOf(TraceProp).isRequired;
 export const TracesPropOpt = PropTypes.arrayOf(TracePropOpt);

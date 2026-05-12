@@ -3,7 +3,7 @@ import { act, render, screen } from "@testing-library/react";
 import { describe, test, expect, beforeEach, vi } from "vitest";
 import { DataBrowserComponent } from "./dataBrowser";
 import { Trace } from "../../../types/trace";
-import { Axis } from "../../../types/axis";
+import { newAxis } from "../../../types/axis";
 import { Plt } from "../../../types/plt";
 import { PvDatum } from "../../../redux/csState";
 import { newDTime, newDType } from "../../../types/dtypes";
@@ -86,7 +86,7 @@ describe("DataBrowserComponent", () => {
           yPv: "TEST:PV"
         })
       ],
-      axes: [new Axis()]
+      axes: [newAxis({})]
     })
   };
 
@@ -136,8 +136,8 @@ describe("DataBrowserComponent", () => {
 
     test("renders with 1 y axis on either side", async () => {
       const axes = [
-        new Axis({ color: ColorUtils.RED }),
-        new Axis({ color: ColorUtils.BLUE, onRight: true })
+        newAxis({ color: ColorUtils.RED }),
+        newAxis({ color: ColorUtils.BLUE, onRight: true })
       ];
       const newProps = {
         ...defaultProps,
@@ -170,7 +170,7 @@ describe("DataBrowserComponent", () => {
               yPv: "TEST:PV"
             })
           ],
-          axes: [new Axis()]
+          axes: [newAxis({})]
         })
       };
 

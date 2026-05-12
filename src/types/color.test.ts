@@ -38,7 +38,7 @@ describe("Color", (): void => {
 
 describe("newColorBar", (): void => {
   it("sets default values on creation", () => {
-    const colorBar = newColorBar();
+    const colorBar = newColorBar({});
     expect(colorBar).toEqual({
       barSize: 40,
       scaleFont: {
@@ -52,7 +52,11 @@ describe("newColorBar", (): void => {
   });
 
   it("correctly sets properties", () => {
-    const colorBar = newColorBar(false, 20, newFont(16));
+    const colorBar = newColorBar({
+      visible: false,
+      barSize: 20,
+      scaleFont: newFont(16)
+    });
     expect(colorBar).toEqual({
       barSize: 20,
       scaleFont: {

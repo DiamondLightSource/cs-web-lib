@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, test, expect, beforeEach, vi } from "vitest";
 import { StripChartComponent } from "./stripChart";
 import { Trace } from "../../../types/trace";
-import { Axis } from "../../../types/axis";
+import { newAxis } from "../../../types/axis";
 import { convertStringTimePeriod } from "../utils";
 import { PvDatum } from "../../../redux/csState";
 import { newDTime, newDType } from "../../../types/dtypes";
@@ -63,7 +63,7 @@ describe("StripChartComponent", () => {
   const defaultProps = {
     pvData: [buildPvDatum("TEST:PV", 50)],
     traces: [new Trace()],
-    axes: [new Axis()]
+    axes: [newAxis({})]
   };
 
   beforeEach(() => {
@@ -103,8 +103,8 @@ describe("StripChartComponent", () => {
 
     test("renders with 2 y axes", () => {
       const axes = [
-        new Axis({ color: ColorUtils.RED }),
-        new Axis({ color: ColorUtils.BLUE })
+        newAxis({ color: ColorUtils.RED }),
+        newAxis({ color: ColorUtils.BLUE })
       ];
       render(<StripChartComponent {...defaultProps} axes={axes} />);
 
@@ -353,7 +353,7 @@ describe("StripChartComponent", () => {
     });
 
     test("applies log scale to y axis", () => {
-      const axes = [new Axis({ logScale: true })];
+      const axes = [newAxis({ logScale: true })];
       render(<StripChartComponent {...defaultProps} axes={axes} />);
 
       const lineChart = screen.getByTestId("line-chart");

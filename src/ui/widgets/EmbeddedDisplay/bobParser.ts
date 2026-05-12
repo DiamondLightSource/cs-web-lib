@@ -44,7 +44,7 @@ import {
 import { ColorBar, ColorUtils, newColorBar } from "../../../types/color";
 import { WidgetDescription } from "../createComponent";
 import { newPoint, newPoints, Point, Points } from "../../../types/points";
-import { Axis } from "../../../types/axis";
+import { Axis, newAxis } from "../../../types/axis";
 import { Trace } from "../../../types/trace";
 import { parsePlt } from "./pltParser";
 import { scriptParser } from "./scripts/scriptParser";
@@ -341,12 +341,12 @@ function bobParseYAxes(props: any): Axis[] {
     // of an array
     if (props.y_axis.length > 1) {
       props.y_axis.forEach((axis: any) => {
-        parsedProps = parseChildProps(axis, BOB_SIMPLE_PARSERS);
-        axes.push(new Axis(parsedProps));
+        parsedProps = parseChildProps(axis, BOB_SIMPLE_PARSERS) as Axis;
+        axes.push(newAxis({ ...parsedProps }));
       });
     } else {
       parsedProps = parseChildProps(props.y_axis, BOB_SIMPLE_PARSERS);
-      axes.push(new Axis(parsedProps));
+      axes.push(newAxis(parsedProps));
     }
   }
   return axes;
@@ -359,7 +359,7 @@ function bobParseYAxes(props: any): Axis[] {
  */
 function bobParseXAxis(props: any): Axis {
   const parsedProps = parseChildProps(props.x_axis, BOB_SIMPLE_PARSERS);
-  return new Axis({ xAxis: true, ...parsedProps });
+  return newAxis({ xAxis: true, ...parsedProps });
 }
 
 /**
@@ -379,8 +379,8 @@ function bobParseColorMap(props: any): string {
  * @param props
  */
 function bobParseColorBar(props: any): ColorBar {
-  const parsedProps = parseChildProps(props.color_bar, BOB_SIMPLE_PARSERS) as ColorBar;
-  return parsedProps;
+  const parsedProps = parseChildProps(props.color_bar, BOB_SIMPLE_PARSERS);
+  return newColorBar(parsedProps);
 }
 
 /**

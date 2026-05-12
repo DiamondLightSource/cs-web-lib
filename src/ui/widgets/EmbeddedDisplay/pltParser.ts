@@ -8,7 +8,7 @@ import {
   normalisePath
 } from "./opiParser";
 import { parseChildProps, ParserDict } from "./parser";
-import { Axis } from "../../../types/axis";
+import { Axis, newAxis } from "../../../types/axis";
 import { Archiver, Trace } from "../../../types/trace";
 import { Plt } from "../../../types/plt";
 import { httpRequest } from "../../../misc/httpClient";
@@ -153,7 +153,7 @@ function pltParseAxes(props: ElementCompact, pvAxes: any) {
     propAxes.forEach((axis: any, idx: number) => {
       parsedProps = parseChildProps(axis, PLT_PARSERS);
       axes.push(
-        new Axis({
+        newAxis({
           ...parsedProps,
           fromOpi: false,
           showGrid: parsedProps.grid,

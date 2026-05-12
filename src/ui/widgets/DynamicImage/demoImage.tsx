@@ -18,7 +18,7 @@ import { Box } from "@mui/material";
 import { useStyle } from "../../hooks/useStyle";
 import { getPvValueAndName } from "../utils";
 import { useNotification } from "../../hooks";
-import { Axis } from "../../../types/axis";
+import { Axis, newAxis } from "../../../types/axis";
 import { ColorMap, newColorBar } from "../../../types/color";
 
 const widgetName = "demoImage";
@@ -48,9 +48,9 @@ export const DemoImageComponent = (
 ): JSX.Element => {
   const {
     colorMap = ColorMap.VIRIDIS,
-    colorBar = newColorBar(),
-    xAxis = new Axis({ xAxis: true }),
-    yAxis = new Axis(),
+    colorBar = newColorBar({}),
+    xAxis = newAxis({ xAxis: true }),
+    yAxis = newAxis({}),
     limitsFromPv = false,
     logScale = false,
     minimum = 0, // These are color bar limits
@@ -61,7 +61,7 @@ export const DemoImageComponent = (
   } = props;
   const { colors } = useStyle(props, widgetName);
   const { effectivePvName } = getPvValueAndName(props?.pvData);
-  const urls = buildMjpgPvUrls(props?.mjpgEndpoints, effectivePvName);
+  const urls = buildMjpgPvUrls(["http://localhost:8090/mjpg"], effectivePvName);
 
   const [src, setSrc] = useState(urls?.[0]);
 
@@ -91,7 +91,7 @@ export const DemoImageComponent = (
         width: "100%",
         height: "100%",
         display: "block",
-        objectFit: "contain",
+        objectFit: "cover",
         backgroundColor: colors?.backgroundColor
       }}
     />

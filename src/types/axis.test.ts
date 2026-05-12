@@ -1,5 +1,5 @@
 import { newColor } from "./color";
-import { Axis } from "./axis";
+import { newAxis } from "./axis";
 import { FontStyle, newFont } from "./font";
 
 describe("Axis", () => {
@@ -18,17 +18,16 @@ describe("Axis", () => {
       onRight: true,
       xAxis: true
     };
-    const axis = new Axis(testValues);
+    const axis = newAxis(testValues);
 
     expect({ ...axis, color: axis.color.colorString }).toEqual({
       ...testValues,
       color: testValues.color.colorString
     });
-    expect(axis).toBeInstanceOf(Axis);
   });
 
   it("constructs the y axis with only defaults", (): void => {
-    const axis = new Axis({ xAxis: false });
+    const axis = newAxis({ xAxis: false });
 
     expect({ ...axis, color: axis.color.colorString }).toEqual({
       color: newColor("rgb(0, 0, 0)").colorString,
@@ -44,6 +43,5 @@ describe("Axis", () => {
       onRight: false,
       xAxis: false
     });
-    expect(axis).toBeInstanceOf(Axis);
   });
 });

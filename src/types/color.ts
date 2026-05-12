@@ -60,14 +60,14 @@ export interface ColorBar {
   scaleFont: Font;
 }
 
-export const newColorBar = (
-  visible?: boolean,
-  barSize?: number,
-  scaleFont?: Font
-): ColorBar => ({
-  visible: visible ?? false,
-  barSize: barSize ?? 40,
-  scaleFont: scaleFont ?? newFont(12, FontStyle.Regular)
+export const newColorBar = (config: {
+  visible?: boolean;
+  barSize?: number;
+  scaleFont?: Font;
+}): ColorBar => ({
+  visible: config.visible ?? false,
+  barSize: config.barSize ?? 40,
+  scaleFont: config.scaleFont ?? newFont(12, FontStyle.Regular)
 });
 
 export const colorChangeAlpha = (color: Color, a: number): Color => {

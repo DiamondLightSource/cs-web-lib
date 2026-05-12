@@ -13,7 +13,7 @@ import {
   newRelativePosition
 } from "../../../types/position";
 import { Trace } from "../../../types/trace";
-import { Axis } from "../../../types/axis";
+import { Axis, newAxis } from "../../../types/axis";
 import {
   ComplexParserDict,
   ParserDict,
@@ -517,7 +517,7 @@ function opiParseAxes(props: any): Axis[] {
   const axes: Axis[] = [];
   // Parse all of the 'axis' properties
   for (let i = 0; i < count; i++) {
-    const axis = new Axis({
+    const axis = newAxis({
       fromOpi: true,
       ...parseMultipleNamedProps(`axis_${i}`, props)
     });

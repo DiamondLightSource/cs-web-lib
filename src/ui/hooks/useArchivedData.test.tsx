@@ -2,7 +2,7 @@ import React from "react";
 import { useArchivedData } from "./useArchivedData";
 import { Plt } from "../../types/plt";
 import { vi } from "vitest";
-import { Axis } from "../../types/axis";
+import { newAxis } from "../../types/axis";
 import { Trace } from "../../types/trace";
 import { act, screen } from "@testing-library/react";
 import { contextRender } from "../../testResources";
@@ -68,7 +68,7 @@ describe("useArchivedData", (): void => {
           yPv: "TEST:PV"
         })
       ],
-      axes: [new Axis()]
+      axes: [newAxis({})]
     });
     await act(async () => {
       return contextRender(<ArchivedDataTester plt={plt} />);
