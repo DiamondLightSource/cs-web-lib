@@ -1,30 +1,56 @@
-import React from "react";
+import React, { useState } from "react";
 import { Widget } from "../widget";
-import { WidgetPropType } from "../widgetProps";
-import { InferWidgetProps, MacrosPropOpt, ColorPropOpt } from "../propTypes";
+import { PVComponent, PVWidgetPropType } from "../widgetProps";
+import {
+  InferWidgetProps,
+  MacrosPropOpt,
+  ColorPropOpt,
+  StringArrayPropOpt
+} from "../propTypes";
 import { registerWidget } from "../register";
 import { Box } from "@mui/material";
 import { useStyle } from "../../hooks/useStyle";
+import { getPvValueAndName } from "../utils";
+import { useNotification } from "../../hooks";
 
 const widgetName = "demoImage";
 
 const DemoImageProps = {
   macros: MacrosPropOpt,
-  backgroundColor: ColorPropOpt
+  backgroundColor: ColorPropOpt,
+  mjpgEndpoints: StringArrayPropOpt
 };
 
 export const DemoImageComponent = (
-  props: InferWidgetProps<typeof DemoImageProps>
+  props: InferWidgetProps<typeof DemoImageProps> & PVComponent
 ): JSX.Element => {
   const { colors } = useStyle(props, widgetName);
-  // this image needs to be exist in the Daedalus public/images folder
-  const imageFileName = "/images/demoCameraImage.jpg";
+  const { effectivePvName } = getPvValueAndName(props?.pvData);
+  const urls = buildMjpgPvUrls(props?.mjpgEndpoints, effectivePvName);
+
+  const [src, setSrc] = useState(urls?.[0]);
+  const [numberOfFailures, setNumberOfFailures] = useState(0);
+  const { showWarning } = useNotification();
+
+  const handleError = () => {
+    if (numberOfFailures + 1 < (urls?.length ?? 0)) {
+      setSrc(urls?.[numberOfFailures + 1]);
+      setNumberOfFailures(prev => prev + 1);
+    } else {
+      // reset in case of re-render
+      setNumberOfFailures(0);
+      showWarning(
+        `Could not load mjpg image stream for the PV: ${effectivePvName}`
+      );
+    }
+  };
 
   return (
     <Box
       component="img"
-      src={imageFileName}
-      alt={"Static demo image"}
+      src={src}
+      alt={`PvName: ${effectivePvName}`}
+      onError={handleError}
       sx={{
         width: "100%",
         height: "100%",
@@ -36,9 +62,28 @@ export const DemoImageComponent = (
   );
 };
 
+export const buildMjpgPvUrls = (
+  mjpgEndpoints: (string | null | undefined)[] | undefined,
+  pvName: string
+): string[] => {
+  if (!pvName || !mjpgEndpoints || mjpgEndpoints?.length === 0) {
+    return [];
+  }
+
+  const trimmedPvName = pvName
+    .replace(/^pva:\/\//, "")
+    .replace(/:ARRAY$/, ":OUTPUT");
+
+  const additionalPvData = mjpgEndpoints
+    ?.filter(x => x != null)
+    ?.map((endpoint, i) => `${endpoint}/${trimmedPvName}`);
+
+  return additionalPvData ?? [];
+};
+
 const DemoImageWidgetProps = {
   ...DemoImageProps,
-  ...WidgetPropType
+  ...PVWidgetPropType
 };
 
 export const DemoImage = (

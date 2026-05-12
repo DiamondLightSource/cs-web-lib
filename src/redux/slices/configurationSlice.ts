@@ -10,6 +10,7 @@ const initialState: CsWebLibConfig = {
   PVWS_SOCKET: "",
   PVWS_SSL: true,
   THROTTLE_PERIOD: 100,
+  defaultMjpgEndpoint: "",
   csWebLibFeatureFlags: {
     enableDynamicScripts: false
   }
@@ -29,7 +30,8 @@ export const configurationSlice = createSlice({
     selectConfiguration: state => state,
     selectFeatureFlags: state => state.csWebLibFeatureFlags,
     selectEnableDynamicScripts: state =>
-      state.csWebLibFeatureFlags?.enableDynamicScripts ?? false
+      state.csWebLibFeatureFlags?.enableDynamicScripts ?? false,
+    selectDefaultMjpgEndpoint: state => state.defaultMjpgEndpoint
   }
 });
 
@@ -38,5 +40,6 @@ export default configurationSlice.reducer;
 export const {
   selectConfiguration,
   selectFeatureFlags,
-  selectEnableDynamicScripts
+  selectEnableDynamicScripts,
+  selectDefaultMjpgEndpoint
 } = configurationSlice.selectors;

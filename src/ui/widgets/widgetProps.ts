@@ -9,7 +9,8 @@ import {
   RulesPropOpt,
   PvTypePropOpt,
   PVMetadataType,
-  ScriptsPropOpt
+  ScriptsPropOpt,
+  StringArrayPropOpt
 } from "./propTypes";
 
 import { GenericProp } from "../../types/props";
@@ -24,7 +25,8 @@ const BasicPropsType = {
   actions: ActionsPropType,
   tooltip: StringPropOpt,
   border: BorderPropOpt,
-  visible: BoolPropOpt
+  visible: BoolPropOpt,
+  mjpgEndpoints: StringArrayPropOpt
 };
 
 const PositionPropsType = {
@@ -59,7 +61,9 @@ type AnyOtherProps = {
   [x: string]: GenericProp;
 };
 
-type BaseWidgetProps = { baseWidget: React.FC<any> };
+type BaseWidgetProps = {
+  baseWidget: React.FC<any>;
+};
 
 type ComponentProps = {
   style?: Record<string, string>;

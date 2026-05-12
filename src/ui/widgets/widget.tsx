@@ -158,7 +158,8 @@ export const ConnectingComponent = (props: {
 
   const { pvData } = useConnectionMultiplePv(
     id,
-    pvNames.map(x => pvQualifiedName(x))
+    pvNames.map(x => pvQualifiedName(x)),
+    undefined
   );
 
   let border = props.widgetProps.border;
