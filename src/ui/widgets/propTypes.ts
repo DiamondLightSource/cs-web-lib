@@ -54,11 +54,8 @@ export const ColorPropOpt = PropTypes.shape({
 });
 export const ColorProp = ColorPropOpt.isRequired;
 
-export const ColorMapPropOpt = PropTypes.shape({
-  name: StringPropOpt,
-  section: PropTypes.arrayOf(ColorPropOpt)
-});
-export const ColorMapProp = ColorMapPropOpt.isRequired;
+export const ColorMapPropOpt = PropTypes.string.isRequired;
+export const ColorMapProp = PropTypes.string;
 
 const FontStyleProp = PropTypes.oneOf(Object.values(FontStyle)).isRequired;
 
