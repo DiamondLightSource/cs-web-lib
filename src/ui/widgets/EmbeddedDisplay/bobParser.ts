@@ -596,6 +596,8 @@ export const BOB_SIMPLE_PARSERS: ParserDict = {
   displayHorizontal: ["displayHorizontal", opiParseBoolean],
   xPv: ["xPv", opiParseString],
   yPv: ["yPv", opiParseString],
+  heightPv: ["heightPv", opiParseString],
+  widthPv: ["widthPv", opiParseString],
   axis: ["axis", bobParseNumber],
   pointType: ["point_type", bobParseNumber],
   pointStyle: ["point_style", bobParseNumber],
