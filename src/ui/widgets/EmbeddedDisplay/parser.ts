@@ -27,7 +27,12 @@ const PARSE_EMPTY_STRINGS = [
   "on_label",
   "off_label",
   "title",
-  "group_name"
+  "group_name",
+  "x_pv",
+  "y_pv",
+  "width_pv",
+  "height_pv",
+  "file"
 ];
 
 function isEmpty(obj: any): boolean {

@@ -15,6 +15,7 @@ import {
   ResponsiveGridLayout,
   ResponsiveLayout
 } from "./responsiveBreakpoints";
+import { Rois } from "./rois";
 
 export type GenericProp =
   | string
@@ -43,7 +44,8 @@ export type GenericProp =
   | ResponsiveColumns
   | ResponsiveGridLayout
   | ResponsiveLayout
-  | ColorBar;
+  | ColorBar
+  | Rois;
 
 export interface Expression {
   boolExp: string;

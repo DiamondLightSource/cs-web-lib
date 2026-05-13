@@ -11,15 +11,16 @@ import {
   IntPropOpt,
   BoolPropOpt,
   ColorBarPropOpt,
-  ColorMapPropOpt
+  RoisPropOpt,
+  StringPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
 import { Box } from "@mui/material";
 import { useStyle } from "../../hooks/useStyle";
 import { getPvValueAndName } from "../utils";
 import { useNotification } from "../../hooks";
-import { Axis, newAxis } from "../../../types/axis";
-import { ColorMap, newColorBar } from "../../../types/color";
+// import { newAxis } from "../../../types/axis";
+// import { ColorMap, newColorBar } from "../../../types/color";
 
 const widgetName = "demoImage";
 
@@ -28,7 +29,7 @@ const DemoImageProps = {
   backgroundColor: ColorPropOpt,
   mjpgEndpoints: StringArrayPropOpt,
   colorBar: ColorBarPropOpt,
-  colorMap: ColorMapPropOpt,
+  colorMap: StringPropOpt,
   xAxis: AxisPropOpt,
   yAxis: AxisPropOpt,
   minimum: FloatPropOpt,
@@ -40,28 +41,29 @@ const DemoImageProps = {
   cursorCrosshair: BoolPropOpt,
   limitsFromPv: BoolPropOpt,
   unsignedData: BoolPropOpt,
-  visible: BoolPropOpt
+  visible: BoolPropOpt,
+  regionsOfInterest: RoisPropOpt
 };
 
 export const DemoImageComponent = (
   props: InferWidgetProps<typeof DemoImageProps> & PVComponent
 ): JSX.Element => {
-  const {
-    colorMap = ColorMap.VIRIDIS,
-    colorBar = newColorBar({}),
-    xAxis = newAxis({ xAxis: true }),
-    yAxis = newAxis({}),
-    limitsFromPv = false,
-    logScale = false,
-    minimum = 0, // These are color bar limits
-    maximum = 255,
-    dataWidth = 100,
-    dataHeight = 100,
-    visible = true
-  } = props;
+  // const {
+  //   colorMap = ColorMap.VIRIDIS,
+  //   colorBar = newColorBar({}),
+  //   xAxis = newAxis({ xAxis: true }),
+  //   yAxis = newAxis({}),
+  //   limitsFromPv = false,
+  //   logScale = false,
+  //   minimum = 0, // These are color bar limits
+  //   maximum = 255,
+  //   dataWidth = 100,
+  //   dataHeight = 100,
+  //   visible = true
+  // } = props;
   const { colors } = useStyle(props, widgetName);
   const { effectivePvName } = getPvValueAndName(props?.pvData);
-  const urls = buildMjpgPvUrls(["http://localhost:8090/mjpg"], effectivePvName);
+  const urls = buildMjpgPvUrls(props.mjpgEndpoints, effectivePvName);
 
   const [src, setSrc] = useState(urls?.[0]);
 

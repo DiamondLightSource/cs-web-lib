@@ -57,6 +57,7 @@ import {
   bobParseResponsiveLayout,
   bobParseResponsiveMargins
 } from "./BobParsers/responsiveLayoutBobParser";
+import { newRoi, Rois } from "../../../types/rois";
 
 const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   action_button: "actionbutton",
@@ -384,6 +385,28 @@ function bobParseColorBar(props: any): ColorBar {
 }
 
 /**
+ * Parses an array of regions of interest
+ * @param props regions of interest
+ */
+function bobParseRois(props: any): Rois {
+  const rois: Rois = [];
+  let parsedProps = {};
+  if (props.rois.roi)
+    if (props.rois.roi.length > 1) {
+      // If only one region, we are passed an object instead
+      // of an array
+      props.rois.forEach((roi: any) => {
+        const parsedProps = parseChildProps(roi, BOB_SIMPLE_PARSERS);
+        rois.push(newRoi(parsedProps));
+      });
+    } else {
+      parsedProps = parseChildProps(props.rois.roi, BOB_SIMPLE_PARSERS);
+      rois.push(newRoi(parsedProps));
+    }
+  return rois;
+}
+
+/**
  * Parses the tabs object, and any child widgets it may have
  * @param props tab object
  * @param simpleParsers object, property parser for children
@@ -641,7 +664,8 @@ const BOB_COMPLEX_PARSERS: ComplexParserDict = {
   file: bobParseFile,
   xAxis: bobParseXAxis,
   colorBar: bobParseColorBar,
-  colorMap: bobParseColorMap
+  colorMap: bobParseColorMap,
+  regionsOfInterest: bobParseRois
 };
 
 export async function parseBob(

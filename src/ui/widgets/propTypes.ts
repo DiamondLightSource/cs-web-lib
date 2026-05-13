@@ -53,9 +53,6 @@ export const ColorPropOpt = PropTypes.shape({
 });
 export const ColorProp = ColorPropOpt.isRequired;
 
-export const ColorMapPropOpt = PropTypes.string.isRequired;
-export const ColorMapProp = PropTypes.string;
-
 const FontStyleProp = PropTypes.oneOf(Object.values(FontStyle)).isRequired;
 
 export const FontPropOpt = PropTypes.shape({
@@ -184,6 +181,22 @@ export const RulePropType = PropTypes.shape({
   pvs: PropTypes.arrayOf(RulePvs).isRequired,
   expressions: PropTypes.arrayOf(RuleExpressions).isRequired
 });
+
+export const RoiPropOpt = PropTypes.shape({
+  name: StringProp,
+  visible: BoolProp,
+  interactive: BoolProp,
+  xPv: StringPropOpt,
+  yPv: StringPropOpt,
+  widthPv: StringPropOpt,
+  heightPv: StringPropOpt,
+  file: StringPropOpt
+});
+
+export const RoiProp = RoiPropOpt.isRequired;
+
+export const RoisProp = PropTypes.arrayOf(RoiProp).isRequired;
+export const RoisPropOpt = PropTypes.arrayOf(RoiPropOpt);
 
 export const ScriptPropType = PropTypes.shape({
   file: StringProp,
