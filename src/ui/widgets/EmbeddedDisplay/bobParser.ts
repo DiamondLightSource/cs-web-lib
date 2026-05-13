@@ -371,7 +371,7 @@ function bobParseXAxis(props: any): Axis {
 function bobParseColorMap(props: any): string {
   // Can also specify custom color maps with sections
   // but for now we'll use named ones
-  const name = opiParseString(props.color_map.name);
+  const name = opiParseString(props?.color_map?.name);
   return name;
 }
 
@@ -379,8 +379,8 @@ function bobParseColorMap(props: any): string {
  * Parses props for the color bar attached to a color map
  * @param props
  */
-function bobParseColorBar(props: any): ColorBar {
-  const parsedProps = parseChildProps(props.color_bar, BOB_SIMPLE_PARSERS);
+export function bobParseColorBar(props: any): ColorBar {
+  const parsedProps = parseChildProps(props?.color_bar, BOB_SIMPLE_PARSERS);
   return newColorBar(parsedProps);
 }
 
@@ -388,21 +388,22 @@ function bobParseColorBar(props: any): ColorBar {
  * Parses an array of regions of interest
  * @param props regions of interest
  */
-function bobParseRois(props: any): Rois {
-  const rois: Rois = [];
+export function bobParseRois(jsonProp: ElementCompact): Rois {
+  let rois: Rois = [];
   let parsedProps = {};
-  if (props.rois.roi)
-    if (props.rois.roi.length > 1) {
-      // If only one region, we are passed an object instead
-      // of an array
-      props.rois.forEach((roi: any) => {
+  if (jsonProp.roi) {
+    if (jsonProp.roi.length > 1) {
+      rois = jsonProp.roi.map((roi: any) => {
         const parsedProps = parseChildProps(roi, BOB_SIMPLE_PARSERS);
-        rois.push(newRoi(parsedProps));
+        return newRoi(parsedProps);
       });
     } else {
-      parsedProps = parseChildProps(props.rois.roi, BOB_SIMPLE_PARSERS);
+      // If only one region, we are passed an object instead
+      // of an array
+      parsedProps = parseChildProps(jsonProp.roi, BOB_SIMPLE_PARSERS);
       rois.push(newRoi(parsedProps));
     }
+  }
   return rois;
 }
 
@@ -664,8 +665,7 @@ const BOB_COMPLEX_PARSERS: ComplexParserDict = {
   file: bobParseFile,
   xAxis: bobParseXAxis,
   colorBar: bobParseColorBar,
-  colorMap: bobParseColorMap,
-  regionsOfInterest: bobParseRois
+  colorMap: bobParseColorMap
 };
 
 export async function parseBob(
@@ -719,6 +719,7 @@ export async function parseBob(
       scriptParser(scripts, defaultProtocol, false),
     traces: (props: ElementCompact) => bobParseTraces(props["traces"]),
     axes: (props: ElementCompact) => bobParseYAxes(props["y_axes"]),
+    regionsOfInterest: (props: ElementCompact) => bobParseRois(props["rois"]),
     plt: async (props: ElementCompact) =>
       await parsePlt(props["file"], filepath, props._attributes?.type),
     colors: (props: ElementCompact) =>
