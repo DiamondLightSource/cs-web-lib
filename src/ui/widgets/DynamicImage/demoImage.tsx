@@ -63,10 +63,9 @@ export const DemoImageComponent = (
   // } = props;
   const { colors } = useStyle(props, widgetName);
   const { effectivePvName } = getPvValueAndName(props?.pvData);
-  const urls = buildMjpgPvUrls(props.mjpgEndpoints, effectivePvName);
+  const urls = buildMjpgPvUrls(props?.mjpgEndpoints, effectivePvName);
 
   const [src, setSrc] = useState(urls?.[0]);
-
   const [numberOfFailures, setNumberOfFailures] = useState(0);
   const { showWarning } = useNotification();
 
@@ -93,7 +92,7 @@ export const DemoImageComponent = (
         width: "100%",
         height: "100%",
         display: "block",
-        objectFit: "cover",
+        objectFit: "contain",
         backgroundColor: colors?.backgroundColor
       }}
     />
