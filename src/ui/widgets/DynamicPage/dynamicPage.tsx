@@ -133,18 +133,16 @@ export const DynamicPageComponent = (
       <ExitFileContext.Provider
         value={() => fileContext.removePage(props.location)}
       >
-        <div style={fullStyle}>
-          <EmbeddedDisplay
-            file={file}
-            position={newRelativePosition()}
-            scalingOrigin={"0 0"}
-            scroll={props.scroll ?? false}
-            theme={theme}
-            mjpgEndpoints={[props?.mjpgEndpoint, defaultMjpgEndpoint].filter(
-              x => x != null
-            )}
-          />
-        </div>
+        <EmbeddedDisplay
+          file={file}
+          position={newRelativePosition(undefined, undefined, "100%", "100%")}
+          scalingOrigin={"0 0"}
+          scroll={props.scroll ?? false}
+          theme={theme}
+          mjpgEndpoints={[props?.mjpgEndpoint, defaultMjpgEndpoint].filter(
+            x => x != null
+          )}
+        />
       </ExitFileContext.Provider>
     );
   }

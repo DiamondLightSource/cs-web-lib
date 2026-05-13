@@ -271,8 +271,7 @@ describe("<EmbeddedDisplay>", (): void => {
     const display = container.querySelector(".display");
     expect(display).not.toBeNull();
 
-    const innerDisplayWidgetWrapper =
-      display?.firstElementChild?.firstElementChild;
+    const innerDisplayWidgetWrapper = display?.firstElementChild;
 
     expect(innerDisplayWidgetWrapper).toHaveStyle("position: absolute");
 
@@ -285,7 +284,7 @@ describe("<EmbeddedDisplay>", (): void => {
 
     const displayInner = display?.querySelector(".display");
     expect(displayInner).not.toBeNull();
-    const groupBoxWidgetWrapper = displayInner?.firstChild?.firstChild;
+    const groupBoxWidgetWrapper = displayInner?.firstChild;
     expect(groupBoxWidgetWrapper).toHaveStyle("position: absolute");
     expect(groupBoxWidgetWrapper).toHaveStyle("height: 250px");
     expect(groupBoxWidgetWrapper).toHaveStyle("width: 240px");

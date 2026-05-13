@@ -32,7 +32,6 @@ import { OPI_SIMPLE_PARSERS } from "./EmbeddedDisplay/opiParser";
 import { PositionPropNames, positionToCss } from "../../types/position";
 import { AlarmQuality, dTypeGetAlarm } from "../../types/dtypes";
 import { pvQualifiedName } from "../../types/pv";
-import { Box } from "@mui/material";
 
 const ALARM_SEVERITY_MAP = {
   [AlarmQuality.ALARM]: 1,
@@ -210,6 +209,7 @@ export const ConnectingComponent = (props: {
         onMouseDown={mouseDown}
         onMouseUp={mouseUp}
         style={props.containerStyle}
+        data-testid="ConnectingComponent-clickable-div-wrapper"
       >
         {component}
       </div>
@@ -349,10 +349,8 @@ export const Widget = (props: PVWidgetComponent): JSX.Element => {
     outlineOffset: showOutlines ? "-2px" : undefined
   };
 
-  const containerId = `WidgetContainer_${props?.id ?? id}`;
-
   return (
-    <Box id={containerId} sx={{ width: "100%", height: "100%" }}>
+    <>
       {actionsPresent && contextOpen && (
         <ContextMenu
           actions={ruleProps.actions as WidgetActions}
@@ -366,6 +364,6 @@ export const Widget = (props: PVWidgetComponent): JSX.Element => {
         containerStyle={containerStyle}
         onContextMenu={onContextMenu}
       />
-    </Box>
+    </>
   );
 };
