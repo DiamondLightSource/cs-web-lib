@@ -390,11 +390,11 @@ export function bobParseColorBar(props: any): ColorBar {
  */
 export function bobParseRois(jsonProp: ElementCompact): Rois {
   let rois: Rois = [];
-  let parsedProps = {};
   if (jsonProp.roi) {
+    let parsedProps = {};
     if (jsonProp.roi.length > 1) {
       rois = jsonProp.roi.map((roi: any) => {
-        const parsedProps = parseChildProps(roi, BOB_SIMPLE_PARSERS);
+        parsedProps = parseChildProps(roi, BOB_SIMPLE_PARSERS);
         return newRoi(parsedProps);
       });
     } else {
