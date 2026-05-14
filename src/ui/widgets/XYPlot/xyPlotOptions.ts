@@ -48,15 +48,15 @@ export function createTraces(
   traces: Trace[],
   value: DType,
   bytesPerElement: number
-): Partial<PlotData>[] {
+): any[] {
   const arrayValue = dTypeGetArrayValue(value);
   // TO DO - can format this better once I figure out confusing types
   if (!arrayValue) return [];
-  const dataSet: Partial<PlotData>[] = [];
+  const dataSet: any[] = [];
   traces.forEach(options => {
     const traceStyle = TRACE_STYLE[options.traceType];
     // Create a dataset for each trace, starting with style
-    const data: Partial<PlotData> = {
+    const data = {
       ...traceStyle
     };
     data.marker = {

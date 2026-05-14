@@ -12,7 +12,6 @@ import {
 } from "../propTypes";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
-import Plotly from "plotly.js-basic-dist";
 import createPlotlyComponent from "react-plotly.js/factory";
 import {
   calculateAxisLimits,
@@ -68,61 +67,6 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
   } = props;
   const { value } = getPvValueAndName(pvData);
 
-  // TO DO - having all these checks is not ideal
-  if (value?.value.arrayValue && axes && traces && width && height) {
-    const bytesPerElement = value.value.arrayValue.BYTES_PER_ELEMENT;
-    // If data exists, creates traces to plot
-    const dataSet = createTraces(traces, value, bytesPerElement);
-    // Set up style
-    if (!showPlotBorder) {
-      style = { ...style, border: { ...style?.border, borderWidth: "0" } };
-    }
-
-    const font = style?.font;
-    // Sometimes font is a string with "px" on the end
-    if (typeof font?.fontSize === "string")
-      font.fontSize = trimFromString(font.fontSize);
-
-    const newAxisOptions = createAxes(axes as Axes, font);
-    newAxisOptions.forEach((newAxis: NewAxisSettings, index: number) => {
-      newAxis = calculateAxisLimits(axes[index] as Axis, newAxis, dataSet);
-    });
-    // Set up plot appearance
-    const plotLayout: any = {
-      margin: {
-        t: 20,
-        b: 5,
-        l: 5,
-        r: 5
-      },
-      overflow: "hidden",
-      paper_bgcolor: style?.colors?.backgroundColor,
-      plot_bgcolor: style?.colors?.backgroundColor,
-      showlegend: showLegend,
-      width: width - 5,
-      height: height - 5,
-      title: {
-        text: title,
-        font: {
-          family: font?.fontFamily,
-          size: font?.fontSize
-        }
-      },
-      uirevision: 1 // This number needs to stay same to persist zoom on refresh
-    };
-    // TO DO - better way of coordinating axis names
-    const axisNames = ["xaxis", "yaxis", "yaxis2", "yaxis3"];
-    const len = newAxisOptions.length;
-    for (let i = 0; i < len; i++) {
-      plotLayout[axisNames[i]] = newAxisOptions.shift();
-    }
-    return (
-      <Box className={"showBorder"} sx={style?.border}>
-        <Plot data={dataSet} layout={plotLayout} />
-      </Box>
-    );
-  }
-  // If doesn't pass checks above, render empty box with msg
   return (
     <Box
       sx={{
