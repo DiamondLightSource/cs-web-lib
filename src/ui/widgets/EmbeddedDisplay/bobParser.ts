@@ -41,10 +41,10 @@ import {
   BorderStyle,
   newBorder
 } from "../../../types/border";
-import { ColorUtils } from "../../../types/color";
+import { ColorBar, ColorUtils, newColorBar } from "../../../types/color";
 import { WidgetDescription } from "../createComponent";
 import { newPoint, newPoints, Point, Points } from "../../../types/points";
-import { Axis } from "../../../types/axis";
+import { Axis, newAxis } from "../../../types/axis";
 import { Trace } from "../../../types/trace";
 import { parsePlt } from "./pltParser";
 import { scriptParser } from "./scripts/scriptParser";
@@ -57,6 +57,7 @@ import {
   bobParseResponsiveLayout,
   bobParseResponsiveMargins
 } from "./BobParsers/responsiveLayoutBobParser";
+import { newRoi, Rois } from "../../../types/rois";
 
 const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   action_button: "actionbutton",
@@ -111,6 +112,7 @@ export const WIDGET_DEFAULT_SIZES: { [key: string]: [number, number] } = {
   ellipse: [100, 50],
   embedded: [400, 300],
   group: [300, 200],
+  image: [400, 300],
   label: [100, 20],
   led: [20, 20],
   linearmeter: [120, 120],
@@ -340,12 +342,12 @@ function bobParseYAxes(props: any): Axis[] {
     // of an array
     if (props.y_axis.length > 1) {
       props.y_axis.forEach((axis: any) => {
-        parsedProps = parseChildProps(axis, BOB_SIMPLE_PARSERS);
-        axes.push(new Axis(parsedProps));
+        parsedProps = parseChildProps(axis, BOB_SIMPLE_PARSERS) as Axis;
+        axes.push(newAxis({ ...parsedProps }));
       });
     } else {
       parsedProps = parseChildProps(props.y_axis, BOB_SIMPLE_PARSERS);
-      axes.push(new Axis(parsedProps));
+      axes.push(newAxis(parsedProps));
     }
   }
   return axes;
@@ -358,7 +360,51 @@ function bobParseYAxes(props: any): Axis[] {
  */
 function bobParseXAxis(props: any): Axis {
   const parsedProps = parseChildProps(props.x_axis, BOB_SIMPLE_PARSERS);
-  return new Axis({ xAxis: true, ...parsedProps });
+  return newAxis({ xAxis: true, ...parsedProps });
+}
+
+/**
+ * Parses a color map, used in Heatmap and Image widgets
+ * @param props
+ * @returns
+ */
+function bobParseColorMap(props: any): string {
+  // Can also specify custom color maps with sections
+  // but for now we'll use named ones
+  const name = opiParseString(props?.color_map?.name);
+  return name;
+}
+
+/**
+ * Parses props for the color bar attached to a color map
+ * @param props
+ */
+export function bobParseColorBar(props: any): ColorBar {
+  const parsedProps = parseChildProps(props?.color_bar, BOB_SIMPLE_PARSERS);
+  return newColorBar(parsedProps);
+}
+
+/**
+ * Parses an array of regions of interest
+ * @param props regions of interest
+ */
+export function bobParseRois(jsonProp: ElementCompact): Rois {
+  let rois: Rois = [];
+  if (jsonProp.roi) {
+    let parsedProps = {};
+    if (jsonProp.roi.length > 1) {
+      rois = jsonProp.roi.map((roi: any) => {
+        parsedProps = parseChildProps(roi, BOB_SIMPLE_PARSERS);
+        return newRoi(parsedProps);
+      });
+    } else {
+      // If only one region, we are passed an object instead
+      // of an array
+      parsedProps = parseChildProps(jsonProp.roi, BOB_SIMPLE_PARSERS);
+      rois.push(newRoi(parsedProps));
+    }
+  }
+  return rois;
 }
 
 /**
@@ -574,6 +620,8 @@ export const BOB_SIMPLE_PARSERS: ParserDict = {
   displayHorizontal: ["displayHorizontal", opiParseBoolean],
   xPv: ["xPv", opiParseString],
   yPv: ["yPv", opiParseString],
+  heightPv: ["heightPv", opiParseString],
+  widthPv: ["widthPv", opiParseString],
   axis: ["axis", bobParseNumber],
   pointType: ["point_type", bobParseNumber],
   pointStyle: ["point_style", bobParseNumber],
@@ -585,6 +633,10 @@ export const BOB_SIMPLE_PARSERS: ParserDict = {
   start: ["start", opiParseString],
   end: ["end", opiParseString],
   arrayIndex: ["array_index", bobParseNumber],
+  barSize: ["bar_size", bobParseNumber],
+  dataWidth: ["data_width", bobParseNumber],
+  dataHeight: ["data_height", bobParseNumber],
+  section: ["section", opiParseColor],
   direction: ["direction", bobParseNumber],
   gridCellDragEnabled: ["grid_cell_drag_enabled", opiParseBoolean],
   gridCellResizeEnabled: ["grid_cell_resize_enabled", opiParseBoolean],
@@ -611,7 +663,9 @@ const BOB_COMPLEX_PARSERS: ComplexParserDict = {
   border: bobParseBorder,
   alarmSensitive: bobParseAlarmSensitive,
   file: bobParseFile,
-  xAxis: bobParseXAxis
+  xAxis: bobParseXAxis,
+  colorBar: bobParseColorBar,
+  colorMap: bobParseColorMap
 };
 
 export async function parseBob(
@@ -665,6 +719,7 @@ export async function parseBob(
       scriptParser(scripts, defaultProtocol, false),
     traces: (props: ElementCompact) => bobParseTraces(props["traces"]),
     axes: (props: ElementCompact) => bobParseYAxes(props["y_axes"]),
+    regionsOfInterest: (props: ElementCompact) => bobParseRois(props["rois"]),
     plt: async (props: ElementCompact) =>
       await parsePlt(props["file"], filepath, props._attributes?.type),
     colors: (props: ElementCompact) =>

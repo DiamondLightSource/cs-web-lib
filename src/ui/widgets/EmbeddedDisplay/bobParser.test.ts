@@ -1,7 +1,9 @@
-import { ColorUtils } from "../../../types/color";
+import { ColorUtils, newColor } from "../../../types/color";
 import { newAbsolutePosition } from "../../../types/position";
 import {
   BOB_SIMPLE_PARSERS,
+  bobParseColorBar,
+  bobParseRois,
   normalizeCssPosition,
   parseBob
 } from "./bobParser";
@@ -9,6 +11,7 @@ import { PVUtils } from "../../../types/pv";
 import { ensureWidgetsRegistered } from "..";
 import { WidgetDescription } from "../createComponent";
 import { ElementCompact } from "xml-js";
+import { FontStyle, newFont } from "../../../types/font";
 ensureWidgetsRegistered();
 
 const PREFIX = "prefix";
@@ -344,6 +347,96 @@ describe("bobParseSymbols", () => {
 
     expect(() => bobParseSymbols(input)).not.toThrow();
     expect(bobParseSymbols(input)).toEqual(["IBM", "ORCL"]);
+  });
+});
+
+describe("bobParseRois", () => {
+  it("parses an array of regions", () => {
+    const rois = [
+      {
+        name: { _text: "TEST" },
+        xPv: { _text: "FIRST" },
+        yPv: { _text: "SECOND" },
+        heightPv: { _text: "THIRD" },
+        widthPv: { _text: "FOURTH" }
+      },
+      {
+        name: { _text: "TEST2" },
+        xPv: { _text: "FIRST" },
+        yPv: { _text: "SECOND" },
+        widthPv: { _text: "FOURTH" }
+      }
+    ];
+    const input: ElementCompact = { roi: rois };
+
+    const result = bobParseRois(input);
+    expect(result).toEqual([
+      {
+        color: newColor("rgba(255,0,0,1)"),
+        file: undefined,
+        heightPv: "THIRD",
+        interactive: true,
+        name: "TEST",
+        visible: true,
+        widthPv: "FOURTH",
+        xPv: "FIRST",
+        yPv: "SECOND"
+      },
+      {
+        color: newColor("rgba(255,0,0,1)"),
+        file: undefined,
+        interactive: true,
+        name: "TEST2",
+        visible: true,
+        widthPv: "FOURTH",
+        xPv: "FIRST",
+        yPv: "SECOND"
+      }
+    ]);
+  });
+
+  it("parses a single region", () => {
+    const input: ElementCompact = {
+      roi: {
+        name: { _text: "TEST" },
+        xPv: { _text: "FIRST" },
+        yPv: { _text: "SECOND" },
+        heightPv: { _text: "THIRD" },
+        widthPv: { _text: "FOURTH" }
+      }
+    };
+
+    const result = bobParseRois(input);
+    expect(result).toEqual([
+      {
+        color: newColor("rgba(255,0,0,1)"),
+        file: undefined,
+        heightPv: "THIRD",
+        interactive: true,
+        name: "TEST",
+        visible: true,
+        widthPv: "FOURTH",
+        xPv: "FIRST",
+        yPv: "SECOND"
+      }
+    ]);
+  });
+});
+
+describe("bobParseColorBar", () => {
+  it("parses colorBar props", () => {
+    const input = {
+      color_bar: {
+        bar_size: { _text: 20 },
+        visible: { _text: "false" }
+      }
+    };
+    const result = bobParseColorBar(input);
+    expect(result).toEqual({
+      barSize: 20,
+      scaleFont: newFont(12, FontStyle.Regular),
+      visible: false
+    });
   });
 });
 

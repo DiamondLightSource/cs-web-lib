@@ -1,4 +1,4 @@
-import { Axis } from "./axis";
+import { newAxis } from "./axis";
 import { ColorUtils } from "./color";
 import { newFont } from "./font";
 import { Plt } from "./plt";
@@ -8,7 +8,7 @@ describe("Plt", () => {
   it("constructs the plt with values", (): void => {
     const testValues = {
       title: "Testing",
-      axes: [new Axis(), new Axis({ color: ColorUtils.RED })],
+      axes: [newAxis({}), newAxis({ color: ColorUtils.RED })],
       pvlist: [new Trace({ yPv: "TEST" })],
       background: ColorUtils.WHITE,
       foreground: ColorUtils.RED,
@@ -27,7 +27,7 @@ describe("Plt", () => {
     const plt = new Plt(testValues);
     const actualValues = {
       title: "Testing",
-      axes: [new Axis(), new Axis({ color: ColorUtils.RED })],
+      axes: [newAxis({}), newAxis({ color: ColorUtils.RED })],
       pvlist: [new Trace({ yPv: "TEST" })],
       backgroundColor: ColorUtils.WHITE.colorString,
       foregroundColor: ColorUtils.RED.colorString,

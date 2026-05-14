@@ -18,7 +18,7 @@ import { Box, Typography } from "@mui/material";
 import { CurveType, LineChart, XAxis, YAxis } from "@mui/x-charts";
 import { convertStringTimePeriod } from "../utils";
 import { Trace } from "../../../types/trace";
-import { Axis } from "../../../types/axis";
+import { Axes, newAxis } from "../../../types/axis";
 import {
   dTypeGetDoubleValue,
   dTypeGetTime,
@@ -95,7 +95,7 @@ export const StripChartComponent = (
 
   // If we're passed an empty array fill in defaults
   const localAxes = useMemo(
-    () => (axes.length > 0 ? [...axes] : [new Axis({ xAxis: false })]),
+    () => (axes.length > 0 ? [...(axes as Axes)] : [newAxis({ xAxis: false })]),
     [axes]
   );
   // Convert start time into milliseconds period

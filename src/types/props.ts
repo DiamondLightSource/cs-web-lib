@@ -1,4 +1,4 @@
-import { Color } from "./color";
+import { Color, ColorBar } from "./color";
 import { Font } from "./font";
 import { MacroMap } from "./macros";
 import { WidgetActions } from "../ui/widgets/widgetActions";
@@ -15,6 +15,7 @@ import {
   ResponsiveGridLayout,
   ResponsiveLayout
 } from "./responsiveBreakpoints";
+import { Rois } from "./rois";
 
 export type GenericProp =
   | string
@@ -42,7 +43,9 @@ export type GenericProp =
   | ResponsiveBreakpoints
   | ResponsiveColumns
   | ResponsiveGridLayout
-  | ResponsiveLayout;
+  | ResponsiveLayout
+  | ColorBar
+  | Rois;
 
 export interface Expression {
   boolExp: string;

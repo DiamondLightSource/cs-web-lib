@@ -22,7 +22,7 @@ import {
 } from "./xyPlotOptions";
 import { getPvValueAndName, trimFromString } from "../utils";
 import { Trace } from "../../../types/trace";
-import { Axis } from "../../../types/axis";
+import { Axes, Axis, newAxis } from "../../../types/axis";
 import { useStyle } from "../../hooks/useStyle";
 import { Box } from "@mui/material";
 
@@ -64,7 +64,7 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
     showPlotBorder,
     // showToolbar, // TO DO - do we want a toolbar as well?
     traces = [new Trace()],
-    axes = [new Axis({ xAxis: true }), new Axis({ xAxis: false })]
+    axes = [newAxis({ xAxis: true }), newAxis({ xAxis: false })]
   } = props;
   const { value } = getPvValueAndName(pvData);
 
@@ -83,9 +83,9 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
     if (typeof font?.fontSize === "string")
       font.fontSize = trimFromString(font.fontSize);
 
-    const newAxisOptions = createAxes(axes, font);
+    const newAxisOptions = createAxes(axes as Axes, font);
     newAxisOptions.forEach((newAxis: NewAxisSettings, index: number) => {
-      newAxis = calculateAxisLimits(axes[index], newAxis, dataSet);
+      newAxis = calculateAxisLimits(axes[index] as Axis, newAxis, dataSet);
     });
     // Set up plot appearance
     const plotLayout: any = {
