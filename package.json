@@ -59,7 +59,6 @@
     "eslint-plugin-unicorn": "^55.0.0",
     "graphql-ws": "^5.16.0",
     "jsdom": "^25.0.1",
-    "loglevel": "^1.9.2",
     "prettier": "^3.3.3",
     "react-gauge-component": "^2.0.26",
     "react-id-generator": "^3.0.2",
