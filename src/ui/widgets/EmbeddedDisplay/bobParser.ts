@@ -91,6 +91,7 @@ const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   meter: "meter",
   choice: "choicebutton",
   scaledslider: "slidecontrol",
+  slide_button: "slidebutton",
   stripchart: "stripchart",
   symbol: "symbol",
   xyplot: "xyplot"
@@ -101,6 +102,7 @@ export const WIDGET_DEFAULT_SIZES: { [key: string]: [number, number] } = {
   action_button: [100, 30],
   arc: [100, 100],
   bool_button: [100, 30],
+  slide_button: [120, 40],
   byte_monitor: [160, 20],
   checkbox: [100, 20],
   choice: [100, 43],

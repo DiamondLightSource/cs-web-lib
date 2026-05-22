@@ -19,6 +19,12 @@ export const phoebusTheme = createTheme({
       onColor: "rgba(0,255,0,1)",
       offColor: "rgba(0,100,0,1)"
     },
+    slidebutton: {
+      main: "rgba(0,0,0,0)",
+      contrastText: "#000000",
+      onColor: "rgba(0,255,0,1)",
+      offColor: "rgba(0,100,0,1)"
+    },
     bytemonitor: {
       main: "#ffffffff",
       contrastText: "#000000",
