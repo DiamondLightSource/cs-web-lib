@@ -28,6 +28,10 @@ declare module "@mui/material/styles" {
       onColor: string;
       offColor: string;
     };
+    slidebutton: Palette["primary"] & {
+      onColor: string;
+      offColor: string;
+    };
     bytemonitor: Palette["primary"] & {
       onColor: string;
       offColor: string;
@@ -64,6 +68,10 @@ declare module "@mui/material/styles" {
   interface PaletteOptions {
     arc?: PaletteOptions["primary"];
     boolbutton?: Partial<PaletteOptions["primary"]> & {
+      onColor: string;
+      offColor: string;
+    };
+    slidebutton?: Partial<PaletteOptions["primary"]> & {
       onColor: string;
       offColor: string;
     };
