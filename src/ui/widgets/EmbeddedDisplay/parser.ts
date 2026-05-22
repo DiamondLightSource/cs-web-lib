@@ -150,8 +150,6 @@ export function parseChildProps(
   props: ElementCompact,
   parser: ParserDict
 ): { [key: string]: any } {
-  console.log("parseChildProps");
-  console.log(props);
   const obj: { [key: string]: any } = {}; // Object to assign props to
   Object.entries(props ?? {}).forEach((entry: any) => {
     const [key, value] = entry;
@@ -166,7 +164,6 @@ export function parseChildProps(
       }
     }
   });
-  console.log(obj);
   return obj;
 }
 

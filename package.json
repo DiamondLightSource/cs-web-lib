@@ -35,7 +35,7 @@
     "@apollo/client": "^3.11.8",
     "@emotion/styled": "^11.13.0",
     "@mui/material": "^7.3.2",
-    "@mui/x-charts": "^8.11.2",
+    "@mui/x-charts": "^9.3.0",
     "@rollup/plugin-commonjs": "^28",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-typescript": "^12.3.0",
