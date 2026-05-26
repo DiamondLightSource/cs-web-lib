@@ -11,7 +11,8 @@ import {
   AxesProp,
   ArchivedDataPropOpt,
   IntPropOpt,
-  TracesPropOpt
+  TracesPropOpt,
+  AxisProp
 } from "../propTypes";
 import { registerWidget } from "../register";
 import { Box, Typography } from "@mui/material";
@@ -24,7 +25,7 @@ import {
   LinePlot,
   MarkPlot
 } from "@mui/x-charts";
-import { Axes } from "../../../types/axis";
+import { Axes, Axis } from "../../../types/axis";
 import { fontToCss, newFont } from "../../../types/font";
 import { useStyle } from "../../hooks/useStyle";
 import { DatasetElementType } from "@mui/x-charts/internals";
@@ -40,6 +41,7 @@ const widgetName = "xyplot";
 const XYPlotProps = {
   traces: TracesPropOpt,
   axes: AxesProp,
+  xAxis: AxisProp,
   start: StringPropOpt,
   end: StringPropOpt,
   foregroundColor: ColorPropOpt,
@@ -73,6 +75,7 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
   const {
     traces,
     axes,
+    xAxis,
     pvData,
     title,
     titleFont = newFont(),
@@ -83,10 +86,14 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
   } = props;
 
   const { yAxes, yAxesStyle } = useMemo(() => buildYAxes(axes as Axes), [axes]);
-  const { xAxis, hasXAxisData } = useMemo(
-    () => buildXAxes(traces, style, pvData),
-    [traces, style, pvData]
+  const { xAxis: xAxisMui, hasXAxisData } = useMemo(
+    () => buildXAxes(traces, style, xAxis as Axis),
+    [traces, style, xAxis]
   );
+
+  console.log(xAxis);
+  console.log(xAxisMui);
+
   const series = useMemo(
     () => buildSeries(traces, pvData, visible),
     [traces, pvData, visible]
@@ -96,6 +103,7 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
     () => buildPlotDataSet(pvData),
     [pvData]
   );
+
   if (!hasXAxisData) {
     plotDataSet = plotDataSet.map((point, i) => ({ ...point, x: i }));
   }
@@ -120,7 +128,7 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
           skipAnimation
           dataset={plotDataSet}
           series={series}
-          xAxis={xAxis}
+          xAxis={xAxisMui}
           yAxis={yAxes}
           sx={{
             width: "100%",

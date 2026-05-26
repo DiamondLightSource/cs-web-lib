@@ -12,7 +12,7 @@ import { CurveType } from "@mui/x-charts";
 import { Trace } from "../../../types/trace";
 import { UseStyleResult } from "../../hooks/useStyle";
 import { getPvValueByPvName } from "../utils";
-import { Axes, newAxis } from "../../../types/axis";
+import { Axes, Axis, newAxis } from "../../../types/axis";
 import { fontToCss } from "../../../types/font";
 
 const MARKER_STYLES: (MarkShape | undefined)[] = [
@@ -102,56 +102,31 @@ export const buildSeries = (
 export const buildXAxes = (
   traces: (Trace | null | undefined)[] | undefined,
   style: UseStyleResult,
-  pvData: PvDatum[]
+  xAxisDefinition: Axis
 ) => {
-  const xAxisPvNamesAndIds = (
-    traces != null && traces?.length > 0 ? traces : [new Trace()]
-  )
+  const isBarChart = traces
+    ?.some(trace => trace?.traceType === 5);
+
+  const dataKey = traces
     ?.filter(trace => trace != null && trace?.xPv != null)
-    ?.map(trace => {
-      const { value } = getPvValueByPvName(pvData, trace?.xPv as string);
-      const controlRange = value?.display?.controlRange;
-      const pvMin = Number.isNaN(Number(controlRange?.min))
-        ? undefined
-        : controlRange?.min;
-      const pvMax = Number.isNaN(Number(controlRange?.max))
-        ? undefined
-        : controlRange?.max;
+    ?.[0]
+    ?.xPv;
 
-      return {
-        pvName: trace?.xPv,
-        axisId: trace?.axis,
-        pvMin,
-        pvMax,
-        scaleType: trace?.traceType === 5 ? "band" : "linear"
-      };
-    })
-    ?.reduce((acc, curr) => {
-      if (!acc.find(item => item.axisId === curr.axisId)) {
-        acc.push(curr);
-      }
-      return acc;
-    }, [] as any[]);
+  const xAxis: ReadonlyArray<XAxis<any>> = [{
+    color: style?.colors?.color,
+    dataKey: dataKey ?? "x",
+    id: "0",
+    label: xAxisDefinition.title,
+    scaleType: !isBarChart ? (xAxisDefinition.logScale ? "symlog" : "linear") : "band",
+    min: !xAxisDefinition?.autoscale && Number.isFinite(xAxisDefinition?.minimum)
+         ? xAxisDefinition?.minimum
+         : undefined,
+    max: !xAxisDefinition?.autoscale && Number.isFinite(xAxisDefinition?.maximum)
+         ? xAxisDefinition?.maximum
+         : undefined
+  }];
 
-  const hasXAxisData = xAxisPvNamesAndIds.length > 0;
-  if (!hasXAxisData) {
-    xAxisPvNamesAndIds.push({ pvName: "x", axisId: 0, scaleType: "band" });
-  }
-
-  const xAxis: ReadonlyArray<XAxis<any>> = xAxisPvNamesAndIds?.map(
-    xAxisData => {
-      return {
-        color: style?.colors?.color,
-        dataKey: xAxisData.pvName,
-        id: `${xAxisData?.axisId}`,
-        min: xAxisData?.pvMin,
-        max: xAxisData?.pvMax,
-        scaleType: xAxisData?.scaleType
-      };
-    }
-  );
-
-  return { xAxis, hasXAxisData };
+  return { xAxis, hasXAxisData: !!dataKey};
 };
 
 export const buildYAxes = (
