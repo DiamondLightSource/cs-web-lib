@@ -233,3 +233,25 @@ export const getPvValueAndName = (pvDataCollection: PvDatum[], index = 0) => {
 
   return { value, effectivePvName, connected, readOnly };
 };
+
+export const getPvValueByPvName = (
+  pvDataCollection: PvDatum[],
+  effPvName: string
+) => {
+  const pvData = pvDataCollection ?? [];
+
+  const pvDatum = pvData.find(x => x?.effectivePvName?.endsWith(effPvName));
+  const value = pvDatum?.value;
+  const effectivePvName = pvDatum?.effectivePvName;
+  const connected = pvDatum?.connected;
+  const readOnly = pvDatum?.readonly;
+
+  return { value, effectivePvName, connected, readOnly };
+};
+
+export const pvValuesToObject = (pvDataCollection: PvDatum[]) => {
+  const pvData = pvDataCollection ?? [];
+  return pvData
+    .map(x => ({ [x.effectivePvName]: x }))
+    ?.reduce((acc, obj) => ({ ...acc, ...obj }), {});
+};

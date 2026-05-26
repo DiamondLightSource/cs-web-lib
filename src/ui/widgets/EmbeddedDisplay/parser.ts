@@ -125,13 +125,17 @@ export async function genericParser(
 
   // Parse PV names out of traces for plots into pv property
   if (newProps.hasOwnProperty("traces")) {
-    newProps.pvMetadataList = newProps.traces?.map((trace: any) => ({
-      pvName: PVUtils.parse(trace.yPv)
-    }));
+    newProps.pvMetadataList = newProps.traces?.flatMap((trace: any) =>
+      [trace?.xPv, trace?.yPv]
+        .filter(pv => pv != null)
+        .map(pv => ({ pvName: PVUtils.parse(pv) }))
+    );
   } else if (newProps.hasOwnProperty("plt")) {
-    newProps.pvMetadataList = newProps.plt.pvlist.map((trace: any) => ({
-      pvName: PVUtils.parse(trace.yPv)
-    }));
+    newProps.pvMetadataList = newProps.plt?.pvlist?.flatMap((trace: any) =>
+      [trace?.xPv, trace?.yPv]
+        .filter(pv => pv != null)
+        .map(pv => ({ pvName: PVUtils.parse(pv) }))
+    );
   }
 
   // attach an id if it does not exist

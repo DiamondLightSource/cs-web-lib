@@ -5,6 +5,22 @@ import { CSSProperties } from "react";
 import { borderToCss } from "../../types/border";
 import { WidgetActions } from "../widgets/widgetActions";
 
+export interface UseStyleResult {
+  border: {
+    borderStyle?: string;
+    borderWidth?: string | number;
+    borderColor?: string;
+    borderRadius?: string | number;
+  };
+  font: ReturnType<typeof fontSelector>;
+  colors: {
+    color?: string;
+    backgroundColor?: string;
+  };
+  customColors: Record<string, string>;
+  other: CSSProperties;
+}
+
 const selectPalette = (theme: Theme, widgetName?: string): PaletteColor => {
   if (theme?.palette && widgetName && widgetName in theme?.palette) {
     return theme.palette[
@@ -56,7 +72,7 @@ export const useStyle = (
     customColors?: { [key: string]: Color | undefined };
   },
   widgetName?: string
-) => {
+): UseStyleResult => {
   const theme = useTheme();
   const themePalette = selectPalette(theme, widgetName);
   const themeBorder = selectBorder(theme, widgetName);

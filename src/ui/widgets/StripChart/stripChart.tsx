@@ -15,7 +15,7 @@ import {
 } from "../propTypes";
 import { registerWidget } from "../register";
 import { Box, Typography } from "@mui/material";
-import { CurveType, LineChart, XAxis, YAxis } from "@mui/x-charts";
+import { CurveType, LineChart, MarkShape, XAxis, YAxis } from "@mui/x-charts";
 import { convertStringTimePeriod } from "../utils";
 import { Trace } from "../../../types/trace";
 import { Axes, newAxis } from "../../../types/axis";
@@ -29,7 +29,7 @@ import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "stripchart";
 
-const MARKER_STYLES: any[] = [
+const MARKER_STYLES: (MarkShape | undefined)[] = [
   undefined,
   "square",
   "circle",
@@ -208,10 +208,32 @@ export const StripChartComponent = (
       (item, idx): YAxis<any> => {
         const titleFont = fontToCss(item.titleFont);
         const scaleFont = fontToCss(item.scaleFont);
+
+        const min =
+          !item.autoscale && Number.isFinite(item.minimum)
+            ? item.minimum
+            : undefined;
+
+        const max =
+          !item.autoscale && Number.isFinite(item.maximum)
+            ? item.maximum
+            : undefined;
+
+        // Prevent invalid range
+        const safeMin =
+          min !== undefined && max !== undefined && min >= max
+            ? undefined
+            : min;
+        const safeMax =
+          min !== undefined && max !== undefined && min >= max
+            ? undefined
+            : max;
+
         return {
           width: 55,
           id: idx,
-          label: item.title,
+          label: item?.title || "Y",
+          labelPosition: "middle",
           color: item.color?.colorString,
           labelStyle: {
             ...titleFont,
@@ -222,16 +244,28 @@ export const StripChartComponent = (
             fill: item.color.colorString,
             angle: item.onRight ? 90 : -90
           },
-          valueFormatter: (value: any, context: any) =>
-            context.location === "tooltip"
-              ? `${value}`
-              : value.length > 4
-                ? `${value.toExponential(3)}`
-                : value,
+          valueFormatter: (value: any, context: any) => {
+            if (value == null || Number.isNaN(value)) {
+              return "";
+            }
+
+            if (context.location === "tooltip") {
+              return String(value);
+            }
+
+            const abs = Math.abs(value);
+
+            // Use exponential for large/small numbers
+            if (abs >= 1e4 || (abs > 0 && abs < 1e-3)) {
+              return value.toExponential(3);
+            }
+
+            return String(value);
+          },
           scaleType: item.logScale ? "symlog" : "linear",
           position: item.onRight ? "right" : "left",
-          min: item.autoscale ? undefined : item.minimum,
-          max: item.autoscale ? undefined : item.maximum
+          min: safeMin,
+          max: safeMax
         };
       }
     );
@@ -268,18 +302,17 @@ export const StripChartComponent = (
           }
 
           return {
-            id: index,
+            id: `${index}`,
             dataKey: effectivePvName,
-            label: item.name,
+            label: item.name || pvName,
             color: visible ? item.color.colorString : "transparent",
             showMark: item.pointType === 0 ? false : true,
-            shape: MARKER_STYLES[item.pointType],
-            line: {
-              strokeWidth: item.lineWidth
-            },
             area: item.traceType === 5 ? true : false,
             connectNulls: false,
-            curve: item.traceType === 2 ? ("stepAfter" as CurveType) : "linear"
+            curve: item.traceType === 2 ? ("stepAfter" as CurveType) : "linear",
+            shape: MARKER_STYLES[item.pointType],
+            xAxisId: "xaxis",
+            yAxisId: item?.axis ?? 0
           };
         })
         .filter(x => !!x),
@@ -304,7 +337,8 @@ export const StripChartComponent = (
         {title}
       </Typography>
       <LineChart
-        hideLegend={showLegend}
+        skipAnimation
+        hideLegend={!showLegend}
         grid={{ vertical: showGrid, horizontal: localAxes[0].showGrid }}
         dataset={data.current}
         sx={{
@@ -316,11 +350,12 @@ export const StripChartComponent = (
               stroke: style?.colors?.color
             },
             ".MuiChartsAxis-label": {
-              font: fontToCss(labelFont)
+              ...fontToCss(labelFont),
+              fill: style?.colors?.color
             },
             ".MuiChartsAxis-tickLabel": {
               fill: style?.colors?.color,
-              font: fontToCss(scaleFont)
+              ...fontToCss(scaleFont)
             },
             ".MuiChartsAxis-tick": {
               stroke: style?.colors?.color

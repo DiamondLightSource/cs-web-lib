@@ -1,140 +1,179 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Widget } from "../widget";
+import { PVComponent, PVWidgetPropType } from "../widgetProps";
+
 import {
+  BoolPropOpt,
   InferWidgetProps,
+  FontPropOpt,
   ColorPropOpt,
   StringPropOpt,
-  FontPropOpt,
   AxesProp,
-  BoolPropOpt,
-  FloatPropOpt,
-  TracesProp
+  ArchivedDataPropOpt,
+  IntPropOpt,
+  TracesPropOpt
 } from "../propTypes";
-import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
-import Plotly from "plotly.js-basic-dist";
-import createPlotlyComponent from "react-plotly.js/factory";
+import { Box, Typography } from "@mui/material";
 import {
-  calculateAxisLimits,
-  createAxes,
-  createTraces,
-  NewAxisSettings
-} from "./xyPlotOptions";
-import { getPvValueAndName, trimFromString } from "../utils";
-import { Trace } from "../../../types/trace";
-import { Axes, Axis, newAxis } from "../../../types/axis";
+  ChartsContainer,
+  BarPlot,
+  ChartsLegend,
+  ChartsXAxis,
+  ChartsYAxis,
+  LinePlot,
+  MarkPlot
+} from "@mui/x-charts";
+import { Axes } from "../../../types/axis";
+import { fontToCss, newFont } from "../../../types/font";
 import { useStyle } from "../../hooks/useStyle";
-import { Box } from "@mui/material";
+import { DatasetElementType } from "@mui/x-charts/internals";
+import {
+  buildPlotDataSet,
+  buildSeries,
+  buildXAxes,
+  buildYAxes
+} from "./xyPlot.utilities";
 
 const widgetName = "xyplot";
 
-export const XYPlotProps = {
-  height: FloatPropOpt,
-  width: FloatPropOpt,
-  plotBackgroundColor: ColorPropOpt,
+const XYPlotProps = {
+  traces: TracesPropOpt,
+  axes: AxesProp,
+  start: StringPropOpt,
+  end: StringPropOpt,
+  foregroundColor: ColorPropOpt,
+  backgroundColor: ColorPropOpt,
+  showGrid: BoolPropOpt,
   title: StringPropOpt,
   titleFont: FontPropOpt,
+  labelFont: FontPropOpt,
+  scaleFont: FontPropOpt,
   showLegend: BoolPropOpt,
-  showPlotBorder: BoolPropOpt,
   showToolbar: BoolPropOpt,
-  traces: TracesProp,
-  axes: AxesProp
+  visible: BoolPropOpt,
+  archivedData: ArchivedDataPropOpt,
+  archivedDataLoaded: BoolPropOpt,
+  bufferSize: IntPropOpt,
+  updatePeriod: IntPropOpt
 };
 
-// Create plot component from minimal Plotly package
-// This is necessary because normal Plot component is too large,
-// and causing issues in clients using cs-web-lib with memory
-const Plot = createPlotlyComponent(Plotly);
-
+// Needs to be exported for testing
 export type XYPlotComponentProps = InferWidgetProps<typeof XYPlotProps> &
   PVComponent;
 
+export interface TimeSeriesPoint {
+  dateTime: Date;
+  [key: string]: Date | number | null;
+}
+
 export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
-  let style = useStyle(
-    { backgroundColor: props.plotBackgroundColor, font: props.titleFont },
-    widgetName
-  );
+  const style = useStyle(props, widgetName);
 
   const {
-    height = 250,
-    width = 400,
+    traces,
+    axes,
     pvData,
-    title = "",
-    showLegend = true,
-    showPlotBorder,
-    // showToolbar, // TO DO - do we want a toolbar as well?
-    traces = [new Trace()],
-    axes = [newAxis({ xAxis: true }), newAxis({ xAxis: false })]
+    title,
+    titleFont = newFont(),
+    scaleFont = newFont(),
+    labelFont = newFont(),
+    showLegend = false,
+    visible = true
   } = props;
-  const { value } = getPvValueAndName(pvData);
 
-  // TO DO - having all these checks is not ideal
-  if (value?.value.arrayValue && axes && traces && width && height) {
-    const bytesPerElement = value.value.arrayValue.BYTES_PER_ELEMENT;
-    // If data exists, creates traces to plot
-    const dataSet = createTraces(traces, value, bytesPerElement);
-    // Set up style
-    if (!showPlotBorder) {
-      style = { ...style, border: { ...style?.border, borderWidth: "0" } };
-    }
+  const { yAxes, yAxesStyle } = useMemo(() => buildYAxes(axes as Axes), [axes]);
+  const { xAxis, hasXAxisData } = useMemo(
+    () => buildXAxes(traces, style, pvData),
+    [traces, style, pvData]
+  );
+  const series = useMemo(
+    () => buildSeries(traces, pvData, visible),
+    [traces, pvData, visible]
+  );
 
-    const font = style?.font;
-    // Sometimes font is a string with "px" on the end
-    if (typeof font?.fontSize === "string")
-      font.fontSize = trimFromString(font.fontSize);
-
-    const newAxisOptions = createAxes(axes as Axes, font);
-    newAxisOptions.forEach((newAxis: NewAxisSettings, index: number) => {
-      newAxis = calculateAxisLimits(axes[index] as Axis, newAxis, dataSet);
-    });
-    // Set up plot appearance
-    const plotLayout: any = {
-      margin: {
-        t: 20,
-        b: 5,
-        l: 5,
-        r: 5
-      },
-      overflow: "hidden",
-      paper_bgcolor: style?.colors?.backgroundColor,
-      plot_bgcolor: style?.colors?.backgroundColor,
-      showlegend: showLegend,
-      width: width - 5,
-      height: height - 5,
-      title: {
-        text: title,
-        font: {
-          family: font?.fontFamily,
-          size: font?.fontSize
-        }
-      },
-      uirevision: 1 // This number needs to stay same to persist zoom on refresh
-    };
-    // TO DO - better way of coordinating axis names
-    const axisNames = ["xaxis", "yaxis", "yaxis2", "yaxis3"];
-    const len = newAxisOptions.length;
-    for (let i = 0; i < len; i++) {
-      plotLayout[axisNames[i]] = newAxisOptions.shift();
-    }
-    return (
-      <Box className={"showBorder"} sx={style?.border}>
-        <Plot data={dataSet} layout={plotLayout} />
-      </Box>
-    );
+  let plotDataSet: DatasetElementType<number>[] = useMemo(
+    () => buildPlotDataSet(pvData),
+    [pvData]
+  );
+  if (!hasXAxisData) {
+    plotDataSet = plotDataSet.map((point, i) => ({ ...point, x: i }));
   }
-  // If doesn't pass checks above, render empty box with msg
+
+  // Use end value - this doesn't seem to do anything in Phoebus?
   return (
-    <Box
-      sx={{
-        ...style?.font,
-        ...style?.border,
-        borderWidth: "2px",
-        borderColor: "red",
-        padding: "1px"
-      }}
-    >
-      XYPlot could not be displayed. Please check the .opi file and connection
-      to PV {traces[0].yPv}.
+    <Box sx={{ width: "100%", height: "100%" }}>
+      <Typography
+        sx={{
+          ...fontToCss(titleFont),
+          width: "100%",
+          height: "5%",
+          textAlign: "center",
+          ...style?.colors
+        }}
+      >
+        {title}
+      </Typography>
+
+      {plotDataSet?.length > 0 && (
+        <ChartsContainer
+          skipAnimation
+          dataset={plotDataSet}
+          series={series}
+          xAxis={xAxis}
+          yAxis={yAxes}
+          sx={{
+            width: "100%",
+            height: "95%",
+            ".MuiChartsAxis-id-xaxis": {
+              ".MuiChartsAxis-line": {
+                stroke: style?.colors?.color
+              },
+              ".MuiChartsAxis-label": {
+                ...(fontToCss(labelFont) ?? {})
+              },
+              ".MuiChartsAxis-tickLabel": {
+                fill: style?.colors?.color,
+                ...(fontToCss(scaleFont) ?? {})
+              },
+              ".MuiChartsAxis-tick": {
+                stroke: style?.colors?.color
+              }
+            },
+
+            ...yAxesStyle
+          }}
+        >
+          <BarPlot />
+          <LinePlot
+            slotProps={{
+              line: ({ seriesId }) => {
+                const trace = traces?.[Number(seriesId)];
+                // this hides the line if no line should be visible
+                if (trace?.traceType === 0) {
+                  return {
+                    stroke: "transparent"
+                  };
+                }
+                return {};
+              }
+            }}
+          />
+          <MarkPlot />
+          <ChartsXAxis />
+          <ChartsYAxis />
+
+          {showLegend && (
+            <ChartsLegend
+              slotProps={{
+                legend: {
+                  sx: { color: style?.colors?.color }
+                }
+              }}
+            />
+          )}
+        </ChartsContainer>
+      )}
     </Box>
   );
 };

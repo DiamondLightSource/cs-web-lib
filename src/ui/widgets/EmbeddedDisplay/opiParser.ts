@@ -89,10 +89,15 @@ const OPI_WIDGET_MAPPING: { [key: string]: any } = {
  * @param jsonProp
  */
 export function opiParseString(jsonProp: ElementCompact): string {
-  if (typeof jsonProp._text === "string") {
+  if (typeof jsonProp?._text === "string") {
     return jsonProp._text;
+  } else if (jsonProp?._text == null) {
+    return "undefined";
   } else {
-    throw new Error(`Could not parse text from value ${jsonProp._text}`);
+    log.warn(
+      `opiParseString: failed to parse the value ${jsonProp?._text ?? "undefined"}`
+    );
+    throw new Error(`Could not parse text from value ${jsonProp?._text}`);
   }
 }
 
