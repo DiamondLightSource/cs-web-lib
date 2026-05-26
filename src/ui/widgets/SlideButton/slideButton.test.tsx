@@ -1,7 +1,7 @@
 import React from "react";
 import { SlideButtonComponent } from "./slideButton";
 import { act, fireEvent, render } from "@testing-library/react";
-import { newDDisplay, newDType, DAlarmNONE } from "../../../types/dtypes";
+import { newDType, DAlarmNONE } from "../../../types/dtypes";
 import { ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
 import { PvDatum } from "../../../redux/csState";
@@ -56,10 +56,7 @@ const TEST_PVDATUM = {
 
 const TEST_PROPS = {
   pvData: [TEST_PVDATUM],
-  onLabel: "Enabled",
-  offLabel: "Disabled",
-  onState: 1,
-  offState: 0
+  label: "toggle button label"
 };
 
 describe("<SlideButton />", (): void => {
@@ -77,15 +74,14 @@ describe("<SlideButton />", (): void => {
     expect(getByRole("checkbox")).toBeTruthy();
   });
 
-  test("it renders labels and reflects PV on-state", (): void => {
+  test("it renders label and reflects PV on-state", (): void => {
     const { getByRole, getByText } = render(SlideButtonRenderer(TEST_PROPS));
 
     expect((getByRole("checkbox") as HTMLInputElement).checked).toBe(true);
-    expect(getByText("Enabled")).toBeTruthy();
-    expect(getByText("Disabled")).toBeTruthy();
+    expect(getByText("toggle button label")).toBeTruthy();
   });
 
-  test("it is unchecked when PV value matches offState", (): void => {
+  test("it is unchecked when PV value is 0", (): void => {
     const offProps = {
       ...TEST_PROPS,
       pvData: [{ ...TEST_PVDATUM, value: newDType({ doubleValue: 0 }) }]
@@ -93,29 +89,6 @@ describe("<SlideButton />", (): void => {
     const { getByRole } = render(SlideButtonRenderer(offProps));
 
     expect((getByRole("checkbox") as HTMLInputElement).checked).toBe(false);
-  });
-
-  test("it uses labels from PV when labelsFromPv is true", (): void => {
-    const pvWithChoices = {
-      ...TEST_PVDATUM,
-      value: newDType(
-        { doubleValue: 1 },
-        undefined,
-        undefined,
-        newDDisplay({ choices: ["PV Off", "PV On"] })
-      )
-    };
-    const { getByText } = render(
-      SlideButtonRenderer({
-        pvData: [pvWithChoices],
-        labelsFromPv: true,
-        onState: 1,
-        offState: 0
-      })
-    );
-
-    expect(getByText("PV Off")).toBeTruthy();
-    expect(getByText("PV On")).toBeTruthy();
   });
 
   test("it writes to pv on toggle", async (): Promise<void> => {

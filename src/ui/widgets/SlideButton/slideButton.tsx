@@ -5,7 +5,6 @@ import { registerWidget } from "../register";
 import {
   InferWidgetProps,
   ColorPropOpt,
-  IntPropOpt,
   BoolPropOpt,
   StringPropOpt,
   FontPropOpt,
@@ -22,19 +21,15 @@ const widgetName = "slidebutton";
 
 const SlideButtonProps = {
   pvName: StringPropOpt,
-  onState: IntPropOpt,
-  offState: IntPropOpt,
   onColor: ColorPropOpt,
   offColor: ColorPropOpt,
-  onLabel: StringPropOpt,
-  offLabel: StringPropOpt,
-  labelsFromPv: BoolPropOpt,
+  label: StringPropOpt,
   enabled: BoolPropOpt,
   foregroundColor: ColorPropOpt,
-  backgroundColor: ColorPropOpt,
   font: FontPropOpt,
   height: StringOrNumPropOpt,
-  width: StringOrNumPropOpt
+  width: StringOrNumPropOpt,
+  visible: BoolPropOpt
 };
 
 export type SlideButtonComponentProps = InferWidgetProps<
@@ -55,10 +50,8 @@ export const SlideButtonComponent = (
 
   const {
     pvData,
-    onState = 1,
-    offState = 0,
-    labelsFromPv = false,
     enabled = true,
+    visible = true,
     height = WIDGET_DEFAULT_SIZES["slide_button"][1],
     width = WIDGET_DEFAULT_SIZES["slide_button"][0]
   } = props;
@@ -69,23 +62,12 @@ export const SlideButtonComponent = (
     readOnly
   } = getPvValueAndName(pvData);
 
-  // Allow the PV's enum choices to override the label props when labelsFromPv is set
-  let { onLabel, offLabel } = props;
-
-  if (labelsFromPv) {
-    const choices = value?.display.choices;
-    if (choices && choices?.length === 2) {
-      offLabel = choices[0];
-      onLabel = choices[1];
-    }
-  }
-
   const doubleValue = dTypeGetDoubleValue(value);
-  const isOn = doubleValue === onState;
+  const isOn = doubleValue !== 0;
 
   function handleChange() {
     if (pvName && !readOnly) {
-      writePv(pvName, newDType({ doubleValue: isOn ? offState : onState }));
+      writePv(pvName, newDType({ doubleValue: isOn ? 0 : 1 }));
     }
   }
 
@@ -94,7 +76,7 @@ export const SlideButtonComponent = (
       style={{
         height: typeof height === "string" ? "100%" : height,
         width: typeof width === "string" ? "100%" : width,
-        display: "flex",
+        display: visible ? "flex" : "none",
         alignItems: "center",
         justifyContent: "center",
         gap: "4px",
@@ -103,7 +85,7 @@ export const SlideButtonComponent = (
         cursor: readOnly || !enabled ? "not-allowed" : "default"
       }}
     >
-      {offLabel && <span style={{ opacity: isOn ? 0.5 : 1 }}>{offLabel}</span>}
+      {props.label && <span>{props.label}</span>}
       <MuiSwitch
         checked={isOn}
         onChange={handleChange}
@@ -129,7 +111,6 @@ export const SlideButtonComponent = (
           }
         }}
       />
-      {onLabel && <span style={{ opacity: isOn ? 1 : 0.5 }}>{onLabel}</span>}
     </div>
   );
 };
