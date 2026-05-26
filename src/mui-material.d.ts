@@ -3,23 +3,21 @@ import "@mui/material/styles";
 type ExtendPalette<T> = PaletteColor & T;
 type ExtendPaletteOptions<T> = PaletteColorOptions & T;
 
-interface MeterPalette
-  extends ExtendPalette<{
-    needleColor: string;
-    normalStatusColor: string;
-    minorWarningColor: string;
-    majorWarningColor: string;
-    knobColor: string;
-  }> {}
+interface MeterPalette extends ExtendPalette<{
+  needleColor: string;
+  normalStatusColor: string;
+  minorWarningColor: string;
+  majorWarningColor: string;
+  knobColor: string;
+}> {}
 
-interface MeterPaletteOptions
-  extends ExtendPaletteOptions<{
-    needleColor?: string;
-    normalStatusColor?: string;
-    minorWarningColor?: string;
-    majorWarningColor?: string;
-    knobColor?: string;
-  }> {}
+interface MeterPaletteOptions extends ExtendPaletteOptions<{
+  needleColor?: string;
+  normalStatusColor?: string;
+  minorWarningColor?: string;
+  majorWarningColor?: string;
+  knobColor?: string;
+}> {}
 
 declare module "@mui/material/styles" {
   interface Palette {
