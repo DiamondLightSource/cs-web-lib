@@ -52,6 +52,7 @@ export const SlideButtonComponent = (
     pvData,
     enabled = true,
     visible = true,
+    label = "Label",
     height = WIDGET_DEFAULT_SIZES["slide_button"][1],
     width = WIDGET_DEFAULT_SIZES["slide_button"][0]
   } = props;
@@ -78,7 +79,7 @@ export const SlideButtonComponent = (
         width: typeof width === "string" ? "100%" : width,
         display: visible ? "flex" : "none",
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "flex-start",
         gap: "4px",
         ...style.colors,
         ...style.font,
@@ -110,7 +111,18 @@ export const SlideButtonComponent = (
           }
         }}
       />
-      {props.label && <span>{props.label}</span>}
+      {label && (
+        <span
+          style={{
+            overflow: "hidden",
+            whiteSpace: "nowrap",
+            textOverflow: "ellipsis",
+            minWidth: 0
+          }}
+        >
+          {label}
+        </span>
+      )}
     </div>
   );
 };
