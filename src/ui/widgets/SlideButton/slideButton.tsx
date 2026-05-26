@@ -63,7 +63,7 @@ export const SlideButtonComponent = (
   } = getPvValueAndName(pvData);
 
   const doubleValue = dTypeGetDoubleValue(value);
-  const isOn = doubleValue !== 0;
+  const isOn = Boolean(doubleValue);
 
   function handleChange() {
     if (pvName && !readOnly) {
@@ -85,7 +85,6 @@ export const SlideButtonComponent = (
         cursor: readOnly || !enabled ? "not-allowed" : "default"
       }}
     >
-      {props.label && <span>{props.label}</span>}
       <MuiSwitch
         checked={isOn}
         onChange={handleChange}
@@ -111,6 +110,7 @@ export const SlideButtonComponent = (
           }
         }}
       />
+      {props.label && <span>{props.label}</span>}
     </div>
   );
 };
