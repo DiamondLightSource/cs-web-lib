@@ -1,6 +1,6 @@
 {
   "name": "@diamondlightsource/cs-web-lib",
-  "version": "0.10.13",
+  "version": "0.10.14",
   "description": "Control system web library",
   "main": "./dist/index.cjs",
   "scripts": {
