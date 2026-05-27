@@ -71,13 +71,13 @@ describe("<SlideButton />", (): void => {
       height: "40px",
       width: "120px"
     });
-    expect(getByRole("checkbox")).toBeTruthy();
+    expect(getByRole("switch")).toBeTruthy();
   });
 
   test("it renders label and reflects PV on-state", (): void => {
     const { getByRole, getByText } = render(SlideButtonRenderer(TEST_PROPS));
 
-    expect((getByRole("checkbox") as HTMLInputElement).checked).toBe(true);
+    expect((getByRole("switch") as HTMLInputElement).checked).toBe(true);
     expect(getByText("toggle button label")).toBeTruthy();
   });
 
@@ -88,14 +88,14 @@ describe("<SlideButton />", (): void => {
     };
     const { getByRole } = render(SlideButtonRenderer(offProps));
 
-    expect((getByRole("checkbox") as HTMLInputElement).checked).toBe(false);
+    expect((getByRole("switch") as HTMLInputElement).checked).toBe(false);
   });
 
   test("it writes to pv on toggle", async (): Promise<void> => {
     const { getByRole } = render(SlideButtonRenderer(TEST_PROPS));
 
     await act(async () => {
-      fireEvent.click(getByRole("checkbox"));
+      fireEvent.click(getByRole("switch"));
     });
 
     expect(mockWritePv).toHaveBeenCalledWith(
@@ -112,7 +112,7 @@ describe("<SlideButton />", (): void => {
     const { getByRole, container } = render(SlideButtonRenderer(readOnlyProps));
     const outerDiv = container.firstChild as HTMLDivElement;
 
-    expect(getByRole("checkbox")).toBeDisabled();
+    expect(getByRole("switch")).toBeDisabled();
     expect(outerDiv).toHaveStyle({ cursor: "not-allowed" });
   });
 
@@ -121,6 +121,6 @@ describe("<SlideButton />", (): void => {
       SlideButtonRenderer({ ...TEST_PROPS, enabled: false })
     );
 
-    expect(getByRole("checkbox")).toBeDisabled();
+    expect(getByRole("switch")).toBeDisabled();
   });
 });
