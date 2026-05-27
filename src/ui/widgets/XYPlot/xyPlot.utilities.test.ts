@@ -61,6 +61,25 @@ describe("buildPlotDataSet", () => {
   it("returns empty array when no valid data", () => {
     expect(buildPlotDataSet([])).toEqual([]);
   });
+
+  it("coerces values to numbers", () => {
+    const pvData = [{ effectivePvName: "a", value: ["1", "2"] }] as any;
+
+    const result = buildPlotDataSet(pvData);
+
+    expect(result).toEqual([{ a: 1 }, { a: 2 }]);
+  });
+
+  it("ignores entries with missing effectivePvName", () => {
+    const pvData = [
+      { value: [1, 2] }, // invalid
+      { effectivePvName: "a", value: [3, 4] }
+    ] as any;
+
+    const result = buildPlotDataSet(pvData);
+
+    expect(result).toEqual([{ a: 3 }, { a: 4 }]);
+  });
 });
 
 describe("buildSeries", () => {
@@ -120,6 +139,35 @@ describe("buildSeries", () => {
     const result = buildSeries(undefined, [], true);
     expect(result).toBeDefined();
   });
+
+  it("applies marker shape correctly", () => {
+    const trace = {
+      ...baseTrace,
+      pointType: 3 // diamond
+    };
+
+    const result = buildSeries([trace], pvData, true);
+
+    expect(result[0]).toMatchObject({
+      shape: "diamond"
+    });
+  });
+
+  it("uses default label when name is missing", () => {
+    const trace = { ...baseTrace, name: "" };
+
+    const result = buildSeries([trace], pvData, true);
+
+    expect(result[0].label).toBe("Series 1");
+  });
+
+  it("sets yAxisId correctly", () => {
+    const trace = { ...baseTrace, axis: 2 };
+
+    const result = buildSeries([trace], pvData, true);
+
+    expect(result[0].yAxisId).toBe("2");
+  });
 });
 
 describe("buildXAxes", () => {
@@ -150,6 +198,28 @@ describe("buildXAxes", () => {
       scaleType: "linear"
     });
     expect(result.hasXAxisData).toBe(true);
+  });
+
+  it("defaults dataKey to x when none provided", () => {
+    const result = buildXAxes(
+      [],
+      { colors: { color: "black" } } as any,
+      {} as any
+    );
+
+    expect(result.xAxis[0].dataKey).toBe("x");
+    expect(result.hasXAxisData).toBe(false);
+  });
+
+  it("uses band scale for bar charts", () => {
+    const traces = [{ traceType: 5 }] as any;
+    const mockStyle = {
+      colors: { color: "black" }
+    } as any;
+
+    const result = buildXAxes(traces, mockStyle, {} as any);
+
+    expect(result.xAxis[0].scaleType).toBe("band");
   });
 });
 
@@ -258,5 +328,41 @@ describe("buildYAxes", () => {
 
     expect(result.yAxes.length).toBe(1);
     expect(result.yAxes[0].label).toBe("Default");
+  });
+
+  it("propagates visible flag", () => {
+    const axes = [
+      {
+        title: "Y",
+        color: { colorString: "black" },
+        visible: false,
+        autoscale: true,
+        onRight: false,
+        logScale: false
+      }
+    ] as any;
+
+    const result = buildYAxes(axes);
+
+    expect(result.yAxes[0].visible).toBe(false);
+  });
+
+  it("applies font styles", () => {
+    const axes = [
+      {
+        title: "Y",
+        color: { colorString: "black" },
+        titleFont: {},
+        scaleFont: {},
+        autoscale: true,
+        onRight: false,
+        logScale: false
+      }
+    ] as any;
+
+    const result = buildYAxes(axes);
+
+    expect(result.yAxes[0].labelStyle).toBeDefined();
+    expect(result.yAxes[0].tickLabelStyle).toBeDefined();
   });
 });
