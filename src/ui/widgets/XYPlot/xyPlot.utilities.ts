@@ -11,7 +11,6 @@ import { dTypeCoerceArray } from "../../../types/dtypes";
 import { CurveType } from "@mui/x-charts";
 import { Trace } from "../../../types/trace";
 import { UseStyleResult } from "../../hooks/useStyle";
-import { getPvValueByPvName } from "../utils";
 import { Axes, Axis, newAxis } from "../../../types/axis";
 import { fontToCss } from "../../../types/font";
 
@@ -72,6 +71,7 @@ export const buildSeries = (
       const base = {
         id: `${index}`,
         dataKey: effectiveYPvName,
+        yAxisId: String(trace?.axis),
         label: trace.name || `Series ${index + 1}`,
         color: visible ? trace.color.colorString : "transparent"
       };
@@ -104,29 +104,35 @@ export const buildXAxes = (
   style: UseStyleResult,
   xAxisDefinition: Axis
 ) => {
-  const isBarChart = traces
-    ?.some(trace => trace?.traceType === 5);
+  const isBarChart = traces?.some(trace => trace?.traceType === 5);
 
-  const dataKey = traces
-    ?.filter(trace => trace != null && trace?.xPv != null)
-    ?.[0]
-    ?.xPv;
+  const dataKey = traces?.filter(
+    trace => trace != null && trace?.xPv != null
+  )?.[0]?.xPv;
 
-  const xAxis: ReadonlyArray<XAxis<any>> = [{
-    color: style?.colors?.color,
-    dataKey: dataKey ?? "x",
-    id: "0",
-    label: xAxisDefinition.title,
-    scaleType: !isBarChart ? (xAxisDefinition.logScale ? "symlog" : "linear") : "band",
-    min: !xAxisDefinition?.autoscale && Number.isFinite(xAxisDefinition?.minimum)
-         ? xAxisDefinition?.minimum
-         : undefined,
-    max: !xAxisDefinition?.autoscale && Number.isFinite(xAxisDefinition?.maximum)
-         ? xAxisDefinition?.maximum
-         : undefined
-  }];
+  const xAxis: ReadonlyArray<XAxis<any>> = [
+    {
+      color: style?.colors?.color,
+      dataKey: dataKey ?? "x",
+      id: "X0",
+      label: xAxisDefinition.title,
+      scaleType: !isBarChart
+        ? xAxisDefinition.logScale
+          ? "symlog"
+          : "linear"
+        : "band",
+      min:
+        !xAxisDefinition?.autoscale && Number.isFinite(xAxisDefinition?.minimum)
+          ? xAxisDefinition?.minimum
+          : undefined,
+      max:
+        !xAxisDefinition?.autoscale && Number.isFinite(xAxisDefinition?.maximum)
+          ? xAxisDefinition?.maximum
+          : undefined
+    }
+  ];
 
-  return { xAxis, hasXAxisData: !!dataKey};
+  return { xAxis, hasXAxisData: !!dataKey };
 };
 
 export const buildYAxes = (
@@ -143,16 +149,16 @@ export const buildYAxes = (
   const yAxesStyle: { [k: string]: { [k2: string]: { stroke: string } } } =
     Object.fromEntries(
       localAxes.map(({ color }, idx) => [
-        `.MuiChartsAxis-id-${idx}`,
+        `& .MuiChartsAxis-root[data-axis-id="${idx}"]`,
         {
-          ".MuiChartsAxis-line": { stroke: color.colorString },
-          ".MuiChartsAxis-tick": { stroke: color.colorString }
+          "& .MuiChartsAxis-line": { stroke: `${color.colorString}` },
+          "& .MuiChartsAxis-tick": { stroke: `${color.colorString}` }
         }
       ])
     );
 
   const yAxes: ReadonlyArray<YAxis<any>> = localAxes.map(
-    (item, idx): YAxis<any> => {
+    (item, idy): YAxis<any> => {
       const titleFont = fontToCss(item.titleFont);
       const scaleFont = fontToCss(item.scaleFont);
 
@@ -173,10 +179,12 @@ export const buildYAxes = (
         min !== undefined && max !== undefined && min >= max ? undefined : max;
 
       return {
+        visible: item?.visible,
         width: 55,
-        id: idx,
+        id: String(idy),
         label: item.title,
         color: item.color?.colorString,
+        lineColor: item.color?.colorString,
         labelStyle: {
           ...titleFont,
           fill: item.color.colorString
