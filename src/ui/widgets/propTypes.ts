@@ -2,7 +2,6 @@ import PropTypes, { InferProps } from "prop-types";
 import { FontStyle } from "../../types/font";
 import { BorderStyle } from "../../types/border";
 import { FileDescription } from "../../misc/fileContext";
-import { Trace } from "../../types/trace";
 import { Plt } from "../../types/plt";
 import { PositionType } from "../../types/position";
 
@@ -82,8 +81,30 @@ export const BorderPropOpt = PropTypes.shape({
 });
 export const BorderProp = BorderPropOpt.isRequired;
 
-export const TraceProp = PropTypes.instanceOf(Trace).isRequired;
-export const TracePropOpt = PropTypes.instanceOf(Trace);
+export const TracePropOpt = PropTypes.shape({
+  name: StringProp,
+  axis: IntProp,
+  lineWidth: IntProp,
+  lineStyle: IntProp,
+  traceType: IntProp,
+  color: ColorProp,
+  pointType: IntProp,
+  pointSize: IntProp,
+  visible: BoolProp,
+  yPv: StringProp,
+  xPv: StringPropOpt,
+  bufferSize: IntPropOpt,
+  plotMode: IntPropOpt,
+  antiAlias: BoolPropOpt,
+  concatenateData: BoolPropOpt,
+  updateDelay: IntPropOpt,
+  updateMode: IntPropOpt,
+  archive: PropTypes.shape({
+    name: StringPropOpt,
+    url: StringPropOpt
+  })
+});
+export const TraceProp = TracePropOpt.isRequired;
 
 export const AxisPropOpt = PropTypes.shape({
   xAxis: BoolPropOpt,

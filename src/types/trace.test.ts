@@ -1,5 +1,5 @@
 import { ColorUtils } from "./color";
-import { Trace } from "./trace";
+import { newTrace } from "./trace";
 
 describe("Trace", () => {
   it("constructs the trace with values", (): void => {
@@ -20,14 +20,13 @@ describe("Trace", () => {
         url: "Testing.diamond.ac.uk"
       }
     };
-    const trace = new Trace(testValues);
+    const trace = newTrace(testValues);
 
     expect(trace).toEqual(testValues);
-    expect(trace).toBeInstanceOf(Trace);
   });
 
   it("construct the trace with only defaults", (): void => {
-    const trace = new Trace();
+    const trace = newTrace({});
     expect({ ...trace, color: "" }).toEqual({
       name: "",
       axis: 0,
@@ -47,6 +46,5 @@ describe("Trace", () => {
     expect(trace.color.colorString).toEqual(
       ColorUtils.fromRgba(0, 0, 255).colorString
     );
-    expect(trace).toBeInstanceOf(Trace);
   });
 });

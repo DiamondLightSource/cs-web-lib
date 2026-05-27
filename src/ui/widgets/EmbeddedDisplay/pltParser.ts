@@ -9,7 +9,7 @@ import {
 } from "./opiParser";
 import { parseChildProps, ParserDict } from "./parser";
 import { Axis, newAxis } from "../../../types/axis";
-import { Archiver, Trace } from "../../../types/trace";
+import { Archiver, newTrace, Trace } from "../../../types/trace";
 import { Plt } from "../../../types/plt";
 import { httpRequest } from "../../../misc/httpClient";
 import { isFullyQualifiedUrl } from "../../../misc";
@@ -127,7 +127,7 @@ function pltParsePvlist(props: ElementCompact) {
         ? pvAxes[parsedProps.axis].push(parsedProps.name)
         : (pvAxes[parsedProps.axis] = [parsedProps.name]);
       traces.push(
-        new Trace({
+        newTrace({
           ...parsedProps,
           yPv: parsedProps.name,
           lineWidth: parsedProps.linewidth

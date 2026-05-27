@@ -2,7 +2,7 @@ import React from "react";
 import { act, render, screen } from "@testing-library/react";
 import { describe, test, expect, beforeEach, vi } from "vitest";
 import { DataBrowserComponent } from "./dataBrowser";
-import { Trace } from "../../../types/trace";
+import { newTrace } from "../../../types/trace";
 import { newAxis } from "../../../types/axis";
 import { Plt } from "../../../types/plt";
 import { PvDatum } from "../../../redux/csState";
@@ -78,7 +78,7 @@ describe("DataBrowserComponent", () => {
     pvData: [buildPvDatum("TEST:PV", 50)],
     plt: new Plt({
       pvlist: [
-        new Trace({
+        newTrace({
           archive: {
             name: "Primary",
             url: "http://archiver.diamond.ac.uk/retrieval"
@@ -162,7 +162,7 @@ describe("DataBrowserComponent", () => {
           start: "5 min",
           end: "now",
           pvlist: [
-            new Trace({
+            newTrace({
               archive: {
                 name: "Primary",
                 url: "http://archiver.diamond.ac.uk/retrieval"

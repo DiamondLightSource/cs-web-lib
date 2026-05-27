@@ -3,7 +3,7 @@ import { useArchivedData } from "./useArchivedData";
 import { Plt } from "../../types/plt";
 import { vi } from "vitest";
 import { newAxis } from "../../types/axis";
-import { Trace } from "../../types/trace";
+import { newTrace } from "../../types/trace";
 import { act, screen } from "@testing-library/react";
 import { contextRender } from "../../testResources";
 
@@ -60,7 +60,7 @@ describe("useArchivedData", (): void => {
   it("returns values if successful archiver call", async () => {
     const plt = new Plt({
       pvlist: [
-        new Trace({
+        newTrace({
           archive: {
             name: "Primary",
             url: "http://archiver.diamond.ac.uk/retrieval"

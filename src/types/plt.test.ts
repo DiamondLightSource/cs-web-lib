@@ -2,14 +2,14 @@ import { newAxis } from "./axis";
 import { ColorUtils } from "./color";
 import { newFont } from "./font";
 import { Plt } from "./plt";
-import { Trace } from "./trace";
+import { newTrace } from "./trace";
 
 describe("Plt", () => {
   it("constructs the plt with values", (): void => {
     const testValues = {
       title: "Testing",
       axes: [newAxis({}), newAxis({ color: ColorUtils.RED })],
-      pvlist: [new Trace({ yPv: "TEST" })],
+      pvlist: [newTrace({ yPv: "TEST" })],
       background: ColorUtils.WHITE,
       foreground: ColorUtils.RED,
       scroll: false,
@@ -28,7 +28,7 @@ describe("Plt", () => {
     const actualValues = {
       title: "Testing",
       axes: [newAxis({}), newAxis({ color: ColorUtils.RED })],
-      pvlist: [new Trace({ yPv: "TEST" })],
+      pvlist: [newTrace({ yPv: "TEST" })],
       backgroundColor: ColorUtils.WHITE.colorString,
       foregroundColor: ColorUtils.RED.colorString,
       scroll: false,
