@@ -6,8 +6,8 @@ import {
   buildYAxes
 } from "./xyPlot.utilities";
 
-import { getPvValueByPvName } from "../utils";
 import { Trace } from "../../../types/trace";
+import { Axis } from "../../../types/axis";
 
 vi.mock("../../../types/dtypes", () => ({
   dTypeCoerceArray: vi.fn(val => val)
@@ -130,17 +130,18 @@ describe("buildXAxes", () => {
   });
 
   it("builds axis from trace with pv min/max", () => {
-    (getPvValueByPvName as any).mockReturnValue({
-      value: {
-        display: {
-          controlRange: { min: 0, max: 100 }
-        }
-      }
-    });
-
     const traces = [{ xPv: "time", axis: 0, traceType: 1 }] as any;
+    const xAxis = {
+      title: "X title",
+      color: { colorString: "red" },
+      autoscale: false,
+      onRight: false,
+      logScale: false,
+      minimum: 0,
+      maximum: 100
+    } as Axis;
 
-    const result = buildXAxes(traces, style, []);
+    const result = buildXAxes(traces, style, xAxis);
 
     expect(result.xAxis[0]).toMatchObject({
       dataKey: "time",
@@ -149,29 +150,6 @@ describe("buildXAxes", () => {
       scaleType: "linear"
     });
     expect(result.hasXAxisData).toBe(true);
-  });
-
-  it("deduplicates axes by axisId", () => {
-    (getPvValueByPvName as any).mockReturnValue({ value: {} });
-
-    const traces = [
-      { xPv: "time", axis: 0, traceType: 1 },
-      { xPv: "time2", axis: 0, traceType: 1 }
-    ] as any;
-
-    const result = buildXAxes(traces, style, []);
-
-    expect(result.xAxis.length).toBe(1);
-  });
-
-  it("uses default axis when none exist", () => {
-    const result = buildXAxes([], style, []);
-
-    expect(result.hasXAxisData).toBe(false);
-    expect(result.xAxis[0]).toMatchObject({
-      dataKey: "x",
-      scaleType: "band"
-    });
   });
 });
 
@@ -195,7 +173,9 @@ describe("buildYAxes", () => {
       position: "left"
     });
 
-    expect(result.yAxesStyle[".MuiChartsAxis-id-0"]).toBeDefined();
+    expect(
+      result.yAxesStyle['& .MuiChartsAxis-root[data-axis-id="0"]']
+    ).toBeDefined();
   });
 
   it("applies min/max when valid", () => {
