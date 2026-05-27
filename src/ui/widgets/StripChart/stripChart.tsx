@@ -17,7 +17,7 @@ import { registerWidget } from "../register";
 import { Box, Typography } from "@mui/material";
 import { CurveType, LineChart, MarkShape, XAxis, YAxis } from "@mui/x-charts";
 import { convertStringTimePeriod } from "../utils";
-import { Trace } from "../../../types/trace";
+import { newTrace } from "../../../types/trace";
 import { Axes, newAxis } from "../../../types/axis";
 import {
   dTypeGetDoubleValue,
@@ -289,7 +289,7 @@ export const StripChartComponent = (
 
   const series = useMemo(
     () =>
-      (traces?.length > 0 ? traces : [new Trace()])
+      (traces?.length > 0 ? traces : [newTrace({})])
         ?.map((item, index) => {
           const pvName = item?.yPv;
           const effectivePvName = pvData
@@ -305,7 +305,7 @@ export const StripChartComponent = (
             id: `${index}`,
             dataKey: effectivePvName,
             label: item.name || pvName,
-            color: visible ? item.color.colorString : "transparent",
+            color: visible ? item.color?.colorString : "transparent",
             showMark: item.pointType === 0 ? false : true,
             area: item.traceType === 5 ? true : false,
             connectNulls: false,
