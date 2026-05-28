@@ -133,7 +133,9 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
       >
         {title}
       </Typography>
-      <Box sx={{ width: "100%", height: "95%" }}>
+      <Box
+        sx={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}
+      >
         {plotDataSet?.length > 0 && (
           <ChartsDataProvider
             skipAnimation
@@ -142,62 +144,73 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
             xAxis={xAxisMui}
             yAxis={yAxes}
           >
-            <ChartsSurface
+            <Box
               sx={{
-                ...style?.colors,
-                "& .MuiChartsAxis-root .MuiChartsAxis-line": {
-                  stroke: style?.colors?.color
-                },
-                "& .MuiChartsAxis-root .MuiChartsAxis-label": {
-                  ...(fontToCss(labelFont) ?? {})
-                },
-                "& .MuiChartsAxis-root .MuiChartsAxis-tickLabel": {
-                  fill: style?.colors?.color,
-                  ...(fontToCss(scaleFont) ?? {})
-                },
-                "& .MuiChartsAxis-root .MuiChartsAxis-tick": {
-                  stroke: style?.colors?.color
-                },
-                ...yAxesStyle
+                flex: 1,
+                minHeight: 0,
+                display: "flex",
+                flexDirection: "column"
               }}
             >
-              <ChartsTooltip trigger="axis" />
-              <ChartsAxisHighlight x="line" />
-              <BarPlot />
-              <LinePlot
-                slotProps={{
-                  line: ({ seriesId }) => {
-                    const trace = traces?.[Number(seriesId)];
-                    // this hides the line if no line should be visible
-                    if (trace?.traceType === 0) {
-                      return {
-                        stroke: "transparent"
-                      };
+              <ChartsSurface
+                sx={{
+                  flex: 1,
+                  minHeight: 0,
+                  ...style?.colors,
+                  "& .MuiChartsAxis-root .MuiChartsAxis-line": {
+                    stroke: style?.colors?.color
+                  },
+                  "& .MuiChartsAxis-root .MuiChartsAxis-label": {
+                    ...(fontToCss(labelFont) ?? {})
+                  },
+                  "& .MuiChartsAxis-root .MuiChartsAxis-tickLabel": {
+                    fill: style?.colors?.color,
+                    ...(fontToCss(scaleFont) ?? {})
+                  },
+                  "& .MuiChartsAxis-root .MuiChartsAxis-tick": {
+                    stroke: style?.colors?.color
+                  },
+                  ...yAxesStyle
+                }}
+              >
+                <ChartsTooltip trigger="axis" />
+                <ChartsAxisHighlight x="line" />
+                <BarPlot />
+                <LinePlot
+                  slotProps={{
+                    line: ({ seriesId }) => {
+                      const trace = traces?.[Number(seriesId)];
+                      // this hides the line if no line should be visible
+                      if (trace?.traceType === 0) {
+                        return {
+                          stroke: "transparent"
+                        };
+                      }
+                      return {};
                     }
-                    return {};
-                  }
-                }}
-              />
-              <MarkPlot />
-              {xAxis?.visible !== false && <ChartsXAxis />}
-              {yAxes.map(axis =>
-                axis.visible !== false ? (
-                  <ChartsYAxis key={axis.id} axisId={axis.id} />
-                ) : null
-              )}
-            </ChartsSurface>
+                  }}
+                />
+                <MarkPlot />
+                {xAxis?.visible !== false && <ChartsXAxis />}
+                {yAxes.map(axis =>
+                  axis.visible !== false ? (
+                    <ChartsYAxis key={axis.id} axisId={axis.id} />
+                  ) : null
+                )}
+              </ChartsSurface>
 
-            {showLegend && (
-              <ChartsLegend
-                slotProps={{
-                  legend: {
-                    direction: "horizontal",
-                    position: { vertical: "bottom", horizontal: "start" },
-                    sx: { color: style?.colors?.color }
-                  }
-                }}
-              />
-            )}
+              {showLegend && (
+                <ChartsLegend
+                  slotProps={{
+                    legend: {
+                      direction: "horizontal",
+                      position: { vertical: "bottom", horizontal: "start" },
+                      sx: { color: style?.colors?.color }
+                    }
+                  }}
+                />
+              )}
+            </Box>
           </ChartsDataProvider>
         )}
       </Box>
