@@ -133,7 +133,7 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
       >
         {title}
       </Typography>
-      <Box sx={{ flex: 1 }}>
+      <Box sx={{ width: "100%", height: "95%" }}>
         {plotDataSet?.length > 0 && (
           <ChartsDataProvider
             skipAnimation
@@ -145,8 +145,6 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
             <ChartsSurface
               sx={{
                 ...style?.colors,
-                width: "100%",
-                height: "95%",
                 "& .MuiChartsAxis-root .MuiChartsAxis-line": {
                   stroke: style?.colors?.color
                 },
