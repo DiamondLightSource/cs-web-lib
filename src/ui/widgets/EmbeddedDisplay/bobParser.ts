@@ -607,6 +607,7 @@ export const BOB_SIMPLE_PARSERS: ParserDict = {
   majorTickStepHint: ["major_tick_step_hint", bobParseNumber],
   maximum: ["maximum", bobParseNumber],
   minimum: ["minimum", bobParseNumber],
+  autoscale: ["autoscale", opiParseBoolean],
   format: ["format", bobParseNumber],
   emptyColor: ["empty_color", opiParseColor],
   knobColor: ["knob_color", opiParseColor],

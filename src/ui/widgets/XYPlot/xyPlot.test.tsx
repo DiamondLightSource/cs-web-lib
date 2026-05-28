@@ -9,9 +9,15 @@ import { useStyle } from "../../hooks/useStyle";
 const linePlotMock = vi.fn();
 
 vi.mock("@mui/x-charts", () => ({
-  ChartsContainer: ({ children }: any) => (
-    <div data-testid="charts-container">{children}</div>
+  ChartsDataProvider: ({ children }: any) => (
+    <div data-testid="charts-provider">{children}</div>
   ),
+  ChartsSurface: ({ children }: any) => (
+    <div data-testid="charts-surface">{children}</div>
+  ),
+  ChartsTooltip: () => <div data-testid="tooltip" />,
+  ChartsAxisHighlight: () => <div data-testid="axis-highlight" />,
+
   BarPlot: () => <div data-testid="bar-plot" />,
   LinePlot: (props: any) => {
     linePlotMock(props);
@@ -76,7 +82,8 @@ describe("XYPlotComponent", () => {
   it("renders chart when dataset exists", () => {
     render(<XYPlotComponent {...baseProps} />);
 
-    expect(screen.getByTestId("charts-container")).toBeInTheDocument();
+    expect(screen.getByTestId("charts-provider")).toBeInTheDocument();
+    expect(screen.getByTestId("charts-surface")).toBeInTheDocument();
     expect(screen.getByTestId("bar-plot")).toBeInTheDocument();
     expect(screen.getByTestId("line-plot")).toBeInTheDocument();
     expect(screen.getByTestId("mark-plot")).toBeInTheDocument();
@@ -97,7 +104,7 @@ describe("XYPlotComponent", () => {
     expect(utils.buildXAxes).toHaveBeenCalledWith(
       baseProps.traces,
       mockStyle,
-      baseProps.pvData
+      baseProps.xAxis
     );
     expect(utils.buildSeries).toHaveBeenCalledWith(
       baseProps.traces,
@@ -154,8 +161,8 @@ describe("XYPlotComponent", () => {
     expect(typeof props.slotProps.line).toBe("function");
   });
 
-  it("hides line when traceType is 0", () => {
-    const traces = [{ traceType: 0 }, { traceType: 1 }];
+  it("hides line when traceType is 0 or 3", () => {
+    const traces = [{ traceType: 0 }, { traceType: 1 }, { traceType: 3 }];
 
     render(<XYPlotComponent {...baseProps} traces={traces} />);
 
@@ -164,5 +171,6 @@ describe("XYPlotComponent", () => {
 
     expect(lineFn({ seriesId: "0" })).toEqual({ stroke: "transparent" });
     expect(lineFn({ seriesId: "1" })).toEqual({});
+    expect(lineFn({ seriesId: "2" })).toEqual({ stroke: "transparent" });
   });
 });

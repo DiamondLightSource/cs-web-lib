@@ -11,20 +11,24 @@ import {
   AxesProp,
   ArchivedDataPropOpt,
   IntPropOpt,
-  TracesPropOpt
+  TracesPropOpt,
+  AxisProp
 } from "../propTypes";
 import { registerWidget } from "../register";
 import { Box, Typography } from "@mui/material";
 import {
-  ChartsContainer,
   BarPlot,
   ChartsLegend,
   ChartsXAxis,
   ChartsYAxis,
   LinePlot,
-  MarkPlot
+  MarkPlot,
+  ChartsTooltip,
+  ChartsAxisHighlight,
+  ChartsSurface,
+  ChartsDataProvider
 } from "@mui/x-charts";
-import { Axes } from "../../../types/axis";
+import { Axes, Axis } from "../../../types/axis";
 import { fontToCss, newFont } from "../../../types/font";
 import { useStyle } from "../../hooks/useStyle";
 import { DatasetElementType } from "@mui/x-charts/internals";
@@ -37,9 +41,12 @@ import {
 
 const widgetName = "xyplot";
 
+const traceTypesWithoutLines = [0, 3];
+
 const XYPlotProps = {
   traces: TracesPropOpt,
   axes: AxesProp,
+  xAxis: AxisProp,
   start: StringPropOpt,
   end: StringPropOpt,
   foregroundColor: ColorPropOpt,
@@ -73,20 +80,22 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
   const {
     traces,
     axes,
+    xAxis,
     pvData,
     title,
     titleFont = newFont(),
     scaleFont = newFont(),
     labelFont = newFont(),
-    showLegend = false,
+    showLegend = true,
     visible = true
   } = props;
 
   const { yAxes, yAxesStyle } = useMemo(() => buildYAxes(axes as Axes), [axes]);
-  const { xAxis, hasXAxisData } = useMemo(
-    () => buildXAxes(traces, style, pvData),
-    [traces, style, pvData]
+  const { xAxis: xAxisMui, hasXAxisData } = useMemo(
+    () => buildXAxes(traces, style, xAxis as Axis),
+    [traces, style, xAxis]
   );
+
   const series = useMemo(
     () => buildSeries(traces, pvData, visible),
     [traces, pvData, visible]
@@ -96,13 +105,25 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
     () => buildPlotDataSet(pvData),
     [pvData]
   );
+
   if (!hasXAxisData) {
     plotDataSet = plotDataSet.map((point, i) => ({ ...point, x: i }));
   }
 
+  if (!visible) {
+    return <Box></Box>;
+  }
+
   // Use end value - this doesn't seem to do anything in Phoebus?
   return (
-    <Box sx={{ width: "100%", height: "100%" }}>
+    <Box
+      sx={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column"
+      }}
+    >
       <Typography
         sx={{
           ...fontToCss(titleFont),
@@ -114,66 +135,90 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
       >
         {title}
       </Typography>
-
-      {plotDataSet?.length > 0 && (
-        <ChartsContainer
-          skipAnimation
-          dataset={plotDataSet}
-          series={series}
-          xAxis={xAxis}
-          yAxis={yAxes}
-          sx={{
-            width: "100%",
-            height: "95%",
-            ".MuiChartsAxis-id-xaxis": {
-              ".MuiChartsAxis-line": {
-                stroke: style?.colors?.color
-              },
-              ".MuiChartsAxis-label": {
-                ...(fontToCss(labelFont) ?? {})
-              },
-              ".MuiChartsAxis-tickLabel": {
-                fill: style?.colors?.color,
-                ...(fontToCss(scaleFont) ?? {})
-              },
-              ".MuiChartsAxis-tick": {
-                stroke: style?.colors?.color
-              }
-            },
-
-            ...yAxesStyle
-          }}
-        >
-          <BarPlot />
-          <LinePlot
-            slotProps={{
-              line: ({ seriesId }) => {
-                const trace = traces?.[Number(seriesId)];
-                // this hides the line if no line should be visible
-                if (trace?.traceType === 0) {
-                  return {
-                    stroke: "transparent"
-                  };
-                }
-                return {};
-              }
-            }}
-          />
-          <MarkPlot />
-          <ChartsXAxis />
-          <ChartsYAxis />
-
-          {showLegend && (
-            <ChartsLegend
-              slotProps={{
-                legend: {
-                  sx: { color: style?.colors?.color }
-                }
+      <Box
+        sx={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}
+      >
+        {plotDataSet?.length > 0 && (
+          <ChartsDataProvider
+            skipAnimation
+            dataset={plotDataSet}
+            series={series}
+            xAxis={xAxisMui}
+            yAxis={yAxes}
+          >
+            <Box
+              sx={{
+                flex: 1,
+                minHeight: 0,
+                display: "flex",
+                flexDirection: "column"
               }}
-            />
-          )}
-        </ChartsContainer>
-      )}
+            >
+              <ChartsSurface
+                sx={{
+                  flex: 1,
+                  minHeight: 0,
+                  ...style?.colors,
+                  "& .MuiChartsAxis-root .MuiChartsAxis-line": {
+                    stroke: style?.colors?.color
+                  },
+                  "& .MuiChartsAxis-root .MuiChartsAxis-label": {
+                    ...(fontToCss(labelFont) ?? {})
+                  },
+                  "& .MuiChartsAxis-root .MuiChartsAxis-tickLabel": {
+                    fill: style?.colors?.color,
+                    ...(fontToCss(scaleFont) ?? {})
+                  },
+                  "& .MuiChartsAxis-root .MuiChartsAxis-tick": {
+                    stroke: style?.colors?.color
+                  },
+                  ...yAxesStyle
+                }}
+              >
+                <ChartsTooltip trigger="axis" />
+                <ChartsAxisHighlight x="line" />
+                <BarPlot />
+                <LinePlot
+                  slotProps={{
+                    line: ({ seriesId }) => {
+                      const trace = traces?.[Number(seriesId)];
+                      // this hides the line if no line should be visible
+                      if (
+                        trace?.traceType != null &&
+                        traceTypesWithoutLines.includes(trace.traceType)
+                      ) {
+                        return {
+                          stroke: "transparent"
+                        };
+                      }
+                      return {};
+                    }
+                  }}
+                />
+                <MarkPlot />
+                {xAxis?.visible !== false && <ChartsXAxis />}
+                {yAxes.map(axis =>
+                  axis.visible !== false ? (
+                    <ChartsYAxis key={axis.id} axisId={axis.id} />
+                  ) : null
+                )}
+              </ChartsSurface>
+
+              {showLegend && (
+                <ChartsLegend
+                  slotProps={{
+                    legend: {
+                      direction: "horizontal",
+                      position: { vertical: "bottom", horizontal: "start" },
+                      sx: { color: style?.colors?.color }
+                    }
+                  }}
+                />
+              )}
+            </Box>
+          </ChartsDataProvider>
+        )}
+      </Box>
     </Box>
   );
 };
