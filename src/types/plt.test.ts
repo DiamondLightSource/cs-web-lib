@@ -1,7 +1,7 @@
 import { newAxis } from "./axis";
 import { ColorUtils } from "./color";
 import { newFont } from "./font";
-import { Plt } from "./plt";
+import { newPlt } from "./plt";
 import { newTrace } from "./trace";
 
 describe("Plt", () => {
@@ -24,7 +24,7 @@ describe("Plt", () => {
       start: "10 minutes",
       end: "now"
     };
-    const plt = new Plt(testValues);
+    const plt = newPlt(testValues);
     const actualValues = {
       title: "Testing",
       axes: [newAxis({}), newAxis({ color: ColorUtils.RED })],
@@ -54,11 +54,10 @@ describe("Plt", () => {
       axes: [],
       pvlist: []
     });
-    expect(plt).toBeInstanceOf(Plt);
   });
 
   it("construct the trace with only defaults", (): void => {
-    const plt = new Plt();
+    const plt = newPlt({});
     expect({
       ...plt,
       backgroundColor: plt.backgroundColor.colorString,
@@ -83,6 +82,5 @@ describe("Plt", () => {
       start: "1 minute",
       end: "now"
     });
-    expect(plt).toBeInstanceOf(Plt);
   });
 });

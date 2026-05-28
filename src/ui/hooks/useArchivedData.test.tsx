@@ -1,6 +1,6 @@
 import React from "react";
 import { useArchivedData } from "./useArchivedData";
-import { Plt } from "../../types/plt";
+import { newPlt, Plt } from "../../types/plt";
 import { vi } from "vitest";
 import { newAxis } from "../../types/axis";
 import { newTrace } from "../../types/trace";
@@ -58,7 +58,7 @@ const ArchivedDataTester = (props: { plt: Plt }): JSX.Element => {
 
 describe("useArchivedData", (): void => {
   it("returns values if successful archiver call", async () => {
-    const plt = new Plt({
+    const plt = newPlt({
       pvlist: [
         newTrace({
           archive: {

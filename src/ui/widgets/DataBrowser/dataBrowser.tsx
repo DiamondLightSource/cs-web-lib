@@ -10,6 +10,7 @@ import {
 import { registerWidget } from "../register";
 import { StripChartComponent } from "../StripChart/stripChart";
 import { useArchivedData } from "../../hooks/useArchivedData";
+import { Plt } from "../../../types/plt";
 
 const DataBrowserProps = {
   plt: PltProp,
@@ -28,7 +29,7 @@ export const DataBrowserComponent = (
   props: DataBrowserComponentProps
 ): JSX.Element => {
   const { plt } = props;
-  const [data, dataLoaded] = useArchivedData(plt);
+  const [data, dataLoaded] = useArchivedData(plt as Plt);
 
   return (
     <StripChartComponent
