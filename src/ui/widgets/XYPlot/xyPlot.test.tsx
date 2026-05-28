@@ -161,8 +161,8 @@ describe("XYPlotComponent", () => {
     expect(typeof props.slotProps.line).toBe("function");
   });
 
-  it("hides line when traceType is 0", () => {
-    const traces = [{ traceType: 0 }, { traceType: 1 }];
+  it("hides line when traceType is 0 or 3", () => {
+    const traces = [{ traceType: 0 }, { traceType: 1 }, { traceType: 3 }];
 
     render(<XYPlotComponent {...baseProps} traces={traces} />);
 
@@ -171,5 +171,6 @@ describe("XYPlotComponent", () => {
 
     expect(lineFn({ seriesId: "0" })).toEqual({ stroke: "transparent" });
     expect(lineFn({ seriesId: "1" })).toEqual({});
+    expect(lineFn({ seriesId: "2" })).toEqual({ stroke: "transparent" });
   });
 });

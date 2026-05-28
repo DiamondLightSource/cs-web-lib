@@ -41,6 +41,8 @@ import {
 
 const widgetName = "xyplot";
 
+const traceTypesWithoutLines = [0, 3];
+
 const XYPlotProps = {
   traces: TracesPropOpt,
   axes: AxesProp,
@@ -181,7 +183,10 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
                     line: ({ seriesId }) => {
                       const trace = traces?.[Number(seriesId)];
                       // this hides the line if no line should be visible
-                      if (trace?.traceType === 0) {
+                      if (
+                        trace?.traceType != null &&
+                        traceTypesWithoutLines.includes(trace.traceType)
+                      ) {
                         return {
                           stroke: "transparent"
                         };
