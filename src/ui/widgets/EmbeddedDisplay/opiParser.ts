@@ -12,7 +12,7 @@ import {
   newAbsolutePosition,
   newRelativePosition
 } from "../../../types/position";
-import { Trace } from "../../../types/trace";
+import { newTrace, Trace } from "../../../types/trace";
 import { Axis, newAxis } from "../../../types/axis";
 import {
   ComplexParserDict,
@@ -502,7 +502,7 @@ function opiParseTraces(props: any): Trace[] {
   const traces: Trace[] = [];
   // Parse all of the 'trace' properties
   for (let i = 0; i < count; i++) {
-    const trace = new Trace({
+    const trace = newTrace({
       fromOpi: true,
       ...parseMultipleNamedProps(`trace_${i}`, props)
     });

@@ -2,9 +2,9 @@ import React from "react";
 import { act, render, screen } from "@testing-library/react";
 import { describe, test, expect, beforeEach, vi } from "vitest";
 import { DataBrowserComponent } from "./dataBrowser";
-import { Trace } from "../../../types/trace";
+import { newTrace } from "../../../types/trace";
 import { newAxis } from "../../../types/axis";
-import { Plt } from "../../../types/plt";
+import { newPlt } from "../../../types/plt";
 import { PvDatum } from "../../../redux/csState";
 import { newDTime, newDType } from "../../../types/dtypes";
 import { ColorUtils } from "../../../types/color";
@@ -76,9 +76,9 @@ describe("DataBrowserComponent", () => {
 
   const defaultProps = {
     pvData: [buildPvDatum("TEST:PV", 50)],
-    plt: new Plt({
+    plt: newPlt({
       pvlist: [
-        new Trace({
+        newTrace({
           archive: {
             name: "Primary",
             url: "http://archiver.diamond.ac.uk/retrieval"
@@ -141,7 +141,7 @@ describe("DataBrowserComponent", () => {
       ];
       const newProps = {
         ...defaultProps,
-        plt: new Plt({ axes: axes })
+        plt: newPlt({ axes: axes })
       };
       await act(async () => {
         contextRender(<DataBrowserComponent {...newProps} />);
@@ -158,11 +158,11 @@ describe("DataBrowserComponent", () => {
     test("renders with 5 minute archived data", async () => {
       const newProps = {
         ...defaultProps,
-        plt: new Plt({
+        plt: newPlt({
           start: "5 min",
           end: "now",
           pvlist: [
-            new Trace({
+            newTrace({
               archive: {
                 name: "Primary",
                 url: "http://archiver.diamond.ac.uk/retrieval"

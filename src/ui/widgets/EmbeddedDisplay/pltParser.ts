@@ -9,8 +9,8 @@ import {
 } from "./opiParser";
 import { parseChildProps, ParserDict } from "./parser";
 import { Axis, newAxis } from "../../../types/axis";
-import { Archiver, Trace } from "../../../types/trace";
-import { Plt } from "../../../types/plt";
+import { Archiver, newTrace, Trace } from "../../../types/trace";
+import { newPlt, Plt } from "../../../types/plt";
 import { httpRequest } from "../../../misc/httpClient";
 import { isFullyQualifiedUrl } from "../../../misc";
 import { ColorUtils } from "../../../types/color";
@@ -127,7 +127,7 @@ function pltParsePvlist(props: ElementCompact) {
         ? pvAxes[parsedProps.axis].push(parsedProps.name)
         : (pvAxes[parsedProps.axis] = [parsedProps.name]);
       traces.push(
-        new Trace({
+        newTrace({
           ...parsedProps,
           yPv: parsedProps.name,
           lineWidth: parsedProps.linewidth
@@ -197,7 +197,7 @@ export async function parsePlt(
   widgetType?: string | number
 ): Promise<Plt> {
   // TO DO - check file ext is plt
-  let props = new Plt();
+  let props = newPlt({});
   if (widgetType === "databrowser" && typeof file._text === "string") {
     const databrowser: XmlDescription = await fetchPltFile(
       file._text,
@@ -206,7 +206,7 @@ export async function parsePlt(
     // Parse the simple props
     const [pvlist, pvAxes] = pltParsePvlist(databrowser["pvlist"]);
     const axes = pltParseAxes(databrowser["axes"], pvAxes);
-    props = new Plt({
+    props = newPlt({
       ...parseChildProps(databrowser, PLT_PARSERS),
       pvlist: pvlist,
       axes: axes

@@ -38,6 +38,7 @@ import {
   buildXAxes,
   buildYAxes
 } from "./xyPlot.utilities";
+import { Trace } from "../../../types/trace";
 
 const widgetName = "xyplot";
 
@@ -92,12 +93,12 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
 
   const { yAxes, yAxesStyle } = useMemo(() => buildYAxes(axes as Axes), [axes]);
   const { xAxis: xAxisMui, hasXAxisData } = useMemo(
-    () => buildXAxes(traces, style, xAxis as Axis),
+    () => buildXAxes(traces as Trace[], style, xAxis as Axis),
     [traces, style, xAxis]
   );
 
   const series = useMemo(
-    () => buildSeries(traces, pvData, visible),
+    () => buildSeries(traces as Trace[], pvData, visible),
     [traces, pvData, visible]
   );
 
@@ -185,7 +186,7 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
                       // this hides the line if no line should be visible
                       if (
                         trace?.traceType != null &&
-                        traceTypesWithoutLines.includes(trace.traceType)
+                        traceTypesWithoutLines.includes(Number(trace.traceType)) //tracetype can only be string for databrowser
                       ) {
                         return {
                           stroke: "transparent"

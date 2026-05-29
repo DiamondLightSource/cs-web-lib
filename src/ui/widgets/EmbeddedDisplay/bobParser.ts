@@ -45,7 +45,7 @@ import { ColorBar, ColorUtils, newColorBar } from "../../../types/color";
 import { WidgetDescription } from "../createComponent";
 import { newPoint, newPoints, Point, Points } from "../../../types/points";
 import { Axis, newAxis } from "../../../types/axis";
-import { Trace } from "../../../types/trace";
+import { newTrace, Trace } from "../../../types/trace";
 import { parsePlt } from "./pltParser";
 import { scriptParser } from "./scripts/scriptParser";
 import { MacroMap } from "../../../types/macros";
@@ -321,11 +321,11 @@ function bobParseTraces(props: any): Trace[] {
     if (props.trace.length > 1) {
       props.trace.forEach((trace: any) => {
         parsedProps = parseChildProps(trace, BOB_SIMPLE_PARSERS);
-        traces.push(new Trace(parsedProps));
+        traces.push(newTrace(parsedProps));
       });
     } else {
       parsedProps = parseChildProps(props.trace, BOB_SIMPLE_PARSERS);
-      traces.push(new Trace(parsedProps));
+      traces.push(newTrace(parsedProps));
     }
   }
   return traces;

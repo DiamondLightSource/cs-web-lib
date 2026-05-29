@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import { describe, test, expect, beforeEach, vi } from "vitest";
 import { StripChartComponent } from "./stripChart";
-import { Trace } from "../../../types/trace";
+import { newTrace } from "../../../types/trace";
 import { newAxis } from "../../../types/axis";
 import { convertStringTimePeriod } from "../utils";
 import { PvDatum } from "../../../redux/csState";
@@ -62,7 +62,7 @@ describe("StripChartComponent", () => {
 
   const defaultProps = {
     pvData: [buildPvDatum("TEST:PV", 50)],
-    traces: [new Trace()],
+    traces: [newTrace({})],
     axes: [newAxis({})]
   };
 
@@ -132,8 +132,8 @@ describe("StripChartComponent", () => {
 
     test("renders with 2 traces", () => {
       const traces = [
-        new Trace({ color: ColorUtils.ORANGE, yPv: "TEST:PV" }),
-        new Trace({ color: ColorUtils.PINK, yPv: "TEST:PV" })
+        newTrace({ color: ColorUtils.ORANGE, yPv: "TEST:PV" }),
+        newTrace({ color: ColorUtils.PINK, yPv: "TEST:PV" })
       ];
       render(<StripChartComponent {...defaultProps} traces={traces} />);
       const lineChart = screen.getByTestId("line-chart");
@@ -153,9 +153,9 @@ describe("StripChartComponent", () => {
 
     test("renders multiple PVs with multiple traces, with rerender to add second set of PV data", () => {
       const traces = [
-        new Trace({ color: ColorUtils.ORANGE, yPv: "PV1" }),
-        new Trace({ color: ColorUtils.PINK, yPv: "PV2" }),
-        new Trace({ color: ColorUtils.BLUE, yPv: "PV3" })
+        newTrace({ color: ColorUtils.ORANGE, yPv: "PV1" }),
+        newTrace({ color: ColorUtils.PINK, yPv: "PV2" }),
+        newTrace({ color: ColorUtils.BLUE, yPv: "PV3" })
       ];
 
       const renderedObject = render(
@@ -302,7 +302,7 @@ describe("StripChartComponent", () => {
 
   describe("Styling", () => {
     test("applies tracetype to trace", () => {
-      const traces = [new Trace({ traceType: 5, yPv: "TEST:PV" })];
+      const traces = [newTrace({ traceType: 5, yPv: "TEST:PV" })];
 
       render(<StripChartComponent {...defaultProps} traces={traces} />);
 
@@ -340,7 +340,7 @@ describe("StripChartComponent", () => {
     });
 
     test("applies diamond markers to trace", () => {
-      const traces = [new Trace({ pointType: 3, yPv: "TEST:PV" })];
+      const traces = [newTrace({ pointType: 3, yPv: "TEST:PV" })];
       render(<StripChartComponent {...defaultProps} traces={traces} />);
 
       const lineChart = screen.getByTestId("line-chart");

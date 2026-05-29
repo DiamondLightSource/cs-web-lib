@@ -2,8 +2,6 @@ import PropTypes, { InferProps } from "prop-types";
 import { FontStyle } from "../../types/font";
 import { BorderStyle } from "../../types/border";
 import { FileDescription } from "../../misc/fileContext";
-import { Trace } from "../../types/trace";
-import { Plt } from "../../types/plt";
 import { PositionType } from "../../types/position";
 
 export type ExcludeNulls<T> = {
@@ -21,6 +19,12 @@ export const IntProp = PropTypes.number.isRequired;
 export const IntPropOpt = PropTypes.number;
 
 export const IntArrayPropOpt = PropTypes.arrayOf(PropTypes.number.isRequired);
+
+export const StringOrNumPropOpt = PropTypes.oneOfType([
+  PropTypes.string,
+  PropTypes.number
+]);
+export const StringOrNumProp = StringOrNumPropOpt.isRequired;
 
 export const FloatProp = PropTypes.number.isRequired;
 export const FloatPropOpt = PropTypes.number;
@@ -82,8 +86,33 @@ export const BorderPropOpt = PropTypes.shape({
 });
 export const BorderProp = BorderPropOpt.isRequired;
 
-export const TraceProp = PropTypes.instanceOf(Trace).isRequired;
-export const TracePropOpt = PropTypes.instanceOf(Trace);
+export const TracePropOpt = PropTypes.shape({
+  name: StringProp,
+  axis: IntProp,
+  lineWidth: IntProp,
+  lineStyle: IntProp,
+  traceType: StringOrNumProp,
+  color: ColorProp,
+  pointType: IntProp,
+  pointSize: IntProp,
+  visible: BoolProp,
+  yPv: StringProp,
+  xPv: StringPropOpt,
+  bufferSize: IntPropOpt,
+  plotMode: IntPropOpt,
+  antiAlias: BoolPropOpt,
+  concatenateData: BoolPropOpt,
+  updateDelay: IntPropOpt,
+  updateMode: IntPropOpt,
+  archive: PropTypes.shape({
+    name: StringPropOpt,
+    url: StringPropOpt
+  })
+});
+export const TraceProp = TracePropOpt.isRequired;
+
+export const TracesProp = PropTypes.arrayOf(TraceProp).isRequired;
+export const TracesPropOpt = PropTypes.arrayOf(TracePropOpt);
 
 export const AxisPropOpt = PropTypes.shape({
   xAxis: BoolPropOpt,
@@ -101,14 +130,28 @@ export const AxisPropOpt = PropTypes.shape({
 });
 export const AxisProp = AxisPropOpt.isRequired;
 
-export const TracesProp = PropTypes.arrayOf(TraceProp).isRequired;
-export const TracesPropOpt = PropTypes.arrayOf(TracePropOpt);
-
 export const AxesProp = PropTypes.arrayOf(AxisProp).isRequired;
 export const AxesPropOpt = PropTypes.arrayOf(AxisPropOpt);
 
-export const PltProp = PropTypes.instanceOf(Plt).isRequired;
-export const PltPropOpt = PropTypes.instanceOf(Plt);
+export const PltPropOpt = PropTypes.shape({
+  title: StringProp,
+  axes: AxesProp,
+  pvlist: TracesProp,
+  backgroundColor: ColorProp,
+  foregroundColor: ColorProp,
+  scroll: BoolProp,
+  scrollStep: IntProp,
+  updatePeriod: IntProp,
+  bufferSize: IntProp,
+  start: StringProp,
+  end: StringProp,
+  showGrid: BoolProp,
+  titleFont: FontProp,
+  scaleFont: FontProp,
+  labelFont: FontProp,
+  legendFont: FontProp
+});
+export const PltProp = PltPropOpt.isRequired;
 
 export const FuncPropOpt = PropTypes.instanceOf(Function);
 export const FuncProp = FuncPropOpt.isRequired;
@@ -208,12 +251,6 @@ export const RulesProp = PropTypes.arrayOf(RulePropType.isRequired).isRequired;
 export const RulesPropOpt = PropTypes.arrayOf(RulePropType.isRequired);
 
 export const ScriptsPropOpt = PropTypes.arrayOf(ScriptPropType.isRequired);
-
-export const StringOrNumPropOpt = PropTypes.oneOfType([
-  PropTypes.string,
-  PropTypes.number
-]);
-export const StringOrNumProp = StringOrNumPropOpt.isRequired;
 
 export function ChoicePropOpt(
   options: string[]

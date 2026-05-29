@@ -9,7 +9,7 @@ import {
 import { PvDatum } from "../../../redux/csState";
 import { dTypeCoerceArray } from "../../../types/dtypes";
 import { CurveType } from "@mui/x-charts";
-import { Trace } from "../../../types/trace";
+import { newTrace, Trace } from "../../../types/trace";
 import { UseStyleResult } from "../../hooks/useStyle";
 import { Axes, Axis, newAxis } from "../../../types/axis";
 import { fontToCss } from "../../../types/font";
@@ -55,7 +55,7 @@ export const buildSeries = (
   pvData: PvDatum[],
   visible: boolean
 ): (LineSeriesType | BarSeriesType)[] => {
-  return (traces ?? [new Trace()])
+  return (traces ?? [newTrace({})])
     .filter(trace => trace != null)
     .map((trace, index) => {
       const yPvName = trace?.yPv;

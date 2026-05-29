@@ -1,63 +1,59 @@
 import { Axes, newAxis } from "./axis";
 import { Color, ColorUtils } from "./color";
 import { Font, newFont } from "./font";
-import { Trace } from "./trace";
+import { newTrace, Trace } from "./trace";
 
-export class Plt {
-  public title: string;
-  public axes: Axes;
-  public pvlist: Trace[];
-  public backgroundColor: Color;
-  public foregroundColor: Color;
-  public scroll: boolean;
-  public scrollStep: number;
-  public updatePeriod: number;
-  public bufferSize: number;
-  public start: string;
-  public end: string;
-  public showGrid: boolean;
-  public titleFont: Font;
-  public scaleFont: Font;
-  public labelFont: Font;
-  public legendFont: Font;
-
-  /**
-   * Set default values for properties not yet
-   * set, otherwise use set property.
-   */
-  public constructor({
-    title = "",
-    axes = [newAxis({})],
-    pvlist = [new Trace()],
-    background = ColorUtils.WHITE,
-    foreground = ColorUtils.BLACK,
-    scroll = true,
-    grid = false,
-    scrollStep = 5,
-    updatePeriod = 0,
-    bufferSize = 5000,
-    titleFont = newFont(),
-    labelFont = newFont(),
-    legendFont = newFont(),
-    scaleFont = newFont(),
-    start = "1 minute",
-    end = "now"
-  } = {}) {
-    this.backgroundColor = background;
-    this.foregroundColor = foreground;
-    this.title = title;
-    this.scroll = scroll;
-    this.scrollStep = scrollStep;
-    this.axes = axes;
-    this.pvlist = pvlist;
-    this.updatePeriod = updatePeriod;
-    this.bufferSize = bufferSize;
-    this.showGrid = grid;
-    this.start = start;
-    this.end = end;
-    this.titleFont = titleFont;
-    this.scaleFont = scaleFont;
-    this.labelFont = labelFont;
-    this.legendFont = legendFont;
-  }
+export interface Plt {
+  title: string;
+  axes: Axes;
+  pvlist: Trace[];
+  backgroundColor: Color;
+  foregroundColor: Color;
+  scroll: boolean;
+  scrollStep: number;
+  updatePeriod: number;
+  bufferSize: number;
+  start: string;
+  end: string;
+  showGrid: boolean;
+  titleFont: Font;
+  scaleFont: Font;
+  labelFont: Font;
+  legendFont: Font;
 }
+
+export const newPlt = (config: {
+  title?: string;
+  axes?: Axes;
+  pvlist?: Trace[];
+  background?: Color;
+  foreground?: Color;
+  scroll?: boolean;
+  scrollStep?: number;
+  updatePeriod?: number;
+  bufferSize?: number;
+  start?: string;
+  end?: string;
+  grid?: boolean;
+  titleFont?: Font;
+  scaleFont?: Font;
+  labelFont?: Font;
+  legendFont?: Font;
+}): Plt => ({
+  title: config.title ?? "",
+  axes: config.axes ?? [newAxis({})],
+  pvlist: config.pvlist ?? [newTrace({})],
+  backgroundColor: config.background ?? ColorUtils.WHITE,
+  foregroundColor: config.foreground ?? ColorUtils.BLACK,
+  scroll: config.scroll ?? true,
+  showGrid: config.grid ?? false,
+  scrollStep: config.scrollStep ?? 5,
+  updatePeriod: config.updatePeriod ?? 0,
+  bufferSize: config.bufferSize ?? 5000,
+  titleFont: config.titleFont ?? newFont(),
+  labelFont: config.labelFont ?? newFont(),
+  legendFont: config.legendFont ?? newFont(),
+  scaleFont: config.scaleFont ?? newFont(),
+  start: config.start ?? "1 minute",
+  end: config.end ?? "now"
+});
