@@ -186,7 +186,7 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
                       // this hides the line if no line should be visible
                       if (
                         trace?.traceType != null &&
-                        traceTypesWithoutLines.includes(trace.traceType)
+                        traceTypesWithoutLines.includes(Number(trace.traceType)) //tracetype can only be string for databrowser
                       ) {
                         return {
                           stroke: "transparent"
