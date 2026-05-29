@@ -14,6 +14,7 @@ import {
   ColorPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
+import classes from "./image.module.css";
 import { Box } from "@mui/material";
 
 const widgetName = "image";
@@ -86,6 +87,7 @@ export const ImageComponent = (
   return (
     <Box sx={fullStyle} onClick={onClick}>
       <img
+        className={classes.Image}
         src={imageFileName}
         alt={props.alt || undefined}
         style={{
