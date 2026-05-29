@@ -36,7 +36,7 @@ export const WebcamComponent = (
     >
       <img
         id={props.name}
-        className={classes.img}
+        className={classes.Webcam}
         src={props.url}
         alt={`Loading Webcam MJPEG stream...`}
         onError={onError}
