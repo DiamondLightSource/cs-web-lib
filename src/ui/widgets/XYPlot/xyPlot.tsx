@@ -12,7 +12,8 @@ import {
   ArchivedDataPropOpt,
   IntPropOpt,
   TracesPropOpt,
-  AxisProp
+  AxisProp,
+  MarkersPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
 import { Box, Typography } from "@mui/material";
@@ -26,19 +27,22 @@ import {
   ChartsTooltip,
   ChartsAxisHighlight,
   ChartsSurface,
-  ChartsDataProvider
+  ChartsDataProvider,
+  ChartsReferenceLine
 } from "@mui/x-charts";
 import { Axes, Axis } from "../../../types/axis";
 import { fontToCss, newFont } from "../../../types/font";
 import { useStyle } from "../../hooks/useStyle";
 import { DatasetElementType } from "@mui/x-charts/internals";
 import {
+  buildMarkerDataSet,
   buildPlotDataSet,
   buildSeries,
   buildXAxes,
   buildYAxes
 } from "./xyPlot.utilities";
 import { Trace } from "../../../types/trace";
+import { Marker } from "../../../types/markers";
 
 const widgetName = "xyplot";
 
@@ -46,6 +50,7 @@ const traceTypesWithoutLines = [0, 3];
 
 const XYPlotProps = {
   traces: TracesPropOpt,
+  marker: MarkersPropOpt,
   axes: AxesProp,
   xAxis: AxisProp,
   start: StringPropOpt,
@@ -80,6 +85,7 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
 
   const {
     traces,
+    marker,
     axes,
     xAxis,
     pvData,
@@ -103,8 +109,13 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
   );
 
   let plotDataSet: DatasetElementType<number>[] = useMemo(
-    () => buildPlotDataSet(pvData),
-    [pvData]
+    () => buildPlotDataSet(pvData, traces as Trace[]),
+    [pvData, traces]
+  );
+
+  const markerDataSet = useMemo(
+    () => buildMarkerDataSet(pvData, marker as Marker[]),
+    [pvData, marker]
   );
 
   if (!hasXAxisData) {
@@ -203,6 +214,20 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
                     <ChartsYAxis key={axis.id} axisId={axis.id} />
                   ) : null
                 )}
+
+                {markerDataSet
+                  ?.filter(m => m?.pvValue)
+                  ?.map(marker =>
+                    marker.visible !== false ? (
+                      <ChartsReferenceLine
+                        key={marker.pvName}
+                        x={marker.pvValue as number}
+                        lineStyle={{
+                          stroke: marker.color?.colorString ?? "black"
+                        }}
+                      />
+                    ) : null
+                  )}
               </ChartsSurface>
 
               {showLegend && (
