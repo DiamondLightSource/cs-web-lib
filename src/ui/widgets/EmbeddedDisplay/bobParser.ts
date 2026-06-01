@@ -338,18 +338,19 @@ function bobParseTraces(props: any): Trace[] {
  * @returns a array of marker objects
  */
 function bobParseMarker(props: any): Markers {
-  let markers: Markers = [];
-  if (props) {
-    // If only one marker, we are passed an object instead
-    // of an array
-    if (props?.marker?.length > 1) {
-      markers = props.marker.map((m: any) => {
-        const parsedProps = parseChildProps(m, BOB_SIMPLE_PARSERS);
-        return newMarker(parsedProps);
-      });
-    }
+  if (props?.marker == null) {
+    return [] as Markers;
   }
-  return markers;
+
+  let markers = props.marker;
+  if (!Array.isArray(markers)) {
+    markers = [markers];
+  }
+
+  return markers.map((m: any) => {
+    const parsedProps = parseChildProps(m, BOB_SIMPLE_PARSERS);
+    return newMarker(parsedProps);
+  });
 }
 
 /**
