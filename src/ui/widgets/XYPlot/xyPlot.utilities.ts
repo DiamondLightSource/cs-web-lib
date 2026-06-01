@@ -7,12 +7,13 @@ import {
   YAxis
 } from "@mui/x-charts/internals";
 import { PvDatum } from "../../../redux/csState";
-import { dTypeCoerceArray } from "../../../types/dtypes";
+import { dTypeCoerceArray, dTypeCoerceDouble } from "../../../types/dtypes";
 import { CurveType } from "@mui/x-charts";
 import { newTrace, Trace } from "../../../types/trace";
 import { UseStyleResult } from "../../hooks/useStyle";
 import { Axes, Axis, newAxis } from "../../../types/axis";
 import { fontToCss } from "../../../types/font";
+import { Marker } from "../../../types/markers";
 
 const MARKER_STYLES: (MarkShape | undefined)[] = [
   undefined,
@@ -24,7 +25,8 @@ const MARKER_STYLES: (MarkShape | undefined)[] = [
 ];
 
 export const buildPlotDataSet = (
-  pvData: PvDatum[]
+  pvData: PvDatum[],
+  traces: (Trace | null | undefined)[]
 ): DatasetElementType<number>[] => {
   const remappedData = pvData
     ?.filter(
@@ -33,6 +35,12 @@ export const buildPlotDataSet = (
         datum?.effectivePvName &&
         datum?.value &&
         dTypeCoerceArray(datum?.value).length > 0
+    )
+    ?.filter(
+      datum =>
+        traces &&
+        (traces.some(t => t?.yPv && datum?.effectivePvName?.endsWith(t?.yPv)) ||
+          traces.some(t => t?.xPv && datum?.effectivePvName?.endsWith(t?.xPv)))
     )
     ?.map(datum => ({
       [datum?.effectivePvName]:
@@ -48,6 +56,31 @@ export const buildPlotDataSet = (
   return Array.from({ length: minSeriesLength }, (_, i) =>
     Object.fromEntries(keys.map(key => [key, Number(remappedData[key][i])]))
   );
+};
+
+export const buildMarkerDataSet = (
+  pvData: PvDatum[],
+  markers: (Marker | null | undefined)[]
+) => {
+  if (!markers || markers?.length === 0) {
+    return [];
+  }
+
+  return markers
+    ?.filter(marker => marker != null && marker?.pvName)
+    ?.map(marker => {
+      const pvDatum = pvData.find(
+        d =>
+          d?.effectivePvName &&
+          marker?.pvName &&
+          d?.effectivePvName?.endsWith(marker.pvName)
+      );
+      return {
+        ...marker,
+        pvValue:
+          pvDatum?.value != null ? dTypeCoerceDouble(pvDatum?.value) : undefined
+      };
+    });
 };
 
 export const buildSeries = (

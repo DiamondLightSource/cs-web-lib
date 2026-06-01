@@ -26,7 +26,10 @@ vi.mock("@mui/x-charts", () => ({
   MarkPlot: () => <div data-testid="mark-plot" />,
   ChartsXAxis: () => <div data-testid="x-axis" />,
   ChartsYAxis: () => <div data-testid="y-axis" />,
-  ChartsLegend: () => <div data-testid="legend" />
+  ChartsLegend: () => <div data-testid="legend" />,
+  ChartsReferenceLine: (props: any) => (
+    <div data-testid="reference-line" data-x={props.x} />
+  )
 }));
 
 vi.mock("../../hooks/useStyle", () => ({
@@ -37,7 +40,8 @@ vi.mock("./xyPlot.utilities", () => ({
   buildPlotDataSet: vi.fn(),
   buildSeries: vi.fn(),
   buildXAxes: vi.fn(),
-  buildYAxes: vi.fn()
+  buildYAxes: vi.fn(),
+  buildMarkerDataSet: vi.fn()
 }));
 
 const mockStyle = {
@@ -46,6 +50,7 @@ const mockStyle = {
 
 const baseProps: any = {
   traces: [],
+  marker: [],
   axes: [],
   pvData: [],
   title: "Test Title",
@@ -111,22 +116,63 @@ describe("XYPlotComponent", () => {
       baseProps.pvData,
       baseProps.visible
     );
-    expect(utils.buildPlotDataSet).toHaveBeenCalledWith(baseProps.pvData);
+
+    expect(utils.buildPlotDataSet).toHaveBeenCalledWith(
+      baseProps.pvData,
+      baseProps.traces
+    );
+
+    expect(utils.buildMarkerDataSet).toHaveBeenCalledWith(
+      baseProps.pvData,
+      baseProps.marker
+    );
   });
 
   it("adds x index when no x-axis data", () => {
     (utils.buildXAxes as any).mockReturnValue({
-      xAxis: [],
+      xAxis: [{ id: "0", dataKey: "x" }],
       hasXAxisData: false
     });
 
-    (utils.buildPlotDataSet as any).mockReturnValue([{ y: 10 }, { y: 20 }]);
+    const mockDataset = [{ y: 10 }, { y: 20 }];
+    (utils.buildPlotDataSet as any).mockReturnValue(mockDataset);
 
     render(<XYPlotComponent {...baseProps} />);
 
-    const call = (utils.buildPlotDataSet as any).mock.results[0].value;
+    // Verify the component rendered (dataset was transformed)
+    expect(screen.getByTestId("charts-provider")).toBeInTheDocument();
+  });
 
-    expect(call).toBeDefined();
+  it("does not render X-axis when xAxis.visible is false", () => {
+    const propsWithHiddenXAxis = {
+      ...baseProps,
+      xAxis: { visible: false }
+    };
+
+    render(<XYPlotComponent {...propsWithHiddenXAxis} />);
+
+    expect(screen.queryByTestId("x-axis")).not.toBeInTheDocument();
+  });
+
+  it("renders X-axis by default", () => {
+    render(<XYPlotComponent {...baseProps} />);
+
+    expect(screen.getByTestId("x-axis")).toBeInTheDocument();
+  });
+
+  it("renders only visible Y-axes", () => {
+    (utils.buildYAxes as any).mockReturnValue({
+      yAxes: [
+        { id: "0", visible: true },
+        { id: "1", visible: false }
+      ],
+      yAxesStyle: {}
+    });
+
+    render(<XYPlotComponent {...baseProps} />);
+
+    const yAxes = screen.getAllByTestId("y-axis");
+    expect(yAxes).toHaveLength(1);
   });
 
   it("renders legend when enabled", () => {
@@ -151,6 +197,53 @@ describe("XYPlotComponent", () => {
     );
   });
 
+  it("renders markers when marker data exists", () => {
+    const mockMarkers = [
+      {
+        pvName: "marker1",
+        pvValue: 5,
+        visible: true,
+        color: { colorString: "red" }
+      }
+    ];
+
+    (utils.buildMarkerDataSet as any).mockReturnValue(mockMarkers);
+
+    render(<XYPlotComponent {...baseProps} marker={mockMarkers} />);
+
+    expect(screen.getByTestId("charts-surface")).toBeInTheDocument();
+  });
+
+  it("only renders visible markers with pvValue", () => {
+    const mockMarkers = [
+      {
+        pvName: "m1",
+        pvValue: 5,
+        visible: true,
+        color: { colorString: "red" }
+      },
+      {
+        pvName: "m2",
+        pvValue: null,
+        visible: true,
+        color: { colorString: "blue" }
+      },
+      {
+        pvName: "m3",
+        pvValue: 10,
+        visible: false,
+        color: { colorString: "green" }
+      }
+    ];
+
+    (utils.buildMarkerDataSet as any).mockReturnValue(mockMarkers);
+
+    render(<XYPlotComponent {...baseProps} />);
+
+    const markers = screen.getAllByTestId("reference-line");
+    expect(markers).toHaveLength(1);
+  });
+
   it("passes slotProps logic to LinePlot", () => {
     const traces = [{ traceType: 0 }, { traceType: 1 }];
 
@@ -172,5 +265,24 @@ describe("XYPlotComponent", () => {
     expect(lineFn({ seriesId: "0" })).toEqual({ stroke: "transparent" });
     expect(lineFn({ seriesId: "1" })).toEqual({});
     expect(lineFn({ seriesId: "2" })).toEqual({ stroke: "transparent" });
+  });
+
+  it("handles undefined traces gracefully", () => {
+    const propsWithUndefinedTraces = {
+      ...baseProps,
+      traces: undefined
+    };
+
+    expect(() =>
+      render(<XYPlotComponent {...propsWithUndefinedTraces} />)
+    ).not.toThrow();
+  });
+
+  it("handles empty pvData", () => {
+    (utils.buildPlotDataSet as any).mockReturnValue([]);
+
+    render(<XYPlotComponent {...baseProps} pvData={[]} />);
+
+    expect(screen.queryByTestId("charts-provider")).not.toBeInTheDocument();
   });
 });

@@ -58,6 +58,7 @@ import {
   bobParseResponsiveMargins
 } from "./BobParsers/responsiveLayoutBobParser";
 import { newRoi, Rois } from "../../../types/rois";
+import { Markers, newMarker } from "../../../types/markers";
 
 const BOB_WIDGET_MAPPING: { [key: string]: any } = {
   action_button: "actionbutton",
@@ -329,6 +330,27 @@ function bobParseTraces(props: any): Trace[] {
     }
   }
   return traces;
+}
+
+/**
+ * Parses props from an array of markers
+ * @param props list of props for this element
+ * @returns a array of marker objects
+ */
+function bobParseMarker(props: any): Markers {
+  if (props?.marker == null) {
+    return [] as Markers;
+  }
+
+  let markers = props.marker;
+  if (!Array.isArray(markers)) {
+    markers = [markers];
+  }
+
+  return markers.map((m: any) => {
+    const parsedProps = parseChildProps(m, BOB_SIMPLE_PARSERS);
+    return newMarker(parsedProps);
+  });
 }
 
 /**
@@ -623,6 +645,7 @@ export const BOB_SIMPLE_PARSERS: ParserDict = {
   displayHorizontal: ["displayHorizontal", opiParseBoolean],
   xPv: ["xPv", opiParseString],
   yPv: ["yPv", opiParseString],
+  pvName: ["pv_name", opiParseString],
   heightPv: ["heightPv", opiParseString],
   widthPv: ["widthPv", opiParseString],
   axis: ["axis", bobParseNumber],
@@ -721,6 +744,7 @@ export async function parseBob(
     scripts: (scripts: ElementCompact): Script[] =>
       scriptParser(scripts, defaultProtocol, false),
     traces: (props: ElementCompact) => bobParseTraces(props["traces"]),
+    marker: (props: ElementCompact) => bobParseMarker(props["marker"]),
     axes: (props: ElementCompact) => bobParseYAxes(props["y_axes"]),
     regionsOfInterest: (props: ElementCompact) => bobParseRois(props["rois"]),
     plt: async (props: ElementCompact) =>

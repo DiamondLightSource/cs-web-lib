@@ -16,6 +16,7 @@ import {
   ResponsiveLayout
 } from "./responsiveBreakpoints";
 import { Rois } from "./rois";
+import { Markers } from "./markers";
 
 export type GenericProp =
   | string
@@ -35,6 +36,7 @@ export type GenericProp =
   | WidgetActions
   | OpiFile
   | Trace[]
+  | Markers
   | Axes
   | Axis
   | Points

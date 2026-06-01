@@ -130,6 +130,15 @@ export const AxisPropOpt = PropTypes.shape({
 });
 export const AxisProp = AxisPropOpt.isRequired;
 
+export const MarkerProp = PropTypes.shape({
+  color: ColorPropOpt,
+  pvName: StringPropOpt,
+  interactive: BoolPropOpt,
+  visible: BoolPropOpt
+});
+
+export const MarkersPropOpt = PropTypes.arrayOf(MarkerProp);
+
 export const AxesProp = PropTypes.arrayOf(AxisProp).isRequired;
 export const AxesPropOpt = PropTypes.arrayOf(AxisPropOpt);
 

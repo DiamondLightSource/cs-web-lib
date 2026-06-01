@@ -138,6 +138,13 @@ export async function genericParser(
     );
   }
 
+  if (newProps.hasOwnProperty("marker")) {
+    const markerPVNames = newProps.marker?.map((marker: any) => ({
+      pvName: PVUtils.parse(marker.pvName)
+    }));
+    newProps.pvMetadataList = [...newProps?.pvMetadataList, ...markerPVNames];
+  }
+
   // attach an id if it does not exist
   if (!newProps?.id) {
     newProps["id"] = `${newProps.type}_${crypto.randomUUID()}`;
