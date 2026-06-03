@@ -147,7 +147,8 @@ function jsonGetTargetWidget(props: any): {
 export async function parseObject(
   object: any, // eslint-disable-line @typescript-eslint/explicit-module-boundary-types
   defaultProtocol: string,
-  path?: string
+  path?: string,
+  fileId?: string
 ): Promise<WidgetDescription> {
   const simpleParsers: ParserDict = {
     ...SIMPLE_PARSERS,
@@ -168,7 +169,9 @@ export async function parseObject(
     COMPLEX_PARSERS,
     true,
     [],
-    path
+    path,
+    undefined,
+    fileId
   );
 }
 
@@ -180,7 +183,13 @@ export async function parseObject(
 export async function parseJson(
   jsonString: string,
   defaultProtocol: string,
-  path: string
+  path: string,
+  fileId?: string
 ): Promise<WidgetDescription> {
-  return await parseObject(JSON.parse(jsonString), defaultProtocol, path);
+  return await parseObject(
+    JSON.parse(jsonString),
+    defaultProtocol,
+    path,
+    fileId
+  );
 }

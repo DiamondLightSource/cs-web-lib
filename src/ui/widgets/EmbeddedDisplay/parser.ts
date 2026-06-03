@@ -183,7 +183,8 @@ export async function parseWidget(
   passThrough: boolean,
   patchFunctions: PatchFunction[],
   filepath?: string,
-  macros?: MacroMap
+  macros?: MacroMap,
+  fileId?: string
 ): Promise<WidgetDescription> {
   const targetWidget = getTargetWidget(props);
   const allowedProps = { position: PositionProp, ...targetWidget?.widgetProps };
@@ -216,7 +217,8 @@ export async function parseWidget(
         passThrough,
         patchFunctions,
         filepath,
-        macros
+        macros,
+        fileId
       );
     })
   );
@@ -236,6 +238,8 @@ export async function parseWidget(
   if (widgetDescription.wrapWords === undefined) {
     widgetDescription.wrapWords = true;
   }
+
+  widgetDescription.fileId = fileId ?? filepath ?? "";
 
   return widgetDescription;
 }

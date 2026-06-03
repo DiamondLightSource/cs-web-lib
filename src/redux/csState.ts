@@ -4,6 +4,8 @@ import { mergeDType, DType } from "../types/dtypes";
 import { WidgetDescription } from "../ui/widgets/createComponent";
 import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { SubscriptionType } from "../connection";
+import { Layout } from "react-grid-layout";
+import { Position } from "../types/position";
 
 export const initialCsState: CsState = {
   valueCache: {},
@@ -207,6 +209,55 @@ const csSlice = createSlice({
       state.fileCache[file] = contents;
     },
 
+    fileDisplaySetRGLayout(
+      state,
+      action: PayloadAction<{
+        file: string;
+        displayId: string;
+        gridLayout: Layout;
+        gridLayoutColumns: number;
+        gridCellMargins: [number, number];
+        gridCellHeight: number;
+        gridCellDragEnabled: boolean;
+        gridCellResizeEnabled: boolean;
+      }>
+    ) {
+      log.debug(action);
+      const {
+        file,
+        displayId,
+        gridLayout,
+        gridLayoutColumns,
+        gridCellMargins,
+        gridCellHeight,
+        gridCellDragEnabled,
+        gridCellResizeEnabled
+      } = action.payload;
+      const fileDescription = state.fileCache[file];
+      const display = findWidgetById([fileDescription], displayId);
+      if (!display || display.type !== "displayGridLayout") {
+        return;
+      }
+
+      // set grid layout items
+      display["gridLayout"] = gridLayout;
+      display["gridCellHeight"] = gridCellHeight;
+      display["gridCellMargins"] = gridCellMargins;
+      display["gridLayoutColumns"] = gridLayoutColumns;
+      display["gridCellDragEnabled"] = gridCellDragEnabled;
+      display["gridCellResizeEnabled"] = gridCellResizeEnabled;
+
+      // Set child positions, as position is now defined in the display layout
+      display?.children?.forEach(c => {
+        if (c.position) {
+          c.position["x"] = "0";
+          c.position["y"] = "0";
+          c.position["width"] = "100%";
+          c.position["height"] = "100%";
+        }
+      });
+    },
+
     refreshFile(state, action: PayloadAction<{ file: string }>) {
       log.debug(action);
       const { file } = action.payload;
@@ -235,6 +286,7 @@ export const {
   deviceQueried,
   queryDevice,
   fileChanged,
+  fileDisplaySetRGLayout,
   refreshFile
 } = csSlice.actions;
 export default csSlice.reducer;
@@ -261,6 +313,23 @@ export const selectFile = createSelector(
   [selectFileCache, (_state, fileId: string) => fileId],
   (fileCache, fileId) => fileCache[fileId]
 );
+
+/**
+ * This selector factory provides an alternative means for a widget to get its
+ * position props. Generally the <Widget> wrapper should manage position and the
+ * useContainerWidth hook should be used to get a measured width and height.
+ * But in some rare situations these props need be be known before first render
+ * and are not expected to change, for example through a react grid layout resize.
+ * @returns A new selector that gets the widget position properties
+ */
+export const makeSelectWidgetPosition = () =>
+  createSelector(
+    [selectFile, (_state: any, _fileId: string, widgetId: string) => widgetId],
+    (file, widgetId) =>
+      file
+        ? (findWidgetById([file], widgetId)?.position as Position | undefined)
+        : undefined
+  );
 
 export const selectPvStates = createSelector(
   [
@@ -342,4 +411,28 @@ export const deviceComparator = (before: DType, after: DType): boolean => {
     return false;
   }
   return true;
+};
+
+/**
+ * Find an item in a tree by it's id.
+ * @param tree The widget hierarchy
+ * @param id The id of the widget to find.
+ * @returns The matching widget description or undefined
+ */
+export const findWidgetById = (
+  tree: WidgetDescription[] | undefined,
+  id: string
+): WidgetDescription | undefined => {
+  if (!Array.isArray(tree)) return undefined;
+
+  for (const node of tree) {
+    if (!node || typeof node !== "object") continue;
+
+    if (node.id === id) return node;
+
+    const found = findWidgetById(node.children, id);
+    if (found) return found;
+  }
+
+  return undefined;
 };

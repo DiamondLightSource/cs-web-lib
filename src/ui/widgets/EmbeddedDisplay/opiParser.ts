@@ -974,7 +974,8 @@ export const OPI_PATCHERS = (
 export async function parseOpi(
   xmlString: string,
   defaultProtocol: string,
-  filepath: string
+  filepath: string,
+  fileId?: string
 ): Promise<WidgetDescription> {
   // Convert it to a "compact format"
   const compactJSON = xml2js(xmlString, {
@@ -1015,7 +1016,9 @@ export async function parseOpi(
     complexParsers,
     false,
     OPI_PATCHERS(OPI_SIMPLE_PARSERS, OPI_COMPLEX_PARSERS),
-    filepath
+    filepath,
+    undefined,
+    fileId
   );
 
   displayWidget.position = newRelativePosition(

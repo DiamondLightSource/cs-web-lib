@@ -1,7 +1,12 @@
-import React, { useState, useContext, ReactNode } from "react";
+import React, {
+  useState,
+  useContext,
+  ReactNode,
+  useMemo,
+  useEffect
+} from "react";
 import {
   Layout,
-  useContainerWidth,
   useGridLayout,
   ReactGridLayout,
   verticalCompactor
@@ -24,7 +29,8 @@ import {
   StringArrayPropOpt,
   IntPropOpt,
   ObjectArrayPropOpt,
-  IntArrayPropOpt
+  IntArrayPropOpt,
+  PositionProp
 } from "../propTypes";
 import {
   MacroMap,
@@ -32,7 +38,12 @@ import {
   MacroContextType
 } from "../../../types/macros";
 import { useStyle } from "../../hooks/useStyle";
-import { useDebouncedValue } from "../../hooks/useDebounce";
+import { calculateDefaultLayout, toNumber } from "./displayLayoutUtilities";
+import {
+  fileDisplaySetRGLayout,
+  makeSelectWidgetPosition
+} from "../../../redux/csState";
+import { useDispatch, useSelector } from "react-redux";
 
 const widgetName = "displayGridLayout";
 
@@ -42,6 +53,7 @@ const defaultRowHeight = 15;
 const defaultMargins = [6, 6];
 
 const DisplayGridLayoutProps = {
+  position: PositionProp,
   children: ChildrenPropOpt,
   overflow: ChoicePropOpt(["scroll", "hidden", "auto", "visible"]),
   backgroundColor: ColorPropOpt,
@@ -61,15 +73,15 @@ const DisplayGridLayoutProps = {
 
 // Display widget that uses react-grid-layout to provide a responsive drag and drop container
 export const DisplayGridLayoutComponent = (
-  props: InferWidgetProps<typeof DisplayGridLayoutProps> & { id: string }
+  props: InferWidgetProps<typeof DisplayGridLayoutProps> & {
+    id: string;
+    fileId: string;
+  }
 ): JSX.Element => {
   // Macros specific to this display. Children of this component
   // can set macros by using the updateMacro function on the
   // context.
-  const { width, containerRef, mounted } = useContainerWidth({
-    measureBeforeMount: false
-  });
-  const debouncedWidth = useDebouncedValue(width, 150);
+  const dispatch = useDispatch();
   const gridCellDragEnabled =
     props?.gridCellDragEnabled == null ? true : props?.gridCellDragEnabled;
   const gridCellResizeEnabled =
@@ -80,6 +92,12 @@ export const DisplayGridLayoutComponent = (
     props.macros ?? {}
   );
 
+  const selectWidgetPosition = useMemo(makeSelectWidgetPosition, []);
+  const position = useSelector(state =>
+    selectWidgetPosition(state, props.fileId, props.id)
+  );
+  const displayWidth = toNumber(position?.width, 1200);
+  const cellHeight = Number(props.gridCellHeight ?? defaultRowHeight);
   const cellMargins = (props.gridCellMargins ?? defaultMargins) as [
     number,
     number
@@ -111,7 +129,8 @@ export const DisplayGridLayoutComponent = (
       ...style.font,
       position: "relative",
       overflow: props.overflow,
-      height: "100%"
+      height: "100%",
+      width: "100%"
     }),
     [style, props.overflow]
   );
@@ -129,18 +148,53 @@ export const DisplayGridLayoutComponent = (
     [props.gridLayoutColumns]
   );
 
-  const initialLayout = React.useMemo(
-    () => (props.gridLayout ?? calculateDefaultLayout(childrenArray)) as Layout,
-    [props.gridLayout, childrenArray]
-  );
+  useEffect(() => {
+    if (props.gridLayout) {
+      return;
+    }
+
+    // If a gridLayout does not exist create one and update the redux state for this
+    // display grid.
+    const calculatedLayout = calculateDefaultLayout(
+      childrenArray,
+      displayWidth,
+      columns,
+      cellMargins,
+      cellHeight
+    );
+    dispatch(
+      fileDisplaySetRGLayout({
+        file: props.fileId,
+        displayId: props.id,
+        gridLayout: calculatedLayout,
+        gridLayoutColumns: columns,
+        gridCellMargins: cellMargins,
+        gridCellHeight: cellHeight,
+        gridCellDragEnabled,
+        gridCellResizeEnabled
+      })
+    );
+  }, [
+    dispatch,
+    props.fileId,
+    props.id,
+    props.gridLayout,
+    childrenArray,
+    columns,
+    displayWidth,
+    cellMargins,
+    cellHeight,
+    gridCellDragEnabled,
+    gridCellResizeEnabled
+  ]);
 
   const { layout } = useGridLayout({
-    layout: initialLayout,
+    layout: (props.gridLayout || []) as Layout,
     cols: columns
   });
 
   // Wrap the child components in a div keyed by the child id. The key MUST map to the i field of Layout item for the component.
-  const gridChildren = React.useMemo(
+  const gridChildren = useMemo(
     () =>
       childrenArray.map(child => {
         const id = child.props.id;
@@ -162,21 +216,17 @@ export const DisplayGridLayoutComponent = (
 
   return (
     <MacroContext.Provider value={displayMacroContext}>
-      <div
-        ref={containerRef as React.RefObject<HTMLDivElement>}
-        style={extendedStyle}
-        className="display-grid-layout-container"
-      >
-        {mounted && (
+      <div style={extendedStyle} className="display-grid-layout-container">
+        {layout && layout.length > 0 && (
           <ReactGridLayout
             key={`grid-${props.id}`}
             className="layout"
             layout={layout}
-            width={debouncedWidth}
+            width={displayWidth}
             gridConfig={{
               cols: columns,
               margin: cellMargins,
-              rowHeight: Number(props.gridCellHeight ?? defaultRowHeight)
+              rowHeight: cellHeight
             }}
             dragConfig={{
               enabled: gridCellDragEnabled,
@@ -217,17 +267,6 @@ const DisplayGridLayoutWidgetProps = {
   ...DisplayGridLayoutProps,
   ...WidgetPropType
 };
-
-const calculateDefaultLayout = (
-  childrenArray: React.ReactElement<PVWidgetComponent>[]
-): Layout =>
-  childrenArray.map((child, i) => ({
-    i: child.props.id,
-    x: (i % 4) * 8,
-    y: Math.floor(i / 4),
-    w: 8,
-    h: 4
-  })) as Layout;
 
 export const DisplayGridLayout = (
   props: InferWidgetProps<typeof DisplayGridLayoutWidgetProps>
