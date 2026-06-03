@@ -20,14 +20,14 @@ export const calculateDefaultLayout = (
     const y = toNumber(position?.y, 0);
 
     const widthColumns = width
-      ? Math.max(1, Math.round(width / columnWidth))
+      ? Math.max(1, Math.ceil(width / columnWidth))
       : 1;
 
     const heightRows = height
       ? Math.max(1, Math.round(height / (cellHeight + cellMargins[1])))
       : 1;
 
-    const gridX = Math.max(0, Math.round(x / columnWidth));
+    const gridX = Math.max(0, Math.round(x / columnWidth)) % numberOfColumns;
     const gridY = Math.max(0, Math.round(y / (cellHeight + cellMargins[1])));
 
     return {

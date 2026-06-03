@@ -48,8 +48,8 @@ import { useDispatch, useSelector } from "react-redux";
 const widgetName = "displayGridLayout";
 
 // Default grid configuration
-const defaultCols = 32;
 const defaultRowHeight = 15;
+const defaultColumnWidth = 64;
 const defaultMargins = [6, 6];
 
 const DisplayGridLayoutProps = {
@@ -144,8 +144,8 @@ export const DisplayGridLayoutComponent = (
   );
 
   const columns = React.useMemo(
-    () => props.gridLayoutColumns ?? defaultCols,
-    [props.gridLayoutColumns]
+    () => props.gridLayoutColumns ?? Math.round((displayWidth - cellMargins[0]) / (defaultColumnWidth + cellMargins[0])),
+    [props.gridLayoutColumns, cellMargins, displayWidth]
   );
 
   useEffect(() => {
