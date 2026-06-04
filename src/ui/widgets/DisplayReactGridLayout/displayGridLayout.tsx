@@ -40,7 +40,7 @@ import {
 import { useStyle } from "../../hooks/useStyle";
 import { calculateDefaultLayout, toNumber } from "./displayLayoutUtilities";
 import {
-  fileDisplaySetRGLayout,
+  fileDisplaySetGridLayout,
   makeSelectWidgetPosition
 } from "../../../redux/csState";
 import { useDispatch, useSelector } from "react-redux";
@@ -144,7 +144,11 @@ export const DisplayGridLayoutComponent = (
   );
 
   const columns = React.useMemo(
-    () => props.gridLayoutColumns ?? Math.round((displayWidth - cellMargins[0]) / (defaultColumnWidth + cellMargins[0])),
+    () =>
+      props.gridLayoutColumns ??
+      Math.round(
+        (displayWidth - cellMargins[0]) / (defaultColumnWidth + cellMargins[0])
+      ),
     [props.gridLayoutColumns, cellMargins, displayWidth]
   );
 
@@ -163,7 +167,7 @@ export const DisplayGridLayoutComponent = (
       cellHeight
     );
     dispatch(
-      fileDisplaySetRGLayout({
+      fileDisplaySetGridLayout({
         file: props.fileId,
         displayId: props.id,
         gridLayout: calculatedLayout,

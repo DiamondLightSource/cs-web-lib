@@ -254,7 +254,7 @@ describe("DisplayGridLayoutComponent", () => {
     expect(mocks.calculateDefaultLayout).toHaveBeenCalledWith(
       expect.any(Array),
       1200,
-      32,
+      17,
       [6, 6],
       15
     );

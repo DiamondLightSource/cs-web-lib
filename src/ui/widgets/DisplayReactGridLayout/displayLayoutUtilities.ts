@@ -1,17 +1,41 @@
-import { Layout } from "react-grid-layout";
+import {
+  Layout,
+  horizontalCompactor,
+  verticalCompactor
+} from "react-grid-layout";
 import { PVWidgetComponent } from "../widgetProps";
 
-export const calculateDefaultLayout = (
+export const calculateDefaultLayoutWithHorizontalCompactor = (
   childrenArray: React.ReactElement<PVWidgetComponent>[],
   displayWidth: number | string,
   numberOfColumns: number,
   cellMargins: [number, number],
   cellHeight: number
 ): Layout => {
+  const layout = calculateDefaultLayout(
+    childrenArray,
+    displayWidth,
+    numberOfColumns,
+    cellMargins,
+    cellHeight
+  );
+
+  // vertical compactor will fill empty area to the left of screen
+  return horizontalCompactor.compact(layout, numberOfColumns);
+};
+
+export const calculateDefaultLayout = (
+  childrenArray: React.ReactElement<PVWidgetComponent>[],
+  displayWidth: string | number,
+  numberOfColumns: number,
+  cellMargins: [number, number],
+  cellHeight: number
+) => {
   const columnWidth =
     (toNumber(displayWidth, 1200) - cellMargins[0]) / numberOfColumns;
 
-  return childrenArray.map((child, i) => {
+  //
+  const layout = childrenArray.map((child, i) => {
     const { id, position = {} as any } = child.props;
 
     const height = toNumber(position?.height, 1);
@@ -27,8 +51,11 @@ export const calculateDefaultLayout = (
       ? Math.max(1, Math.round(height / (cellHeight + cellMargins[1])))
       : 1;
 
-    const gridX = Math.max(0, Math.round(x / columnWidth)) % numberOfColumns;
-    const gridY = Math.max(0, Math.round(y / (cellHeight + cellMargins[1])));
+    let gridX = Math.max(0, Math.round(x / columnWidth)) % numberOfColumns;
+    if (gridX + widthColumns > columnWidth) {
+      gridX = 0;
+    }
+    const gridY = Math.max(0, Math.floor(y / (cellHeight + cellMargins[1])));
 
     return {
       i: id,
@@ -38,6 +65,9 @@ export const calculateDefaultLayout = (
       h: heightRows
     };
   }) as Layout;
+
+  // vertical compactor will position the elements in a column structure
+  return verticalCompactor.compact(layout, numberOfColumns);
 };
 
 export const toNumber = (value: unknown, fallback = 0): number => {

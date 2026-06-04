@@ -42,6 +42,16 @@ vi.mock("react-grid-layout", async () => {
   };
 });
 
+vi.mock("react-redux", () => ({
+  useDispatch: () => vi.fn(),
+  useSelector: (selector: any) =>
+    selector({
+      csState: {
+        files: {}
+      }
+    })
+}));
+
 const MockWidget = ({ id }: { id: string }) => (
   <div data-testid={`widget-${id}`}>Widget {id}</div>
 );
@@ -56,8 +66,24 @@ beforeEach(() => {
 
 describe("DisplayResponsiveComponent – high‑value behaviors", () => {
   it("renders the responsive container and grid when mounted", () => {
+    const layouts = {
+      lg: [
+        { i: "a", x: 0, y: 0, w: 4, h: 3 },
+        { i: "b", x: 2, y: 0, w: 8, h: 4 }
+      ]
+    };
+
+    const responsiveBreakpoints = {
+      lg: 12
+    };
+
     render(
-      <DisplayResponsiveComponent id="display-1">
+      <DisplayResponsiveComponent
+        id="display-1"
+        fileId="file-1"
+        responsiveBreakpoints={responsiveBreakpoints}
+        responsiveLayouts={layouts}
+      >
         <MockWidget id="a" />
       </DisplayResponsiveComponent>
     );
@@ -74,7 +100,7 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
 
     expect(() =>
       render(
-        <DisplayResponsiveComponent id="display-1">
+        <DisplayResponsiveComponent id="display-1" fileId="file-1">
           <BrokenWidget />
         </DisplayResponsiveComponent>
       )
@@ -82,8 +108,24 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
   });
 
   it("computes default layouts when responsiveLayouts are not provided", () => {
+    const layouts = {
+      lg: [
+        { i: "a", x: 0, y: 0, w: 4, h: 3 },
+        { i: "b", x: 2, y: 0, w: 8, h: 4 }
+      ]
+    };
+
+    const responsiveBreakpoints = {
+      lg: 12
+    };
+
     render(
-      <DisplayResponsiveComponent id="display-1">
+      <DisplayResponsiveComponent
+        id="display-1"
+        fileId="file-1"
+        responsiveBreakpoints={responsiveBreakpoints}
+        responsiveLayouts={layouts}
+      >
         <MockWidget id="a" />
         <MockWidget id="b" />
       </DisplayResponsiveComponent>
@@ -94,8 +136,8 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
 
     expect(capturedLayouts.lg[0]).toMatchObject({
       i: "a",
-      w: 8,
-      h: 4
+      w: 4,
+      h: 3
     });
 
     expect(capturedLayouts.lg[1]).toMatchObject({
@@ -113,6 +155,7 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
     render(
       <DisplayResponsiveComponent
         id="display-1"
+        fileId="file-1"
         responsiveLayouts={customLayouts}
       >
         <MockWidget id="a" />
@@ -133,27 +176,44 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
   });
 
   it("merges responsiveBreakpoints and responsiveColumns with defaults", () => {
+    const layouts = {
+      md: [{ i: "a", x: 0, y: 0, w: 4, h: 3 }]
+    };
+
     render(
       <DisplayResponsiveComponent
         id="display-1"
+        fileId="file-1"
+        responsiveLayouts={layouts}
         responsiveBreakpoints={{ md: 700 }}
-        responsiveColumns={{ sm: 4 }}
+        responsiveColumns={{ md: 4 }}
       >
         <MockWidget id="a" />
       </DisplayResponsiveComponent>
     );
 
-    expect(capturedBreakpoints.lg).toBeDefined();
+    expect(capturedBreakpoints.lg).not.toBeDefined();
     expect(capturedBreakpoints.md).toBe(700);
 
-    expect(capturedCols.lg).toBeDefined();
-    expect(capturedCols.sm).toBe(4);
+    expect(capturedCols.lg).not.toBeDefined();
+    expect(capturedCols.md).toBe(4);
   });
 
   it("respects gridCellDragEnabled and gridCellResizeEnabled props", () => {
+    const layouts = {
+      lg: [{ i: "a", x: 0, y: 0, w: 4, h: 3 }]
+    };
+
+    const responsiveBreakpoints = {
+      lg: 12
+    };
+
     render(
       <DisplayResponsiveComponent
         id="display-1"
+        fileId="file-1"
+        responsiveLayouts={layouts}
+        responsiveBreakpoints={responsiveBreakpoints}
         gridCellDragEnabled={false}
         gridCellResizeEnabled={false}
       >

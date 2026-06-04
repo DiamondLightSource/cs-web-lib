@@ -4,7 +4,7 @@ import { mergeDType, DType } from "../types/dtypes";
 import { WidgetDescription } from "../ui/widgets/createComponent";
 import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { SubscriptionType } from "../connection";
-import { Layout } from "react-grid-layout";
+import { Breakpoints, Layout, ResponsiveLayouts } from "react-grid-layout";
 import { Position } from "../types/position";
 
 export const initialCsState: CsState = {
@@ -209,7 +209,7 @@ const csSlice = createSlice({
       state.fileCache[file] = contents;
     },
 
-    fileDisplaySetRGLayout(
+    fileDisplaySetGridLayout(
       state,
       action: PayloadAction<{
         file: string;
@@ -239,13 +239,68 @@ const csSlice = createSlice({
         return;
       }
 
-      // set grid layout items
+      // set grid layout props
       display["gridLayout"] = gridLayout;
       display["gridCellHeight"] = gridCellHeight;
       display["gridCellMargins"] = gridCellMargins;
       display["gridLayoutColumns"] = gridLayoutColumns;
       display["gridCellDragEnabled"] = gridCellDragEnabled;
       display["gridCellResizeEnabled"] = gridCellResizeEnabled;
+
+      // Set child positions, as position is now defined in the display layout
+      display?.children?.forEach(c => {
+        if (c.position) {
+          c.position["x"] = "0";
+          c.position["y"] = "0";
+          c.position["width"] = "100%";
+          c.position["height"] = "100%";
+        }
+      });
+    },
+
+    fileDisplaySetResponsiveLayout(
+      state,
+      action: PayloadAction<{
+        file: string;
+        displayId: string;
+        responsiveLayouts: ResponsiveLayouts<string>;
+        responsiveColumns: Breakpoints<string>;
+        responsiveBreakpoints: Breakpoints<string>;
+        gridCellMargins: [number, number];
+        gridCellHeight: number;
+        gridCellDragEnabled: boolean;
+        gridCellResizeEnabled: boolean;
+      }>
+    ) {
+      log.debug(action);
+      const {
+        file,
+        displayId,
+        responsiveLayouts,
+        responsiveColumns,
+        responsiveBreakpoints,
+        gridCellMargins,
+        gridCellHeight,
+        gridCellDragEnabled,
+        gridCellResizeEnabled
+      } = action.payload;
+      const fileDescription = state.fileCache[file];
+      const display = findWidgetById([fileDescription], displayId);
+      if (!display || display.type !== "displayResponsive") {
+        return;
+      }
+
+      // set responsive layout props
+      display["responsiveLayouts"] = responsiveLayouts;
+      display["responsiveColumns"] = responsiveColumns;
+      display["responsiveBreakpoints"] = responsiveBreakpoints;
+      display["gridCellHeight"] = gridCellHeight;
+      display["gridCellMargins"] = gridCellMargins;
+      display["gridCellDragEnabled"] = gridCellDragEnabled;
+      display["gridCellResizeEnabled"] = gridCellResizeEnabled;
+      if (display.position) {
+        display.position["width"] = "100%";
+      }
 
       // Set child positions, as position is now defined in the display layout
       display?.children?.forEach(c => {
@@ -286,7 +341,8 @@ export const {
   deviceQueried,
   queryDevice,
   fileChanged,
-  fileDisplaySetRGLayout,
+  fileDisplaySetGridLayout,
+  fileDisplaySetResponsiveLayout,
   refreshFile
 } = csSlice.actions;
 export default csSlice.reducer;
