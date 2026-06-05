@@ -26,7 +26,8 @@ const BasicPropsType = {
   tooltip: StringPropOpt,
   border: BorderPropOpt,
   visible: BoolPropOpt,
-  mjpgEndpoints: StringArrayPropOpt
+  mjpgEndpoints: StringArrayPropOpt,
+  class: StringPropOpt
 };
 
 const PositionPropsType = {
