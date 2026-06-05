@@ -80,7 +80,14 @@ function updateValueCache(
 ): void {
   const { pvName, value } = action.payload;
   const mergedValue = mergeDType(valueCache[pvName]?.value, value);
-  valueCache[pvName] = { ...valueCache[pvName], value: mergedValue };
+
+  const existing = valueCache[pvName] ?? {
+    connected: false,
+    readonly: true,
+    initializingPvName: pvName
+  };
+
+  valueCache[pvName] = { ...existing, value: mergedValue };
 }
 
 const csSlice = createSlice({

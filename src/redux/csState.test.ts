@@ -16,7 +16,11 @@ import csReducer, {
   FullPvState,
   PvState,
   deviceComparator,
-  PvArrayResults
+  PvArrayResults,
+  findWidgetById,
+  fileDisplaySetGridLayout,
+  fileDisplaySetResponsiveLayout,
+  makeSelectWidgetPosition
 } from "./csState";
 import {
   DType,
@@ -296,22 +300,22 @@ describe("Selectors", () => {
   describe("selectPvStates", (): void => {
     it("returns appropriate values if PV present", (): void => {
       const results = selectPvStates(state, [pv1]);
-      const [pvState, effectivePv] = results[pv1];
-      expect(pvState).toEqual(pvState);
+      const [resultsPvState, effectivePv] = results[pv1];
+      expect(resultsPvState).toEqual(pvState);
       expect(effectivePv).toEqual(pv1);
     });
 
     it("returns correct effective PV name", (): void => {
       const results = selectPvStates(state, [pv2]);
-      const [pvState, effectivePv] = results[pv2];
-      expect(pvState).toBeUndefined();
+      const [resultsPvState, effectivePv] = results[pv2];
+      expect(resultsPvState).toBeUndefined();
       expect(effectivePv).toEqual(pv3);
     });
 
     it("returns appropriate values if PV not present", (): void => {
       const results = selectPvStates(state, ["not-a-pv"]);
-      const [pvState, shortName] = results["not-a-pv"];
-      expect(pvState).toBeUndefined();
+      const [resultsPvState, shortName] = results["not-a-pv"];
+      expect(resultsPvState).toBeUndefined();
       expect(shortName).toEqual("not-a-pv");
     });
   });
@@ -435,14 +439,360 @@ describe("Selectors", () => {
         type: "shape",
         position: newAbsolutePosition("0", "0", "0", "0")
       };
-      state.cs.fileCache["test.bob"] = contents;
 
-      expect(selectFile(state, "test.bob")).toEqual(contents);
+      const localState = {
+        ...state,
+        cs: {
+          ...state.cs,
+          fileCache: {
+            ...state.cs.fileCache,
+            "test.bob": contents
+          }
+        }
+      };
+
+      expect(selectFile(localState, "test.bob")).toEqual(contents);
     });
 
     it("returns undefined if device not in cache", (): void => {
       const localState = { ...state, cs: { ...state.cs, fileCache: {} } };
       expect(selectFile(localState, "test2.bob")).toBeUndefined();
     });
+  });
+});
+
+describe("fileDisplaySetGridLayout", () => {
+  const baseDisplay = {
+    id: "display1",
+    type: "displayGridLayout",
+    fileId: "file",
+    children: [
+      {
+        id: "child1",
+        type: "shape",
+        position: newAbsolutePosition("10", "10", "20", "20")
+      }
+    ],
+    position: newAbsolutePosition("0", "0", "100", "100")
+  };
+
+  const initialState: CsState = {
+    valueCache: {},
+    globalMacros: {},
+    subscriptions: {},
+    effectivePvNameMap: {},
+    deviceCache: {},
+    fileCache: {
+      "file.bob": baseDisplay as any
+    },
+    pvwsSettings: {}
+  };
+
+  test("applies grid layout properties and normalises child positions", () => {
+    const action = fileDisplaySetGridLayout({
+      file: "file.bob",
+      displayId: "display1",
+      gridLayout: [{ i: "child1", x: 0, y: 0, w: 2, h: 2 }],
+      gridLayoutColumns: 12,
+      gridCellMargins: [5, 5],
+      gridCellHeight: 30,
+      gridCellDragEnabled: true,
+      gridCellResizeEnabled: false
+    });
+
+    const state = csReducer(initialState, action);
+    const display = state.fileCache["file.bob"];
+
+    expect(display.gridLayoutColumns).toBe(12);
+    expect(display.gridCellHeight).toBe(30);
+
+    const child = display?.children?.[0];
+    expect(child?.position).toMatchObject({
+      x: "0",
+      y: "0",
+      width: "100%",
+      height: "100%"
+    });
+  });
+
+  test("does nothing if display not found", () => {
+    const action = fileDisplaySetGridLayout({
+      file: "file.bob",
+      displayId: "missing",
+      gridLayout: [],
+      gridLayoutColumns: 12,
+      gridCellMargins: [0, 0],
+      gridCellHeight: 10,
+      gridCellDragEnabled: true,
+      gridCellResizeEnabled: true
+    });
+
+    const state = csReducer(initialState, action);
+    expect(state).toEqual(initialState);
+  });
+
+  test("does nothing if wrong display type", () => {
+    const badState: CsState = {
+      ...initialState,
+      fileCache: {
+        "file.bob": {
+          ...baseDisplay,
+          type: "shape" // wrong type
+        } as any
+      }
+    };
+
+    const action = fileDisplaySetGridLayout({
+      file: "file.bob",
+      displayId: "display1",
+      gridLayout: [],
+      gridLayoutColumns: 12,
+      gridCellMargins: [0, 0],
+      gridCellHeight: 10,
+      gridCellDragEnabled: true,
+      gridCellResizeEnabled: true
+    });
+
+    const state = csReducer(badState, action);
+    expect(state).toEqual(badState);
+  });
+});
+
+describe("fileDisplaySetResponsiveLayout", () => {
+  const baseDisplay = {
+    id: "display1",
+    type: "displayResponsive",
+    fileId: "file",
+    children: [
+      {
+        id: "child1",
+        type: "shape",
+        position: newAbsolutePosition("10", "10", "20", "20")
+      }
+    ],
+    position: newAbsolutePosition("0", "0", "100", "100")
+  };
+
+  const initialState: CsState = {
+    valueCache: {},
+    globalMacros: {},
+    subscriptions: {},
+    effectivePvNameMap: {},
+    deviceCache: {},
+    fileCache: {
+      "file.bob": baseDisplay as any
+    },
+    pvwsSettings: {}
+  };
+
+  test("applies responsive layout and updates child positions", () => {
+    const action = fileDisplaySetResponsiveLayout({
+      file: "file.bob",
+      displayId: "display1",
+      responsiveLayouts: { lg: [] },
+      responsiveColumns: { lg: 12 },
+      responsiveBreakpoints: { lg: 1200 },
+      gridCellMargins: [10, 10],
+      gridCellHeight: 50,
+      gridCellDragEnabled: true,
+      gridCellResizeEnabled: false
+    });
+
+    const state = csReducer(initialState, action);
+    const display = state.fileCache["file.bob"];
+
+    expect(display.responsiveColumns.lg).toBe(12);
+    expect(display.gridCellHeight).toBe(50);
+
+    // parent width forced to 100%
+    expect(display.position.width).toBe("100%");
+
+    const child = display?.children?.[0];
+    expect(child?.position).toMatchObject({
+      x: "0",
+      y: "0",
+      width: "100%",
+      height: "100%"
+    });
+  });
+
+  test("does nothing if display type is wrong", () => {
+    const badState = {
+      ...initialState,
+      fileCache: {
+        "file.bob": { ...baseDisplay, type: "shape" } as any
+      }
+    };
+
+    const action = fileDisplaySetResponsiveLayout({
+      file: "file.bob",
+      displayId: "display1",
+      responsiveLayouts: {},
+      responsiveColumns: {},
+      responsiveBreakpoints: {},
+      gridCellMargins: [0, 0],
+      gridCellHeight: 10,
+      gridCellDragEnabled: true,
+      gridCellResizeEnabled: true
+    });
+
+    const state = csReducer(badState, action);
+    expect(state).toEqual(badState);
+  });
+});
+
+describe("makeSelectWidgetPosition", () => {
+  const position = newAbsolutePosition("1", "2", "3", "4");
+
+  const file = {
+    id: "root",
+    type: "display",
+    fileId: "file",
+    children: [
+      {
+        id: "child1",
+        type: "shape",
+        position
+      }
+    ]
+  };
+
+  const state = createRootStoreState({
+    valueCache: {},
+    globalMacros: {},
+    subscriptions: {},
+    effectivePvNameMap: {},
+    deviceCache: {},
+    fileCache: {
+      "file.bob": file as any
+    },
+    pvwsSettings: {}
+  });
+
+  test("returns widget position when found", () => {
+    const selector = makeSelectWidgetPosition();
+
+    const result = selector(state, "file.bob", "child1");
+
+    expect(result).toEqual(position);
+  });
+
+  test("returns undefined if widget not found", () => {
+    const selector = makeSelectWidgetPosition();
+
+    const result = selector(state, "file.bob", "missing");
+
+    expect(result).toBeUndefined();
+  });
+
+  test("returns undefined if file not found", () => {
+    const selector = makeSelectWidgetPosition();
+
+    const result = selector(state, "missing.bob", "child1");
+
+    expect(result).toBeUndefined();
+  });
+
+  test("memoizes results (same inputs)", () => {
+    const selector = makeSelectWidgetPosition();
+
+    const result1 = selector(state, "file.bob", "child1");
+    const result2 = selector(state, "file.bob", "child1");
+
+    expect(result1).toBe(result2);
+  });
+});
+
+describe("findWidgetById", () => {
+  const makeWidget = (
+    id: string,
+    children?: WidgetDescription[]
+  ): WidgetDescription => ({
+    id,
+    type: "shape",
+    fileId: "file",
+    position: newAbsolutePosition("0", "0", "10", "10"),
+    children
+  });
+
+  test("returns undefined if tree is undefined", () => {
+    expect(findWidgetById(undefined, "123")).toBeUndefined();
+  });
+
+  test("returns undefined if tree is not an array", () => {
+    // @ts-expect-error intentional bad input
+    expect(findWidgetById({} as any, "123")).toBeUndefined();
+  });
+
+  test("finds a widget at root level", () => {
+    const tree = [makeWidget("1"), makeWidget("2")];
+
+    const result = findWidgetById(tree, "2");
+
+    expect(result?.id).toBe("2");
+  });
+
+  test("returns undefined if widget not found", () => {
+    const tree = [makeWidget("1"), makeWidget("2")];
+
+    const result = findWidgetById(tree, "999");
+
+    expect(result).toBeUndefined();
+  });
+
+  test("finds a widget nested one level deep", () => {
+    const tree = [makeWidget("1", [makeWidget("1-1"), makeWidget("1-2")])];
+
+    const result = findWidgetById(tree, "1-2");
+
+    expect(result?.id).toBe("1-2");
+  });
+
+  test("finds a widget nested multiple levels deep", () => {
+    const tree = [makeWidget("1", [makeWidget("1-1", [makeWidget("1-1-1")])])];
+
+    const result = findWidgetById(tree, "1-1-1");
+
+    expect(result?.id).toBe("1-1-1");
+  });
+
+  test("returns first match if duplicate ids exist", () => {
+    const duplicate = makeWidget("dup");
+    const tree = [
+      makeWidget("1", [duplicate]),
+      makeWidget("2", [makeWidget("dup")])
+    ];
+
+    const result = findWidgetById(tree, "dup");
+
+    expect(result).toBe(duplicate); // ensures first match
+  });
+
+  test("skips invalid nodes safely", () => {
+    const tree = [
+      null as unknown as WidgetDescription,
+      makeWidget("1"),
+      undefined as unknown as WidgetDescription
+    ];
+
+    const result = findWidgetById(tree, "1");
+
+    expect(result?.id).toBe("1");
+  });
+
+  test("handles nodes without children", () => {
+    const tree = [makeWidget("1")];
+
+    const result = findWidgetById(tree, "1");
+
+    expect(result?.id).toBe("1");
+  });
+
+  test("handles empty children arrays", () => {
+    const tree = [makeWidget("1", [])];
+
+    const result = findWidgetById(tree, "1");
+
+    expect(result?.id).toBe("1");
   });
 });
