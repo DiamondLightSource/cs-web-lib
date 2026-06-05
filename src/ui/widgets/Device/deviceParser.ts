@@ -49,9 +49,10 @@ export interface Response {
 export const wordSplitter = (word: string): string =>
   word.replace(/([A-Z])/g, " $1").trim();
 
-export function createLabel(value: string): WidgetDescription {
+export function createLabel(value: string, fileId: string): WidgetDescription {
   return {
-    id: "123",
+    id: `label_${crypto.randomUUID()}`,
+    fileId,
     type: "label",
     position: "relative",
     text: `${wordSplitter(value)}`,
@@ -61,9 +62,10 @@ export function createLabel(value: string): WidgetDescription {
   };
 }
 
-export function createReadback(pv: string): WidgetDescription {
+export function createReadback(pv: string, fileId: string): WidgetDescription {
   return {
-    id: "123",
+    id: `readback_${crypto.randomUUID()}`,
+    fileId,
     type: "readback",
     position: "relative",
     width: "45%",
@@ -72,9 +74,10 @@ export function createReadback(pv: string): WidgetDescription {
   };
 }
 
-export function createInput(pv: string): WidgetDescription {
+export function createInput(pv: string, fileId: string): WidgetDescription {
   return {
-    id: "123",
+    id: `input_${crypto.randomUUID()}`,
+    fileId,
     type: "input",
     position: "relative",
     width: "45%",
@@ -85,10 +88,12 @@ export function createInput(pv: string): WidgetDescription {
 
 export function createButton(
   pv: string,
+  fileId: string,
   description?: string
 ): WidgetDescription {
   return {
-    id: "123",
+    id: `actionbutton_${crypto.randomUUID()}`,
+    fileId,
     type: "actionbutton",
     position: "relative",
     width: "45%",
@@ -112,7 +117,11 @@ export function createButton(
 }
 
 const WIDGET_FUNCTIONS: {
-  [name: string]: (pv: string, description?: string) => WidgetDescription;
+  [name: string]: (
+    pv: string,
+    fileId: string,
+    description?: string
+  ) => WidgetDescription;
 } = {
   TEXTUPDATE: createReadback,
   TEXTINPUT: createInput,
@@ -156,15 +165,15 @@ export const parseResponseIntoObject = (
   return [deviceName, pvIds, groups];
 };
 
-function createWidget(label: string, channel: Channel): any {
+function createWidget(label: string, channel: Channel, fileId: string): any {
   if (WIDGET_FUNCTIONS.hasOwnProperty(channel.display.widget)) {
-    return WIDGET_FUNCTIONS[channel.display.widget](channel.id, label);
+    return WIDGET_FUNCTIONS[channel.display.widget](channel.id, fileId, label);
   } else {
-    return createReadback(channel.id);
+    return createReadback(channel.id, fileId);
   }
 }
 
-export const parseResponse = (response: Response): any => {
+export const parseResponse = (response: Response, fileId: string): any => {
   const deviceChildren: any[] = [];
 
   let deviceName = "Device";
@@ -182,8 +191,8 @@ export const parseResponse = (response: Response): any => {
       for (const pvName of pvNames) {
         const channel = channels[pvName];
         delete channels[pvName];
-        groupChildren.push(createLabel(pvName));
-        groupChildren.push(createWidget(pvName, channel));
+        groupChildren.push(createLabel(pvName, fileId));
+        groupChildren.push(createWidget(pvName, channel, fileId));
       }
 
       return {
@@ -206,8 +215,8 @@ export const parseResponse = (response: Response): any => {
     // PVs that aren't in a group are displayed first
     Object.entries(channels).forEach(data => {
       const [label, channel] = data;
-      deviceChildren.push(createLabel(label));
-      deviceChildren.push(createWidget(label, channel));
+      deviceChildren.push(createLabel(label, fileId));
+      deviceChildren.push(createWidget(label, channel, fileId));
     });
 
     // Then groups are displayed after

@@ -43,7 +43,10 @@ export const TabContainerProps = {
 };
 
 export const TabContainerComponent = (
-  props: InferWidgetProps<typeof TabContainerProps>
+  props: InferWidgetProps<typeof TabContainerProps> & {
+    fileId: string;
+    id: string;
+  }
 ): JSX.Element => {
   const { colors } = useStyle(props, widgetName);
   const {
@@ -64,7 +67,8 @@ export const TabContainerComponent = (
           name: tab.name,
           children: widgetDescriptionToComponent({
             type: "display",
-            id: "123",
+            id: props?.id ?? `tabContainer_${crypto.randomUUID()}`,
+            fileId: props?.fileId,
             position: newRelativePosition(
               "0px",
               `${tabHeight}px`,
@@ -85,7 +89,15 @@ export const TabContainerComponent = (
         };
       }
     });
-  }, [props.tabs, colors?.backgroundColor, tabHeight, width, height]);
+  }, [
+    props.tabs,
+    colors?.backgroundColor,
+    tabHeight,
+    width,
+    height,
+    props.id,
+    props.fileId
+  ]);
 
   return (
     <TabBar

@@ -1,11 +1,17 @@
-import React, { useState, useContext, ReactNode, useEffect } from "react";
+import React, {
+  useState,
+  useContext,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useCallback
+} from "react";
 import {
   ResponsiveLayouts,
   Responsive,
   useContainerWidth,
   Breakpoints,
   useResponsiveLayout,
-  DefaultBreakpoints,
   Breakpoint
 } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
@@ -36,8 +42,13 @@ import {
 import { useStyle } from "../../hooks/useStyle";
 import { useDebouncedValue } from "../../hooks/useDebounce";
 import { useDispatch } from "react-redux";
-import { calculateDefaultLayoutWithHorizontalCompactor } from "./displayLayoutUtilities";
+import {
+  calculateDefaultLayoutWithHorizontalCompactor,
+  sameKeys
+} from "./displayLayoutUtilities";
 import { fileDisplaySetResponsiveLayout } from "../../../redux/csState";
+import log from "loglevel";
+import { Dispatch } from "@reduxjs/toolkit";
 
 const widgetName = "displayResponsive";
 
@@ -66,13 +77,13 @@ const DisplayResponsiveProps = {
   gridCellHeight: IntPropOpt
 };
 
+type propsType = InferWidgetProps<typeof DisplayResponsiveProps> & {
+  id: string;
+  fileId: string;
+};
+
 // Display widget that uses react-grid-layout to provide a responsive drag and drop container
-export const DisplayResponsiveComponent = (
-  props: InferWidgetProps<typeof DisplayResponsiveProps> & {
-    id: string;
-    fileId: string;
-  }
-): JSX.Element => {
+export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
   // Macros specific to this display. Children of this component
   // can set macros by using the updateMacro function on the
   // context.
@@ -93,11 +104,11 @@ export const DisplayResponsiveComponent = (
 
   const cellHeight = Number(props.gridCellHeight ?? defaultRowHeight);
 
-  const updateMacro = React.useCallback((key: string, value: string) => {
+  const updateMacro = useCallback((key: string, value: string) => {
     setDisplayMacros(prev => ({ ...prev, [key]: value }));
   }, []);
 
-  const displayMacroContext = React.useMemo<MacroContextType>(
+  const displayMacroContext = useMemo<MacroContextType>(
     () => ({
       updateMacro,
       macros: {
@@ -111,7 +122,7 @@ export const DisplayResponsiveComponent = (
 
   // Get base style from common CSS
   const style = useStyle(props, widgetName);
-  const extendedStyle = React.useMemo<React.CSSProperties>(
+  const extendedStyle = useMemo<React.CSSProperties>(
     () => ({
       ...style.colors,
       ...style.border,
@@ -130,7 +141,7 @@ export const DisplayResponsiveComponent = (
     number
   ];
 
-  const childrenArray = React.useMemo(
+  const childrenArray = useMemo(
     () =>
       React.Children.toArray(props.children as ReactNode[]).filter(child =>
         React.isValidElement<PVWidgetComponent>(child)
@@ -138,77 +149,78 @@ export const DisplayResponsiveComponent = (
     [props.children]
   );
 
-  const breakpoints = React.useMemo(
+  const breakpoints = useMemo(
     () =>
       (props?.responsiveBreakpoints
         ? props.responsiveBreakpoints
-        : defaultBreakpoints) as Breakpoints<string>,
+        : defaultBreakpoints) as Breakpoints<Breakpoint>,
     [props.responsiveBreakpoints]
   );
 
-  const columns = React.useMemo(() => {
-    if (props.responsiveColumns) {
-      return props.responsiveColumns as Breakpoints<Breakpoint>;
-    }
-
-    return Object.keys(breakpoints).reduce((acc, key: string) => {
-      acc[key as DefaultBreakpoints] = Math.round(
-        (breakpoints[key] - cellMargins[0]) /
-          (defaultColumnWidth + cellMargins[0])
-      );
-      return acc;
-    }, {} as Breakpoints<Breakpoint>);
-  }, [props.responsiveColumns, breakpoints, cellMargins]);
-
-  useEffect(() => {
-    if (props.responsiveLayouts) {
-      return;
-    }
-    // If a responsiveLayouts does not exist create one and update the redux state for this
-    // responsive display.
-    const responsiveLayouts = Object.keys(columns).reduce(
-      (acc, key: string) => {
-        acc[key as DefaultBreakpoints] =
-          calculateDefaultLayoutWithHorizontalCompactor(
-            childrenArray,
-            breakpoints[key as DefaultBreakpoints],
-            columns[key as DefaultBreakpoints],
-            cellMargins,
-            cellHeight
-          );
-        return acc;
-      },
-      {} as ResponsiveLayouts<Breakpoint>
+  // Check that the breakpoints are consistent, between breakpoints, columns and layouts
+  const areBreakpointsConsistent = useMemo(
+    () =>
+      (!props.responsiveColumns ||
+        sameKeys(breakpoints, props.responsiveColumns)) &&
+      (!props.responsiveLayouts ||
+        sameKeys(breakpoints, props.responsiveLayouts)),
+    [props.responsiveColumns, props.responsiveLayouts, breakpoints]
+  );
+  if (!areBreakpointsConsistent) {
+    log.error(
+      `Inconsistent breakpoint keys between breakpoints, columns, and layouts. Expected keys: ${Object.keys(breakpoints).join(", ")}. Falling back to defaults.`
     );
+  }
 
-    dispatch(
-      fileDisplaySetResponsiveLayout({
-        file: props.fileId,
-        displayId: props.id,
-        responsiveLayouts,
-        responsiveColumns: columns,
-        responsiveBreakpoints: breakpoints,
-        gridCellMargins: cellMargins,
-        gridCellHeight: cellHeight,
+  const columns: Breakpoints<Breakpoint> = useMemo(
+    () =>
+      calculateColumns(
+        props.responsiveColumns as Breakpoints<Breakpoint>,
+        areBreakpointsConsistent,
+        breakpoints,
+        cellMargins
+      ),
+    [
+      props.responsiveColumns,
+      breakpoints,
+      cellMargins,
+      areBreakpointsConsistent
+    ]
+  );
+
+  useEffect(
+    () =>
+      calculateLayout(
+        props.id,
+        props.fileId,
+        props.responsiveLayouts as ResponsiveLayouts<Breakpoint>,
+        areBreakpointsConsistent,
+        breakpoints,
+        childrenArray,
+        columns,
+        cellMargins,
+        cellHeight,
+        dispatch,
         gridCellDragEnabled,
         gridCellResizeEnabled
-      })
-    );
-  }, [
-    dispatch,
-    props.fileId,
-    props.id,
-    props.responsiveLayouts,
-    childrenArray,
-    columns,
-    breakpoints,
-    cellMargins,
-    cellHeight,
-    gridCellDragEnabled,
-    gridCellResizeEnabled
-  ]);
+      ),
+    [
+      dispatch,
+      props.fileId,
+      props.id,
+      props.responsiveLayouts,
+      childrenArray,
+      columns,
+      breakpoints,
+      cellMargins,
+      cellHeight,
+      gridCellDragEnabled,
+      gridCellResizeEnabled,
+      areBreakpointsConsistent
+    ]
+  );
 
-  const initialLayouts = React.useMemo(
+  const initialLayouts = useMemo(
     () => props.responsiveLayouts ?? ({} as ResponsiveLayouts<Breakpoint>),
     [props.responsiveLayouts]
   );
@@ -221,23 +233,8 @@ export const DisplayResponsiveComponent = (
   });
 
   // Wrap the child components in a div keyed by the child id. The key MUST map to the i field of Layout item for the component.
-  const gridChildren = React.useMemo(
-    () =>
-      childrenArray.map(child => {
-        const id = child.props.id;
-        if (!id) {
-          throw new Error("All grid items must have a stable id");
-        }
-
-        return (
-          <div
-            key={id}
-            style={{ cursor: gridCellDragEnabled ? "grab" : "default" }}
-          >
-            {child}
-          </div>
-        );
-      }),
+  const gridChildren = useMemo(
+    () => wrapChildrenForGridLayout(childrenArray, gridCellDragEnabled),
     [childrenArray, gridCellDragEnabled]
   );
 
@@ -307,3 +304,98 @@ export const DisplayResponsive = (
 ): JSX.Element => <Widget baseWidget={DisplayResponsiveComponent} {...props} />;
 
 registerWidget(DisplayResponsive, DisplayResponsiveWidgetProps, widgetName);
+
+const calculateLayout = (
+  id: string,
+  fileId: string,
+  responsiveLayouts: ResponsiveLayouts<Breakpoint>,
+  areBreakpointsConsistent: boolean,
+  breakpoints: Breakpoints<string>,
+  childrenArray: React.ReactElement<
+    PVWidgetComponent,
+    string | React.JSXElementConstructor<any>
+  >[],
+  columns: Breakpoints<string>,
+  cellMargins: [number, number],
+  cellHeight: number,
+  dispatch: Dispatch,
+  gridCellDragEnabled: boolean,
+  gridCellResizeEnabled: boolean
+): void => {
+  if (responsiveLayouts && areBreakpointsConsistent) {
+    return;
+  }
+
+  // If a responsiveLayouts does not exist create one and update the redux state for this
+  // responsive display.
+  const computedResponsiveLayouts = Object.keys(breakpoints).reduce(
+    (acc, key: string) => {
+      acc[key as Breakpoint] = calculateDefaultLayoutWithHorizontalCompactor(
+        childrenArray,
+        breakpoints[key as Breakpoint],
+        columns[key as Breakpoint],
+        cellMargins,
+        cellHeight
+      );
+      return acc;
+    },
+    {} as ResponsiveLayouts<Breakpoint>
+  );
+
+  dispatch(
+    fileDisplaySetResponsiveLayout({
+      file: fileId,
+      displayId: id,
+      responsiveLayouts: computedResponsiveLayouts,
+      responsiveColumns: columns,
+      responsiveBreakpoints: breakpoints,
+      gridCellMargins: cellMargins,
+      gridCellHeight: cellHeight,
+      gridCellDragEnabled,
+      gridCellResizeEnabled
+    })
+  );
+};
+
+const calculateColumns = (
+  responsiveColumns: Breakpoints<Breakpoint>,
+  areBreakpointsConsistent: boolean,
+  breakpoints: Breakpoints<string>,
+  cellMargins: [number, number]
+): Breakpoints<string> => {
+  if (responsiveColumns && areBreakpointsConsistent) {
+    return responsiveColumns as Breakpoints<Breakpoint>;
+  }
+
+  return Object.keys(breakpoints).reduce((acc, key: Breakpoint) => {
+    acc[key] = Math.round(
+      (breakpoints[key] - cellMargins[0]) /
+        (defaultColumnWidth + cellMargins[0])
+    );
+    return acc;
+  }, {} as Breakpoints<Breakpoint>);
+};
+
+const wrapChildrenForGridLayout = (
+  childrenArray: React.ReactElement<
+    PVWidgetComponent,
+    string | React.JSXElementConstructor<any>
+  >[],
+  gridCellDragEnabled: boolean
+) => {
+  return childrenArray.map(child => {
+    const id = child.props.id;
+    if (!id) {
+      throw new Error("All grid items must have a stable id");
+    }
+
+    return (
+      <div
+        key={id}
+        style={{ cursor: gridCellDragEnabled ? "grab" : "default" }}
+      >
+        {child}
+      </div>
+    );
+  });
+};

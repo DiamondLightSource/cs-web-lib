@@ -26,7 +26,9 @@ const DeviceProps = {
 };
 
 export const DeviceComponent = (
-  props: InferWidgetProps<typeof DeviceProps>
+  props: InferWidgetProps<typeof DeviceProps> & {
+    id?: string;
+  }
 ): JSX.Element => {
   // When replacing a detail panel, you can deduce device name
   // from the macro DESC on the screen.
@@ -47,9 +49,17 @@ export const DeviceComponent = (
         if (description && description.value) {
           jsonResponse = JSON.parse(description?.value?.stringValue || "");
           setBorder(borderNONE);
-          const jsonObject = parseResponse(jsonResponse as any);
+          const jsonObject = parseResponse(
+            jsonResponse as any,
+            replacedDeviceName
+          );
 
-          componentDescription = await parseObject(jsonObject, "ca");
+          componentDescription = await parseObject(
+            jsonObject,
+            "ca",
+            undefined,
+            replacedDeviceName
+          );
         } else {
           componentDescription = errorWidget(
             `No device ${replacedDeviceName} found.`,
@@ -63,7 +73,8 @@ export const DeviceComponent = (
       }
       setComponent(
         widgetDescriptionToComponent({
-          id: "123",
+          id: props?.id ?? `device_${crypto.randomUUID()}`,
+          fileId: replacedDeviceName,
           position: newRelativePosition("100%", "100%"),
           type: "display",
           children: [componentDescription]
@@ -71,7 +82,7 @@ export const DeviceComponent = (
       );
     };
     loadComponent();
-  }, [description, deviceName, replacedDeviceName]);
+  }, [description, deviceName, replacedDeviceName, props.id]);
 
   const style = useStyle({ border }, widgetName);
   return (

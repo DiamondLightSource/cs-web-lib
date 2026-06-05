@@ -54,6 +54,7 @@ describe("useFile", (): void => {
     const responseContent = JSON.stringify({
       type: "shape",
       id: "123",
+      fileId: "AShapeFilePath",
       position: newAbsolutePosition("0", "0", "0", "0")
     });
 

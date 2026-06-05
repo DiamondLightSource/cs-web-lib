@@ -84,3 +84,14 @@ export const toNumber = (value: unknown, fallback = 0): number => {
 
   return fallback;
 };
+
+export const sameKeys = (a: object, b: object) => {
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+
+  return (
+    keysA.length === keysB.length &&
+    new Set(keysA).size === new Set(keysB).size &&
+    [...new Set(keysA)].every(item => keysB.includes(item))
+  );
+};

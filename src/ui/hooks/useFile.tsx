@@ -19,6 +19,7 @@ import { newAbsolutePosition } from "../../types/position";
 const EMPTY_WIDGET: WidgetDescription = {
   type: "shape",
   id: "123",
+  fileId: "AShapeFilePath",
   position: newAbsolutePosition("0", "0", "0", "0")
 };
 

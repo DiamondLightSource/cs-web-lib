@@ -27,7 +27,11 @@ describe("<TabContainer>", (): void => {
     const { findByText } = await act(() => {
       return render(
         <Provider store={store()}>
-          <TabContainerComponent tabs={[{ name: "one", children: child }]} />
+          <TabContainerComponent
+            id={"deviceId1"}
+            fileId={"fileId1"}
+            tabs={[{ name: "one", children: child }]}
+          />
         </Provider>
       );
     });
@@ -45,7 +49,11 @@ describe("<TabContainer>", (): void => {
     const { findByText } = await act(() => {
       return render(
         <Provider store={store()}>
-          <TabContainerComponent tabs={[{ name: "one", children: child }]} />
+          <TabContainerComponent
+            id={"deviceId1"}
+            fileId={"fileId1"}
+            tabs={[{ name: "one", children: child }]}
+          />
         </Provider>
       );
     });
@@ -72,6 +80,8 @@ describe("<TabContainer>", (): void => {
       return render(
         <Provider store={store()}>
           <TabContainerComponent
+            id={"deviceId1"}
+            fileId={"fileId1"}
             tabs={[
               { name: "one", children: child1 },
               { name: "two", children: child2 }
