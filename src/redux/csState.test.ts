@@ -720,7 +720,6 @@ describe("findWidgetById", () => {
   });
 
   test("returns undefined if tree is not an array", () => {
-    // @ts-expect-error intentional bad input
     expect(findWidgetById({} as any, "123")).toBeUndefined();
   });
 
