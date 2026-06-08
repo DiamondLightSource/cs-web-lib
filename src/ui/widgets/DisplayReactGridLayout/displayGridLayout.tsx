@@ -42,7 +42,7 @@ import { calculateDefaultLayout, toNumber } from "./displayLayoutUtilities";
 import {
   fileDisplaySetGridLayout,
   makeSelectWidgetPosition
-} from "../../../redux/csState";
+} from "../../../redux/slices/fileCacheSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 const widgetName = "displayGridLayout";

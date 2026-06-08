@@ -7,6 +7,7 @@ import {
 import csReducer from "./csState";
 import notificationsReducer from "./slices/notificationsSlice";
 import configurationReducer from "./slices/configurationSlice";
+import fileCacheReducer from "./slices/fileCacheSlice";
 import { connectionMiddleware } from "./connectionMiddleware";
 import { throttleMiddleware, UpdateThrottle } from "./throttleMiddleware";
 import { CsWebLibConfig } from "./csWebLibConfig";
@@ -17,7 +18,8 @@ let storeInstance: ReturnType<typeof configureStore> | null = null;
 export const rootReducer = combineReducers({
   configuration: configurationReducer,
   cs: csReducer,
-  notifications: notificationsReducer
+  notifications: notificationsReducer,
+  fileCache: fileCacheReducer
 });
 
 const createStoreInstance = (config?: CsWebLibConfig) => {

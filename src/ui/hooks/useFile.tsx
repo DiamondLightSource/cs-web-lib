@@ -4,7 +4,7 @@ import {
   refreshFile as refreshFileAction,
   selectFile,
   fileComparator
-} from "../../redux/csState";
+} from "../../redux/slices/fileCacheSlice";
 import { MacroMap } from "../../types/macros";
 import { errorWidget, WidgetDescription } from "../widgets/createComponent";
 import { useEffect } from "react";

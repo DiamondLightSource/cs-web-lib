@@ -34,7 +34,6 @@ function getFileState(): CsState {
     globalMacros: {},
     effectivePvNameMap: {},
     deviceCache: {},
-    fileCache: {},
     pvwsSettings: {}
   };
 }

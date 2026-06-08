@@ -45,6 +45,9 @@ vi.mock("react-redux", () => ({
     selector({
       csState: {
         files: {}
+      },
+      fileCache: {
+        fileCache: {}
       }
     })
 }));

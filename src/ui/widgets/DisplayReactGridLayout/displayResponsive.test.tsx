@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 import { DisplayResponsiveComponent } from "./displayResponsive";
-import { fileDisplaySetResponsiveLayout } from "../../../redux/csState";
+import { fileDisplaySetResponsiveLayout } from "../../../redux/slices/fileCacheSlice";
 import { calculateDefaultLayoutWithHorizontalCompactor } from "./displayLayoutUtilities";
 
 let capturedLayouts: any;

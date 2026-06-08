@@ -46,7 +46,7 @@ import {
   calculateDefaultLayoutWithHorizontalCompactor,
   sameKeys
 } from "./displayLayoutUtilities";
-import { fileDisplaySetResponsiveLayout } from "../../../redux/csState";
+import { fileDisplaySetResponsiveLayout } from "../../../redux/slices/fileCacheSlice";
 import log from "loglevel";
 import { Dispatch } from "@reduxjs/toolkit";
 
