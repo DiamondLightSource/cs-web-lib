@@ -74,7 +74,8 @@ export async function genericParser(
   complexParsers: ComplexParserDict,
   // Whether props with no registered function should be passed through
   // with no parsing.
-  passThrough: boolean
+  passThrough: boolean,
+  classFile?: boolean
 ): Promise<WidgetDescription> {
   const newProps: any = { type: targetWidget.widget };
   const allProps = {
@@ -91,7 +92,12 @@ export async function genericParser(
       try {
         if (widget.hasOwnProperty(opiPropName)) {
           if (!isEmpty(widget[opiPropName])) {
-            newProps[prop] = await propParser(widget[opiPropName]);
+            const attributes = widget[opiPropName]._attributes;
+            // If BCF file, only parse class attributes
+            const shouldParse =
+              !classFile || attributes?.use_class || opiPropName === "name";
+            if (shouldParse)
+              newProps[prop] = await propParser(widget[opiPropName]);
             log.debug(`result ${newProps[prop]}`);
             // For certain simple string props we want to accept an empty value e.g. text
           } else if (
@@ -184,7 +190,8 @@ export async function parseWidget(
   patchFunctions: PatchFunction[],
   filepath?: string,
   macros?: MacroMap,
-  fileId?: string
+  fileId?: string,
+  classFile?: boolean
 ): Promise<WidgetDescription> {
   const targetWidget = getTargetWidget(props);
   const allowedProps = { position: PositionProp, ...targetWidget?.widgetProps };
@@ -193,7 +200,8 @@ export async function parseWidget(
     targetWidget,
     simpleParsers,
     complexParsers,
-    passThrough
+    passThrough,
+    classFile
   );
   // Execute patch functions.
   for (const patcher of patchFunctions) {
@@ -218,7 +226,8 @@ export async function parseWidget(
         patchFunctions,
         filepath,
         macros,
-        fileId
+        fileId,
+        classFile
       );
     })
   );

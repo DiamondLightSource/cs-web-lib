@@ -21,10 +21,21 @@ export interface UseStyleResult {
   other: CSSProperties;
 }
 
-const selectPalette = (theme: Theme, widgetName?: string): PaletteColor => {
-  if (theme?.palette && widgetName && widgetName in theme?.palette) {
+interface UseStyleProps {
+  border?: Border;
+  font?: Font;
+  visible?: boolean;
+  foregroundColor?: Color;
+  backgroundColor?: Color;
+  transparent?: boolean;
+  actions?: WidgetActions;
+  customColors?: { [key: string]: Color | undefined };
+}
+
+const selectPalette = (theme: Theme, themeName?: string): PaletteColor => {
+  if (theme?.palette && themeName && themeName in theme?.palette) {
     return theme.palette[
-      widgetName as keyof typeof theme.palette
+      themeName as keyof typeof theme.palette
     ] as PaletteColor;
   }
 
@@ -61,20 +72,13 @@ const fontSelector = (theme: Theme, font?: Font): CSSProperties =>
  * @returns a CSSProperties object to pass into another element under the style key
  */
 export const useStyle = (
-  props: {
-    border?: Border;
-    font?: Font;
-    visible?: boolean;
-    foregroundColor?: Color;
-    backgroundColor?: Color;
-    transparent?: boolean;
-    actions?: WidgetActions;
-    customColors?: { [key: string]: Color | undefined };
-  },
-  widgetName?: string
+  props: UseStyleProps,
+  widgetName?: string,
+  className?: string
 ): UseStyleResult => {
   const theme = useTheme();
-  const themePalette = selectPalette(theme, widgetName);
+  const themeName = `${className ?? ""}${widgetName}`;
+  const themePalette = selectPalette(theme, themeName);
   const themeBorder = selectBorder(theme, widgetName);
   const propsBorder = borderToCss(props.border);
   const border = {
@@ -86,15 +90,18 @@ export const useStyle = (
 
   const visible = props.visible === undefined || props.visible;
 
-  const foregroundColor = foregroundColorSelector(
-    themePalette,
-    props?.foregroundColor
-  );
-  const backgroundColor = backgroundColorSelector(
-    themePalette,
-    props?.backgroundColor,
-    props.transparent
-  );
+  const classExists = className && themeName in theme?.palette;
+  // If palette for class exists, use that
+  const foregroundColor = classExists
+    ? themePalette.contrastText
+    : foregroundColorSelector(themePalette, props?.foregroundColor);
+  const backgroundColor = classExists
+    ? themePalette.main
+    : backgroundColorSelector(
+        themePalette,
+        props?.backgroundColor,
+        props.transparent
+      );
 
   const customColors: { [key: string]: string } = Object.fromEntries(
     Object.entries(themePalette)

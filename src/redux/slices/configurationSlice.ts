@@ -13,7 +13,8 @@ const initialState: CsWebLibConfig = {
   defaultMjpgEndpoint: "",
   csWebLibFeatureFlags: {
     enableDynamicScripts: false
-  }
+  },
+  classFile: undefined
 };
 
 /**
@@ -31,7 +32,8 @@ export const configurationSlice = createSlice({
     selectFeatureFlags: state => state.csWebLibFeatureFlags,
     selectEnableDynamicScripts: state =>
       state.csWebLibFeatureFlags?.enableDynamicScripts ?? false,
-    selectDefaultMjpgEndpoint: state => state.defaultMjpgEndpoint
+    selectDefaultMjpgEndpoint: state => state.defaultMjpgEndpoint,
+    selectClassFile: state => state.classFile
   }
 });
 
@@ -41,5 +43,6 @@ export const {
   selectConfiguration,
   selectFeatureFlags,
   selectEnableDynamicScripts,
-  selectDefaultMjpgEndpoint
+  selectDefaultMjpgEndpoint,
+  selectClassFile
 } = configurationSlice.selectors;
