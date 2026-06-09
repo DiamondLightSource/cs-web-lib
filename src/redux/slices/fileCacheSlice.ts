@@ -110,6 +110,15 @@ const fileCacheSlice = createSlice({
           };
         }
       });
+    },
+    fileDisplayUpdateResponsiveLayout(state, action) {
+      const { file, displayId, responsiveLayouts } = action.payload;
+
+      const fileDescription = state.fileCache[file];
+      const display = findWidgetById([fileDescription], displayId);
+
+      if (!display || display.type !== "displayResponsive") return;
+      display.responsiveLayouts = responsiveLayouts;
     }
   },
   selectors: {
@@ -121,7 +130,8 @@ export const {
   fileChanged,
   refreshFile,
   fileDisplaySetGridLayout,
-  fileDisplaySetResponsiveLayout
+  fileDisplaySetResponsiveLayout,
+  fileDisplayUpdateResponsiveLayout
 } = fileCacheSlice.actions;
 
 export default fileCacheSlice.reducer;

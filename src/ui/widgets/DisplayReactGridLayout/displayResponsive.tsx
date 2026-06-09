@@ -4,7 +4,8 @@ import React, {
   ReactNode,
   useEffect,
   useMemo,
-  useCallback
+  useCallback,
+  useRef
 } from "react";
 import {
   ResponsiveLayouts,
@@ -46,7 +47,10 @@ import {
   calculateDefaultLayoutWithHorizontalCompactor,
   sameKeys
 } from "./displayLayoutUtilities";
-import { fileDisplaySetResponsiveLayout } from "../../../redux/slices/fileCacheSlice";
+import {
+  fileDisplaySetResponsiveLayout,
+  fileDisplayUpdateResponsiveLayout
+} from "../../../redux/slices/fileCacheSlice";
 import log from "loglevel";
 import { Dispatch } from "@reduxjs/toolkit";
 
@@ -88,6 +92,10 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
   // can set macros by using the updateMacro function on the
   // context.
   const dispatch = useDispatch();
+
+  const isInteractingRef = useRef(false);
+  const shouldCommitRef = useRef(false);
+
   const { width, containerRef, mounted } = useContainerWidth({
     measureBeforeMount: false
   });
@@ -263,6 +271,18 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
               enabled: gridCellResizeEnabled,
               handles: ["se"]
             }}
+            onLayoutChange={(layout, layouts) => {
+              if (!isInteractingRef.current && shouldCommitRef.current) {
+                dispatch(
+                  fileDisplayUpdateResponsiveLayout({
+                    file: props.fileId,
+                    displayId: props.id,
+                    responsiveLayouts: layouts
+                  })
+                );
+                shouldCommitRef.current = false;
+              }
+            }}
             onDragStart={(
               layout,
               oldItem,
@@ -274,11 +294,21 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
               if (element?.style != null && gridCellDragEnabled) {
                 element.style.cursor = "grabbing";
               }
+              isInteractingRef.current = true;
             }}
             onDragStop={(layout, oldItem, newItem, placeholder, e, element) => {
               if (element?.style != null && gridCellDragEnabled) {
                 element.style.cursor = "grab";
               }
+              isInteractingRef.current = false;
+              shouldCommitRef.current = true;
+            }}
+            onResizeStart={() => {
+              isInteractingRef.current = true;
+            }}
+            onResizeStop={() => {
+              isInteractingRef.current = false;
+              shouldCommitRef.current = true;
             }}
             style={{
               ...style.colors,
