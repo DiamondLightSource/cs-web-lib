@@ -6,18 +6,15 @@ import csReducer, {
   valueChanged,
   valuesChanged,
   unsubscribe,
-  fileChanged,
-  refreshFile,
   selectPvStates,
   pvStateComparator,
   selectDevice,
-  fileComparator,
-  selectFile,
   FullPvState,
   PvState,
   deviceComparator,
   PvArrayResults
 } from "./csState";
+import { findWidgetById } from "./slices/storeUtils";
 import {
   DType,
   dTypeGetAlarm,
@@ -37,7 +34,6 @@ import {
 } from "../testResources";
 import { WidgetDescription } from "../ui/widgets/createComponent";
 import { newAbsolutePosition } from "../types/position";
-import { ColorUtils } from "../types";
 
 const initialState: CsState = {
   valueCache: {
@@ -52,13 +48,6 @@ const initialState: CsState = {
   subscriptions: {},
   effectivePvNameMap: {},
   deviceCache: {},
-  fileCache: {
-    "mySecondFile.bob": {
-      id: "123",
-      type: "ellipse",
-      position: newAbsolutePosition("0", "0", "0", "0")
-    }
-  },
   pvwsSettings: {}
 };
 
@@ -237,37 +226,6 @@ test("handles initializers", (): void => {
   expect(state5.effectivePvNameMap["PV(1)"]).toEqual(undefined);
 });
 
-describe("FILE_CHANGED", (): void => {
-  test("csReducer adds file to fileCache", (): void => {
-    const contents: WidgetDescription = {
-      id: "123",
-      type: "shape",
-      position: newAbsolutePosition("0", "0", "0", "0")
-    };
-    const fileName = "myfile.bob";
-    const action: ReturnType<typeof fileChanged> = {
-      type: "cs/fileChanged",
-      payload: { file: fileName, contents: contents }
-    };
-
-    const newState = csReducer(initialState, action);
-    expect(newState.fileCache[fileName]).toEqual(contents);
-  });
-});
-
-describe("REFRESH_FILE", (): void => {
-  test("csReducer deletes the file entry from fileCache", (): void => {
-    const fileName = "mySecondFile.bob";
-    const action: ReturnType<typeof refreshFile> = {
-      type: "cs/refreshFile",
-      payload: { file: fileName }
-    };
-
-    const newState = csReducer(initialState, action);
-    expect(newState.fileCache[fileName]).toBeUndefined();
-  });
-});
-
 describe("Selectors", () => {
   const pv1 = "pv1";
   const pv2 = "pv2";
@@ -285,7 +243,6 @@ describe("Selectors", () => {
     effectivePvNameMap: { pv1: "pv1", pv2: "pv3" },
     subscriptions: {},
     deviceCache: {},
-    fileCache: {},
     pvwsSettings: {}
   };
 
@@ -294,22 +251,22 @@ describe("Selectors", () => {
   describe("selectPvStates", (): void => {
     it("returns appropriate values if PV present", (): void => {
       const results = selectPvStates(state, [pv1]);
-      const [pvState, effectivePv] = results[pv1];
-      expect(pvState).toEqual(pvState);
+      const [resultsPvState, effectivePv] = results[pv1];
+      expect(resultsPvState).toEqual(pvState);
       expect(effectivePv).toEqual(pv1);
     });
 
     it("returns correct effective PV name", (): void => {
       const results = selectPvStates(state, [pv2]);
-      const [pvState, effectivePv] = results[pv2];
-      expect(pvState).toBeUndefined();
+      const [resultsPvState, effectivePv] = results[pv2];
+      expect(resultsPvState).toBeUndefined();
       expect(effectivePv).toEqual(pv3);
     });
 
     it("returns appropriate values if PV not present", (): void => {
       const results = selectPvStates(state, ["not-a-pv"]);
-      const [pvState, shortName] = results["not-a-pv"];
-      expect(pvState).toBeUndefined();
+      const [resultsPvState, shortName] = results["not-a-pv"];
+      expect(resultsPvState).toBeUndefined();
       expect(shortName).toEqual("not-a-pv");
     });
   });
@@ -378,63 +335,97 @@ describe("Selectors", () => {
       expect(selectDevice(localState, "testDevice")).toBeUndefined();
     });
   });
+});
 
-  describe("fileComparator", (): void => {
-    it("returns false if string contents don't match", (): void => {
-      const contents1: WidgetDescription = {
-        id: "123",
-        type: "shape",
-        position: newAbsolutePosition("0", "0", "0", "0")
-      };
-      const contents2: WidgetDescription = {
-        id: "123",
-        type: "shape",
-        position: newAbsolutePosition("1", "0", "0", "0")
-      };
-      expect(fileComparator(contents1, contents2)).toBe(false);
-    });
-
-    it("returns false if number of keys changed", (): void => {
-      const contents1: WidgetDescription = {
-        id: "123",
-        type: "shape",
-        position: newAbsolutePosition("0", "0", "0", "0"),
-        backgroundColor: ColorUtils.TRANSPARENT
-      };
-      const contents2: WidgetDescription = {
-        id: "123",
-        type: "shape",
-        position: newAbsolutePosition("0", "0", "0", "0")
-      };
-
-      expect(fileComparator(contents1, contents2)).toBe(false);
-    });
-
-    it("returns true if matches", (): void => {
-      const contents: WidgetDescription = {
-        id: "123",
-        type: "shape",
-        position: newAbsolutePosition("0", "0", "0", "0")
-      };
-      expect(fileComparator(contents, { ...contents })).toBe(true);
-    });
+describe("findWidgetById", () => {
+  const makeWidget = (
+    id: string,
+    children?: WidgetDescription[]
+  ): WidgetDescription => ({
+    id,
+    type: "shape",
+    fileId: "file",
+    position: newAbsolutePosition("0", "0", "10", "10"),
+    children
   });
 
-  describe("selectFile", (): void => {
-    it("finds file in fileCache", (): void => {
-      const contents: WidgetDescription = {
-        id: "123",
-        type: "shape",
-        position: newAbsolutePosition("0", "0", "0", "0")
-      };
-      state.cs.fileCache["test.bob"] = contents;
+  test("returns undefined if tree is undefined", () => {
+    expect(findWidgetById(undefined, "123")).toBeUndefined();
+  });
 
-      expect(selectFile(state, "test.bob")).toEqual(contents);
-    });
+  test("returns undefined if tree is not an array", () => {
+    expect(findWidgetById({} as any, "123")).toBeUndefined();
+  });
 
-    it("returns undefined if device not in cache", (): void => {
-      const localState = { ...state, cs: { ...state.cs, fileCache: {} } };
-      expect(selectFile(localState, "test2.bob")).toBeUndefined();
-    });
+  test("finds a widget at root level", () => {
+    const tree = [makeWidget("1"), makeWidget("2")];
+
+    const result = findWidgetById(tree, "2");
+
+    expect(result?.id).toBe("2");
+  });
+
+  test("returns undefined if widget not found", () => {
+    const tree = [makeWidget("1"), makeWidget("2")];
+
+    const result = findWidgetById(tree, "999");
+
+    expect(result).toBeUndefined();
+  });
+
+  test("finds a widget nested one level deep", () => {
+    const tree = [makeWidget("1", [makeWidget("1-1"), makeWidget("1-2")])];
+
+    const result = findWidgetById(tree, "1-2");
+
+    expect(result?.id).toBe("1-2");
+  });
+
+  test("finds a widget nested multiple levels deep", () => {
+    const tree = [makeWidget("1", [makeWidget("1-1", [makeWidget("1-1-1")])])];
+
+    const result = findWidgetById(tree, "1-1-1");
+
+    expect(result?.id).toBe("1-1-1");
+  });
+
+  test("returns first match if duplicate ids exist", () => {
+    const duplicate = makeWidget("dup");
+    const tree = [
+      makeWidget("1", [duplicate]),
+      makeWidget("2", [makeWidget("dup")])
+    ];
+
+    const result = findWidgetById(tree, "dup");
+
+    expect(result).toBe(duplicate); // ensures first match
+  });
+
+  test("skips invalid nodes safely", () => {
+    const tree = [
+      null as unknown as WidgetDescription,
+      makeWidget("1"),
+      undefined as unknown as WidgetDescription
+    ];
+
+    const result = findWidgetById(tree, "1");
+
+    expect(result?.id).toBe("1");
+  });
+
+  test("handles nodes without children", () => {
+    const tree = [makeWidget("1")];
+
+    const result = findWidgetById(tree, "1");
+
+    expect(result?.id).toBe("1");
+  });
+
+  test("handles empty children arrays", () => {
+    const tree = [makeWidget("1", [])];
+
+    const result = findWidgetById(tree, "1");
+
+    expect(result?.id).toBe("1");
   });
 });

@@ -1,7 +1,6 @@
 import log from "loglevel";
 import { MacroMap } from "../types/macros";
 import { mergeDType, DType } from "../types/dtypes";
-import { WidgetDescription } from "../ui/widgets/createComponent";
 import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { SubscriptionType } from "../connection";
 
@@ -11,7 +10,6 @@ export const initialCsState: CsState = {
   effectivePvNameMap: {},
   subscriptions: {},
   deviceCache: {},
-  fileCache: {},
   pvwsSettings: {}
 };
 
@@ -45,10 +43,6 @@ export interface DeviceCache {
   [deviceName: string]: DType;
 }
 
-export interface FileCache {
-  [fileName: string]: WidgetDescription;
-}
-
 export interface PvwsSettings {
   pvwsHost?: string;
 }
@@ -64,7 +58,6 @@ export interface CsState {
   globalMacros: MacroMap;
   subscriptions: Subscriptions;
   deviceCache: DeviceCache;
-  fileCache: FileCache;
   pvwsSettings: PvwsSettings;
 }
 
@@ -78,7 +71,14 @@ function updateValueCache(
 ): void {
   const { pvName, value } = action.payload;
   const mergedValue = mergeDType(valueCache[pvName]?.value, value);
-  valueCache[pvName] = { ...valueCache[pvName], value: mergedValue };
+
+  const existing = valueCache[pvName] ?? {
+    connected: false,
+    readonly: true,
+    initializingPvName: pvName
+  };
+
+  valueCache[pvName] = { ...existing, value: mergedValue };
 }
 
 const csSlice = createSlice({
@@ -196,26 +196,10 @@ const csSlice = createSlice({
 
     queryDevice(_state, _action: PayloadAction<{ device: string }>) {
       // intentionally empty — handled by listener middleware
-    },
-
-    fileChanged(
-      state,
-      action: PayloadAction<{ file: string; contents: WidgetDescription }>
-    ) {
-      log.debug(action);
-      const { file, contents } = action.payload;
-      state.fileCache[file] = contents;
-    },
-
-    refreshFile(state, action: PayloadAction<{ file: string }>) {
-      log.debug(action);
-      const { file } = action.payload;
-      delete state.fileCache[file];
     }
   },
   selectors: {
     selectDeviceCache: state => state.deviceCache,
-    selectFileCache: state => state.fileCache,
     selectEffectivePvNameMap: state => state.effectivePvNameMap,
     selectValueCache: state => state.valueCache,
     selectGlobalMacros: state => state.globalMacros,
@@ -233,14 +217,11 @@ export const {
   unsubscribe,
   writePv,
   deviceQueried,
-  queryDevice,
-  fileChanged,
-  refreshFile
+  queryDevice
 } = csSlice.actions;
 export default csSlice.reducer;
 export const {
   selectDeviceCache,
-  selectFileCache,
   selectEffectivePvNameMap,
   selectValueCache,
   selectGlobalMacros,
@@ -255,11 +236,6 @@ export const selectEffectivePvName = createSelector(
 export const selectDevice = createSelector(
   [selectDeviceCache, (_state, deviceId: string) => deviceId],
   (deviceCache, deviceId) => deviceCache[deviceId]
-);
-
-export const selectFile = createSelector(
-  [selectFileCache, (_state, fileId: string) => fileId],
-  (fileCache, fileId) => fileCache[fileId]
 );
 
 export const selectPvStates = createSelector(
@@ -279,27 +255,6 @@ export const selectPvStates = createSelector(
     return results;
   }
 );
-
-export const fileComparator = (
-  before: WidgetDescription,
-  after: WidgetDescription
-): boolean => {
-  if (!before || !after) {
-    return false;
-  }
-  if (Object.keys(before).length !== Object.keys(after).length) {
-    return false;
-  }
-  if (before.children?.length !== after.children?.length) {
-    return false;
-  }
-  // Can't compare objects directly because they are in different memory locations
-  // But we can compare strings
-  if (JSON.stringify(before) !== JSON.stringify(after)) {
-    return false;
-  }
-  return true;
-};
 
 /* Used for preventing re-rendering if the results are equivalent.
    Note that if the state for a particular PV hasn't changed, we will

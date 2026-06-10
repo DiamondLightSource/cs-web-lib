@@ -34,7 +34,6 @@ function getFileState(): CsState {
     globalMacros: {},
     effectivePvNameMap: {},
     deviceCache: {},
-    fileCache: {},
     pvwsSettings: {}
   };
 }
@@ -54,6 +53,7 @@ describe("useFile", (): void => {
     const responseContent = JSON.stringify({
       type: "shape",
       id: "123",
+      fileId: "AShapeFilePath",
       position: newAbsolutePosition("0", "0", "0", "0")
     });
 
@@ -104,7 +104,8 @@ describe("useFile", (): void => {
       children: [],
       precisionFromPv: true,
       showUnits: true,
-      wrapWords: true
+      wrapWords: true,
+      fileId: "test.json"
     });
     expect(
       screen.getByText(`contents: ${responseContent}`)

@@ -253,6 +253,7 @@ export const EmbeddedDisplay = (
       {
         type: "display",
         id: `display_${crypto.randomUUID()}`,
+        fileId: props?.file?.path,
         position: resolvedProps.position,
         backgroundColor:
           selectedDescription.backgroundColor ?? newColor("rgb(255,255,255"),

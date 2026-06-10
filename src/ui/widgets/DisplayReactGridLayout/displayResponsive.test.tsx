@@ -4,6 +4,8 @@ import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 import { DisplayResponsiveComponent } from "./displayResponsive";
+import { fileDisplaySetResponsiveLayout } from "../../../redux/slices/fileCacheSlice";
+import { calculateDefaultLayoutWithHorizontalCompactor } from "./displayLayoutUtilities";
 
 let capturedLayouts: any;
 let capturedBreakpoints: any;
@@ -42,6 +44,32 @@ vi.mock("react-grid-layout", async () => {
   };
 });
 
+let dispatchMock: any;
+
+vi.mock("react-redux", () => ({
+  useDispatch: () => {
+    dispatchMock = vi.fn();
+    return dispatchMock;
+  },
+  useSelector: (selector: any) =>
+    selector({
+      csState: {
+        files: {}
+      }
+    })
+}));
+
+vi.mock("./displayLayoutUtilities", async () => {
+  const actual = await vi.importActual<any>("./displayLayoutUtilities");
+
+  return {
+    ...actual,
+    calculateDefaultLayoutWithHorizontalCompactor: vi.fn(() => [
+      { i: "mock", x: 0, y: 0, w: 1, h: 1 }
+    ])
+  };
+});
+
 const MockWidget = ({ id }: { id: string }) => (
   <div data-testid={`widget-${id}`}>Widget {id}</div>
 );
@@ -52,12 +80,29 @@ beforeEach(() => {
   capturedCols = undefined;
   capturedDragEnabled = undefined;
   capturedResizeEnabled = undefined;
+  vi.clearAllMocks();
 });
 
 describe("DisplayResponsiveComponent – high‑value behaviors", () => {
   it("renders the responsive container and grid when mounted", () => {
+    const layouts = {
+      lg: [
+        { i: "a", x: 0, y: 0, w: 4, h: 3 },
+        { i: "b", x: 2, y: 0, w: 8, h: 4 }
+      ]
+    };
+
+    const responsiveBreakpoints = {
+      lg: 12
+    };
+
     render(
-      <DisplayResponsiveComponent id="display-1">
+      <DisplayResponsiveComponent
+        id="display-1"
+        fileId="file-1"
+        responsiveBreakpoints={responsiveBreakpoints}
+        responsiveLayouts={layouts}
+      >
         <MockWidget id="a" />
       </DisplayResponsiveComponent>
     );
@@ -74,7 +119,7 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
 
     expect(() =>
       render(
-        <DisplayResponsiveComponent id="display-1">
+        <DisplayResponsiveComponent id="display-1" fileId="file-1">
           <BrokenWidget />
         </DisplayResponsiveComponent>
       )
@@ -82,8 +127,24 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
   });
 
   it("computes default layouts when responsiveLayouts are not provided", () => {
+    const layouts = {
+      lg: [
+        { i: "a", x: 0, y: 0, w: 4, h: 3 },
+        { i: "b", x: 2, y: 0, w: 8, h: 4 }
+      ]
+    };
+
+    const responsiveBreakpoints = {
+      lg: 12
+    };
+
     render(
-      <DisplayResponsiveComponent id="display-1">
+      <DisplayResponsiveComponent
+        id="display-1"
+        fileId="file-1"
+        responsiveBreakpoints={responsiveBreakpoints}
+        responsiveLayouts={layouts}
+      >
         <MockWidget id="a" />
         <MockWidget id="b" />
       </DisplayResponsiveComponent>
@@ -94,8 +155,8 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
 
     expect(capturedLayouts.lg[0]).toMatchObject({
       i: "a",
-      w: 8,
-      h: 4
+      w: 4,
+      h: 3
     });
 
     expect(capturedLayouts.lg[1]).toMatchObject({
@@ -113,6 +174,7 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
     render(
       <DisplayResponsiveComponent
         id="display-1"
+        fileId="file-1"
         responsiveLayouts={customLayouts}
       >
         <MockWidget id="a" />
@@ -133,27 +195,44 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
   });
 
   it("merges responsiveBreakpoints and responsiveColumns with defaults", () => {
+    const layouts = {
+      md: [{ i: "a", x: 0, y: 0, w: 4, h: 3 }]
+    };
+
     render(
       <DisplayResponsiveComponent
         id="display-1"
+        fileId="file-1"
+        responsiveLayouts={layouts}
         responsiveBreakpoints={{ md: 700 }}
-        responsiveColumns={{ sm: 4 }}
+        responsiveColumns={{ md: 4 }}
       >
         <MockWidget id="a" />
       </DisplayResponsiveComponent>
     );
 
-    expect(capturedBreakpoints.lg).toBeDefined();
+    expect(capturedBreakpoints.lg).not.toBeDefined();
     expect(capturedBreakpoints.md).toBe(700);
 
-    expect(capturedCols.lg).toBeDefined();
-    expect(capturedCols.sm).toBe(4);
+    expect(capturedCols.lg).not.toBeDefined();
+    expect(capturedCols.md).toBe(4);
   });
 
   it("respects gridCellDragEnabled and gridCellResizeEnabled props", () => {
+    const layouts = {
+      lg: [{ i: "a", x: 0, y: 0, w: 4, h: 3 }]
+    };
+
+    const responsiveBreakpoints = {
+      lg: 12
+    };
+
     render(
       <DisplayResponsiveComponent
         id="display-1"
+        fileId="file-1"
+        responsiveLayouts={layouts}
+        responsiveBreakpoints={responsiveBreakpoints}
         gridCellDragEnabled={false}
         gridCellResizeEnabled={false}
       >
@@ -163,5 +242,125 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
 
     expect(capturedDragEnabled).toBe(false);
     expect(capturedResizeEnabled).toBe(false);
+  });
+
+  it("dispatches fallback layouts when responsiveLayouts keys are inconsistent", () => {
+    render(
+      <DisplayResponsiveComponent
+        id="display-1"
+        fileId="file-1"
+        responsiveLayouts={{
+          md: [{ i: "a", x: 0, y: 0, w: 2, h: 2 }]
+        }}
+        responsiveBreakpoints={{ lg: 1200 }}
+      >
+        <MockWidget id="a" />
+      </DisplayResponsiveComponent>
+    );
+
+    expect(dispatchMock).toHaveBeenCalledTimes(1);
+
+    const dispatchedArg = dispatchMock.mock.calls[0][0];
+
+    expect(dispatchedArg).toEqual(
+      fileDisplaySetResponsiveLayout(
+        expect.objectContaining({
+          displayId: "display-1",
+          file: "file-1",
+          responsiveLayouts: {
+            lg: expect.any(Array)
+          }
+        })
+      )
+    );
+  });
+
+  it("dispatches fallback columns when responsiveColumns keys are inconsistent", () => {
+    render(
+      <DisplayResponsiveComponent
+        id="display-1"
+        fileId="file-1"
+        responsiveLayouts={{
+          lg: [{ i: "a", x: 0, y: 0, w: 2, h: 2 }]
+        }}
+        responsiveBreakpoints={{ lg: 1200 }}
+        responsiveColumns={{ md: 4 }}
+      >
+        <MockWidget id="a" />
+      </DisplayResponsiveComponent>
+    );
+
+    const dispatchedArg = dispatchMock.mock.calls[0][0];
+
+    expect(dispatchedArg.payload.responsiveColumns.lg).toBeDefined();
+    expect(dispatchedArg.payload.responsiveColumns.md).toBeUndefined();
+  });
+
+  it("uses fallback layout generator when layouts not specified", () => {
+    render(
+      <DisplayResponsiveComponent id="display-1" fileId="file-1">
+        <MockWidget id="a" />
+      </DisplayResponsiveComponent>
+    );
+
+    expect(calculateDefaultLayoutWithHorizontalCompactor).toHaveBeenCalledTimes(
+      5
+    );
+
+    [1200, 800, 600, 400, 250].forEach(cols => {
+      expect(
+        calculateDefaultLayoutWithHorizontalCompactor
+      ).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            props: expect.objectContaining({ id: "a" })
+          })
+        ]),
+        cols,
+        Math.round((cols - 6) / (44 + 6)),
+        [6, 6],
+        15
+      );
+    });
+
+    const dispatchedArg = dispatchMock.mock.calls[0][0];
+    expect(dispatchedArg.payload.responsiveLayouts.lg).toEqual([
+      { i: "mock", x: 0, y: 0, w: 1, h: 1 }
+    ]);
+  });
+
+  it("uses fallback layout generator when configs are inconsistent", () => {
+    render(
+      <DisplayResponsiveComponent
+        id="display-1"
+        fileId="file-1"
+        responsiveLayouts={{ md: [] }}
+        responsiveBreakpoints={{ lg: 1150 }}
+        gridCellMargins={[3, 7]}
+        gridCellHeight={24}
+      >
+        <MockWidget id="a" />
+      </DisplayResponsiveComponent>
+    );
+
+    const expectedCols = Math.round((1150 - 3) / (44 + 3));
+
+    expect(calculateDefaultLayoutWithHorizontalCompactor).toHaveBeenCalled();
+    expect(calculateDefaultLayoutWithHorizontalCompactor).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({
+          props: expect.objectContaining({ id: "a" })
+        })
+      ]),
+      1150,
+      expectedCols,
+      [3, 7],
+      24
+    );
+
+    const dispatchedArg = dispatchMock.mock.calls[0][0];
+    expect(dispatchedArg.payload.responsiveLayouts.lg).toEqual([
+      { i: "mock", x: 0, y: 0, w: 1, h: 1 }
+    ]);
   });
 });

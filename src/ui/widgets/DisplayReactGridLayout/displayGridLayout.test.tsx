@@ -17,7 +17,7 @@ vi.mock("react-grid-layout", async () => {
 
   return {
     ...actual,
-
+    useGridLayout,
     ReactGridLayout: (props: any) => {
       lastProps = props;
       return <div data-testid="grid">{props.children}</div>;
@@ -29,13 +29,28 @@ vi.mock("react-grid-layout", async () => {
       containerRef: { current: null }
     }),
 
-    useGridLayout,
-
     verticalCompactor: vi.fn(),
 
-    __getLastGridProps: () => lastProps
+    __getLastGridProps: () => lastProps,
+
+    __resetGridProps: () => {
+      lastProps = null;
+    }
   };
 });
+
+vi.mock("react-redux", () => ({
+  useDispatch: () => vi.fn(),
+  useSelector: (selector: any) =>
+    selector({
+      csState: {
+        files: {}
+      },
+      fileCache: {
+        fileCache: {}
+      }
+    })
+}));
 
 vi.mock("../../hooks/useStyle", () => ({
   useStyle: () => ({
@@ -45,6 +60,28 @@ vi.mock("../../hooks/useStyle", () => ({
     other: {}
   })
 }));
+
+const mocks = vi.hoisted(() => ({
+  calculateDefaultLayout: vi.fn()
+}));
+
+vi.mock("./displayLayoutUtilities", () => ({
+  calculateDefaultLayout: mocks.calculateDefaultLayout,
+  toNumber: (v: any, fallback: number) => Number(v ?? fallback)
+}));
+
+vi.mock("../../../redux/csState", async () => {
+  const actual = await vi.importActual("../../../redux/csState");
+  return {
+    ...actual,
+    makeSelectWidgetPosition: () => {
+      return (_state: any, _fileId: string, _id: string) => ({
+        width: 1200
+      });
+    },
+    fileDisplaySetRGLayout: vi.fn()
+  };
+});
 
 vi.mock("../../hooks/useDebounce", () => ({
   useDebouncedValue: (v: any) => v
@@ -73,33 +110,49 @@ const renderGrid = (props: any = {}) =>
   );
 
 describe("DisplayGridLayoutComponent", () => {
-  it("renders the grid and children", () => {
-    renderGrid();
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    const rgl = (await import("react-grid-layout")) as any;
+    rgl.__resetGridProps();
+  });
 
+  it("renders the grid and children", () => {
+    renderGrid({ gridLayout: [{ i: "a", w: 8, h: 4 }] });
+
+    expect(mocks.calculateDefaultLayout).not.toHaveBeenCalled();
     expect(screen.getByTestId("grid")).toBeInTheDocument();
     expect(screen.getByTestId("child-a")).toBeInTheDocument();
     expect(screen.getByTestId("child-b")).toBeInTheDocument();
   });
 
   it("sets cursor to grab when gridCellDragEnabled=true (default)", () => {
-    renderGrid();
+    renderGrid({ gridLayout: [{ i: "a", w: 8, h: 4 }] });
 
     const wrapper = screen.getByTestId("child-a").parentElement;
     expect(wrapper?.style.cursor).toBe("grab");
   });
 
   it("sets cursor to default when gridCellDragEnabled=false", () => {
-    renderGrid({ gridCellDragEnabled: false });
+    renderGrid({
+      gridCellDragEnabled: false,
+      gridLayout: [{ i: "a", w: 8, h: 4 }]
+    });
 
     const wrapper = screen.getByTestId("child-a").parentElement;
     expect(wrapper?.style.cursor).toBe("default");
   });
 
-  it("passes correct config into useGridLayout", async () => {
+  it("passes correct cols into useGridLayout", async () => {
     const { useGridLayout } = await import("react-grid-layout");
     const spy = vi.spyOn({ useGridLayout }, "useGridLayout");
 
-    renderGrid({ gridLayoutColumns: 16 });
+    renderGrid({
+      gridLayoutColumns: 16,
+      gridLayout: [
+        { i: "a", w: 8, h: 4 },
+        { i: "b", w: 8, h: 4 }
+      ]
+    });
 
     expect(spy).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -112,10 +165,15 @@ describe("DisplayGridLayoutComponent", () => {
     );
   });
 
-  it("generates default layout when gridLayout is not provided", async () => {
+  it("generates layout when gridLayout is provided", async () => {
     const { useGridLayout } = await import("react-grid-layout");
 
-    renderGrid();
+    renderGrid({
+      gridLayout: [
+        { i: "a", w: 8, h: 4 },
+        { i: "b", w: 8, h: 4 }
+      ]
+    });
 
     expect(useGridLayout).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -129,7 +187,9 @@ describe("DisplayGridLayoutComponent", () => {
 
   it("updates cursor during drag lifecycle when enabled", async () => {
     const rgl = (await import("react-grid-layout")) as any;
-    renderGrid();
+    renderGrid({
+      gridLayout: [{ i: "widget-1", x: 0, y: 0, w: 2, h: 2 }]
+    });
 
     const gridProps = rgl.__getLastGridProps();
     const el = document.createElement("div");
@@ -143,7 +203,10 @@ describe("DisplayGridLayoutComponent", () => {
 
   it("does not change cursor during drag lifecycle when drag disabled", async () => {
     const rgl = (await import("react-grid-layout")) as any;
-    renderGrid({ gridCellDragEnabled: false });
+    renderGrid({
+      gridCellDragEnabled: false,
+      gridLayout: [{ i: "widget-1", x: 0, y: 0, w: 2, h: 2 }]
+    });
 
     const gridProps = rgl.__getLastGridProps();
     const el = document.createElement("div");
@@ -173,37 +236,73 @@ describe("DisplayGridLayoutComponent", () => {
   it("toggles resizeConfig.enabled based on gridCellResizeEnabled", async () => {
     const rgl = (await import("react-grid-layout")) as any;
 
-    renderGrid({ gridCellResizeEnabled: false });
+    renderGrid({
+      gridCellResizeEnabled: false,
+      gridLayout: [{ i: "widget-1", x: 0, y: 0, w: 2, h: 2 }]
+    });
 
     expect(rgl.__getLastGridProps().resizeConfig.enabled).toBe(false);
 
-    renderGrid({ gridCellResizeEnabled: true });
+    renderGrid({
+      gridCellResizeEnabled: true,
+      gridLayout: [{ i: "widget-1", x: 0, y: 0, w: 2, h: 2 }]
+    });
 
     expect(rgl.__getLastGridProps().resizeConfig.enabled).toBe(true);
   });
 
-  it("uses default and overridden gridConfig values", async () => {
+  it("Calls calculateDefaultLayout with default values, when layout is undefined", async () => {
+    renderGrid();
+
+    expect(mocks.calculateDefaultLayout).toHaveBeenCalledWith(
+      expect.any(Array),
+      1200,
+      17,
+      [6, 6],
+      15
+    );
+  });
+
+  it("Calls calculateDefaultLayout with props values, when layout is undefined", async () => {
+    renderGrid({
+      gridCellDragEnabled: false,
+      gridCellResizeEnabled: false,
+      gridCellHeight: 30,
+      gridCellMargins: [3, 3],
+      gridLayoutColumns: 50
+    });
+
+    expect(mocks.calculateDefaultLayout).toHaveBeenCalledWith(
+      expect.any(Array),
+      1200,
+      50,
+      [3, 3],
+      30
+    );
+  });
+
+  it("Does not render if gridLayout is empty and overridden gridConfig values", async () => {
     const rgl = (await import("react-grid-layout")) as any;
 
     // defaults
-    renderGrid();
-    let config = rgl.__getLastGridProps().gridConfig;
+    renderGrid({ gridLayout: [] });
+    let config = rgl.__getLastGridProps()?.gridConfig;
 
-    expect(config.cols).toBe(32);
-    expect(config.margin).toEqual([6, 6]);
-    expect(config.rowHeight).toBe(15);
+    expect(config).toBeUndefined();
 
     // overrides
     renderGrid({
       gridLayoutColumns: 20,
       gridCellMargins: [10, 12],
-      gridCellHeight: 25
+      gridCellHeight: 25,
+      gridLayout: [{ i: "widget-1", x: 0, y: 0, w: 2, h: 2 }]
     });
 
-    config = rgl.__getLastGridProps().gridConfig;
+    config = rgl.__getLastGridProps()?.gridConfig;
 
-    expect(config.cols).toBe(20);
-    expect(config.margin).toEqual([10, 12]);
-    expect(config.rowHeight).toBe(25);
+    expect(config).not.toBeUndefined();
+    expect(config?.cols).toBe(20);
+    expect(config?.margin).toEqual([10, 12]);
+    expect(config?.rowHeight).toBe(25);
   });
 });

@@ -37,7 +37,6 @@ const buildInitialCsState = (): CsState => ({
   subscriptions: {},
   valueCache: {},
   deviceCache: {},
-  fileCache: {},
   pvwsSettings: {}
 });
 

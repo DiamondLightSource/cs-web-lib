@@ -445,7 +445,8 @@ async function bobParseTabs(
   simpleParsers: ParserDict,
   complexParsers: ComplexParserDict,
   filepath?: string,
-  macros?: MacroMap
+  macros?: MacroMap,
+  fileId?: string
 ): Promise<any> {
   const tabs = await Promise.all(
     props.tab.map(async (tab: any) => {
@@ -467,7 +468,8 @@ async function bobParseTabs(
               false,
               OPI_PATCHERS(BOB_SIMPLE_PARSERS, BOB_COMPLEX_PARSERS),
               filepath,
-              macros
+              macros,
+              fileId
             );
           })
         );
@@ -698,7 +700,8 @@ export async function parseBob(
   xmlString: string,
   defaultProtocol: string,
   filepath: string,
-  macros?: MacroMap
+  macros?: MacroMap,
+  fileId?: string
 ): Promise<WidgetDescription> {
   // Convert it to a "compact format"
   const compactJSON = xml2js(xmlString, {
@@ -757,7 +760,8 @@ export async function parseBob(
         simpleParsers,
         complexParsers,
         filepath,
-        macros
+        macros,
+        fileId
       )
   };
 
@@ -770,7 +774,8 @@ export async function parseBob(
     false,
     OPI_PATCHERS(BOB_SIMPLE_PARSERS, BOB_COMPLEX_PARSERS),
     filepath,
-    macros
+    macros,
+    fileId
   );
 
   displayWidget.position = newRelativePosition(

@@ -23,7 +23,7 @@ const descriptionToComponentMock = vi
 
 describe("<DeviceComponent />", (): void => {
   test("adds dev:// to deviceName", (): void => {
-    render(<DeviceComponent deviceName={"fake Device"} />);
+    render(<DeviceComponent id={"deviceId1"} deviceName={"fake Device"} />);
     expect(useDeviceMock).toHaveBeenCalledWith("dev://fakeDevice");
     expect(descriptionToComponentMock).toHaveBeenCalled();
   });

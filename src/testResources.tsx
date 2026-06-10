@@ -19,6 +19,7 @@ import {
   initialNotificationsState,
   NotificationStack
 } from "./redux/slices/notificationsSlice";
+import { FileCache, FileCacheState } from "./redux/slices/fileCacheSlice";
 
 // Helper functions for dtypes.
 export function ddouble(
@@ -77,10 +78,12 @@ export const ACTIONS_EX_FIRST = {
 
 export const createRootStoreState = (
   csState?: CsState,
-  notifications?: NotificationStack
+  notifications?: NotificationStack,
+  fileCache?: FileCacheState
 ) => ({
   cs: csState ?? initialCsState,
-  notifications: notifications ?? initialNotificationsState
+  notifications: notifications ?? initialNotificationsState,
+  fileCache: fileCache ?? ({} as FileCache)
 });
 
 export const contextWrapperGenerator = (
@@ -107,7 +110,8 @@ export const contextWrapperGenerator = (
     reducer: rootReducer,
     preloadedState: {
       ...initialRootStoreState,
-      cs: { ...initialRootStoreState.cs, globalMacros: extendedGlobalMacros }
+      cs: { ...initialRootStoreState.cs, globalMacros: extendedGlobalMacros },
+      fileCache: { fileCache: {} }
     }
   });
 

@@ -4,7 +4,7 @@ import {
   refreshFile as refreshFileAction,
   selectFile,
   fileComparator
-} from "../../redux/csState";
+} from "../../redux/slices/fileCacheSlice";
 import { MacroMap } from "../../types/macros";
 import { errorWidget, WidgetDescription } from "../widgets/createComponent";
 import { useEffect } from "react";
@@ -19,6 +19,7 @@ import { newAbsolutePosition } from "../../types/position";
 const EMPTY_WIDGET: WidgetDescription = {
   type: "shape",
   id: "123",
+  fileId: "AShapeFilePath",
   position: newAbsolutePosition("0", "0", "0", "0")
 };
 
@@ -49,13 +50,24 @@ async function fetchAndConvert(
       // Convert the contents to widget description style object
       switch (fileExt) {
         case "bob":
-          description = await parseBob(contents, protocol, parentDir, macros);
+          description = await parseBob(
+            contents,
+            protocol,
+            parentDir,
+            macros,
+            filepath
+          );
           break;
         case "json":
-          description = await parseJson(contents, protocol, parentDir);
+          description = await parseJson(
+            contents,
+            protocol,
+            parentDir,
+            filepath
+          );
           break;
         case "opi":
-          description = await parseOpi(contents, protocol, parentDir);
+          description = await parseOpi(contents, protocol, parentDir, filepath);
           break;
       }
     }

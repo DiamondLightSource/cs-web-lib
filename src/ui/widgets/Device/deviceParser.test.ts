@@ -39,13 +39,13 @@ describe("wordSplitter", (): void => {
 
 describe("createLabel", (): void => {
   test("Value is placed into label", (): void => {
-    expect(createLabel("ValueHere").text).toBe("Value Here");
+    expect(createLabel("ValueHere", "aFileId").text).toBe("Value Here");
   });
 });
 
 describe("createReadback", (): void => {
   test("pv is placed into readback", (): void => {
-    expect(createReadback("PvName").pvName).toBe("PvName");
+    expect(createReadback("PvName", "aFileId").pvName).toBe("PvName");
   });
 });
 
@@ -131,14 +131,14 @@ describe("parseResponseIntoObject", (): void => {
 
 describe("parseResponse", (): void => {
   test("empty response gives empty groupbox", (): void => {
-    const component = parseResponse({} as Response);
+    const component = parseResponse({} as Response, "aFileId");
     expect(component.type).toBe("groupbox");
     expect(component.name).toBe("Device");
     expect(component.children[0].children.length).toBe(0);
   });
 
   test("response is parsed", (): void => {
-    const component = parseResponse(fakeResponseJson);
+    const component = parseResponse(fakeResponseJson, "aFileId");
     expect(component.name).toMatch("M1 Yaw");
 
     const children = component.children[0].children;
