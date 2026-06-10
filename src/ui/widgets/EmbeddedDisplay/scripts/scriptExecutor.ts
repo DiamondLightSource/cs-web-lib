@@ -1,5 +1,4 @@
 import log from "loglevel";
-import { v4 as uuidv4 } from "uuid";
 import { ScriptResponse } from "./scriptTypes";
 import { enqueueScript, executeAllScriptsInQueue } from "./scriptQueue";
 
@@ -172,7 +171,7 @@ const postScriptToIframe = (
   }
 
   return new Promise<ScriptResponse>((resolve, reject) => {
-    const id = uuidv4();
+    const id = crypto.randomUUID();
     let hasTimedOut = false;
 
     const cleanup = () => {
