@@ -54,7 +54,8 @@ export const MenuButtonComponent = (
 ): JSX.Element => {
   const style = useStyle(
     { ...props, actions: props.actions as WidgetActions },
-    widgetName
+    widgetName,
+    props.class
   );
   const files = useContext(FileContext);
   const {

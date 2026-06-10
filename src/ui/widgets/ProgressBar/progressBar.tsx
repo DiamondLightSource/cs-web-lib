@@ -38,7 +38,8 @@ export const ProgressBarComponent = (
 ): JSX.Element => {
   const style = useStyle(
     { ...props, customColors: { fillColor: props?.fillColor } },
-    widgetName
+    widgetName,
+    props.class
   );
   const {
     pvData,

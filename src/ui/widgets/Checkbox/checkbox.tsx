@@ -67,7 +67,7 @@ export type CheckboxComponentProps = InferWidgetProps<typeof CheckboxProps> &
 export const CheckboxComponent = (
   props: CheckboxComponentProps
 ): JSX.Element => {
-  const style = useStyle(props, widgetName);
+  const style = useStyle(props, widgetName, props.class);
   const { enabled = true, label = "Label", pvData } = props;
   const {
     value,

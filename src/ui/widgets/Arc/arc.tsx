@@ -30,7 +30,7 @@ const ArcProps = {
 };
 
 export const ArcComponent = (
-  props: InferWidgetProps<typeof ArcProps>
+  props: InferWidgetProps<typeof ArcProps> & { class?: string }
 ): JSX.Element => {
   // CSS uses "Fill", Phoebus uses "transparent"
   const transparent =
@@ -43,7 +43,8 @@ export const ArcComponent = (
       foregroundColor: props?.lineColor ?? props?.foregroundColor,
       transparent
     },
-    widgetName
+    widgetName,
+    props.class
   );
 
   const { startAngle = 0, totalAngle = 90, lineWidth = 3 } = props;

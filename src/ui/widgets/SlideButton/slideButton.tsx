@@ -45,7 +45,8 @@ export const SlideButtonComponent = (
       ...props,
       customColors: { onColor: props?.onColor, offColor: props?.offColor }
     },
-    widgetName
+    widgetName,
+    props.class
   );
 
   const {

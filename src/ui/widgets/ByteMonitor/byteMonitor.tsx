@@ -62,7 +62,8 @@ export const ByteMonitorComponent = (
         borderColor: props?.ledBorderColor
       }
     },
-    widgetName
+    widgetName,
+    props.class
   );
 
   const { value } = getPvValueAndName(pvData);

@@ -88,7 +88,7 @@ export type ReadbackComponentProps = InferWidgetProps<typeof ReadbackProps> &
 export const ReadbackComponent = (
   props: ReadbackComponentProps
 ): JSX.Element => {
-  const style = useStyle(props, widgetName);
+  const style = useStyle(props, widgetName, props.class);
   const {
     enabled = true,
     pvData,

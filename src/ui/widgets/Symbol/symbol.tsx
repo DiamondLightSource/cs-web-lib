@@ -95,7 +95,8 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
       transparent: props?.transparent ?? true,
       actions: props?.actions as WidgetActions | undefined
     },
-    widgetName
+    widgetName,
+    props.class
   );
 
   const { value } = getPvValueAndName(pvData);

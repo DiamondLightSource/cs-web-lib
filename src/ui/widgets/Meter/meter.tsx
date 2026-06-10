@@ -57,7 +57,8 @@ export const MeterComponent = (
 
   const style = useStyle(
     { ...props, customColors: { needleColor: props?.needleColor } },
-    widgetName
+    widgetName,
+    props.class
   );
   const { value } = getPvValueAndName(pvData);
 

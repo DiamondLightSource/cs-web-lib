@@ -81,7 +81,7 @@ export interface TimeSeriesPoint {
 }
 
 export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
-  const style = useStyle(props, widgetName);
+  const style = useStyle(props, widgetName, props.class);
 
   const {
     traces,

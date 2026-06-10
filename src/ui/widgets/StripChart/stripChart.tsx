@@ -73,7 +73,7 @@ export interface TimeSeriesPoint {
 export const StripChartComponent = (
   props: StripChartComponentProps
 ): JSX.Element => {
-  const style = useStyle(props, widgetName);
+  const style = useStyle(props, widgetName, props.class);
 
   const {
     traces,

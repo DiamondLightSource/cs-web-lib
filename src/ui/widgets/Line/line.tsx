@@ -49,7 +49,7 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
     lineStyle = 0
   } = props;
 
-  const style = useStyle(props, widgetName);
+  const style = useStyle(props, widgetName, props.class);
 
   const color = transparent
     ? "transparent"

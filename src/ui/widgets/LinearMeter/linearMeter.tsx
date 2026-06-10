@@ -79,7 +79,8 @@ export const LinearMeterComponent = (
         knobColor: props?.colors?.knobColor as Color | undefined
       }
     },
-    widgetName
+    widgetName,
+    props.class
   );
 
   const {

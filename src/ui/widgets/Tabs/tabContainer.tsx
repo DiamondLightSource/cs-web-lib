@@ -46,9 +46,10 @@ export const TabContainerComponent = (
   props: InferWidgetProps<typeof TabContainerProps> & {
     fileId: string;
     id: string;
+    class?: string;
   }
 ): JSX.Element => {
-  const { colors } = useStyle(props, widgetName);
+  const { colors } = useStyle(props, widgetName, props.class);
   const {
     tabHeight = 30,
     width = WIDGET_DEFAULT_SIZES["tabs"][0],

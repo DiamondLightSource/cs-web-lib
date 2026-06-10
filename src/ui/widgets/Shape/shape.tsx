@@ -32,7 +32,7 @@ const ShapeProps = {
 };
 
 export const ShapeComponent = (
-  props: InferWidgetProps<typeof ShapeProps>
+  props: InferWidgetProps<typeof ShapeProps> & { class?: string }
 ): JSX.Element => {
   const { visible = true } = props;
 
@@ -47,7 +47,8 @@ export const ShapeComponent = (
       },
       visible: visible
     },
-    widgetName
+    widgetName,
+    props.class
   );
 
   // Style overrides - Calculate radii of corners
