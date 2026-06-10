@@ -48,7 +48,11 @@ export const ThermometerComponent = (
   props: InferWidgetProps<typeof ThermometerComponentProps> & PVComponent
 ): JSX.Element => {
   const svgRef = useRef<SVGSVGElement>(null);
-  const style = useStyle({ foregroundColor: props.fillColor }, widgetName);
+  const style = useStyle(
+    { foregroundColor: props.fillColor },
+    widgetName,
+    props.class
+  );
 
   const { pvData, limitsFromPv = false } = props;
   const { value } = getPvValueAndName(pvData);
