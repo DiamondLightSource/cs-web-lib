@@ -1,6 +1,6 @@
 /* A component to load files directly. */
 
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import log from "loglevel";
 
 import { errorWidget, widgetDescriptionToComponent } from "../createComponent";
@@ -27,7 +27,7 @@ import { useId } from "react-id-generator";
 import { getOptionalValue, trimFromString } from "../utils";
 import { Theme, ThemeProvider } from "@mui/material";
 import { phoebusTheme } from "../../../phoebusTheme";
-import { useFile, File } from "../../hooks/useFile";
+import { useFile, File, EMPTY_WIDGET } from "../../hooks/useFile";
 import { recursiveResolve } from "../../hooks/useMacros";
 import { useRules } from "../../hooks/useRules";
 
@@ -41,6 +41,7 @@ const RESIZE_STRINGS = [
 
 export interface EmbeddedDisplayPropsExtra {
   theme?: Theme;
+  fileDetailsCallback?: (fileId: string, id: string) => void;
 }
 
 const EmbeddedDisplayProps = {
@@ -90,6 +91,13 @@ export const EmbeddedDisplay = (
     resolvedProps.file as File,
     embeddedDisplayMacroContext.macros
   );
+
+  const fileDetailsCallback = props?.fileDetailsCallback;
+  useEffect(() => {
+    if (fileDetailsCallback && description !== EMPTY_WIDGET) {
+      fileDetailsCallback(description?.fileId, description?.id);
+    }
+  }, [fileDetailsCallback, description]);
 
   let resize = resolvedProps.resize || "scroll-content";
   // If number, convert back to string

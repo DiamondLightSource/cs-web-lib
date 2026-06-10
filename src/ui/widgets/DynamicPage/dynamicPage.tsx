@@ -93,6 +93,7 @@ export const DynamicPageComponent = (
             mjpgEndpoints={[props?.mjpgEndpoint, defaultMjpgEndpoint].filter(
               x => x != null
             )}
+            fileDetailsCallback={props?.fileDetailsCallback}
           />
           <div
             style={{
@@ -142,6 +143,7 @@ export const DynamicPageComponent = (
           mjpgEndpoints={[props?.mjpgEndpoint, defaultMjpgEndpoint].filter(
             x => x != null
           )}
+          fileDetailsCallback={props?.fileDetailsCallback}
         />
       </ExitFileContext.Provider>
     );

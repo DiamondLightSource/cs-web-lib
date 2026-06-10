@@ -16,10 +16,10 @@ import { parseOpi } from "../widgets/EmbeddedDisplay/opiParser";
 import { Store } from "redux";
 import { newAbsolutePosition } from "../../types/position";
 
-const EMPTY_WIDGET: WidgetDescription = {
+export const EMPTY_WIDGET: WidgetDescription = {
   type: "shape",
-  id: "123",
-  fileId: "AShapeFilePath",
+  id: "EMPTY_WIDGET",
+  fileId: "EMPTY_WIDGET",
   position: newAbsolutePosition("0", "0", "0", "0")
 };
 
