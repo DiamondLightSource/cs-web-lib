@@ -20,6 +20,10 @@ const mockTheme = {
       main: "#654321",
       contrastText: "#000000",
       light: "#fedcba"
+    },
+    MY_CLASSwidgetA: {
+      main: "#a52590",
+      contrastText: "#dd1c1c"
     }
   },
   borders: {
@@ -116,6 +120,13 @@ describe("useStyle", () => {
     expect(result.current.customColors).toEqual({
       light: "#ff00ff"
     });
+  });
+
+  it("selects the class theme over default widget theme if class exists", () => {
+    const { result } = renderHook(() => useStyle({}, "widgetA", "MY_CLASS"));
+
+    expect(result.current.colors.backgroundColor).toEqual("#a52590");
+    expect(result.current.colors.color).toEqual("#dd1c1c");
   });
 
   it("uses provided font when fontToCss returns a value", () => {

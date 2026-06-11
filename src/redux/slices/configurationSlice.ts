@@ -5,7 +5,7 @@ import { CsWebLibConfig } from "../csWebLibConfig";
  * This reducer is intended to be initialized via `preloadedState`.
  * The initialState here exists only as a type-safe fallback.
  */
-const initialState: CsWebLibConfig = {
+export const initialState: CsWebLibConfig = {
   storeMode: "DEV",
   PVWS_SOCKET: "",
   PVWS_SSL: true,
