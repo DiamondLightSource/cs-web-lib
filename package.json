@@ -28,6 +28,7 @@
     "react-grid-layout": "^2.2.3",
     "react-plotly.js": "^2.6.0",
     "react-toastify": "^11.0.5",
+    "safe-stable-stringify": "^2.5.0",
     "utf-8-validate": "^5.0.10"
   },
   "devDependencies": {

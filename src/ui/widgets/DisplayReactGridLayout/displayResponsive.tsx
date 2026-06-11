@@ -48,8 +48,8 @@ import {
   sameKeys
 } from "./displayLayoutUtilities";
 import {
-  fileDisplaySetResponsiveLayout,
-  fileDisplayUpdateResponsiveLayout
+  displayInstanceSetResponsiveLayout,
+  displayInstanceUpdateResponsiveLayout
 } from "../../../redux/slices/fileCacheSlice";
 import log from "loglevel";
 import { Dispatch } from "@reduxjs/toolkit";
@@ -84,6 +84,7 @@ const DisplayResponsiveProps = {
 type propsType = InferWidgetProps<typeof DisplayResponsiveProps> & {
   id: string;
   fileId: string;
+  embeddedDisplayUuid: string;
 };
 
 // Display widget that uses react-grid-layout to provide a responsive drag and drop container
@@ -200,7 +201,7 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
     () =>
       calculateLayout(
         props.id,
-        props.fileId,
+        props.embeddedDisplayUuid,
         props.responsiveLayouts as ResponsiveLayouts<Breakpoint>,
         areBreakpointsConsistent,
         breakpoints,
@@ -214,7 +215,7 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
       ),
     [
       dispatch,
-      props.fileId,
+      props.embeddedDisplayUuid,
       props.id,
       props.responsiveLayouts,
       childrenArray,
@@ -274,8 +275,8 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
             onLayoutChange={(layout, layouts) => {
               if (!isInteractingRef.current && shouldCommitRef.current) {
                 dispatch(
-                  fileDisplayUpdateResponsiveLayout({
-                    file: props.fileId,
+                  displayInstanceUpdateResponsiveLayout({
+                    embeddedDisplayUuid: props.embeddedDisplayUuid,
                     displayId: props.id,
                     responsiveLayouts: layouts
                   })
@@ -337,7 +338,7 @@ registerWidget(DisplayResponsive, DisplayResponsiveWidgetProps, widgetName);
 
 const calculateLayout = (
   id: string,
-  fileId: string,
+  embeddedDisplayUuid: string,
   responsiveLayouts: ResponsiveLayouts<Breakpoint>,
   areBreakpointsConsistent: boolean,
   breakpoints: Breakpoints<string>,
@@ -373,8 +374,8 @@ const calculateLayout = (
   );
 
   dispatch(
-    fileDisplaySetResponsiveLayout({
-      file: fileId,
+    displayInstanceSetResponsiveLayout({
+      embeddedDisplayUuid,
       displayId: id,
       responsiveLayouts: computedResponsiveLayouts,
       responsiveColumns: columns,

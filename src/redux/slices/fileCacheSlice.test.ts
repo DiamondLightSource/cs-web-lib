@@ -6,8 +6,8 @@ import fileCacheReducer, {
   FileCacheState,
   fileChanged,
   fileComparator,
-  fileDisplaySetGridLayout,
-  fileDisplaySetResponsiveLayout,
+  displayInstanceSetGridLayout,
+  displayInstanceSetResponsiveLayout,
   makeSelectWidgetPosition,
   refreshFile,
   selectFile
@@ -46,7 +46,7 @@ describe("fileDisplaySetResponsiveLayout", () => {
   };
 
   test("applies responsive layout and updates child positions", () => {
-    const action = fileDisplaySetResponsiveLayout({
+    const action = displayInstanceSetResponsiveLayout({
       file: "file.bob",
       displayId: "display1",
       responsiveLayouts: { lg: [] },
@@ -84,7 +84,7 @@ describe("fileDisplaySetResponsiveLayout", () => {
       }
     };
 
-    const action = fileDisplaySetResponsiveLayout({
+    const action = displayInstanceSetResponsiveLayout({
       file: "file.bob",
       displayId: "display1",
       responsiveLayouts: {},
@@ -123,7 +123,7 @@ describe("fileDisplaySetGridLayout", () => {
   };
 
   test("applies grid layout properties and normalises child positions", () => {
-    const action = fileDisplaySetGridLayout({
+    const action = displayInstanceSetGridLayout({
       file: "file.bob",
       displayId: "display1",
       gridLayout: [{ i: "child1", x: 0, y: 0, w: 2, h: 2 }],
@@ -150,7 +150,7 @@ describe("fileDisplaySetGridLayout", () => {
   });
 
   test("does nothing if display not found", () => {
-    const action = fileDisplaySetGridLayout({
+    const action = displayInstanceSetGridLayout({
       file: "file.bob",
       displayId: "missing",
       gridLayout: [],
@@ -176,7 +176,7 @@ describe("fileDisplaySetGridLayout", () => {
       }
     };
 
-    const action = fileDisplaySetGridLayout({
+    const action = displayInstanceSetGridLayout({
       file: "file.bob",
       displayId: "display1",
       gridLayout: [],

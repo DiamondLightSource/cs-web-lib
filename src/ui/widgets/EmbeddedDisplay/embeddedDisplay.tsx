@@ -41,7 +41,7 @@ const RESIZE_STRINGS = [
 
 export interface EmbeddedDisplayPropsExtra {
   theme?: Theme;
-  fileDetailsCallback?: (fileId: string, id: string) => void;
+  widgetIdsCallback?: (embeddedDisplayUuid: string, id: string) => void;
 }
 
 const EmbeddedDisplayProps = {
@@ -87,17 +87,22 @@ export const EmbeddedDisplay = (
   );
 
   const resolvedProps = useRules(macroProps);
-  const description = useFile(
+  const [description, embeddedDisplayUuid] = useFile(
     resolvedProps.file as File,
     embeddedDisplayMacroContext.macros
   );
 
-  const fileDetailsCallback = props?.fileDetailsCallback;
+  const widgetIdsCallback = props?.widgetIdsCallback;
   useEffect(() => {
-    if (fileDetailsCallback && description !== EMPTY_WIDGET) {
-      fileDetailsCallback(description?.fileId, description?.id);
+    if (widgetIdsCallback && description.fileId !== EMPTY_WIDGET.fileId) {
+      widgetIdsCallback(embeddedDisplayUuid, description.id);
     }
-  }, [fileDetailsCallback, description]);
+  }, [
+    widgetIdsCallback,
+    embeddedDisplayUuid,
+    description.fileId,
+    description.id
+  ]);
 
   let resize = resolvedProps.resize || "scroll-content";
   // If number, convert back to string
@@ -260,7 +265,8 @@ export const EmbeddedDisplay = (
     component = widgetDescriptionToComponent(
       {
         type: "display",
-        id: `display_${crypto.randomUUID()}`,
+        id: `display_${embeddedDisplayUuid}`,
+        embeddedDisplayUuid: embeddedDisplayUuid,
         fileId: props?.file?.path,
         position: resolvedProps.position,
         backgroundColor:

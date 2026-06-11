@@ -40,7 +40,7 @@ import {
 import { useStyle } from "../../hooks/useStyle";
 import { calculateDefaultLayout, toNumber } from "./displayLayoutUtilities";
 import {
-  fileDisplaySetGridLayout,
+  displayInstanceSetGridLayout,
   makeSelectWidgetPosition
 } from "../../../redux/slices/fileCacheSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -76,6 +76,7 @@ export const DisplayGridLayoutComponent = (
   props: InferWidgetProps<typeof DisplayGridLayoutProps> & {
     id: string;
     fileId: string;
+    embeddedDisplayUuid: string;
   }
 ): JSX.Element => {
   // Macros specific to this display. Children of this component
@@ -167,9 +168,9 @@ export const DisplayGridLayoutComponent = (
       cellHeight
     );
     dispatch(
-      fileDisplaySetGridLayout({
-        file: props.fileId,
-        displayId: props.id,
+      displayInstanceSetGridLayout({
+        embeddedDisplayUuid: props.embeddedDisplayUuid,
+        gridDisplayId: props.id,
         gridLayout: calculatedLayout,
         gridLayoutColumns: columns,
         gridCellMargins: cellMargins,
@@ -180,7 +181,7 @@ export const DisplayGridLayoutComponent = (
     );
   }, [
     dispatch,
-    props.fileId,
+    props.embeddedDisplayUuid,
     props.id,
     props.gridLayout,
     childrenArray,

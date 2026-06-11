@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 import { DisplayResponsiveComponent } from "./displayResponsive";
-import { fileDisplaySetResponsiveLayout } from "../../../redux/slices/fileCacheSlice";
+import { displayInstanceSetResponsiveLayout } from "../../../redux/slices/fileCacheSlice";
 import { calculateDefaultLayoutWithHorizontalCompactor } from "./displayLayoutUtilities";
 
 let capturedLayouts: any;
@@ -263,7 +263,7 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
     const dispatchedArg = dispatchMock.mock.calls[0][0];
 
     expect(dispatchedArg).toEqual(
-      fileDisplaySetResponsiveLayout(
+      displayInstanceSetResponsiveLayout(
         expect.objectContaining({
           displayId: "display-1",
           file: "file-1",

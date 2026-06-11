@@ -3,7 +3,9 @@ import {
   fileChanged,
   refreshFile as refreshFileAction,
   selectFile,
-  fileComparator
+  fileComparator,
+  selectDisplayInstanceByFileAndMacros,
+  createDisplayInstanceFromFile
 } from "../../redux/slices/fileCacheSlice";
 import { MacroMap } from "../../types/macros";
 import { errorWidget, WidgetDescription } from "../widgets/createComponent";
@@ -16,6 +18,7 @@ import { parseOpi } from "../widgets/EmbeddedDisplay/opiParser";
 import { Store } from "redux";
 import { newAbsolutePosition } from "../../types/position";
 
+export const EMPTY_WIDGET_ID = "EMPTY_WIDGET";
 export const EMPTY_WIDGET: WidgetDescription = {
   type: "shape",
   id: "EMPTY_WIDGET",
@@ -80,10 +83,17 @@ async function fetchAndConvert(
   }
 }
 
-export function useFile(file: File, macros?: MacroMap): WidgetDescription {
+export function useFile(
+  file: File,
+  macros?: MacroMap
+): [WidgetDescription, string] {
   const dispatch = useDispatch();
 
-  const contents = useSelector(
+  const displayInstance = useSelector(state =>
+    selectDisplayInstanceByFileAndMacros(state, file.path, macros ?? {})
+  );
+
+  const fileContents = useSelector(
     (state): any => selectFile(state, file.path),
     fileComparator
   );
@@ -99,21 +109,42 @@ export function useFile(file: File, macros?: MacroMap): WidgetDescription {
       // Populate the file cache.
       if (isMounted) {
         dispatch(fileChanged({ file: file.path, contents: widgetDescription }));
+        dispatch(
+          createDisplayInstanceFromFile({
+            file: file.path,
+            macros: macros ?? {}
+          })
+        );
       }
     };
 
-    if (contents == null) {
+    if (fileContents == null && displayInstance == null) {
       fetchData();
+    } else if (displayInstance == null) {
+      dispatch(
+        createDisplayInstanceFromFile({ file: file.path, macros: macros ?? {} })
+      );
     }
+
     let isMounted = true;
 
     // Tidy up in case component is unmounted
     return () => {
       isMounted = false;
     };
-  }, [file.path, file.defaultProtocol, contents, dispatch, macros]);
+  }, [
+    file.path,
+    file.defaultProtocol,
+    fileContents,
+    dispatch,
+    macros,
+    displayInstance
+  ]);
 
-  return contents || EMPTY_WIDGET;
+  return [
+    displayInstance?.description || EMPTY_WIDGET,
+    displayInstance?.uuid ?? "EMPTY_WIDGET"
+  ];
 }
 
 export function refreshFile(store: Store, file: string): void {

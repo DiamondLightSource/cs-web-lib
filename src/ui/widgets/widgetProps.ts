@@ -10,7 +10,8 @@ import {
   PvTypePropOpt,
   PVMetadataType,
   ScriptsPropOpt,
-  StringArrayPropOpt
+  StringArrayPropOpt,
+  FuncPropOpt
 } from "./propTypes";
 
 import { GenericProp } from "../../types/props";
@@ -20,13 +21,15 @@ import { File } from "../hooks/useFile";
 // Internal prop types object for properties which are not in a standard widget
 const BasicPropsType = {
   id: StringPropOpt,
+  embeddedDisplayUuid: StringPropOpt,
   rules: RulesPropOpt,
   scripts: ScriptsPropOpt,
   actions: ActionsPropType,
   tooltip: StringPropOpt,
   border: BorderPropOpt,
   visible: BoolPropOpt,
-  mjpgEndpoints: StringArrayPropOpt
+  mjpgEndpoints: StringArrayPropOpt,
+  widgetIdsCallback: FuncPropOpt
 };
 
 const PositionPropsType = {

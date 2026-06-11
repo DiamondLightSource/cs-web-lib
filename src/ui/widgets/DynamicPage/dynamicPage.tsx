@@ -93,7 +93,7 @@ export const DynamicPageComponent = (
             mjpgEndpoints={[props?.mjpgEndpoint, defaultMjpgEndpoint].filter(
               x => x != null
             )}
-            fileDetailsCallback={props?.fileDetailsCallback}
+            widgetIdsCallback={props?.widgetIdsCallback}
           />
           <div
             style={{
@@ -143,7 +143,7 @@ export const DynamicPageComponent = (
           mjpgEndpoints={[props?.mjpgEndpoint, defaultMjpgEndpoint].filter(
             x => x != null
           )}
-          fileDetailsCallback={props?.fileDetailsCallback}
+          widgetIdsCallback={props?.widgetIdsCallback}
         />
       </ExitFileContext.Provider>
     );
@@ -156,7 +156,8 @@ const DynamicPageWidgetProps = {
 };
 
 export const DynamicPageWidget = (
-  props: InferWidgetProps<typeof DynamicPageWidgetProps>
+  props: InferWidgetProps<typeof DynamicPageWidgetProps> &
+    EmbeddedDisplayPropsExtra
 ): JSX.Element => <Widget baseWidget={DynamicPageComponent} {...props} />;
 
 registerWidget(DynamicPageWidget, DynamicPageWidgetProps, widgetName);
