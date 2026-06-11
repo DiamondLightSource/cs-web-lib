@@ -45,7 +45,7 @@ describe("useClassFile", (): void => {
       <ClassFileTester />,
       {},
       {},
-      createRootStoreState(getFileState(), undefined, initialState),
+      createRootStoreState(getFileState(), undefined, undefined, initialState),
       {}
     );
 
@@ -85,7 +85,7 @@ describe("useClassFile", (): void => {
         <ClassFileTester />,
         {},
         {},
-        createRootStoreState(getFileState(), undefined, {
+        createRootStoreState(getFileState(), undefined, undefined, {
           classFile: "myclass.bcf",
           ...initialState
         }),

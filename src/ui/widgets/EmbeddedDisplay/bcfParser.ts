@@ -1,6 +1,5 @@
 import { xml2js, ElementCompact } from "xml-js";
 import { PV, newRelativePosition } from "../../../types";
-import { MacroMap } from "../../../types/macros";
 import { WidgetDescription } from "../createComponent";
 import {
   BOB_COMPLEX_PARSERS,
@@ -17,7 +16,7 @@ export async function parseBcf(
   xmlString: string,
   defaultProtocol: string,
   filepath: string,
-  macros?: MacroMap
+  fileId?: string
 ): Promise<WidgetDescription> {
   // Convert it to a "compact format"
   const compactJSON = xml2js(xmlString, {
@@ -65,7 +64,8 @@ export async function parseBcf(
         simpleParsers,
         complexParsers,
         filepath,
-        macros
+        {},
+        fileId
       )
   };
 
@@ -78,7 +78,8 @@ export async function parseBcf(
     false,
     OPI_PATCHERS(BOB_SIMPLE_PARSERS, BOB_COMPLEX_PARSERS),
     filepath,
-    macros,
+    {},
+    fileId,
     true
   );
 

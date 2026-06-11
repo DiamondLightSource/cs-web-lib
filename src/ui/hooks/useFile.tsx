@@ -60,7 +60,7 @@ export async function fetchAndConvert(
           );
           break;
         case "bcf":
-          description = await parseBcf(contents, protocol, parentDir, macros);
+          description = await parseBcf(contents, protocol, parentDir, filepath);
           break;
         case "json":
           description = await parseJson(
