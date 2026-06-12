@@ -13,6 +13,7 @@ import { findWidgetById } from "./storeUtils";
 import { Position } from "../../types";
 import { MacroMap } from "../../types/macros";
 import stringify from "safe-stable-stringify";
+import { Breakpoints, Layout, ResponsiveLayouts } from "react-grid-layout";
 
 export interface FileCache {
   [fileId: string]: WidgetDescription;
@@ -23,7 +24,7 @@ export interface DisplayInstance {
   fileId: string;
   macros: MacroMap;
   hash: string;
-  uuid: string; // universally unique id
+  uuid: string; // universally unique id for a display
 }
 
 export interface DisplayInstanceCache {
@@ -75,7 +76,19 @@ const fileCacheSlice = createSlice({
       });
     },
 
-    displayInstanceSetGridLayout(state, action) {
+    displayInstanceSetGridLayout(
+      state,
+      action: PayloadAction<{
+        embeddedDisplayUuid: string;
+        gridDisplayId: string;
+        gridLayout: Layout;
+        gridLayoutColumns: number;
+        gridCellMargins: [number, number];
+        gridCellHeight: number;
+        gridCellDragEnabled: boolean;
+        gridCellResizeEnabled: boolean;
+      }>
+    ) {
       const {
         embeddedDisplayUuid,
         gridDisplayId,
@@ -87,7 +100,11 @@ const fileCacheSlice = createSlice({
         gridCellResizeEnabled
       } = action.payload;
 
-      const displayInstance = state.displayInstanceCache[embeddedDisplayUuid];
+      const displayInstance = state.displayInstanceCache?.[embeddedDisplayUuid];
+      if (!displayInstance) {
+        return;
+      }
+
       const display = findWidgetById(
         [displayInstance.description],
         gridDisplayId
@@ -115,7 +132,20 @@ const fileCacheSlice = createSlice({
       });
     },
 
-    displayInstanceSetResponsiveLayout(state, action) {
+    displayInstanceSetResponsiveLayout(
+      state,
+      action: PayloadAction<{
+        embeddedDisplayUuid: string;
+        displayId: string;
+        responsiveLayouts: ResponsiveLayouts<string>;
+        responsiveColumns: Breakpoints<string>;
+        responsiveBreakpoints: Breakpoints<string>;
+        gridCellMargins: [number, number];
+        gridCellHeight: number;
+        gridCellDragEnabled: boolean;
+        gridCellResizeEnabled: boolean;
+      }>
+    ) {
       const {
         embeddedDisplayUuid,
         displayId,
@@ -128,7 +158,9 @@ const fileCacheSlice = createSlice({
         gridCellResizeEnabled
       } = action.payload;
 
-      const displayInstance = state.displayInstanceCache[embeddedDisplayUuid];
+      const displayInstance = state.displayInstanceCache?.[embeddedDisplayUuid];
+      if (!displayInstance) return;
+
       const display = findWidgetById([displayInstance.description], displayId);
 
       if (!display || display.type !== "displayResponsive") return;
@@ -158,7 +190,14 @@ const fileCacheSlice = createSlice({
       });
     },
 
-    displayInstanceUpdateResponsiveLayout(state, action) {
+    displayInstanceUpdateResponsiveLayout(
+      state,
+      action: PayloadAction<{
+        embeddedDisplayUuid: string;
+        displayId: string;
+        responsiveLayouts: ResponsiveLayouts<string>;
+      }>
+    ) {
       const { embeddedDisplayUuid, displayId, responsiveLayouts } =
         action.payload;
 
@@ -171,12 +210,12 @@ const fileCacheSlice = createSlice({
 
     createDisplayInstanceFromFile(state, action) {
       const { file, macros } = action.payload;
-      const fileDescription = state.fileCache[file];
+      const fileDescription = state.fileCache?.[file];
 
       const hash = `${file}::${stringify(macros)}`;
 
       if (
-        Object.values(state.displayInstanceCache).some(
+        Object.values(state?.displayInstanceCache ?? {}).some(
           inst => inst.hash === hash
         )
       ) {
@@ -189,15 +228,17 @@ const fileCacheSlice = createSlice({
         embeddedDisplayUuid: uuid
       });
 
-      state.displayInstanceCache[uuid] = {
-        description: description,
-        fileId: file,
-        macros: macros,
-        uuid,
-        hash
-      };
+      if (state.displayInstanceCache) {
+        state.displayInstanceCache[uuid] = {
+          description: description,
+          fileId: file,
+          macros: macros,
+          uuid,
+          hash
+        };
 
-      state.displayInstanceIndex[hash] = uuid;
+        state.displayInstanceIndex[hash] = uuid;
+      }
     }
   },
   selectors: {
@@ -231,7 +272,7 @@ export const selectFile = createSelector(
 
 export const selectDisplayInstance = createSelector(
   [selectDisplayInstanceCache, (_state, uuid: string) => uuid],
-  (displayInstanceCache, uuid) => displayInstanceCache[uuid]
+  (displayInstanceCache, uuid) => displayInstanceCache?.[uuid]
 );
 
 export const selectDisplayInstanceByFileAndMacros = createSelector(
@@ -243,8 +284,8 @@ export const selectDisplayInstanceByFileAndMacros = createSelector(
   ],
   (index, displayInstanceCache, file, macros) => {
     const hash = `${file}::${stringify(macros)}`;
-    const id = index[hash];
-    return id ? displayInstanceCache[id] : undefined;
+    const id = index?.[hash];
+    return id ? displayInstanceCache?.[id] : undefined;
   }
 );
 

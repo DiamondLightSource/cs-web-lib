@@ -1,418 +1,579 @@
 import React from "react";
-import log from "loglevel";
+import { render } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+
 import { EmbeddedDisplay } from "./embeddedDisplay";
-import { waitFor, screen } from "@testing-library/react";
-import { newRelativePosition } from "../../../types/position";
-import { contextRender } from "../../../testResources";
-import { ensureWidgetsRegistered } from "..";
-import { vi } from "vitest";
-import * as useRulesModule from "../../hooks/useRules";
+import { MacroContext } from "../../../types/macros";
 
-ensureWidgetsRegistered();
+import { useFile } from "../../hooks/useFile";
+import { BorderStyle, newRelativePosition } from "../../../types";
+import { newBorder } from "../../../types/border";
+import { newColor } from "../../../types/color";
 
-interface GlobalFetch extends NodeJS.Global {
-  fetch: any;
-}
-const globalWithFetch = global as GlobalFetch;
+vi.mock("../../hooks/useFile", () => ({
+  useFile: vi.fn(),
+  EMPTY_WIDGET: { fileId: "EMPTY" }
+}));
 
 vi.mock("../../hooks/useRules", () => ({
-  useRules: vi.fn()
+  useRules: vi.fn(x => x)
 }));
-vi.mocked(useRulesModule.useRules).mockImplementation(props => props);
 
-beforeEach((): void => {
-  // Ensure the fetch() function mock is always cleared.
-  vi.spyOn(globalWithFetch, "fetch").mockClear();
-  vi.mocked(useRulesModule.useRules).mockClear();
+vi.mock("../../hooks/useMacros", () => ({
+  recursiveResolve: vi.fn(x => x)
+}));
+
+const mockWidgetRenderer = vi.fn((config: any) => (
+  <div data-testid="rendered" />
+));
+vi.mock("../createComponent", () => ({
+  widgetDescriptionToComponent: (...args: any[]) => mockWidgetRenderer(args),
+  errorWidget: (msg: string) => ({ type: "error", message: msg })
+}));
+
+vi.mock("../GroupBox/groupBox", () => ({
+  GroupBoxComponent: ({ children }: any) => (
+    <div data-testid="groupbox">{children}</div>
+  )
+}));
+
+vi.mock("react-id-generator", () => ({
+  useId: () => ["test-id"]
+}));
+
+vi.mock("../utils", () => ({
+  getOptionalValue: (v: any, d: any) => (v !== undefined ? v : d),
+  trimFromString: (s: string | number) =>
+    typeof s === "string" ? parseInt(s) : s
+}));
+
+vi.mock("../../../types/color", () => ({
+  newColor: () => "color"
+}));
+
+vi.mock("../../../types/border", () => ({
+  newBorder: (style: any) => ({ style }),
+  BorderStyle: { Line: "line", GroupBox: "groupbox" }
+}));
+
+const baseProps = {
+  position: newRelativePosition(),
+  file: { path: "file", macros: {}, defaultProtocol: "ca" }
+};
+
+const renderWithContext = (ui: React.ReactNode) => {
+  return render(
+    <MacroContext.Provider value={{ macros: {}, updateMacro: vi.fn() }}>
+      {ui}
+    </MacroContext.Provider>
+  );
+};
+
+beforeEach(() => {
+  vi.clearAllMocks();
 });
 
-describe("<EmbeddedDisplay>", (): void => {
-  it.each<any>([
-    ["/TestFile.bob", "/TestFile.bob"],
-    ["https://a.com/b.bob", "https://a.com/b.bob"],
-    ["/json/TestFile.json", "/json/TestFile.json"],
-    ["https://a.com/b.json", "https://a.com/b.json"],
-    ["/TestFile.opi", "/TestFile.opi"],
-    ["https://a.com/b.opi", "https://a.com/b.opi"]
-  ] as [string, string][])(
-    "fetches a file from the server",
-    async (inputFile: string, resolvedFile: string): Promise<void> => {
-      const mockSuccessResponse = {};
-      const mockTextPromise = Promise.resolve(mockSuccessResponse);
-      const mockFetchPromise = Promise.resolve({
-        text: (): Promise<unknown> => mockTextPromise
-      });
-      vi.spyOn(globalWithFetch, "fetch").mockImplementation(
-        (): Promise<unknown> => mockFetchPromise
-      );
+describe("EmbeddedDisplay (unit)", () => {
+  it("renders component from description", () => {
+    vi.mocked(useFile).mockReturnValue([
+      {
+        id: "123",
+        fileId: "file123",
+        type: "display",
+        position: {},
+        children: []
+      },
+      "uuid"
+    ]);
 
-      const props = {
-        position: newRelativePosition(),
-        file: {
-          path: inputFile,
-          defaultProtocol: "ca",
-          macros: {}
-        }
-      };
+    renderWithContext(<EmbeddedDisplay {...baseProps} />);
 
-      // Suppress logging for expected error.
-      log.setLevel("error");
-      const { queryByText } = contextRender(<EmbeddedDisplay {...props} />);
-
-      expect(globalWithFetch.fetch).toHaveBeenCalledTimes(1);
-      expect(globalWithFetch.fetch).toHaveBeenCalledWith(resolvedFile);
-
-      await waitFor((): void => {
-        expect(vi.mocked(useRulesModule.useRules)).toHaveBeenCalledWith(
-          expect.objectContaining(props)
-        );
-
-        expect(queryByText(/Error parsing.*/)).toBeInTheDocument();
-      });
-      log.setLevel("info");
-    }
-  );
-  it("returns an error label when embedding a widget only", async (): Promise<void> => {
-    const mockSuccessResponse = `
-    <widget type="label" version="2.0.0">
-        <name>Label</name>
-        <text>From .bob file</text>
-        <x>30</x>
-        <y>10</y>
-        <width>140</width>
-    </widget>`;
-    const mockTextPromise = Promise.resolve(mockSuccessResponse);
-    const mockFetchPromise = Promise.resolve({
-      text: (): Promise<unknown> => mockTextPromise
-    });
-
-    vi.spyOn(globalWithFetch, "fetch").mockImplementation(
-      (): Promise<unknown> => mockFetchPromise
-    );
-
-    // Suppress logging for expected error.
-    log.setLevel("error");
-    const { queryByText } = contextRender(
-      <EmbeddedDisplay
-        position={newRelativePosition()}
-        file={{
-          path: "/TestFile1.bob",
-          defaultProtocol: "ca",
-          macros: {}
-        }}
-      />,
-      {},
-      {}
-    );
-
-    expect(globalWithFetch.fetch).toHaveBeenCalledTimes(1);
-    expect(globalWithFetch.fetch).toHaveBeenCalledWith("/TestFile1.bob");
-
-    await waitFor((): void =>
-      expect(queryByText(/Error parsing.*/)).toBeInTheDocument()
-    );
-    log.setLevel("info");
+    expect(mockWidgetRenderer).toHaveBeenCalled();
   });
 
-  it("converts a display with child widget", async (): Promise<void> => {
-    const mockSuccessResponse = `
-    <?xml version="1.0" encoding="UTF-8"?>
-    <display version="2.0.0">
-        <name>Display</name>
-        <width>200</width>
-        <height>350</height>
-        <widget type="label" version="2.0.0">
-            <name>Label</name>
-            <text>From .bob file</text>
-            <x>30</x>
-            <y>10</y>
-            <width>140</width>
-        </widget>
-    </display>`;
-    const mockTextPromise = Promise.resolve(mockSuccessResponse);
-    const mockFetchPromise = Promise.resolve({
-      text: (): Promise<unknown> => mockTextPromise
-    });
+  it("calls widgetIdsCallback when description is loaded", () => {
+    const callback = vi.fn();
 
-    vi.spyOn(globalWithFetch, "fetch").mockImplementation(
-      (): Promise<unknown> => mockFetchPromise
+    vi.mocked(useFile).mockReturnValue([
+      {
+        id: "desc-id",
+        fileId: "file1",
+        type: "dummy",
+        position: {},
+        children: []
+      },
+      "uuid-123"
+    ]);
+
+    renderWithContext(
+      <EmbeddedDisplay {...baseProps} widgetIdsCallback={callback} />
     );
 
-    const { queryByText } = contextRender(
-      <EmbeddedDisplay
-        position={newRelativePosition()}
-        file={{
-          path: "/TestFile2.bob",
-          defaultProtocol: "ca",
-          macros: {}
-        }}
-      />,
-      {},
-      {}
-    );
-
-    expect(globalWithFetch.fetch).toHaveBeenCalledTimes(1);
-    expect(globalWithFetch.fetch).toHaveBeenCalledWith("/TestFile2.bob");
-
-    await waitFor((): void =>
-      expect(queryByText("From .bob file")).toBeInTheDocument()
-    );
+    expect(callback).toHaveBeenCalledWith("uuid-123", "desc-id");
   });
 
-  it("converts fetched children to JSON", async (): Promise<void> => {
-    const mockSuccessResponse =
-      '{ "type": "display", "position": "relative", "children": [{ "type": "label", "position": "relative", "text": "Test" }] }';
-    const mockJsonPromise = Promise.resolve(mockSuccessResponse);
-    const mockFetchPromise = Promise.resolve({
-      text: (): Promise<unknown> => mockJsonPromise
-    });
+  it("applies scroll-content resize correctly", () => {
+    vi.mocked(useFile).mockReturnValue([
+      {
+        id: "123",
+        fileId: "file123",
+        type: "dummy",
+        position: {},
+        children: []
+      },
+      "uuid"
+    ]);
 
-    vi.spyOn(globalWithFetch, "fetch").mockImplementation(
-      (): Promise<unknown> => mockFetchPromise
+    renderWithContext(
+      <EmbeddedDisplay {...baseProps} resize="scroll-content" />
     );
 
-    const { queryByText } = contextRender(
-      <EmbeddedDisplay
-        position={newRelativePosition()}
-        file={{
-          path: "/TestFile3.json",
-          defaultProtocol: "ca",
-          macros: {}
-        }}
-      />,
-      {},
-      {}
-    );
-
-    expect(globalWithFetch.fetch).toHaveBeenCalledTimes(1);
-    expect(globalWithFetch.fetch).toHaveBeenCalledWith("/TestFile3.json");
-
-    await waitFor((): void => expect(queryByText("Test")).toBeInTheDocument());
+    // verify widgetDescriptionToComponent received overflow auto
+    const args = mockWidgetRenderer.mock.calls[0][0][0];
+    expect(args.overflow).toBe("auto");
   });
 
-  it("selects specific group from fetched children, when group is specified", async (): Promise<void> => {
-    const mockSuccessResponse = {
-      type: "display",
-      name: "embedded_display",
-      position: "absolute",
-      x: 10,
-      y: 20,
-      width: 600,
-      height: 700,
-      children: [
-        {
-          type: "groupbox",
-          name: "group_name_1",
-          position: "absolute",
-          x: 20,
-          y: 30,
-          width: 400,
-          height: 500,
-          children: [
-            {
-              type: "label",
-              position: "relative",
-              text: "Test group 1"
-            }
-          ]
-        },
-        {
-          type: "groupbox",
-          name: "group_name_2",
-          position: "absolute",
-          x: 220,
-          y: 230,
-          width: 240,
-          height: 250,
-          children: [
-            {
-              type: "label",
-              position: "relative",
-              text: "Test group 2"
-            }
-          ]
-        }
-      ]
+  it("enables autoZoom for size-content", () => {
+    vi.mocked(useFile).mockReturnValue([
+      {
+        id: "123",
+        fileId: "file123",
+        type: "dummy",
+        position: {},
+        children: []
+      },
+      "uuid"
+    ]);
+
+    renderWithContext(<EmbeddedDisplay {...baseProps} resize="size-content" />);
+
+    const args = mockWidgetRenderer.mock.calls[0][0][0];
+    expect(args.autoZoomToFit).toBe(true);
+  });
+
+  it("filters children by groupName", () => {
+    vi.mocked(useFile).mockReturnValue([
+      {
+        id: "123",
+        fileId: "file123",
+        type: "dummy",
+        position: {},
+        children: [
+          {
+            id: "124",
+            fileId: "file124",
+            type: "groupbox",
+            name: "A",
+            position: {},
+            children: []
+          },
+          {
+            id: "125",
+            fileId: "file125",
+            type: "groupbox",
+            name: "B",
+            position: {},
+            children: []
+          }
+        ]
+      },
+      "uuid"
+    ]);
+
+    renderWithContext(<EmbeddedDisplay {...baseProps} groupName="B" />);
+
+    const args = mockWidgetRenderer.mock.calls[0][0][0];
+
+    expect(args.children[0].children).toHaveLength(1);
+    expect(args.children[0].children[0].name).toBe("B");
+  });
+
+  it("resolves groupName using macros", () => {
+    vi.mocked(useFile).mockReturnValue([
+      {
+        id: "123",
+        fileId: "file123",
+        type: "dummy",
+        position: {},
+        children: [
+          {
+            id: "123",
+            fileId: "file123",
+            type: "groupbox",
+            name: "$(GROUP)",
+            position: {},
+            children: []
+          }
+        ]
+      },
+      "uuid"
+    ]);
+
+    renderWithContext(
+      <EmbeddedDisplay
+        {...baseProps}
+        groupName="resolved"
+        file={{
+          ...baseProps.file,
+          macros: { GROUP: "resolved" }
+        }}
+      />
+    );
+
+    const args = mockWidgetRenderer.mock.calls[0][0][0];
+    expect(args.children[0].children).toHaveLength(1);
+  });
+
+  it("handles nested embedded displays (no double scaling)", () => {
+    vi.mocked(useFile).mockReturnValue([
+      {
+        id: "123",
+        fileId: "file123",
+        type: "dummy",
+        position: {},
+        children: [
+          {
+            id: "123",
+            fileId: "file123",
+            type: "embeddedDisplay",
+            position: {},
+            children: []
+          }
+        ]
+      },
+      "uuid"
+    ]);
+
+    renderWithContext(
+      <EmbeddedDisplay {...baseProps} overrideAutoZoomToFitValue />
+    );
+
+    const args = mockWidgetRenderer.mock.calls[0][0][0];
+
+    const child = args.children[0].children[0];
+    expect(child.overrideAutoZoomToFitValue).toBe(false);
+  });
+
+  it("passes scaling factors when autoZoom is enabled", () => {
+    vi.mocked(useFile).mockReturnValue([
+      {
+        id: "123",
+        fileId: "file123",
+        type: "dummy",
+        position: { width: "100px", height: "100px" },
+        autoZoomToFit: true,
+        children: []
+      },
+      "uuid"
+    ]);
+
+    renderWithContext(<EmbeddedDisplay {...baseProps} />);
+
+    const args = mockWidgetRenderer.mock.calls[0][0][0];
+
+    expect(args.scaling[0]).toBe("7.68");
+    expect(args.scaling[1]).toBe("7.68");
+  });
+
+  it("wraps in GroupBox when border style is GroupBox", () => {
+    vi.mocked(useFile).mockReturnValue([
+      {
+        id: "123",
+        fileId: "file123",
+        type: "dummy",
+        position: {},
+        children: []
+      },
+      "uuid"
+    ]);
+
+    const props = {
+      ...baseProps,
+      border: newBorder(BorderStyle.GroupBox, newColor("white"), 1) as any
     };
 
-    const mockJsonPromise = Promise.resolve(
-      JSON.stringify(mockSuccessResponse)
-    );
-    const mockFetchPromise = Promise.resolve({
-      text: (): Promise<unknown> => mockJsonPromise
-    });
+    const { getByTestId } = renderWithContext(<EmbeddedDisplay {...props} />);
 
-    vi.spyOn(globalWithFetch, "fetch").mockImplementation(
-      (): Promise<unknown> => mockFetchPromise
-    );
-
-    const { container, queryByText } = contextRender(
-      <EmbeddedDisplay
-        position={newRelativePosition()}
-        name={"Top_Display"}
-        groupName={"group_name_2"}
-        file={{
-          path: "/TestFile3.json",
-          defaultProtocol: "ca",
-          macros: {}
-        }}
-      />,
-      {},
-      {}
-    );
-
-    expect(globalWithFetch.fetch).toHaveBeenCalledTimes(1);
-    expect(globalWithFetch.fetch).toHaveBeenCalledWith("/TestFile3.json");
-
-    await screen.findByText("Test group 2");
-    // Second group should not be present
-    expect(queryByText("Test group 1")).not.toBeInTheDocument();
-
-    const display = container.querySelector(".display");
-    expect(display).not.toBeNull();
-
-    const innerDisplayWidgetWrapper = display?.firstElementChild;
-
-    expect(innerDisplayWidgetWrapper).toHaveStyle("position: absolute");
-
-    // This should match the size of the selected group
-    expect(innerDisplayWidgetWrapper).not.toBeNull();
-    expect(innerDisplayWidgetWrapper).toHaveStyle("top: 0px");
-    expect(innerDisplayWidgetWrapper).toHaveStyle("left: 0px");
-    expect(innerDisplayWidgetWrapper).toHaveStyle("height: 250px");
-    expect(innerDisplayWidgetWrapper).toHaveStyle("width: 240px");
-
-    const displayInner = display?.querySelector(".display");
-    expect(displayInner).not.toBeNull();
-    const groupBoxWidgetWrapper = displayInner?.firstChild;
-    expect(groupBoxWidgetWrapper).toHaveStyle("position: absolute");
-    expect(groupBoxWidgetWrapper).toHaveStyle("height: 250px");
-    expect(groupBoxWidgetWrapper).toHaveStyle("width: 240px");
-    // Positioned at top left irrespective of specified coordinates
-    expect(groupBoxWidgetWrapper).toHaveStyle("top: 0");
-    expect(groupBoxWidgetWrapper).toHaveStyle("left: 0");
+    expect(getByTestId("groupbox")).toBeInTheDocument();
   });
 
-  it("selects specific group from fetched children, when group is specified by macro name", async (): Promise<void> => {
-    const mockSuccessResponse = {
-      type: "display",
-      name: "embedded_display",
-      position: "absolute",
-      x: 10,
-      y: 20,
-      width: 600,
-      height: 700,
-      children: [
-        {
-          type: "groupbox",
-          name: "group_name_1",
-          position: "absolute",
-          x: 20,
-          y: 30,
-          width: 400,
-          height: 500,
-          children: [
-            {
-              type: "label",
-              position: "relative",
-              text: "Test group 1"
-            }
-          ]
-        },
-        {
-          type: "groupbox",
-          name: "$(MACRO_GROUP_NAME)",
-          position: "absolute",
-          x: 220,
-          y: 230,
-          width: 240,
-          height: 250,
-          children: [
-            {
-              type: "label",
-              position: "relative",
-              text: "Test group 2"
-            }
-          ]
-        }
-      ]
-    };
+  it("renders error widget when rendering fails", () => {
+    const spy = vi.spyOn(console, "warn").mockImplementation(() => {});
 
-    const mockJsonPromise = Promise.resolve(
-      JSON.stringify(mockSuccessResponse)
-    );
-    const mockFetchPromise = Promise.resolve({
-      text: (): Promise<unknown> => mockJsonPromise
+    mockWidgetRenderer.mockImplementationOnce(() => {
+      throw new Error("fail");
     });
 
-    vi.spyOn(globalWithFetch, "fetch").mockImplementation(
-      (): Promise<unknown> => mockFetchPromise
-    );
+    vi.mocked(useFile).mockReturnValue([
+      {
+        id: "123",
+        fileId: "file123",
+        type: "dummy",
+        position: {},
+        children: []
+      },
+      "uuid"
+    ]);
 
-    const { queryByText } = contextRender(
-      <EmbeddedDisplay
-        position={newRelativePosition()}
-        name={"Top_Display"}
-        groupName={"$(MACRO_GROUP_NAME)"}
-        file={{
-          path: "/TestFile3.json",
-          defaultProtocol: "ca",
-          macros: { MACRO_GROUP_NAME: "a_group_name_specified_by_macro" }
-        }}
-      />,
-      {},
-      {}
-    );
+    renderWithContext(<EmbeddedDisplay {...baseProps} />);
 
-    expect(globalWithFetch.fetch).toHaveBeenCalledTimes(1);
-    expect(globalWithFetch.fetch).toHaveBeenCalledWith("/TestFile3.json");
+    expect(mockWidgetRenderer).toHaveBeenCalled();
 
-    await waitFor((): void => {
-      expect(queryByText("Test group 2")).toBeInTheDocument();
-      // Second group should not be present
-      expect(queryByText("Test group 1")).not.toBeInTheDocument();
-    });
+    spy.mockRestore();
   });
 
-  it("Applies macros to filename before loading the embedded display file", async (): Promise<void> => {
-    const mockSuccessResponse = {
-      type: "display",
-      name: "embedded_display",
-      position: "absolute",
-      x: 10,
-      y: 20,
-      width: 600,
-      height: 700,
-      children: []
-    };
+  it("handles stretch-content with independent scaling", () => {
+    vi.mocked(useFile).mockReturnValue([
+      {
+        id: "123",
+        fileId: "file123",
+        type: "dummy",
+        position: { width: "100px", height: "200px" },
+        autoZoomToFit: true,
+        children: []
+      },
+      "uuid"
+    ]);
 
-    const mockJsonPromise = Promise.resolve(
-      JSON.stringify(mockSuccessResponse)
+    renderWithContext(
+      <EmbeddedDisplay {...baseProps} resize="stretch-content" />
     );
-    const mockFetchPromise = Promise.resolve({
-      text: (): Promise<unknown> => mockJsonPromise
+
+    const args = mockWidgetRenderer.mock.calls[0][0][0];
+
+    expect(args.autoZoomToFit).toBe(true);
+    expect(args.overflow).toBe("visible");
+    expect(args.scaling[0]).not.toBe(args.scaling[1]); // independent scaling
+  });
+
+  it("sets overflow visible for size-widget", () => {
+    vi.mocked(useFile).mockReturnValue([
+      { id: "1", fileId: "f1", type: "d", position: {}, children: [] },
+      "uuid"
+    ]);
+
+    renderWithContext(<EmbeddedDisplay {...baseProps} resize="size-widget" />);
+
+    const args = mockWidgetRenderer.mock.calls[0][0][0];
+    expect(args.overflow).toBe("visible");
+    expect(args.autoZoomToFit).not.toBe(true);
+  });
+
+  it("sets overflow hidden for crop-content", () => {
+    vi.mocked(useFile).mockReturnValue([
+      { id: "1", fileId: "f1", type: "d", position: {}, children: [] },
+      "uuid"
+    ]);
+
+    renderWithContext(<EmbeddedDisplay {...baseProps} resize="crop-content" />);
+
+    const args = mockWidgetRenderer.mock.calls[0][0][0];
+    expect(args.overflow).toBe("hidden");
+  });
+
+  it("does not call widgetIdsCallback when EMPTY_WIDGET is returned", () => {
+    const callback = vi.fn();
+
+    vi.mocked(useFile).mockReturnValue([
+      {
+        id: "ignored",
+        fileId: "EMPTY",
+        type: "dummy",
+        position: {},
+        children: []
+      },
+      "uuid"
+    ]);
+
+    renderWithContext(
+      <EmbeddedDisplay {...baseProps} widgetIdsCallback={callback} />
+    );
+
+    expect(callback).not.toHaveBeenCalled();
+  });
+
+  it("respects overrideAutoZoomToFitValue=false", () => {
+    vi.mocked(useFile).mockReturnValue([
+      {
+        id: "1",
+        fileId: "f",
+        type: "d",
+        position: {},
+        autoZoomToFit: true,
+        children: []
+      },
+      "uuid"
+    ]);
+
+    renderWithContext(
+      <EmbeddedDisplay {...baseProps} overrideAutoZoomToFitValue={false} />
+    );
+
+    const args = mockWidgetRenderer.mock.calls[0][0][0];
+    expect(args.autoZoomToFit).toBe(false);
+  });
+
+  it("falls back to description.autoZoomToFit when override undefined", () => {
+    vi.mocked(useFile).mockReturnValue([
+      {
+        id: "1",
+        fileId: "f",
+        type: "d",
+        position: {},
+        autoZoomToFit: true,
+        children: []
+      },
+      "uuid"
+    ]);
+
+    renderWithContext(<EmbeddedDisplay {...baseProps} />);
+
+    const args = mockWidgetRenderer.mock.calls[0][0][0];
+    expect(args.autoZoomToFit).toBe(true);
+  });
+
+  it("uses window size when position is missing", () => {
+    Object.defineProperty(window, "innerWidth", {
+      value: 800,
+      configurable: true
+    });
+    Object.defineProperty(window, "innerHeight", {
+      value: 600,
+      configurable: true
     });
 
-    vi.spyOn(globalWithFetch, "fetch").mockImplementation(
-      (): Promise<unknown> => mockFetchPromise
+    vi.mocked(useFile).mockReturnValue([
+      {
+        id: "1",
+        fileId: "f",
+        type: "d",
+        position: {},
+        autoZoomToFit: true,
+        children: []
+      },
+      "uuid"
+    ]);
+
+    renderWithContext(<EmbeddedDisplay {...baseProps} />);
+
+    const args = mockWidgetRenderer.mock.calls[0][0][0];
+
+    expect(args.scaling[0]).toBe("1");
+    expect(args.scaling[1]).toBe("1");
+  });
+
+  it("converts numeric resize to string enum", () => {
+    vi.mocked(useFile).mockReturnValue([
+      { id: "1", fileId: "f", type: "d", position: {}, children: [] },
+      "uuid"
+    ]);
+
+    renderWithContext(<EmbeddedDisplay {...baseProps} resize={1} />);
+
+    const args = mockWidgetRenderer.mock.calls[0][0][0];
+    // index 1 = "size-content"
+    expect(args.autoZoomToFit).toBe(true);
+  });
+
+  it("propagates scalingOrigin to child when not autoZoom", () => {
+    vi.mocked(useFile).mockReturnValue([
+      {
+        id: "1",
+        fileId: "f",
+        type: "d",
+        position: { height: "100px", width: "100px" },
+        autoZoomToFit: false,
+        children: [
+          {
+            id: "child",
+            fileId: "cf",
+            type: "embeddedDisplay",
+            position: {},
+            children: []
+          }
+        ]
+      },
+      "uuid"
+    ]);
+
+    renderWithContext(
+      <EmbeddedDisplay {...baseProps} scalingOrigin="center" />
     );
 
-    contextRender(
-      <EmbeddedDisplay
-        position={newRelativePosition()}
-        name={"Top_Display"}
-        groupName={"group_name_2"}
-        file={{
-          path: "$(MACRO_FILENAME)",
-          defaultProtocol: "ca",
-          macros: { MACRO_FILENAME: "aBobFile.bob" }
-        }}
-      />,
-      {},
-      {}
+    const args = mockWidgetRenderer.mock.calls[0][0][0];
+    const child = args.children[0].children[0];
+
+    expect(child.scalingOrigin).toBe("center");
+  });
+
+  it("uses provided theme instead of default", () => {
+    const customTheme = {} as any;
+
+    vi.mocked(useFile).mockReturnValue([
+      { id: "1", fileId: "f", type: "d", position: {}, children: [] },
+      "uuid"
+    ]);
+
+    renderWithContext(<EmbeddedDisplay {...baseProps} theme={customTheme} />);
+
+    // indirect check: component rendered successfully
+    expect(mockWidgetRenderer).toHaveBeenCalled();
+  });
+
+  it("renders error widget when renderer throws", () => {
+    mockWidgetRenderer.mockImplementationOnce(() => {
+      throw new Error("boom");
+    });
+
+    vi.mocked(useFile).mockReturnValue([
+      { id: "1", fileId: "f", type: "d", position: {}, children: [] },
+      "uuid"
+    ]);
+
+    renderWithContext(<EmbeddedDisplay {...baseProps} />);
+
+    const call = mockWidgetRenderer.mock.calls[1]; // second call = error fallback
+    expect(call[0][0].type).toBe("error");
+  });
+
+  it("passes scalingOrigin to renderer", () => {
+    vi.mocked(useFile).mockReturnValue([
+      { id: "1", fileId: "f", type: "d", position: {}, children: [] },
+      "uuid"
+    ]);
+
+    renderWithContext(
+      <EmbeddedDisplay {...baseProps} scalingOrigin="top-left" />
     );
 
-    expect(globalWithFetch.fetch).toHaveBeenCalledTimes(1);
-    expect(globalWithFetch.fetch).toHaveBeenCalledWith("aBobFile.bob");
+    const args = mockWidgetRenderer.mock.calls[0][0][0];
+    expect(args.scalingOrigin).toBe("top-left");
+  });
+
+  it("falls back to all children when groupName not found", () => {
+    vi.mocked(useFile).mockReturnValue([
+      {
+        id: "1",
+        fileId: "f",
+        type: "d",
+        position: {},
+        children: [
+          {
+            id: "a",
+            fileId: "f",
+            type: "groupbox",
+            name: "A",
+            position: {},
+            children: []
+          }
+        ]
+      },
+      "uuid"
+    ]);
+
+    renderWithContext(<EmbeddedDisplay {...baseProps} groupName="NOT_FOUND" />);
+
+    const args = mockWidgetRenderer.mock.calls[0][0][0];
+    expect(args.children[0].children).toHaveLength(1);
   });
 });

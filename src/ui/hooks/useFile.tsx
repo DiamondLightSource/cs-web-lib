@@ -117,6 +117,7 @@ export function useFile(
         );
       }
     };
+    let isMounted = true;
 
     if (fileContents == null && displayInstance == null) {
       fetchData();
@@ -125,8 +126,6 @@ export function useFile(
         createDisplayInstanceFromFile({ file: file.path, macros: macros ?? {} })
       );
     }
-
-    let isMounted = true;
 
     // Tidy up in case component is unmounted
     return () => {

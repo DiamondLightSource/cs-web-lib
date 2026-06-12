@@ -10,7 +10,11 @@ import fileCacheReducer, {
   displayInstanceSetResponsiveLayout,
   makeSelectWidgetPosition,
   refreshFile,
-  selectFile
+  selectFile,
+  createDisplayInstanceFromFile,
+  displayInstanceUpdateResponsiveLayout,
+  selectDisplayInstance,
+  selectDisplayInstanceByFileAndMacros
 } from "./fileCacheSlice";
 
 const initialState: FileCacheState = {
@@ -21,7 +25,22 @@ const initialState: FileCacheState = {
       type: "ellipse",
       position: newAbsolutePosition("0", "0", "0", "0")
     }
-  }
+  },
+  displayInstanceCache: {
+    UUID1: {
+      fileId: "mySecondFile.bob",
+      macros: { a: "b" },
+      hash: "",
+      uuid: "UUID1",
+      description: {
+        fileId: "mySecondFile.bob",
+        id: "123",
+        type: "ellipse",
+        position: newAbsolutePosition("0", "0", "0", "0")
+      }
+    }
+  },
+  displayInstanceIndex: {}
 };
 
 describe("fileDisplaySetResponsiveLayout", () => {
@@ -31,6 +50,7 @@ describe("fileDisplaySetResponsiveLayout", () => {
     fileId: "file",
     children: [
       {
+        fileId: "file",
         id: "child1",
         type: "shape",
         position: newAbsolutePosition("10", "10", "20", "20")
@@ -42,12 +62,22 @@ describe("fileDisplaySetResponsiveLayout", () => {
   const initialState: FileCacheState = {
     fileCache: {
       "file.bob": baseDisplay as any
-    }
+    },
+    displayInstanceCache: {
+      UUID1: {
+        fileId: "file.bob",
+        macros: { a: "b" },
+        hash: "",
+        uuid: "UUID1",
+        description: baseDisplay
+      }
+    },
+    displayInstanceIndex: {}
   };
 
   test("applies responsive layout and updates child positions", () => {
     const action = displayInstanceSetResponsiveLayout({
-      file: "file.bob",
+      embeddedDisplayUuid: "UUID1",
       displayId: "display1",
       responsiveLayouts: { lg: [] },
       responsiveColumns: { lg: 12 },
@@ -59,7 +89,7 @@ describe("fileDisplaySetResponsiveLayout", () => {
     });
 
     const state = fileCacheReducer(initialState, action);
-    const display = state.fileCache["file.bob"];
+    const display = state.displayInstanceCache["UUID1"]?.description;
 
     expect(display.responsiveColumns.lg).toBe(12);
     expect(display.gridCellHeight).toBe(50);
@@ -85,7 +115,7 @@ describe("fileDisplaySetResponsiveLayout", () => {
     };
 
     const action = displayInstanceSetResponsiveLayout({
-      file: "file.bob",
+      embeddedDisplayUuid: "file.bob",
       displayId: "display1",
       responsiveLayouts: {},
       responsiveColumns: {},
@@ -110,22 +140,35 @@ describe("fileDisplaySetGridLayout", () => {
       {
         id: "child1",
         type: "shape",
+        fileId: "file",
         position: newAbsolutePosition("10", "10", "20", "20")
       }
     ],
     position: newAbsolutePosition("0", "0", "100", "100")
   };
 
+  const baseDisplayInstance = {
+    uuid: "UUID1",
+    fileId: "mySecondFile.bob",
+    macros: { a: "b" },
+    hash: "",
+    description: baseDisplay
+  };
+
   const initialState: FileCacheState = {
     fileCache: {
       "file.bob": baseDisplay as any
-    }
+    },
+    displayInstanceCache: {
+      UUID1: baseDisplayInstance
+    },
+    displayInstanceIndex: {}
   };
 
-  test("applies grid layout properties and normalises child positions", () => {
+  it("applies grid layout properties and normalises child positions", () => {
     const action = displayInstanceSetGridLayout({
-      file: "file.bob",
-      displayId: "display1",
+      embeddedDisplayUuid: "UUID1",
+      gridDisplayId: "display1",
       gridLayout: [{ i: "child1", x: 0, y: 0, w: 2, h: 2 }],
       gridLayoutColumns: 12,
       gridCellMargins: [5, 5],
@@ -135,7 +178,7 @@ describe("fileDisplaySetGridLayout", () => {
     });
 
     const state = fileCacheReducer(initialState, action);
-    const display = state.fileCache["file.bob"];
+    const display = state.displayInstanceCache["UUID1"]?.description;
 
     expect(display.gridLayoutColumns).toBe(12);
     expect(display.gridCellHeight).toBe(30);
@@ -149,10 +192,10 @@ describe("fileDisplaySetGridLayout", () => {
     });
   });
 
-  test("does nothing if display not found", () => {
+  it("does nothing if display not found", () => {
     const action = displayInstanceSetGridLayout({
-      file: "file.bob",
-      displayId: "missing",
+      embeddedDisplayUuid: "UUID1",
+      gridDisplayId: "missing",
       gridLayout: [],
       gridLayoutColumns: 12,
       gridCellMargins: [0, 0],
@@ -165,20 +208,27 @@ describe("fileDisplaySetGridLayout", () => {
     expect(state).toEqual(initialState);
   });
 
-  test("does nothing if wrong display type", () => {
+  it("does nothing if wrong display type", () => {
     const badState: FileCacheState = {
       ...initialState,
-      fileCache: {
-        "file.bob": {
-          ...baseDisplay,
-          type: "shape" // wrong type
-        } as any
+      displayInstanceCache: {
+        ...initialState.displayInstanceCache,
+        UUID2: {
+          uuid: "UUID2",
+          fileId: "mySecondFile.bob",
+          macros: { a: "c" },
+          hash: "",
+          description: {
+            ...baseDisplay,
+            type: "shape"
+          }
+        }
       }
     };
 
     const action = displayInstanceSetGridLayout({
-      file: "file.bob",
-      displayId: "display1",
+      embeddedDisplayUuid: "UUID2",
+      gridDisplayId: "display1",
       gridLayout: [],
       gridLayoutColumns: 12,
       gridCellMargins: [0, 0],
@@ -189,6 +239,30 @@ describe("fileDisplaySetGridLayout", () => {
 
     const state = fileCacheReducer(badState, action);
     expect(state).toEqual(badState);
+  });
+
+  it("does nothing if display instance missing", () => {
+    const state: FileCacheState = {
+      fileCache: {},
+      displayInstanceCache: {},
+      displayInstanceIndex: {}
+    };
+
+    const result = fileCacheReducer(
+      state,
+      displayInstanceSetGridLayout({
+        embeddedDisplayUuid: "missing",
+        gridDisplayId: "id",
+        gridLayout: [],
+        gridLayoutColumns: 12,
+        gridCellMargins: [0, 0],
+        gridCellHeight: 10,
+        gridCellDragEnabled: true,
+        gridCellResizeEnabled: true
+      })
+    );
+
+    expect(result).toEqual(state);
   });
 });
 
@@ -212,7 +286,7 @@ describe("FILE_CHANGED", (): void => {
 });
 
 describe("REFRESH_FILE", (): void => {
-  test("csReducer deletes the file entry from fileCache", (): void => {
+  it("deletes the file entry from fileCache", (): void => {
     const fileName = "mySecondFile.bob";
     const action: ReturnType<typeof refreshFile> = {
       type: "fileCache/refreshFile",
@@ -221,6 +295,31 @@ describe("REFRESH_FILE", (): void => {
 
     const newState = fileCacheReducer(initialState, action);
     expect(newState.fileCache[fileName]).toBeUndefined();
+  });
+
+  it("removes display instances linked to the file", () => {
+    const state: FileCacheState = {
+      fileCache: {
+        "file.bob": {} as any
+      },
+      displayInstanceCache: {
+        uuid1: {
+          uuid: "uuid1",
+          fileId: "file.bob",
+          macros: {},
+          hash: "file.bob::{}",
+          description: {} as any
+        }
+      },
+      displayInstanceIndex: {
+        "file.bob::{}": "uuid1"
+      }
+    };
+
+    const result = fileCacheReducer(state, refreshFile({ file: "file.bob" }));
+
+    expect(result.displayInstanceCache).toEqual({});
+    expect(result.displayInstanceIndex).toEqual({});
   });
 });
 
@@ -255,6 +354,40 @@ describe("selectFile", (): void => {
   });
 });
 
+describe("selectDisplayInstance", () => {
+  it("selectDisplayInstance returns correct instance", () => {
+    const state = createRootStoreState();
+
+    state.fileCache.displayInstanceCache = {
+      uuid1: { uuid: "uuid1" } as any
+    };
+
+    expect(selectDisplayInstance(state, "uuid1")).toEqual({
+      uuid: "uuid1"
+    });
+  });
+});
+
+describe("selectDisplayInstanceByFileAndMacros", () => {
+  it("selectDisplayInstanceByFileAndMacros resolves correctly", () => {
+    const hash = "file::{}";
+
+    const state = createRootStoreState(undefined, undefined, {
+      fileCache: {},
+      displayInstanceCache: {
+        uuid1: { uuid: "uuid1" } as any
+      },
+      displayInstanceIndex: {
+        [hash]: "uuid1"
+      }
+    });
+
+    const result = selectDisplayInstanceByFileAndMacros(state, "file", {});
+
+    expect(result).toEqual({ uuid: "uuid1" });
+  });
+});
+
 describe("makeSelectWidgetPosition", () => {
   const position = newAbsolutePosition("1", "2", "3", "4");
 
@@ -274,7 +407,9 @@ describe("makeSelectWidgetPosition", () => {
   const state = createRootStoreState(undefined, undefined, {
     fileCache: {
       "file.bob": file as any
-    }
+    },
+    displayInstanceCache: {},
+    displayInstanceIndex: {}
   });
 
   test("returns widget position when found", () => {
@@ -354,5 +489,142 @@ describe("fileComparator", (): void => {
       position: newAbsolutePosition("0", "0", "0", "0")
     };
     expect(fileComparator(contents, { ...contents })).toBe(true);
+  });
+});
+
+describe("createDisplayInstanceFromFile", () => {
+  it("creates a new display instance", () => {
+    const state: FileCacheState = {
+      fileCache: {
+        "file.bob": {
+          id: "root",
+          type: "display",
+          fileId: "file.bob",
+          position: newAbsolutePosition("0", "0", "0", "0")
+        }
+      },
+      displayInstanceCache: {},
+      displayInstanceIndex: {}
+    };
+
+    const action = createDisplayInstanceFromFile({
+      file: "file.bob",
+      macros: { a: "b" }
+    });
+
+    const result = fileCacheReducer(state, action);
+
+    const instances = Object.values(result.displayInstanceCache);
+
+    expect(instances).toHaveLength(1);
+    expect(instances[0].fileId).toBe("file.bob");
+
+    const hash = "file.bob::" + JSON.stringify({ a: "b" });
+    expect(result.displayInstanceIndex[hash]).toBeDefined();
+  });
+
+  it("does not create duplicate display instances", () => {
+    const hash = "file.bob::" + JSON.stringify({});
+
+    const state: FileCacheState = {
+      fileCache: {
+        "file.bob": {
+          id: "root",
+          type: "display",
+          fileId: "file.bob",
+          position: newAbsolutePosition("0", "0", "0", "0")
+        }
+      },
+      displayInstanceCache: {
+        uuid1: {
+          uuid: "uuid1",
+          fileId: "file.bob",
+          macros: {},
+          hash,
+          description: {} as any
+        }
+      },
+      displayInstanceIndex: {
+        [hash]: "uuid1"
+      }
+    };
+
+    const action = createDisplayInstanceFromFile({
+      file: "file.bob",
+      macros: {}
+    });
+
+    const result = fileCacheReducer(state, action);
+
+    expect(Object.keys(result.displayInstanceCache)).toHaveLength(1);
+  });
+});
+
+describe("displayInstanceUpdateResponsiveLayout", () => {
+  it("updates responsiveLayouts on existing display", () => {
+    const state: FileCacheState = {
+      fileCache: {},
+      displayInstanceCache: {
+        uuid1: {
+          uuid: "uuid1",
+          fileId: "file",
+          macros: {},
+          hash: "",
+          description: {
+            id: "d",
+            type: "displayResponsive",
+            responsiveLayouts: {},
+            children: []
+          } as any
+        }
+      },
+      displayInstanceIndex: {}
+    };
+
+    const layouts = { lg: [] };
+
+    const result = fileCacheReducer(
+      state,
+      displayInstanceUpdateResponsiveLayout({
+        embeddedDisplayUuid: "uuid1",
+        displayId: "d",
+        responsiveLayouts: layouts
+      })
+    );
+
+    expect(
+      result.displayInstanceCache.uuid1.description.responsiveLayouts
+    ).toEqual(layouts);
+  });
+
+  it("does nothing if display not found or wrong type", () => {
+    const state: FileCacheState = {
+      fileCache: {},
+      displayInstanceCache: {
+        uuid1: {
+          uuid: "uuid1",
+          fileId: "file",
+          macros: {},
+          hash: "",
+          description: {
+            id: "d",
+            type: "shape", // wrong type
+            children: []
+          } as any
+        }
+      },
+      displayInstanceIndex: {}
+    };
+
+    const result = fileCacheReducer(
+      state,
+      displayInstanceUpdateResponsiveLayout({
+        embeddedDisplayUuid: "uuid1",
+        displayId: "d",
+        responsiveLayouts: { lg: [] }
+      })
+    );
+
+    expect(result).toEqual(state);
   });
 });

@@ -249,6 +249,7 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
       <DisplayResponsiveComponent
         id="display-1"
         fileId="file-1"
+        embeddedDisplayUuid="uuid1"
         responsiveLayouts={{
           md: [{ i: "a", x: 0, y: 0, w: 2, h: 2 }]
         }}
@@ -266,7 +267,7 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
       displayInstanceSetResponsiveLayout(
         expect.objectContaining({
           displayId: "display-1",
-          file: "file-1",
+          embeddedDisplayUuid: "uuid1",
           responsiveLayouts: {
             lg: expect.any(Array)
           }
