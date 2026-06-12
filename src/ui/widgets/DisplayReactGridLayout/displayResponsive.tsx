@@ -98,7 +98,7 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
   const shouldCommitRef = useRef(false);
 
   const { width, containerRef, mounted } = useContainerWidth({
-    measureBeforeMount: false
+    measureBeforeMount: true
   });
   const debouncedWidth = useDebouncedValue(width, 150);
   const gridCellDragEnabled =
@@ -238,7 +238,7 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
     breakpoints,
     cols: columns,
     layouts: initialLayouts,
-    width: 0
+    width: 100
   });
 
   // Wrap the child components in a div keyed by the child id. The key MUST map to the i field of Layout item for the component.
@@ -247,6 +247,18 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
     [childrenArray, gridCellDragEnabled]
   );
 
+  const hasLayouts = useMemo(() => {
+    return (
+      props.responsiveLayouts &&
+      Object.keys(props.responsiveLayouts).length > 0 &&
+      Object.values(props.responsiveLayouts).every(
+        layout => Array.isArray(layout) && layout.length > 0
+      ) &&
+      layouts &&
+      Object.keys(layouts).length > 0
+    );
+  }, [props.responsiveLayouts, layouts]);
+
   return (
     <MacroContext.Provider value={displayMacroContext}>
       <div
@@ -254,7 +266,7 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
         style={extendedStyle}
         className="display-responsive-container"
       >
-        {mounted && props.responsiveLayouts && (
+        {mounted && hasLayouts && (
           <Responsive
             key={`grid-${props.id}`}
             className="layout"
