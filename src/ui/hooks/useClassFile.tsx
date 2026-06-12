@@ -12,7 +12,7 @@ const keyMap: Record<string, string> = {
   foregroundColor: "contrastText"
 };
 
-const CLASS_PROPS = [
+const CLASS_PROPS = new Set([
   "offColor",
   "onColor",
   "foregroundColor",
@@ -26,11 +26,10 @@ const CLASS_PROPS = [
   "selectedColor",
   "deselectedColor",
   "borderColor"
-];
+]);
 
 export function useClassFile(userTheme?: Theme): Theme {
   const classFile = useSelector(selectClassFile);
-  //let theme = userTheme ?? phoebusTheme;
   const [theme, setTheme] = useState<Theme>(userTheme ?? phoebusTheme);
 
   useEffect(() => {
@@ -46,7 +45,7 @@ export function useClassFile(userTheme?: Theme): Theme {
     if (classFile !== undefined) {
       fetchData();
     }
-  }, [classFile]);
+  }, [classFile, userTheme]);
 
   return theme;
 }
@@ -63,7 +62,7 @@ export function createClassPalettes(classFile: WidgetDescription): Theme {
 
     // Only colors go in the theme palette
     const matches = Object.entries(child)
-      .filter(([key]) => CLASS_PROPS.includes(key))
+      .filter(([key]) => CLASS_PROPS.has(key))
       .map(([key, value]) => ({ key, value }));
 
     // Assign colors to palette
@@ -71,7 +70,10 @@ export function createClassPalettes(classFile: WidgetDescription): Theme {
       // Put Phoebus theme defaults, overwrite with class props
       ...phoebusTheme.palette[widgetType],
       ...Object.fromEntries(
-        matches.map(({ key, value }) => [keyMap[key] ?? key, value.colorString])
+        matches.map(({ key, value }) => [
+          keyMap[key] ?? key,
+          value?.colorString ?? undefined
+        ])
       )
     };
   });
