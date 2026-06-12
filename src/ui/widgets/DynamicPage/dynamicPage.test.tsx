@@ -6,6 +6,7 @@ import { DynamicPageComponent } from "./dynamicPage";
 import { FileContext } from "../../../misc/fileContext";
 
 import { useSelector } from "react-redux";
+import { Theme } from "@mui/material";
 
 vi.mock("../../hooks/useStyle", () => ({
   useStyle: () => ({
@@ -206,7 +207,7 @@ describe("DynamicPageComponent (unit)", () => {
 
   it("passes custom theme to EmbeddedDisplay", () => {
     const file = { path: "file1", macros: {} };
-    const customTheme = {};
+    const customTheme = {} as unknown as Theme;
 
     renderWithContext(
       <DynamicPageComponent {...baseProps} theme={customTheme} />,
