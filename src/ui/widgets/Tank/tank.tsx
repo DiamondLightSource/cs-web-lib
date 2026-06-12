@@ -49,7 +49,8 @@ export const TankComponent = (
         emptyColor: props?.emptyColor
       }
     },
-    widgetName
+    widgetName,
+    props.class
   );
 
   const {

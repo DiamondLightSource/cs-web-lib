@@ -313,7 +313,7 @@ function bobParseSymbols(jsonProp: ElementCompact): string[] | string {
  * @param props list of props for this element
  * @returns a array of Trace objects
  */
-function bobParseTraces(props: any): Trace[] {
+export function bobParseTraces(props: any): Trace[] {
   const traces: Trace[] = [];
   let parsedProps = {};
   if (props) {
@@ -358,7 +358,7 @@ function bobParseMarker(props: any): Markers {
  * @param props
  * @returns an array of Axis.
  */
-function bobParseYAxes(props: any): Axis[] {
+export function bobParseYAxes(props: any): Axis[] {
   const axes: Axis[] = [];
   let parsedProps = {};
   if (props) {
@@ -440,7 +440,7 @@ export function bobParseRois(jsonProp: ElementCompact): Rois {
  * @param macros macro map associated with this file
  * @returns a tab object, with attached children
  */
-async function bobParseTabs(
+export async function bobParseTabs(
   props: any,
   simpleParsers: ParserDict,
   complexParsers: ComplexParserDict,
@@ -584,7 +584,7 @@ export function bobParseActions(
   return processedActions;
 }
 
-function bobGetTargetWidget(props: any): {
+export function bobGetTargetWidget(props: any): {
   widget: React.FC;
   widgetProps: any;
 } {
@@ -684,7 +684,7 @@ export const BOB_SIMPLE_PARSERS: ParserDict = {
   activeTab: ["active_tab", bobParseNumber]
 };
 
-const BOB_COMPLEX_PARSERS: ComplexParserDict = {
+export const BOB_COMPLEX_PARSERS: ComplexParserDict = {
   ...OPI_COMPLEX_PARSERS,
   type: bobParseType,
   position: bobParsePosition,

@@ -15,6 +15,7 @@ import { parseJson } from "../widgets/EmbeddedDisplay/jsonParser";
 import { parseOpi } from "../widgets/EmbeddedDisplay/opiParser";
 import { Store } from "redux";
 import { newAbsolutePosition } from "../../types/position";
+import { parseBcf } from "../widgets/EmbeddedDisplay/bcfParser";
 
 const EMPTY_WIDGET: WidgetDescription = {
   type: "shape",
@@ -29,7 +30,7 @@ export interface File {
   defaultProtocol: string;
 }
 
-async function fetchAndConvert(
+export async function fetchAndConvert(
   filepath: string,
   protocol: string,
   macros?: MacroMap
@@ -57,6 +58,9 @@ async function fetchAndConvert(
             macros,
             filepath
           );
+          break;
+        case "bcf":
+          description = await parseBcf(contents, protocol, parentDir, filepath);
           break;
         case "json":
           description = await parseJson(

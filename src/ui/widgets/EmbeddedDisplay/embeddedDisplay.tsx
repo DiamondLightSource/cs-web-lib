@@ -26,10 +26,10 @@ import { GroupBoxComponent } from "../GroupBox/groupBox";
 import { useId } from "react-id-generator";
 import { getOptionalValue, trimFromString } from "../utils";
 import { Theme, ThemeProvider } from "@mui/material";
-import { phoebusTheme } from "../../../phoebusTheme";
 import { useFile, File } from "../../hooks/useFile";
 import { recursiveResolve } from "../../hooks/useMacros";
 import { useRules } from "../../hooks/useRules";
+import { useClassFile } from "../../hooks/useClassFile";
 
 const RESIZE_STRINGS = [
   "scroll-widget",
@@ -85,6 +85,7 @@ export const EmbeddedDisplay = (
     embeddedDisplayMacroContext.macros
   );
 
+  const theme = useClassFile(props.theme);
   const resolvedProps = useRules(macroProps);
   const description = useFile(
     resolvedProps.file as File,
@@ -278,7 +279,7 @@ export const EmbeddedDisplay = (
 
   if (resolvedProps.border?.style === BorderStyle.GroupBox) {
     return (
-      <ThemeProvider theme={props.theme ?? phoebusTheme}>
+      <ThemeProvider theme={theme}>
         <MacroContext.Provider value={embeddedDisplayMacroContext}>
           <GroupBoxComponent
             name={(resolvedProps.name ?? "") as string}
@@ -291,7 +292,7 @@ export const EmbeddedDisplay = (
     );
   } else {
     return (
-      <ThemeProvider theme={props.theme ?? phoebusTheme}>
+      <ThemeProvider theme={theme}>
         <MacroContext.Provider value={embeddedDisplayMacroContext}>
           {component}
         </MacroContext.Provider>

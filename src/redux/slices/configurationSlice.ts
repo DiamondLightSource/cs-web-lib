@@ -5,7 +5,7 @@ import { CsWebLibConfig } from "../csWebLibConfig";
  * This reducer is intended to be initialized via `preloadedState`.
  * The initialState here exists only as a type-safe fallback.
  */
-const initialState: CsWebLibConfig = {
+export const initialState: CsWebLibConfig = {
   storeMode: "DEV",
   PVWS_SOCKET: "",
   PVWS_SSL: true,
@@ -13,7 +13,8 @@ const initialState: CsWebLibConfig = {
   defaultMjpgEndpoint: "",
   csWebLibFeatureFlags: {
     enableDynamicScripts: false
-  }
+  },
+  classFile: undefined
 };
 
 /**
@@ -31,7 +32,8 @@ export const configurationSlice = createSlice({
     selectFeatureFlags: state => state.csWebLibFeatureFlags,
     selectEnableDynamicScripts: state =>
       state.csWebLibFeatureFlags?.enableDynamicScripts ?? false,
-    selectDefaultMjpgEndpoint: state => state.defaultMjpgEndpoint
+    selectDefaultMjpgEndpoint: state => state.defaultMjpgEndpoint,
+    selectClassFile: state => state.classFile
   }
 });
 
@@ -41,5 +43,6 @@ export const {
   selectConfiguration,
   selectFeatureFlags,
   selectEnableDynamicScripts,
-  selectDefaultMjpgEndpoint
+  selectDefaultMjpgEndpoint,
+  selectClassFile
 } = configurationSlice.selectors;

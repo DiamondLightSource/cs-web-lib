@@ -89,7 +89,8 @@ export const BoolButtonComponent = (
       ...props,
       customColors: { onColor: props?.onColor, offColor: props?.offColor }
     },
-    widgetName
+    widgetName,
+    props.class
   );
 
   const {

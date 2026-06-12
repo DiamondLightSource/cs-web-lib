@@ -84,7 +84,8 @@ export const ActionButtonComponent = (
       ...props,
       actions: props?.actions as WidgetActions | undefined
     },
-    widgetName
+    widgetName,
+    props.class
   );
 
   const {

@@ -38,7 +38,7 @@ const ImageProps = {
 };
 
 export const ImageComponent = (
-  props: InferWidgetProps<typeof ImageProps>
+  props: InferWidgetProps<typeof ImageProps> & { class?: string }
 ): JSX.Element => {
   const {
     rotation = 0,
@@ -57,7 +57,7 @@ export const ImageComponent = (
 
   const overflow = props.overflow ? "visible" : "hidden";
 
-  const style = useStyle(props, widgetName);
+  const style = useStyle(props, widgetName, props.class);
   const fullStyle: CSSProperties = {
     ...style.colors,
     ...style.font,

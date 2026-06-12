@@ -76,7 +76,8 @@ export const ChoiceButtonComponent = (
 ): JSX.Element => {
   const style = useStyle(
     { ...props, customColors: { selectedColor: props?.selectedColor } },
-    widgetName
+    widgetName,
+    props.class
   );
   const {
     pvData,

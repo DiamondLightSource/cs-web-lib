@@ -27,7 +27,7 @@ const FileTester = (props: { file: File }): JSX.Element => {
   return <div>contents: {JSON.stringify(contents)}</div>;
 };
 
-function getFileState(): CsState {
+export function getFileState(): CsState {
   return {
     valueCache: {},
     subscriptions: {},

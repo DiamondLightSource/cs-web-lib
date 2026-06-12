@@ -1,0 +1,114 @@
+import React from "react";
+import { contextRender, createRootStoreState } from "../../testResources";
+import { vi } from "vitest";
+import { act, screen } from "@testing-library/react";
+import { ensureWidgetsRegistered } from "../widgets";
+import { useClassFile } from "./useClassFile";
+import { CsWebLibConfig } from "../../redux";
+import { phoebusTheme } from "../../phoebusTheme";
+import { createTheme } from "@mui/material";
+import { getFileState } from "./useFile.test";
+ensureWidgetsRegistered();
+
+const initialState: CsWebLibConfig = {
+  storeMode: "DEV",
+  PVWS_SOCKET: "",
+  PVWS_SSL: true,
+  THROTTLE_PERIOD: 100,
+  defaultMjpgEndpoint: "",
+  csWebLibFeatureFlags: {
+    enableDynamicScripts: false
+  }
+};
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace NodeJS {
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface Global {}
+  }
+}
+
+interface GlobalFetch extends NodeJS.Global {
+  fetch: any;
+}
+const globalWithFetch = global as GlobalFetch;
+
+const ClassFileTester = (): JSX.Element => {
+  const contents = useClassFile();
+  return <div>contents: {JSON.stringify(contents.palette)}</div>;
+};
+
+describe("useClassFile", (): void => {
+  it("returns default phoebus theme if no classfile", (): void => {
+    const { getByText } = contextRender(
+      <ClassFileTester />,
+      {},
+      {},
+      createRootStoreState(getFileState(), undefined, undefined, initialState),
+      {}
+    );
+
+    expect(
+      getByText(`contents: ${JSON.stringify(phoebusTheme.palette)}`)
+    ).toBeInTheDocument();
+  });
+
+  it("returns theme with classes if classfile", async (): Promise<void> => {
+    const mockSuccessResponse = `<?xml version="1.0" encoding="UTF-8"?>
+      <display version="2.0.0">
+        <name>Widget Classes</name>
+        <y use_class="true">0</y>
+        <widget type="action_button" version="3.0.0">
+          <name>MY_CLASS</name>
+          <x>390</x>
+          <y>180</y>
+          <foreground_color use_class="true">
+            <color name="Text" red="0" green="0" blue="0">
+            </color>
+          </foreground_color>
+          <background_color use_class="true">
+            <color name="STOP" red="0" green="0" blue="255">
+            </color>
+          </background_color>
+          <tooltip>$(actions)</tooltip>
+        </widget>
+      </display>`;
+    const mockJsonPromise = Promise.resolve(mockSuccessResponse);
+    const mockFetchPromise = Promise.resolve({
+      text: (): Promise<unknown> => mockJsonPromise
+    });
+    const mockFetch = (): Promise<unknown> => mockFetchPromise;
+    vi.spyOn(globalWithFetch, "fetch").mockImplementation(mockFetch);
+    await act(async () => {
+      contextRender(
+        <ClassFileTester />,
+        {},
+        {},
+        createRootStoreState(getFileState(), undefined, undefined, {
+          classFile: "myclass.bcf",
+          ...initialState
+        }),
+        {}
+      );
+    });
+
+    const responseContent = JSON.stringify(
+      createTheme({
+        customName: "class",
+        palette: {
+          ...phoebusTheme.palette,
+          ...{
+            MY_CLASSactionbutton: {
+              main: "rgba(0,0,255,1)",
+              contrastText: "rgba(0,0,0,1)"
+            }
+          }
+        }
+      }).palette
+    );
+    expect(
+      screen.getByText(`contents: ${responseContent}`)
+    ).toBeInTheDocument();
+  });
+});

@@ -87,7 +87,7 @@ const TextField = styled(MuiTextField)({
 export const SmartInputComponent = (
   props: PVComponent & InferWidgetProps<typeof InputComponentProps>
 ): JSX.Element => {
-  const style = useStyle(props, widgetName);
+  const style = useStyle(props, widgetName, props.class);
 
   const {
     precision = -1,

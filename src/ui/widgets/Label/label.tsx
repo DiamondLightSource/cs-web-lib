@@ -54,12 +54,13 @@ const Typography = styled(MuiTypography)({
 });
 
 export const LabelComponent = (
-  props: InferWidgetProps<typeof LabelProps>
+  props: InferWidgetProps<typeof LabelProps> & { class?: string }
 ): JSX.Element => {
   // Default labels to transparent.
   const style = useStyle(
     { ...props, transparent: props.transparent ?? true },
-    widgetName
+    widgetName,
+    props.class
   );
 
   const {

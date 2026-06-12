@@ -26,7 +26,9 @@ const BasicPropsType = {
   tooltip: StringPropOpt,
   border: BorderPropOpt,
   visible: BoolPropOpt,
-  mjpgEndpoints: StringArrayPropOpt
+  mjpgEndpoints: StringArrayPropOpt,
+  class: StringPropOpt,
+  name: StringPropOpt
 };
 
 const PositionPropsType = {
@@ -67,6 +69,7 @@ type BaseWidgetProps = {
 
 type ComponentProps = {
   style?: Record<string, string>;
+  class?: string;
 };
 
 // Props used by the ConnectingComponentWidget wrapper
