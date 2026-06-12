@@ -6,7 +6,6 @@ import { DynamicPageComponent } from "./dynamicPage";
 import { FileContext } from "../../../misc/fileContext";
 
 import { useSelector } from "react-redux";
-import { Theme } from "react-toastify";
 
 vi.mock("../../hooks/useStyle", () => ({
   useStyle: () => ({

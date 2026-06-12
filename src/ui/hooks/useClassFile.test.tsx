@@ -7,8 +7,20 @@ import { useClassFile } from "./useClassFile";
 import { CsWebLibConfig } from "../../redux";
 import { phoebusTheme } from "../../phoebusTheme";
 import { createTheme } from "@mui/material";
-import { getFileState } from "./useFile.test";
+import { CsState } from "../../redux/csState";
+
 ensureWidgetsRegistered();
+
+function getFileState(): CsState {
+  return {
+    valueCache: {},
+    subscriptions: {},
+    globalMacros: {},
+    effectivePvNameMap: {},
+    deviceCache: {},
+    pvwsSettings: {}
+  };
+}
 
 const initialState: CsWebLibConfig = {
   storeMode: "DEV",

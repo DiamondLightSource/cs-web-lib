@@ -23,6 +23,10 @@ vi.mock("../../hooks/useMacros", () => ({
   recursiveResolve: vi.fn(x => x)
 }));
 
+vi.mock("../../hooks/useClassFile", () => ({
+  useClassFile: vi.fn(theme => theme || {})
+}));
+
 const mockWidgetRenderer = vi.fn((config: any) => (
   <div data-testid="rendered" />
 ));
