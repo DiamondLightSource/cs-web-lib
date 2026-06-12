@@ -28,11 +28,12 @@ const PolygonProps = {
 };
 
 export const PolygonComponent = (
-  props: InferWidgetProps<typeof PolygonProps>
+  props: InferWidgetProps<typeof PolygonProps> & { class?: string }
 ): JSX.Element => {
   const { colors, customColors } = useStyle(
     { ...props, customColors: { lineColor: props?.lineColor } },
-    widgetName
+    widgetName,
+    props.class
   );
   const { lineWidth = 3, points, rotationAngle = 0 } = props;
   //Loop over points and convert to string for svg

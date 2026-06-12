@@ -53,7 +53,7 @@ export const SliderControlProps = {
 export const SlideControlComponent = (
   props: InferWidgetProps<typeof SliderControlProps> & PVComponent
 ): JSX.Element => {
-  const style = useStyle(props, widgetName);
+  const style = useStyle(props, widgetName, props.class);
   const {
     pvData,
     enabled = true,

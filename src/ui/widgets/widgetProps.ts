@@ -29,6 +29,8 @@ const BasicPropsType = {
   border: BorderPropOpt,
   visible: BoolPropOpt,
   mjpgEndpoints: StringArrayPropOpt,
+  class: StringPropOpt,
+  name: StringPropOpt,
   widgetIdsCallback: FuncPropOpt
 };
 
@@ -70,6 +72,7 @@ type BaseWidgetProps = {
 
 type ComponentProps = {
   style?: Record<string, string>;
+  class?: string;
 };
 
 // Props used by the ConnectingComponentWidget wrapper

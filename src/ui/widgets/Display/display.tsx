@@ -37,7 +37,7 @@ const DisplayProps = {
 
 // Generic display widget to put other things inside
 export const DisplayComponent = (
-  props: InferWidgetProps<typeof DisplayProps> & { id: string }
+  props: InferWidgetProps<typeof DisplayProps> & { id: string; class?: string }
 ): JSX.Element => {
   // Macros specific to this display. Children of this component
   // can set macros by using the updateMacro function on the
@@ -57,7 +57,7 @@ export const DisplayComponent = (
     }
   };
 
-  const style = useStyle(props, widgetName);
+  const style = useStyle(props, widgetName, props.class);
 
   let extendedStyle: React.CSSProperties = {
     ...style.colors,

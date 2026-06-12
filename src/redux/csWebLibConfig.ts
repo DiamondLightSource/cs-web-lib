@@ -9,4 +9,5 @@ export type CsWebLibConfig = {
   THROTTLE_PERIOD: number | undefined;
   defaultMjpgEndpoint: string | undefined;
   csWebLibFeatureFlags: FeatureFlags;
+  classFile?: string;
 };

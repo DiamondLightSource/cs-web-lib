@@ -61,7 +61,7 @@ export const DemoImageComponent = (
   //   dataHeight = 100,
   //   visible = true
   // } = props;
-  const { colors } = useStyle(props, widgetName);
+  const { colors } = useStyle(props, widgetName, props.class);
   const { effectivePvName } = getPvValueAndName(props?.pvData);
   const urls = buildMjpgPvUrls(props?.mjpgEndpoints, effectivePvName);
 

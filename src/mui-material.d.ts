@@ -21,7 +21,19 @@ interface MeterPaletteOptions extends ExtendPaletteOptions<{
 
 declare module "@mui/material/styles" {
   interface Palette {
+    [key: string]: Palette["primary"] & {
+      onColor?: string;
+      offColor?: string;
+      borderColor?: string;
+      lineColor?: string;
+      needleColor?: string;
+      selectedColor?: string;
+      deselectedColor?: string;
+      fillColor?: string;
+      emptyColor?: string;
+    };
     arc: Palette["primary"];
+    actionbutton: Palette["primary"];
     boolbutton: Palette["primary"] & {
       onColor: string;
       offColor: string;
@@ -64,6 +76,7 @@ declare module "@mui/material/styles" {
   }
 
   interface PaletteOptions {
+    actionbutton?: PaletteOptions["primary"];
     arc?: PaletteOptions["primary"];
     boolbutton?: Partial<PaletteOptions["primary"]> & {
       onColor: string;

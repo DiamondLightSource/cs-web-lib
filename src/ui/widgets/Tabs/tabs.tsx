@@ -53,7 +53,7 @@ export const TabBarProps = {
 };
 
 export const TabBar = (
-  props: InferWidgetProps<typeof TabBarProps>
+  props: InferWidgetProps<typeof TabBarProps> & { class?: string }
 ): JSX.Element => {
   const { font, customColors } = useStyle(
     {
@@ -63,7 +63,8 @@ export const TabBar = (
         deselectedColor: props?.deselectedColor
       }
     },
-    widgetName
+    widgetName,
+    props.class
   );
   const {
     direction = 0,

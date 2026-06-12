@@ -51,7 +51,8 @@ export const LedComponent = (props: LedComponentProps): JSX.Element => {
         lineColor: props?.lineColor
       }
     },
-    widgetName
+    widgetName,
+    props.class
   );
 
   const { value } = getPvValueAndName(pvData);
