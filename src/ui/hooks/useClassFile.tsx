@@ -59,6 +59,27 @@ export function useClassFile(userTheme?: Theme): Theme {
   return theme;
 }
 
+/**
+ * Convert individual widget props into an object
+ * containing all class props on the widget, for a given group
+ * e.g. all color classes
+ * @param widget
+ * @param allowedProps set of props for given group
+ * @param mapper func that returns correct value for group
+ * @returns
+ */
+export function extractThemeProps(
+  widget: WidgetDescription,
+  allowedProps: Set<string>,
+  mapper: (value: any) => any
+): Record<string, any> {
+  return Object.fromEntries(
+    Object.entries(widget)
+      .filter(([key]) => allowedProps.has(key))
+      .map(([key, value]) => [keyMap[key] ?? key, mapper(value) ?? undefined])
+  );
+}
+
 export function createClassTheme(classFile: WidgetDescription): Theme {
   // If classfile is empty, do nothing
   if (!classFile.children) return phoebusTheme;
@@ -71,47 +92,19 @@ export function createClassTheme(classFile: WidgetDescription): Theme {
     // Construct palette name from widget type and classname
     const paletteName = `${child.name}${widgetType}`;
 
-    // Only colors go in the theme palette
-    const colorMatches = Object.entries(child)
-      .filter(([key]) => CLASS_COLOR_PROPS.has(key))
-      .map(([key, value]) => ({ key, value }));
+    const colours = extractThemeProps(
+      child,
+      CLASS_COLOR_PROPS,
+      value => value?.colorString
+    );
+    if (Object.keys(colours).length) palette[paletteName] = colours;
 
-    // Assign colors to palette
-    if (colorMatches.length > 0)
-      palette[paletteName] = {
-        // Put Phoebus theme defaults, overwrite with class props
-        ...phoebusTheme.palette[widgetType],
-        ...Object.fromEntries(
-          colorMatches.map(({ key, value }) => [
-            keyMap[key] ?? key,
-            value?.colorString ?? undefined
-          ])
-        )
-      };
+    const fonts = extractThemeProps(child, CLASS_FONT_PROPS, value =>
+      fontToCss(value)
+    );
+    if (Object.keys(fonts).length) typography[paletteName] = fonts;
 
-    // Only colors go in the theme palette
-    const fontMatches = Object.entries(child)
-      .filter(([key]) => CLASS_FONT_PROPS.has(key))
-      .map(([key, value]) => ({ key, value }));
-
-    // Assign fonts to typography
-    if (fontMatches.length > 0)
-      typography[paletteName] = {
-        ...Object.fromEntries(
-          fontMatches.map(({ key, value }) => [
-            keyMap[key] ?? key,
-            fontToCss(value) ?? undefined
-          ])
-        )
-      };
-
-    const borderMatch = child.border;
-    if (borderMatch.width > 0)
-      borders[paletteName] = {
-        // Put Phoebus theme defaults, overwrite with class props
-        ...phoebusTheme.borders[widgetType],
-        ...borderToCss(borderMatch)
-      };
+    borders[paletteName] = borderToCss(child.border);
   });
 
   // Create Theme

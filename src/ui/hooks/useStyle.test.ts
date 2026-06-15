@@ -38,9 +38,21 @@ const mockTheme = {
       borderWidth: 2,
       borderColor: "red",
       borderRadius: 4
+    },
+    MY_CLASSwidgetA: {
+      borderStyle: "solid",
+      borderWidth: 3,
+      borderColor: "green",
+      borderRadius: 5
     }
   },
-  typography: { fontSize: 14 }
+  typography: {
+    fontSize: 14,
+    MY_CLASSwidgetA: {
+      fontSize: 10,
+      fontFamily: "Montserrat"
+    }
+  }
 };
 
 beforeEach(() => {
@@ -105,6 +117,17 @@ describe("useStyle", () => {
     });
   });
 
+  it("uses class border when provided", () => {
+    const { result } = renderHook(() => useStyle({}, "widgetA", "MY_CLASS"));
+
+    expect(result.current.border).toEqual({
+      borderStyle: "solid",
+      borderWidth: 3,
+      borderColor: "green",
+      borderRadius: 5
+    });
+  });
+
   it("returns customColors, overriding only matching keys", () => {
     const { result } = renderHook(() =>
       useStyle(
@@ -147,6 +170,15 @@ describe("useStyle", () => {
     const { result } = renderHook(() => useStyle({}));
 
     expect(result.current.font).toEqual(mockTheme.typography);
+  });
+
+  it("uses class font when class exists", () => {
+    const { result } = renderHook(() => useStyle({}, "widgetA", "MY_CLASS"));
+
+    expect(result.current.font).toEqual({
+      fontFamily: "Montserrat",
+      fontSize: 10
+    });
   });
 
   it("cursor is pointer when actions exist", () => {

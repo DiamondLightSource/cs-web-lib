@@ -95,36 +95,31 @@ export const useStyle = (
   const themeFont = selectFont(theme, themeName);
 
   const propsBorder = borderToCss(props.border);
-  const classBorder = className && themeName in theme?.borders;
-  const border = {
-    borderStyle: classBorder
-      ? themeBorder?.borderStyle
-      : (propsBorder?.borderStyle ?? themeBorder?.borderStyle),
-    borderWidth: classBorder
-      ? themeBorder?.borderWidth
-      : (propsBorder?.borderWidth ?? themeBorder?.borderWidth),
-    borderColor: classBorder
-      ? themeBorder?.borderColor
-      : (propsBorder?.borderColor ?? themeBorder?.borderColor),
-    borderRadius: classBorder
-      ? themeBorder?.borderRadius
-      : (propsBorder?.borderRadius ?? themeBorder?.borderRadius)
-  };
+  const hasClassBorder = Boolean(className && themeName in theme?.borders);
+  const border = hasClassBorder
+    ? themeBorder
+    : {
+        ...themeBorder,
+        ...propsBorder
+      };
 
   const visible = props.visible === undefined || props.visible;
 
-  const classColour = className && themeName in theme?.palette;
+  const hasClassColour = Boolean(className && themeName in theme?.palette);
   // If palette for class exists, use that
-  const foregroundColor = classColour
-    ? themePalette.contrastText
-    : foregroundColorSelector(themePalette, props?.foregroundColor);
-  const backgroundColor = classColour
-    ? themePalette.main
-    : backgroundColorSelector(
-        themePalette,
-        props?.backgroundColor,
-        props.transparent
-      );
+  const colors = hasClassColour
+    ? {
+        color: themePalette.contrastText,
+        backgroundColor: themePalette.main
+      }
+    : {
+        color: foregroundColorSelector(themePalette, props.foregroundColor),
+        backgroundColor: backgroundColorSelector(
+          themePalette,
+          props.backgroundColor,
+          props.transparent
+        )
+      };
 
   const customColors: { [key: string]: string } = Object.fromEntries(
     Object.entries(themePalette)
@@ -144,12 +139,10 @@ export const useStyle = (
       .filter(x => x[0] != null)
   );
 
-  const classFont: boolean =
-    className && themeName in theme?.typography ? true : false;
-  const font = classFont ? themeFont : fontSelector(theme, props?.font);
+  const hasClassFont = Boolean(className && themeName in theme?.typography);
+  const font = hasClassFont ? themeFont : fontSelector(theme, props?.font);
 
-  const cursor =
-    props.actions && props.actions.actions.length > 0 ? "pointer" : "auto";
+  const cursor = props.actions?.actions.length ? "pointer" : "auto";
 
   const other: CSSProperties = {
     cursor,
@@ -159,10 +152,7 @@ export const useStyle = (
   return {
     border,
     font,
-    colors: {
-      color: foregroundColor,
-      backgroundColor
-    },
+    colors: colors,
     customColors,
     other
   };

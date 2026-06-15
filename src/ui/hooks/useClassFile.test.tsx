@@ -3,12 +3,27 @@ import { contextRender, createRootStoreState } from "../../testResources";
 import { vi } from "vitest";
 import { act, screen } from "@testing-library/react";
 import { ensureWidgetsRegistered } from "../widgets";
-import { useClassFile } from "./useClassFile";
+import { extractThemeProps, useClassFile } from "./useClassFile";
 import { CsWebLibConfig } from "../../redux";
 import { phoebusTheme } from "../../phoebusTheme";
 import { createTheme } from "@mui/material";
 import { getFileState } from "./useFile.test";
+import { WidgetDescription } from "../widgets/createComponent";
+import { newAbsolutePosition } from "../../types/position";
+import { newFont } from "../../types/font";
+import { newColor } from "../../types/color";
 ensureWidgetsRegistered();
+
+const CLASS_WIDGET: WidgetDescription = {
+  type: "label",
+  id: "123",
+  fileId: "AShapeFilePath",
+  name: "MY_CLASS",
+  font: newFont(20),
+  position: newAbsolutePosition("0", "0", "0", "0"),
+  backgroundColor: newColor("rgba(56,206,56,1)"),
+  foregroundColor: newColor("rgba(29,41,69,1)")
+};
 
 const initialState: CsWebLibConfig = {
   storeMode: "DEV",
@@ -72,6 +87,15 @@ describe("useClassFile", (): void => {
             </color>
           </background_color>
           <tooltip>$(actions)</tooltip>
+          <font use_class="true">
+            <font family="Montserrat" style="REGULAR" size="8.0">
+            </font>
+          </font>
+          <border_width use_class="true">3</border_width>
+          <border_color use_class="true">
+            <color name="INVALID" red="255" green="0" blue="255">
+            </color>
+          </border_color>
         </widget>
       </display>`;
     const mockJsonPromise = Promise.resolve(mockSuccessResponse);
@@ -110,5 +134,50 @@ describe("useClassFile", (): void => {
     expect(
       screen.getByText(`contents: ${responseContent}`)
     ).toBeInTheDocument();
+  });
+});
+
+describe("extractThemeProps", (): void => {
+  it("returns nothing if no props in list match", (): void => {
+    const matches = extractThemeProps(
+      CLASS_WIDGET,
+      new Set(["offColor", "onColor"]),
+      value => value.colorString
+    );
+    expect(matches).toEqual({});
+  });
+  it("returns nothing if the map function is wrong", (): void => {
+    const matches = extractThemeProps(
+      CLASS_WIDGET,
+      new Set(["font"]),
+      value => value.colorString
+    );
+    expect(matches).toEqual({});
+  });
+  it("returns a list of matches that are correctly mapped", (): void => {
+    const matches = extractThemeProps(
+      CLASS_WIDGET,
+      new Set(["backgroundColor", "foregroundColor"]),
+      value => value.colorString
+    );
+    expect(matches).toEqual({
+      contrastText: "rgba(29,41,69,1)",
+      main: "rgba(56,206,56,1)"
+    });
+  });
+  it("returns a list of matches that don't need mapping", (): void => {
+    const matches = extractThemeProps(
+      CLASS_WIDGET,
+      new Set(["font"]),
+      value => value
+    );
+    expect(matches).toEqual({
+      font: {
+        name: undefined,
+        size: 20,
+        style: "Regular",
+        typeface: "Liberation sans"
+      }
+    });
   });
 });
