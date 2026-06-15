@@ -5,6 +5,8 @@ import { fetchAndConvert } from "./useFile";
 import { WidgetDescription } from "../widgets/createComponent";
 import { selectClassFile } from "../../redux/slices/configurationSlice";
 import { phoebusTheme } from "../../phoebusTheme";
+import { borderToCss } from "../../types/border";
+import { fontToCss } from "../../types/font";
 
 // Map widget props to MUI theme props
 const keyMap: Record<string, string> = {
@@ -12,7 +14,7 @@ const keyMap: Record<string, string> = {
   foregroundColor: "contrastText"
 };
 
-const CLASS_PROPS = new Set([
+const CLASS_COLOR_PROPS = new Set([
   "offColor",
   "onColor",
   "foregroundColor",
@@ -24,8 +26,15 @@ const CLASS_PROPS = new Set([
   "fillColor",
   "needleColor",
   "selectedColor",
-  "deselectedColor",
-  "borderColor"
+  "deselectedColor"
+]);
+
+const CLASS_FONT_PROPS = new Set([
+  "font",
+  "scaleFont",
+  "titleFont",
+  "labelFont",
+  "legendFont"
 ]);
 
 export function useClassFile(userTheme?: Theme): Theme {
@@ -39,7 +48,7 @@ export function useClassFile(userTheme?: Theme): Theme {
         "ca",
         {}
       );
-      setTheme(createClassPalettes(widgetDescription));
+      setTheme(createClassTheme(widgetDescription));
     };
 
     if (classFile !== undefined) {
@@ -50,39 +59,75 @@ export function useClassFile(userTheme?: Theme): Theme {
   return theme;
 }
 
-export function createClassPalettes(classFile: WidgetDescription): Theme {
+export function createClassTheme(classFile: WidgetDescription): Theme {
   // If classfile is empty, do nothing
   if (!classFile.children) return phoebusTheme;
 
   const palette: { [key: string]: any } = {};
+  const typography: { [key: string]: any } = {};
+  const borders: { [key: string]: any } = {};
   classFile.children?.forEach((child: WidgetDescription) => {
     const widgetType: string = child.type;
     // Construct palette name from widget type and classname
     const paletteName = `${child.name}${widgetType}`;
 
     // Only colors go in the theme palette
-    const matches = Object.entries(child)
-      .filter(([key]) => CLASS_PROPS.has(key))
+    const colorMatches = Object.entries(child)
+      .filter(([key]) => CLASS_COLOR_PROPS.has(key))
       .map(([key, value]) => ({ key, value }));
 
     // Assign colors to palette
-    palette[paletteName] = {
-      // Put Phoebus theme defaults, overwrite with class props
-      ...phoebusTheme.palette[widgetType],
-      ...Object.fromEntries(
-        matches.map(({ key, value }) => [
-          keyMap[key] ?? key,
-          value?.colorString ?? undefined
-        ])
-      )
-    };
+    if (colorMatches.length > 0)
+      palette[paletteName] = {
+        // Put Phoebus theme defaults, overwrite with class props
+        ...phoebusTheme.palette[widgetType],
+        ...Object.fromEntries(
+          colorMatches.map(({ key, value }) => [
+            keyMap[key] ?? key,
+            value?.colorString ?? undefined
+          ])
+        )
+      };
+
+    // Only colors go in the theme palette
+    const fontMatches = Object.entries(child)
+      .filter(([key]) => CLASS_FONT_PROPS.has(key))
+      .map(([key, value]) => ({ key, value }));
+
+    // Assign fonts to typography
+    if (fontMatches.length > 0)
+      typography[paletteName] = {
+        ...Object.fromEntries(
+          fontMatches.map(({ key, value }) => [
+            keyMap[key] ?? key,
+            fontToCss(value) ?? undefined
+          ])
+        )
+      };
+
+    const borderMatch = child.border;
+    if (borderMatch.width > 0)
+      borders[paletteName] = {
+        // Put Phoebus theme defaults, overwrite with class props
+        ...phoebusTheme.borders[widgetType],
+        ...borderToCss(borderMatch)
+      };
   });
+
   // Create Theme
   const classTheme = createTheme({
     customName: "class",
     palette: {
       ...phoebusTheme.palette,
       ...palette
+    },
+    typography: {
+      ...phoebusTheme.typography,
+      ...typography
+    },
+    borders: {
+      ...phoebusTheme.borders,
+      ...borders
     }
   });
   return classTheme;

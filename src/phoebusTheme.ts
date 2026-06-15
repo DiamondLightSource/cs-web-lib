@@ -149,6 +149,12 @@ export const phoebusTheme = createTheme({
       borderColor: "lightgrey",
       borderRadius: "0"
     },
+    input: {
+      borderStyle: "solid",
+      borderWidth: "0px",
+      borderColor: "#000000",
+      borderRadius: 0
+    },
     linearmeter: {
       borderStyle: "solid",
       borderWidth: "1px",

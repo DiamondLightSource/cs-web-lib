@@ -42,11 +42,23 @@ const selectPalette = (theme: Theme, themeName?: string): PaletteColor => {
   return theme?.palette?.primary;
 };
 
-const selectBorder = (theme: Theme, widgetName?: string): BorderDef => {
-  if (theme?.borders && widgetName && widgetName in theme?.borders) {
-    return theme.borders[widgetName as keyof typeof theme.borders] as BorderDef;
+const selectBorder = (theme: Theme, themeName?: string): BorderDef => {
+  if (theme?.borders && themeName && themeName in theme?.borders) {
+    return theme.borders[themeName as keyof typeof theme.borders] as BorderDef;
   }
   return theme?.borders?.default;
+};
+
+const selectFont = (theme: Theme, themeName?: string): CSSProperties => {
+  if (theme?.typography && themeName && themeName in theme?.typography) {
+    return theme.typography[
+      themeName as keyof typeof theme.typography
+    ] as CSSProperties;
+  }
+  return {
+    fontFamily: theme?.typography?.fontFamily ?? "Liberation Sans",
+    fontSize: theme?.typography?.fontSize ?? 14
+  } as CSSProperties;
 };
 
 const foregroundColorSelector = (
@@ -79,23 +91,34 @@ export const useStyle = (
   const theme = useTheme();
   const themeName = `${className ?? ""}${widgetName}`;
   const themePalette = selectPalette(theme, themeName);
-  const themeBorder = selectBorder(theme, widgetName);
+  const themeBorder = selectBorder(theme, themeName);
+  const themeFont = selectFont(theme, themeName);
+
   const propsBorder = borderToCss(props.border);
+  const classBorder = className && themeName in theme?.borders;
   const border = {
-    borderStyle: propsBorder?.borderStyle ?? themeBorder?.borderStyle,
-    borderWidth: propsBorder?.borderWidth ?? themeBorder?.borderWidth,
-    borderColor: propsBorder?.borderColor ?? themeBorder?.borderColor,
-    borderRadius: propsBorder?.borderRadius ?? themeBorder?.borderRadius
+    borderStyle: classBorder
+      ? themeBorder?.borderStyle
+      : (propsBorder?.borderStyle ?? themeBorder?.borderStyle),
+    borderWidth: classBorder
+      ? themeBorder?.borderWidth
+      : (propsBorder?.borderWidth ?? themeBorder?.borderWidth),
+    borderColor: classBorder
+      ? themeBorder?.borderColor
+      : (propsBorder?.borderColor ?? themeBorder?.borderColor),
+    borderRadius: classBorder
+      ? themeBorder?.borderRadius
+      : (propsBorder?.borderRadius ?? themeBorder?.borderRadius)
   };
 
   const visible = props.visible === undefined || props.visible;
 
-  const classExists = className && themeName in theme?.palette;
+  const classColour = className && themeName in theme?.palette;
   // If palette for class exists, use that
-  const foregroundColor = classExists
+  const foregroundColor = classColour
     ? themePalette.contrastText
     : foregroundColorSelector(themePalette, props?.foregroundColor);
-  const backgroundColor = classExists
+  const backgroundColor = classColour
     ? themePalette.main
     : backgroundColorSelector(
         themePalette,
@@ -121,7 +144,9 @@ export const useStyle = (
       .filter(x => x[0] != null)
   );
 
-  const font = fontSelector(theme, props?.font);
+  const classFont: boolean =
+    className && themeName in theme?.typography ? true : false;
+  const font = classFont ? themeFont : fontSelector(theme, props?.font);
 
   const cursor =
     props.actions && props.actions.actions.length > 0 ? "pointer" : "auto";
