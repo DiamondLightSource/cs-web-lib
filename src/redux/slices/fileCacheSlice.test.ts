@@ -14,7 +14,8 @@ import fileCacheReducer, {
   createDisplayInstanceFromFile,
   displayInstanceUpdateResponsiveLayout,
   selectDisplayInstance,
-  selectDisplayInstanceByFileAndMacros
+  selectDisplayInstanceByFileAndMacros,
+  displayInstanceUpdateGridLayout
 } from "./fileCacheSlice";
 
 const initialState: FileCacheState = {
@@ -565,6 +566,110 @@ describe("createDisplayInstanceFromFile", () => {
     const result = fileCacheReducer(state, action);
 
     expect(Object.keys(result.displayInstanceCache)).toHaveLength(1);
+  });
+});
+
+describe("displayInstanceUpdateGridLayout", () => {
+  const baseDisplay = {
+    id: "display1",
+    type: "displayGridLayout",
+    fileId: "file",
+    gridLayout: [],
+    children: []
+  };
+
+  const initialState: FileCacheState = {
+    fileCache: {
+      "file.bob": baseDisplay as any
+    },
+    displayInstanceCache: {
+      UUID1: {
+        uuid: "UUID1",
+        fileId: "file.bob",
+        macros: {},
+        hash: "",
+        description: baseDisplay
+      }
+    },
+    displayInstanceIndex: {}
+  };
+
+  it("updates gridLayout on a valid display", () => {
+    const newLayout = [{ i: "a", x: 1, y: 2, w: 3, h: 4 }];
+
+    const result = fileCacheReducer(
+      initialState,
+      displayInstanceUpdateGridLayout({
+        embeddedDisplayUuid: "UUID1",
+        gridDisplayId: "display1",
+        gridLayout: newLayout
+      })
+    );
+
+    const display = result.displayInstanceCache["UUID1"].description;
+
+    expect(display.gridLayout).toEqual(newLayout);
+  });
+
+  it("does nothing if display instance is missing", () => {
+    const state: FileCacheState = {
+      fileCache: {},
+      displayInstanceCache: {},
+      displayInstanceIndex: {}
+    };
+
+    const result = fileCacheReducer(
+      state,
+      displayInstanceUpdateGridLayout({
+        embeddedDisplayUuid: "missing",
+        gridDisplayId: "display1",
+        gridLayout: []
+      })
+    );
+
+    expect(result).toEqual(state);
+  });
+
+  it("does nothing if display not found", () => {
+    const result = fileCacheReducer(
+      initialState,
+      displayInstanceUpdateGridLayout({
+        embeddedDisplayUuid: "UUID1",
+        gridDisplayId: "missing",
+        gridLayout: []
+      })
+    );
+
+    expect(result).toEqual(initialState);
+  });
+
+  it("does nothing if display type is not displayGridLayout", () => {
+    const badState: FileCacheState = {
+      ...initialState,
+      displayInstanceCache: {
+        UUID1: {
+          uuid: "UUID1",
+          fileId: "file.bob",
+          macros: {},
+          hash: "",
+          description: {
+            ...baseDisplay,
+            type: "shape" // wrong type
+          }
+        }
+      }
+    };
+
+    const result = fileCacheReducer(
+      badState,
+      displayInstanceUpdateGridLayout({
+        embeddedDisplayUuid: "UUID1",
+        gridDisplayId: "display1",
+        gridLayout: []
+      })
+    );
+
+    expect(result).toEqual(badState);
   });
 });
 

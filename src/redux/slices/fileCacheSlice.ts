@@ -131,6 +131,29 @@ const fileCacheSlice = createSlice({
         }
       });
     },
+    displayInstanceUpdateGridLayout(
+      state,
+      action: PayloadAction<{
+        embeddedDisplayUuid: string;
+        gridDisplayId: string;
+        gridLayout: Layout;
+      }>
+    ) {
+      const { embeddedDisplayUuid, gridDisplayId, gridLayout } = action.payload;
+
+      const displayInstance = state.displayInstanceCache?.[embeddedDisplayUuid];
+      if (!displayInstance) {
+        return;
+      }
+
+      const display = findWidgetById(
+        [displayInstance.description],
+        gridDisplayId
+      );
+
+      if (!display || display.type !== "displayGridLayout") return;
+      display.gridLayout = gridLayout;
+    },
 
     displayInstanceSetResponsiveLayout(
       state,
@@ -253,6 +276,7 @@ export const {
   refreshFile,
   displayInstanceSetGridLayout,
   displayInstanceSetResponsiveLayout,
+  displayInstanceUpdateGridLayout,
   displayInstanceUpdateResponsiveLayout,
   createDisplayInstanceFromFile
 } = fileCacheSlice.actions;

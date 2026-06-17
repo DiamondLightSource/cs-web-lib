@@ -3,7 +3,8 @@ import React, {
   useContext,
   ReactNode,
   useMemo,
-  useEffect
+  useEffect,
+  useRef
 } from "react";
 import {
   Layout,
@@ -41,6 +42,7 @@ import { useStyle } from "../../hooks/useStyle";
 import { calculateDefaultLayout, toNumber } from "./displayLayoutUtilities";
 import {
   displayInstanceSetGridLayout,
+  displayInstanceUpdateGridLayout,
   makeSelectWidgetPosition
 } from "../../../redux/slices/fileCacheSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -83,6 +85,9 @@ export const DisplayGridLayoutComponent = (
   // can set macros by using the updateMacro function on the
   // context.
   const dispatch = useDispatch();
+  const isInteractingRef = useRef(false);
+  const shouldCommitRef = useRef(false);
+
   const gridCellDragEnabled =
     props?.gridCellDragEnabled == null ? true : props?.gridCellDragEnabled;
   const gridCellResizeEnabled =
@@ -239,6 +244,18 @@ export const DisplayGridLayoutComponent = (
             }}
             resizeConfig={{ enabled: gridCellResizeEnabled, handles: ["se"] }}
             compactor={verticalCompactor}
+            onLayoutChange={layout => {
+              if (!isInteractingRef.current && shouldCommitRef.current) {
+                dispatch(
+                  displayInstanceUpdateGridLayout({
+                    embeddedDisplayUuid: props.embeddedDisplayUuid,
+                    gridDisplayId: props.id,
+                    gridLayout: layout
+                  })
+                );
+                shouldCommitRef.current = false;
+              }
+            }}
             onDragStart={(
               layout,
               oldItem,
@@ -249,10 +266,20 @@ export const DisplayGridLayoutComponent = (
             ) => {
               if (element?.style && gridCellDragEnabled)
                 element.style.cursor = "grabbing";
+              isInteractingRef.current = true;
             }}
             onDragStop={(layout, oldItem, newItem, placeholder, e, element) => {
               if (element?.style && gridCellDragEnabled)
                 element.style.cursor = "grab";
+              isInteractingRef.current = false;
+              shouldCommitRef.current = true;
+            }}
+            onResizeStart={() => {
+              isInteractingRef.current = true;
+            }}
+            onResizeStop={() => {
+              isInteractingRef.current = false;
+              shouldCommitRef.current = true;
             }}
             style={{
               ...style.colors,
