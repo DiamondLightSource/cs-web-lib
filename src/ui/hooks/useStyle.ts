@@ -4,6 +4,8 @@ import { Font, fontToCss } from "../../types/font";
 import { CSSProperties } from "react";
 import { borderToCss } from "../../types/border";
 import { WidgetActions } from "../widgets/widgetActions";
+import { useSelector } from "react-redux";
+import { selectClassStyle, selectStyle } from "../../redux/slices/styleSlice";
 
 export interface UseStyleResult {
   border: {
@@ -90,6 +92,7 @@ export const useStyle = (
 ): UseStyleResult => {
   const theme = useTheme();
   const themeName = `${className ?? ""}${widgetName}`;
+  const style = useSelector(state => selectClassStyle(state, themeName));
   const themePalette = selectPalette(theme, themeName);
   const themeBorder = selectBorder(theme, themeName);
   const themeFont = selectFont(theme, themeName);
