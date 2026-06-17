@@ -400,22 +400,30 @@ describe("makeSelectWidgetPosition", () => {
         id: "child1",
         type: "shape",
         position
-      }
+      } as Partial<WidgetDescription>
     ]
-  };
+  } as Partial<WidgetDescription>;
 
   const state = createRootStoreState(undefined, undefined, {
     fileCache: {
       "file.bob": file as any
     },
-    displayInstanceCache: {},
+    displayInstanceCache: {
+      abcde1234: {
+        fileId: "file.bob",
+        uuid: "abcde1234",
+        hash: "",
+        macros: {},
+        description: file as WidgetDescription
+      }
+    },
     displayInstanceIndex: {}
   });
 
   test("returns widget position when found", () => {
     const selector = makeSelectWidgetPosition();
 
-    const result = selector(state, "file.bob", "child1");
+    const result = selector(state, "abcde1234", "child1");
 
     expect(result).toEqual(position);
   });
@@ -423,7 +431,7 @@ describe("makeSelectWidgetPosition", () => {
   test("returns undefined if widget not found", () => {
     const selector = makeSelectWidgetPosition();
 
-    const result = selector(state, "file.bob", "missing");
+    const result = selector(state, "abcde1234", "missing");
 
     expect(result).toBeUndefined();
   });
@@ -431,7 +439,7 @@ describe("makeSelectWidgetPosition", () => {
   test("returns undefined if file not found", () => {
     const selector = makeSelectWidgetPosition();
 
-    const result = selector(state, "missing.bob", "child1");
+    const result = selector(state, "XYZ0987", "child1");
 
     expect(result).toBeUndefined();
   });
@@ -439,8 +447,8 @@ describe("makeSelectWidgetPosition", () => {
   test("memoizes results (same inputs)", () => {
     const selector = makeSelectWidgetPosition();
 
-    const result1 = selector(state, "file.bob", "child1");
-    const result2 = selector(state, "file.bob", "child1");
+    const result1 = selector(state, "abcde1234", "child1");
+    const result2 = selector(state, "abcde1234", "child1");
 
     expect(result1).toBe(result2);
   });

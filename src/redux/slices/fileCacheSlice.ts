@@ -299,10 +299,15 @@ export const selectDisplayInstanceByFileAndMacros = createSelector(
  */
 export const makeSelectWidgetPosition = () =>
   createSelector(
-    [selectFile, (_state: any, _fileId: string, widgetId: string) => widgetId],
-    (file, widgetId) =>
-      file
-        ? (findWidgetById([file], widgetId)?.position as Position | undefined)
+    [
+      selectDisplayInstance,
+      (_state: any, _uuId: string, widgetId: string) => widgetId
+    ],
+    (displayInstance, widgetId) =>
+      displayInstance?.description
+        ? (findWidgetById([displayInstance.description], widgetId)?.position as
+            | Position
+            | undefined)
         : undefined
   );
 

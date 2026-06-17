@@ -95,7 +95,7 @@ export const DisplayGridLayoutComponent = (
 
   const selectWidgetPosition = useMemo(makeSelectWidgetPosition, []);
   const position = useSelector(state =>
-    selectWidgetPosition(state, props.fileId, props.id)
+    selectWidgetPosition(state, props.embeddedDisplayUuid, props.id)
   );
   const displayWidth = toNumber(position?.width, 1200);
   const cellHeight = Number(props.gridCellHeight ?? defaultRowHeight);
