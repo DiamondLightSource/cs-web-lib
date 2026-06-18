@@ -132,6 +132,7 @@ declare module "@mui/material/styles" {
   interface Theme {
     customName?: string;
     borders: {
+      [key: string]: BorderDef;
       default: BorderDef;
       dynamictabs: BorderDef;
       linearmeter: BorderDef;
@@ -145,6 +146,7 @@ declare module "@mui/material/styles" {
   interface ThemeOptions {
     customName?: string;
     borders?: {
+      [key: string]: Partial<BorderDef>;
       default?: Partial<BorderDef>;
       dynamictabs?: Partial<BorderDef>;
       linearmeter?: Partial<BorderDef>;
