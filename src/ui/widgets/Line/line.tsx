@@ -1,5 +1,4 @@
 import React from "react";
-import { v4 as uuidv4 } from "uuid";
 import { Widget } from "../widget";
 import { PVWidgetPropType, PVComponent } from "../widgetProps";
 import {
@@ -73,7 +72,7 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
   const transform = `rotation(${rotationAngle},0,0)`;
 
   // Each marker definition needs a unique ID or colours overlap
-  const uid = uuidv4();
+  const uid = crypto.randomUUID();
 
   // Create a marker if arrows set
   let arrowConfig = {};

@@ -1,6 +1,6 @@
 /* A component to load files directly. */
 
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import log from "loglevel";
 
 import { errorWidget, widgetDescriptionToComponent } from "../createComponent";
@@ -26,7 +26,7 @@ import { GroupBoxComponent } from "../GroupBox/groupBox";
 import { useId } from "react-id-generator";
 import { getOptionalValue, trimFromString } from "../utils";
 import { Theme, ThemeProvider } from "@mui/material";
-import { useFile, File } from "../../hooks/useFile";
+import { useFile, File, EMPTY_WIDGET } from "../../hooks/useFile";
 import { recursiveResolve } from "../../hooks/useMacros";
 import { useRules } from "../../hooks/useRules";
 import { useClassFile } from "../../hooks/useClassFile";
@@ -41,6 +41,7 @@ const RESIZE_STRINGS = [
 
 export interface EmbeddedDisplayPropsExtra {
   theme?: Theme;
+  widgetIdsCallback?: (embeddedDisplayUuid: string, id: string) => void;
 }
 
 const EmbeddedDisplayProps = {
@@ -87,10 +88,22 @@ export const EmbeddedDisplay = (
 
   const theme = useClassFile(props.theme);
   const resolvedProps = useRules(macroProps);
-  const description = useFile(
+  const [description, embeddedDisplayUuid] = useFile(
     resolvedProps.file as File,
     embeddedDisplayMacroContext.macros
   );
+
+  const widgetIdsCallback = props?.widgetIdsCallback;
+  useEffect(() => {
+    if (widgetIdsCallback && description.fileId !== EMPTY_WIDGET.fileId) {
+      widgetIdsCallback(embeddedDisplayUuid, description.id);
+    }
+  }, [
+    widgetIdsCallback,
+    embeddedDisplayUuid,
+    description.fileId,
+    description.id
+  ]);
 
   let resize = resolvedProps.resize || "scroll-content";
   // If number, convert back to string
@@ -253,7 +266,8 @@ export const EmbeddedDisplay = (
     component = widgetDescriptionToComponent(
       {
         type: "display",
-        id: `display_${crypto.randomUUID()}`,
+        id: `display_${embeddedDisplayUuid}`,
+        embeddedDisplayUuid: embeddedDisplayUuid,
         fileId: props?.file?.path,
         position: resolvedProps.position,
         backgroundColor:

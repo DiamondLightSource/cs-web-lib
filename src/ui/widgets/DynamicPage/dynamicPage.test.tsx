@@ -1,76 +1,237 @@
 import React from "react";
+import { render } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach, Mock } from "vitest";
 
-import { waitFor } from "@testing-library/react";
 import { DynamicPageComponent } from "./dynamicPage";
-import { PageState } from "../../../misc/fileContext";
-import { contextRender } from "../../../testResources";
+import { FileContext } from "../../../misc/fileContext";
 
-import { ensureWidgetsRegistered } from "..";
-import { vi } from "vitest";
-import { createMockStyle } from "../../../test-utils/styleTestUtils";
-ensureWidgetsRegistered();
+import { useSelector } from "react-redux";
+import { Theme } from "@mui/material";
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: vi.fn(() => createMockStyle())
+  useStyle: () => ({
+    border: {},
+    colors: {},
+    font: {},
+    other: {}
+  })
 }));
 
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace NodeJS {
-    // eslint-disable-next-line @typescript-eslint/no-empty-interface
-    interface Global {}
+const mockEmbeddedDisplay = vi.fn((props?: any) => (
+  <div data-testid="embedded-display" />
+));
+
+vi.mock("../EmbeddedDisplay/embeddedDisplay", () => ({
+  EmbeddedDisplay: (props: any) => {
+    mockEmbeddedDisplay(props);
+    return <div data-testid="embedded-display" />;
   }
-}
+}));
 
-interface GlobalFetch extends NodeJS.Global {
-  fetch: any;
-}
-const globalWithFetch = global as GlobalFetch;
+const mockActionButton = vi.fn((props?: any) => (
+  <div data-testid="action-button" />
+));
 
-beforeEach((): void => {
-  // Ensure the fetch() function mock is always cleared.
-  vi.spyOn(globalWithFetch, "fetch").mockClear();
+vi.mock("../ActionButton/actionButton", () => ({
+  ActionButton: (props: any) => {
+    mockActionButton(props);
+    return <div data-testid="action-button" />;
+  }
+}));
+
+vi.mock("react-redux", () => ({
+  useSelector: vi.fn()
+}));
+
+const renderWithContext = (ui: React.ReactNode, pageState: any = {}) => {
+  return render(
+    <FileContext.Provider
+      value={
+        {
+          pageState,
+          removePage: vi.fn()
+        } as any
+      }
+    >
+      {ui}
+    </FileContext.Provider>
+  );
+};
+
+const mockedUseSelector = useSelector as unknown as Mock;
+
+const baseProps = {
+  location: "test-location",
+  position: { x: "0", y: "0", width: "100%", height: "100%" }
+};
+
+beforeEach(() => {
+  vi.clearAllMocks();
 });
 
-describe("<DynamicPage>", (): void => {
-  it("shows placeholder if no page is loaded", () => {
-    const { queryByText } = contextRender(
-      <DynamicPageComponent location="testlocation" />,
-      {},
-      {}
-    );
-    expect(queryByText(/.*no file loaded/)).toBeInTheDocument();
+describe("DynamicPageComponent (unit)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockedUseSelector.mockReset();
   });
 
-  it("loads a page", async (): Promise<void> => {
-    const mockSuccessResponse =
-      '{"type": "display", "position": "relative", "children": [ { "type": "label", "position": "relative", "text": "hello" } ] }';
-    const mockJsonPromise = Promise.resolve(mockSuccessResponse);
-    const mockFetchPromise = Promise.resolve({
-      text: (): Promise<unknown> => mockJsonPromise
-    });
-    const mockFetch = (): Promise<unknown> => mockFetchPromise;
-    vi.spyOn(globalWithFetch, "fetch").mockImplementation(mockFetch);
-
-    const initialPageState: PageState = {
-      testlocation: {
-        path: "/json/test.json",
-        macros: {},
-        defaultProtocol: "pva"
-      }
-    };
-    const { queryByText } = contextRender(
-      <DynamicPageComponent location="testlocation" />,
-      initialPageState
+  it("renders message when no file is loaded", () => {
+    const { getByText } = renderWithContext(
+      <DynamicPageComponent {...baseProps} />,
+      {}
     );
 
-    expect(queryByText("hello")).not.toBeInTheDocument();
+    expect(
+      getByText(/Dynamic page "test-location": no file loaded/i)
+    ).toBeInTheDocument();
+  });
 
-    expect(globalWithFetch.fetch).toHaveBeenCalledTimes(1);
-    expect(globalWithFetch.fetch).toHaveBeenCalledWith("/json/test.json");
+  it("renders EmbeddedDisplay when file exists", () => {
+    const file = { path: "file1", macros: {} };
 
-    await waitFor((): void => {
-      expect(queryByText("hello")).toBeInTheDocument();
+    renderWithContext(<DynamicPageComponent {...baseProps} />, {
+      "test-location": file
     });
+
+    expect(mockEmbeddedDisplay).toHaveBeenCalled();
+  });
+
+  it("renders close button by default", () => {
+    const file = { path: "file1", macros: {} };
+
+    const { getByTestId } = renderWithContext(
+      <DynamicPageComponent {...baseProps} />,
+      { "test-location": file }
+    );
+
+    expect(getByTestId("action-button")).toBeInTheDocument();
+  });
+
+  it("does not render close button when showCloseButton is false", () => {
+    const file = { path: "file1", macros: {} };
+
+    const { queryByTestId } = renderWithContext(
+      <DynamicPageComponent {...baseProps} showCloseButton={false} />,
+      { "test-location": file }
+    );
+
+    expect(queryByTestId("action-button")).toBeNull();
+  });
+
+  it("passes correct props to EmbeddedDisplay (default branch)", () => {
+    const file = { path: "file1", macros: {} };
+
+    renderWithContext(<DynamicPageComponent {...baseProps} scroll={true} />, {
+      "test-location": file
+    });
+
+    const props = mockEmbeddedDisplay.mock.calls[0][0];
+
+    expect(props.file).toBe(file);
+    expect(props.scroll).toBe(true);
+    expect(props.scalingOrigin).toBe("0 0");
+  });
+
+  it("passes full-size position when showCloseButton is false", () => {
+    const file = { path: "file1", macros: {} };
+
+    renderWithContext(
+      <DynamicPageComponent {...baseProps} showCloseButton={false} />,
+      { "test-location": file }
+    );
+
+    const props = mockEmbeddedDisplay.mock.calls[0][0];
+
+    expect(props.position.width).toBe("100%");
+    expect(props.position.height).toBe("100%");
+  });
+
+  it("defaults scroll to false", () => {
+    const file = { path: "file1", macros: {} };
+
+    renderWithContext(<DynamicPageComponent {...baseProps} />, {
+      "test-location": file
+    });
+
+    const props = mockEmbeddedDisplay.mock.calls[0][0];
+
+    expect(props.scroll).toBe(false);
+  });
+
+  it("passes mjpgEndpoints combining custom and default", () => {
+    const file = { path: "file1", macros: {} };
+
+    mockedUseSelector.mockReturnValue("default-endpoint");
+
+    renderWithContext(
+      <DynamicPageComponent {...baseProps} mjpgEndpoint="custom-endpoint" />,
+      { "test-location": file }
+    );
+
+    const props = mockEmbeddedDisplay.mock.calls[0][0];
+
+    expect(props.mjpgEndpoints).toEqual([
+      "custom-endpoint",
+      "default-endpoint"
+    ]);
+  });
+
+  it("filters out undefined mjpgEndpoints", () => {
+    const file = { path: "file1", macros: {} };
+
+    mockedUseSelector.mockReturnValue("default-endpoint");
+    mockedUseSelector.mockReturnValue(undefined);
+
+    renderWithContext(<DynamicPageComponent {...baseProps} />, {
+      "test-location": file
+    });
+
+    const props = mockEmbeddedDisplay.mock.calls[0][0];
+
+    expect(props.mjpgEndpoints).toEqual([]);
+  });
+
+  it("passes widgetIdsCallback to EmbeddedDisplay", () => {
+    const file = { path: "file1", macros: {} };
+    const callback = vi.fn();
+
+    renderWithContext(
+      <DynamicPageComponent {...baseProps} widgetIdsCallback={callback} />,
+      { "test-location": file }
+    );
+
+    const props = mockEmbeddedDisplay.mock.calls[0][0];
+
+    expect(props.widgetIdsCallback).toBe(callback);
+  });
+
+  it("passes custom theme to EmbeddedDisplay", () => {
+    const file = { path: "file1", macros: {} };
+    const customTheme = {} as unknown as Theme;
+
+    renderWithContext(
+      <DynamicPageComponent {...baseProps} theme={customTheme} />,
+      { "test-location": file }
+    );
+
+    const props = mockEmbeddedDisplay.mock.calls[0][0];
+
+    expect(props.theme).toBe(customTheme);
+  });
+
+  it("wires ActionButton with correct CLOSE_PAGE payload", () => {
+    const file = { path: "file1", macros: {} };
+
+    renderWithContext(<DynamicPageComponent {...baseProps} />, {
+      "test-location": file
+    });
+
+    const actionProps = mockActionButton.mock.calls[0][0];
+    const action = actionProps.actions.actions[0];
+
+    expect(action.dynamicInfo.name).toBe("test-location");
+    expect(action.dynamicInfo.location).toBe("test-location");
+    expect(action.dynamicInfo.file).toBe(file);
+    expect(action.dynamicInfo.description).toBe("Close");
   });
 });

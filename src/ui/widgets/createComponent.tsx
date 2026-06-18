@@ -117,3 +117,19 @@ export function widgetDescriptionToComponent(
     </Component>
   );
 }
+
+/**
+ * Adds the specified fields to all nodes of the WidgetDescription tree in place
+ * @param node The current WidgetDescription instance
+ * @param fields The fields to add.
+ */
+export const injectFieldsIntoAllDescriptions = (
+  node: WidgetDescription,
+  fields: Record<string, any>
+): void => {
+  Object.assign(node, fields);
+
+  node?.children?.forEach(child => {
+    injectFieldsIntoAllDescriptions(child, fields);
+  });
+};

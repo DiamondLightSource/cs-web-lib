@@ -86,7 +86,11 @@ export const createRootStoreState = (
 ) => ({
   cs: csState ?? initialCsState,
   notifications: notifications ?? initialNotificationsState,
-  fileCache: fileCache ?? ({} as FileCache),
+  fileCache: fileCache ?? {
+    fileCache: {} as FileCache,
+    displayInstanceCache: {},
+    displayInstanceIndex: {}
+  },
   configuration: configuration ?? initialState
 });
 
@@ -115,7 +119,11 @@ export const contextWrapperGenerator = (
     preloadedState: {
       ...initialRootStoreState,
       cs: { ...initialRootStoreState.cs, globalMacros: extendedGlobalMacros },
-      fileCache: { fileCache: {} }
+      fileCache: {
+        fileCache: {},
+        displayInstanceCache: {},
+        displayInstanceIndex: {}
+      }
     }
   });
 

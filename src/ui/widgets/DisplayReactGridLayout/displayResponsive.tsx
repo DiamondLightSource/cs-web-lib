@@ -4,7 +4,8 @@ import React, {
   ReactNode,
   useEffect,
   useMemo,
-  useCallback
+  useCallback,
+  useRef
 } from "react";
 import {
   ResponsiveLayouts,
@@ -46,7 +47,10 @@ import {
   calculateDefaultLayoutWithHorizontalCompactor,
   sameKeys
 } from "./displayLayoutUtilities";
-import { fileDisplaySetResponsiveLayout } from "../../../redux/slices/fileCacheSlice";
+import {
+  displayInstanceSetResponsiveLayout,
+  displayInstanceUpdateResponsiveLayout
+} from "../../../redux/slices/fileCacheSlice";
 import log from "loglevel";
 import { Dispatch } from "@reduxjs/toolkit";
 
@@ -80,6 +84,7 @@ const DisplayResponsiveProps = {
 type propsType = InferWidgetProps<typeof DisplayResponsiveProps> & {
   id: string;
   fileId: string;
+  embeddedDisplayUuid: string;
 };
 
 // Display widget that uses react-grid-layout to provide a responsive drag and drop container
@@ -88,8 +93,12 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
   // can set macros by using the updateMacro function on the
   // context.
   const dispatch = useDispatch();
+
+  const isInteractingRef = useRef(false);
+  const shouldCommitRef = useRef(false);
+
   const { width, containerRef, mounted } = useContainerWidth({
-    measureBeforeMount: false
+    measureBeforeMount: true
   });
   const debouncedWidth = useDebouncedValue(width, 150);
   const gridCellDragEnabled =
@@ -192,7 +201,7 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
     () =>
       calculateLayout(
         props.id,
-        props.fileId,
+        props.embeddedDisplayUuid,
         props.responsiveLayouts as ResponsiveLayouts<Breakpoint>,
         areBreakpointsConsistent,
         breakpoints,
@@ -206,7 +215,7 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
       ),
     [
       dispatch,
-      props.fileId,
+      props.embeddedDisplayUuid,
       props.id,
       props.responsiveLayouts,
       childrenArray,
@@ -229,7 +238,7 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
     breakpoints,
     cols: columns,
     layouts: initialLayouts,
-    width: 0
+    width: 100
   });
 
   // Wrap the child components in a div keyed by the child id. The key MUST map to the i field of Layout item for the component.
@@ -238,6 +247,18 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
     [childrenArray, gridCellDragEnabled]
   );
 
+  const hasLayouts = useMemo(() => {
+    return (
+      props.responsiveLayouts &&
+      Object.keys(props.responsiveLayouts).length > 0 &&
+      Object.values(props.responsiveLayouts).every(
+        layout => Array.isArray(layout) && layout.length > 0
+      ) &&
+      layouts &&
+      Object.keys(layouts).length > 0
+    );
+  }, [props.responsiveLayouts, layouts]);
+
   return (
     <MacroContext.Provider value={displayMacroContext}>
       <div
@@ -245,7 +266,7 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
         style={extendedStyle}
         className="display-responsive-container"
       >
-        {mounted && props.responsiveLayouts && (
+        {mounted && hasLayouts && (
           <Responsive
             key={`grid-${props.id}`}
             className="layout"
@@ -263,6 +284,18 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
               enabled: gridCellResizeEnabled,
               handles: ["se"]
             }}
+            onLayoutChange={(layout, layouts) => {
+              if (!isInteractingRef.current && shouldCommitRef.current) {
+                dispatch(
+                  displayInstanceUpdateResponsiveLayout({
+                    embeddedDisplayUuid: props.embeddedDisplayUuid,
+                    displayId: props.id,
+                    responsiveLayouts: layouts
+                  })
+                );
+                shouldCommitRef.current = false;
+              }
+            }}
             onDragStart={(
               layout,
               oldItem,
@@ -274,11 +307,21 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
               if (element?.style != null && gridCellDragEnabled) {
                 element.style.cursor = "grabbing";
               }
+              isInteractingRef.current = true;
             }}
             onDragStop={(layout, oldItem, newItem, placeholder, e, element) => {
               if (element?.style != null && gridCellDragEnabled) {
                 element.style.cursor = "grab";
               }
+              isInteractingRef.current = false;
+              shouldCommitRef.current = true;
+            }}
+            onResizeStart={() => {
+              isInteractingRef.current = true;
+            }}
+            onResizeStop={() => {
+              isInteractingRef.current = false;
+              shouldCommitRef.current = true;
             }}
             style={{
               ...style.colors,
@@ -307,7 +350,7 @@ registerWidget(DisplayResponsive, DisplayResponsiveWidgetProps, widgetName);
 
 const calculateLayout = (
   id: string,
-  fileId: string,
+  embeddedDisplayUuid: string,
   responsiveLayouts: ResponsiveLayouts<Breakpoint>,
   areBreakpointsConsistent: boolean,
   breakpoints: Breakpoints<string>,
@@ -343,8 +386,8 @@ const calculateLayout = (
   );
 
   dispatch(
-    fileDisplaySetResponsiveLayout({
-      file: fileId,
+    displayInstanceSetResponsiveLayout({
+      embeddedDisplayUuid,
       displayId: id,
       responsiveLayouts: computedResponsiveLayouts,
       responsiveColumns: columns,

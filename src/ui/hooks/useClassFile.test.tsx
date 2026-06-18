@@ -7,11 +7,12 @@ import { extractThemeProps, useClassFile } from "./useClassFile";
 import { CsWebLibConfig } from "../../redux";
 import { phoebusTheme } from "../../phoebusTheme";
 import { createTheme } from "@mui/material";
-import { getFileState } from "./useFile.test";
+import { CsState } from "../../redux/csState";
 import { WidgetDescription } from "../widgets/createComponent";
 import { newAbsolutePosition } from "../../types/position";
 import { newFont } from "../../types/font";
 import { newColor } from "../../types/color";
+
 ensureWidgetsRegistered();
 
 const CLASS_WIDGET: WidgetDescription = {
@@ -24,6 +25,17 @@ const CLASS_WIDGET: WidgetDescription = {
   backgroundColor: newColor("rgba(56,206,56,1)"),
   foregroundColor: newColor("rgba(29,41,69,1)")
 };
+
+function getFileState(): CsState {
+  return {
+    valueCache: {},
+    subscriptions: {},
+    globalMacros: {},
+    effectivePvNameMap: {},
+    deviceCache: {},
+    pvwsSettings: {}
+  };
+}
 
 const initialState: CsWebLibConfig = {
   storeMode: "DEV",

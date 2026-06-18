@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 import { DisplayResponsiveComponent } from "./displayResponsive";
-import { fileDisplaySetResponsiveLayout } from "../../../redux/slices/fileCacheSlice";
+import { displayInstanceSetResponsiveLayout } from "../../../redux/slices/fileCacheSlice";
 import { calculateDefaultLayoutWithHorizontalCompactor } from "./displayLayoutUtilities";
 
 let capturedLayouts: any;
@@ -100,6 +100,7 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
       <DisplayResponsiveComponent
         id="display-1"
         fileId="file-1"
+        embeddedDisplayUuid="uuid1"
         responsiveBreakpoints={responsiveBreakpoints}
         responsiveLayouts={layouts}
       >
@@ -119,7 +120,11 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
 
     expect(() =>
       render(
-        <DisplayResponsiveComponent id="display-1" fileId="file-1">
+        <DisplayResponsiveComponent
+          id="display-1"
+          fileId="file-1"
+          embeddedDisplayUuid="uuid1"
+        >
           <BrokenWidget />
         </DisplayResponsiveComponent>
       )
@@ -142,6 +147,7 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
       <DisplayResponsiveComponent
         id="display-1"
         fileId="file-1"
+        embeddedDisplayUuid="uuid1"
         responsiveBreakpoints={responsiveBreakpoints}
         responsiveLayouts={layouts}
       >
@@ -175,6 +181,7 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
       <DisplayResponsiveComponent
         id="display-1"
         fileId="file-1"
+        embeddedDisplayUuid="uuid1"
         responsiveLayouts={customLayouts}
       >
         <MockWidget id="a" />
@@ -203,6 +210,7 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
       <DisplayResponsiveComponent
         id="display-1"
         fileId="file-1"
+        embeddedDisplayUuid="uuid1"
         responsiveLayouts={layouts}
         responsiveBreakpoints={{ md: 700 }}
         responsiveColumns={{ md: 4 }}
@@ -231,6 +239,7 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
       <DisplayResponsiveComponent
         id="display-1"
         fileId="file-1"
+        embeddedDisplayUuid="uuid1"
         responsiveLayouts={layouts}
         responsiveBreakpoints={responsiveBreakpoints}
         gridCellDragEnabled={false}
@@ -249,6 +258,7 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
       <DisplayResponsiveComponent
         id="display-1"
         fileId="file-1"
+        embeddedDisplayUuid="uuid1"
         responsiveLayouts={{
           md: [{ i: "a", x: 0, y: 0, w: 2, h: 2 }]
         }}
@@ -263,10 +273,10 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
     const dispatchedArg = dispatchMock.mock.calls[0][0];
 
     expect(dispatchedArg).toEqual(
-      fileDisplaySetResponsiveLayout(
+      displayInstanceSetResponsiveLayout(
         expect.objectContaining({
           displayId: "display-1",
-          file: "file-1",
+          embeddedDisplayUuid: "uuid1",
           responsiveLayouts: {
             lg: expect.any(Array)
           }
@@ -280,6 +290,7 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
       <DisplayResponsiveComponent
         id="display-1"
         fileId="file-1"
+        embeddedDisplayUuid="uuid1"
         responsiveLayouts={{
           lg: [{ i: "a", x: 0, y: 0, w: 2, h: 2 }]
         }}
@@ -298,7 +309,11 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
 
   it("uses fallback layout generator when layouts not specified", () => {
     render(
-      <DisplayResponsiveComponent id="display-1" fileId="file-1">
+      <DisplayResponsiveComponent
+        id="display-1"
+        fileId="file-1"
+        embeddedDisplayUuid="uuid1"
+      >
         <MockWidget id="a" />
       </DisplayResponsiveComponent>
     );
@@ -334,6 +349,7 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
       <DisplayResponsiveComponent
         id="display-1"
         fileId="file-1"
+        embeddedDisplayUuid="uuid1"
         responsiveLayouts={{ md: [] }}
         responsiveBreakpoints={{ lg: 1150 }}
         gridCellMargins={[3, 7]}
