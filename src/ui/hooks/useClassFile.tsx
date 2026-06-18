@@ -77,6 +77,7 @@ export function extractThemeProps(
     Object.entries(widget)
       .filter(([key]) => allowedProps.has(key))
       .map(([key, value]) => [keyMap[key] ?? key, mapper(value) ?? undefined])
+      .filter(([, v]) => v !== undefined)
   );
 }
 

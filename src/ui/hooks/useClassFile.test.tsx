@@ -154,6 +154,18 @@ describe("extractThemeProps", (): void => {
     );
     expect(matches).toEqual({});
   });
+  it("filters out undefined values", (): void => {
+    const newClassWidget = {
+      ...CLASS_WIDGET,
+      backgroundColor: { colorString: undefined }
+    };
+    const matches = extractThemeProps(
+      newClassWidget,
+      new Set(["backgroundColor", "foregroundColor"]),
+      value => value.colorString
+    );
+    expect(matches).toEqual({ contrastText: "rgba(29,41,69,1)" });
+  });
   it("returns a list of matches that are correctly mapped", (): void => {
     const matches = extractThemeProps(
       CLASS_WIDGET,
