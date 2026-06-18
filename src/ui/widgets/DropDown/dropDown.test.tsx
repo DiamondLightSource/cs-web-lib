@@ -7,17 +7,6 @@ import { vi } from "vitest";
 import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: vi.fn(() => ({
-    color: "",
-    backgroundColor: "",
-    fontFamily: undefined,
-    fontSize: undefined,
-    fontStyle: undefined,
-    fontWeight: undefined
-  }))
-}));
-
-vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() => createMockStyle())
 }));
 
