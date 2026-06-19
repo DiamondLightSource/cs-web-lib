@@ -2,6 +2,19 @@
 
 exports[`<GroupingContainerComponent /> > it matches the snapshot 1`] = `
 <div
-  style={{}}
+  style={
+    {
+      "backgroundColor": "rgba(0, 0, 0, 1)",
+      "borderColor": "green",
+      "borderRadius": "0px",
+      "borderStyle": "solid",
+      "borderWidth": "1px",
+      "color": "rgb(155, 160, 209)",
+      "fontFamily": undefined,
+      "fontSize": undefined,
+      "fontStyle": undefined,
+      "fontWeight": undefined,
+    }
+  }
 />
 `;

@@ -11,7 +11,11 @@ import { createMockStyle } from "../../../test-utils/styleTestUtils";
 import * as useSubscription from "../../hooks/useSubscription";
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: vi.fn(() => createMockStyle())
+  useStyle: vi.fn(props =>
+    createMockStyle({
+      newProps: props
+    })
+  )
 }));
 
 const mockWritePv = vi

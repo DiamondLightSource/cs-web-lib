@@ -7,7 +7,9 @@ import { vi } from "vitest";
 import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: vi.fn(() => createMockStyle({ colors: { color: "" } }))
+  useStyle: vi.fn(props =>
+    createMockStyle({ colors: { color: "" }, newProps: props })
+  )
 }));
 
 const fakeValue = newDType({ stringValue: "Fake value" });

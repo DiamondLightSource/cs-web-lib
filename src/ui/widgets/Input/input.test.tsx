@@ -10,7 +10,11 @@ import { createMockStyle } from "../../../test-utils/styleTestUtils";
 let input: JSX.Element;
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: vi.fn(() => createMockStyle())
+  useStyle: vi.fn(props =>
+    createMockStyle({
+      newProps: props
+    })
+  )
 }));
 
 beforeEach((): void => {

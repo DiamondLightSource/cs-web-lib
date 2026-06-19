@@ -11,11 +11,12 @@ import { newDType } from "../../../types/dtypes";
 import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: vi.fn(() =>
+  useStyle: vi.fn(props =>
     createMockStyle({
       font: { fontFamily: "Arial" },
       colors: { color: "rgba(0,0,0,1)" },
-      customColors: { needleColor: "rgba(0,255,0,1)" }
+      customColors: { needleColor: "rgba(0,255,0,1)" },
+      newProps: props
     })
   )
 }));

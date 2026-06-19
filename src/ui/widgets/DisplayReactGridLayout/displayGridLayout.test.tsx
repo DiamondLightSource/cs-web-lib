@@ -4,6 +4,7 @@ import React from "react";
 
 import { DisplayGridLayoutComponent } from "./displayGridLayout";
 import { MacroContext } from "../../../types/macros";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
 vi.mock("react-grid-layout", async () => {
   const actual = await vi.importActual<any>("react-grid-layout");
@@ -53,12 +54,11 @@ vi.mock("react-redux", () => ({
 }));
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: () => ({
-    colors: {},
-    font: {},
-    border: {},
-    other: {}
-  })
+  useStyle: vi.fn(props =>
+    createMockStyle({
+      newProps: props
+    })
+  )
 }));
 
 const mocks = vi.hoisted(() => ({

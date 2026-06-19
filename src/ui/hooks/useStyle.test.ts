@@ -9,6 +9,8 @@ vi.mock("@mui/material", () => ({
   useTheme: vi.fn()
 }));
 
+vi.mock("react-redux");
+
 const mockTheme = {
   palette: {
     primary: {

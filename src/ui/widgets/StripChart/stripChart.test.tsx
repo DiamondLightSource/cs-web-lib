@@ -32,12 +32,13 @@ vi.mock("@mui/material", () => ({
 }));
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: vi.fn(() =>
+  useStyle: vi.fn(props =>
     createMockStyle({
       colors: {
         color: "rgba(255,255,0,1)",
         backgroundColor: "rgba(127,0,127,1)"
-      }
+      },
+      newProps: props
     })
   )
 }));

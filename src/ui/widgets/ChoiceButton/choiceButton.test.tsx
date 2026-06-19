@@ -11,26 +11,30 @@ import { vi } from "vitest";
 import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: vi.fn(() => ({
-    colors: {
-      color: "rgb(155, 160, 209)",
-      backgroundColor: "rgba(0, 0, 0, 1)"
-    },
-    font: {
-      fontFamily: undefined,
-      fontSize: "0.75rem",
-      fontStyle: undefined,
-      fontWeight: undefined
-    }
-  }))
+  useStyle: vi.fn(props =>
+    createMockStyle({
+      colors: {
+        color: "rgb(155, 160, 209)",
+        backgroundColor: "rgba(0, 0, 0, 1)"
+      },
+      font: {
+        fontFamily: undefined,
+        fontSize: "0.75rem",
+        fontStyle: undefined,
+        fontWeight: undefined
+      },
+      newProps: props
+    })
+  )
 }));
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: vi.fn(() =>
+  useStyle: vi.fn(props =>
     createMockStyle({
       font: {
         fontSize: "0.75rem"
-      }
+      },
+      newProps: props
     })
   )
 }));

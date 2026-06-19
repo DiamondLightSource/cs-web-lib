@@ -12,7 +12,7 @@ import { createMockStyle } from "../../../test-utils/styleTestUtils";
 ensureWidgetsRegistered();
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: vi.fn(() => createMockStyle())
+  useStyle: vi.fn(props => createMockStyle({ newProps: props }))
 }));
 
 describe("<TabContainer>", (): void => {

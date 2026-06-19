@@ -35,7 +35,7 @@ vi.mock(import("@mui/material"), async importOriginal => {
 });
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: vi.fn(() =>
+  useStyle: vi.fn(props =>
     createMockStyle({
       colors: {
         color: "rgba(255,255,0,1)",
@@ -45,7 +45,8 @@ vi.mock("../../hooks/useStyle", () => ({
         fillColor: "rgba(255,100,0,1)",
         emptyColor: "rgba(127,255,127,1)"
       },
-      font: { fontFamily: "Arial", fontSize: "12px" }
+      font: { fontFamily: "Arial", fontSize: "12px" },
+      newProps: props
     })
   )
 }));
