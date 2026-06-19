@@ -1,6 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import styleReducer, { addClassStyle, initialStyleState } from "./styleSlice";
-import { selectClassStyle, selectStyle } from "./styleSlice";
+import styleReducer, {
+  addClassStyle,
+  initialStyleState,
+  selectClassStyle,
+  selectStyle
+} from "./styleSlice";
 
 const mockState = {
   classes: {

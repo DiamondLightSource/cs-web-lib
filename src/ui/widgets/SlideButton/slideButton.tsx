@@ -40,7 +40,7 @@ export type SlideButtonComponentProps = InferWidgetProps<
 export const SlideButtonComponent = (
   props: SlideButtonComponentProps
 ): JSX.Element => {
-  const style = useStyle(
+  const [style, newProps] = useStyle(
     {
       ...props,
       customColors: { onColor: props?.onColor, offColor: props?.offColor }
@@ -56,7 +56,7 @@ export const SlideButtonComponent = (
     label = "Label",
     height = WIDGET_DEFAULT_SIZES["slide_button"][1],
     width = WIDGET_DEFAULT_SIZES["slide_button"][0]
-  } = props;
+  } = newProps as SlideButtonComponentProps;
 
   const {
     value,

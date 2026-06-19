@@ -88,7 +88,7 @@ export type ReadbackComponentProps = InferWidgetProps<typeof ReadbackProps> &
 export const ReadbackComponent = (
   props: ReadbackComponentProps
 ): JSX.Element => {
-  const style = useStyle(props, widgetName, props.class);
+  const [style, newProps] = useStyle(props, widgetName, props.class);
   const {
     enabled = true,
     pvData,
@@ -105,7 +105,7 @@ export const ReadbackComponent = (
     visible = true,
     height = WIDGET_DEFAULT_SIZES["textupdate"][1],
     width = WIDGET_DEFAULT_SIZES["textupdate"][0]
-  } = props;
+  } = newProps as ReadbackComponentProps;
 
   const { value } = getPvValueAndName(pvData);
 

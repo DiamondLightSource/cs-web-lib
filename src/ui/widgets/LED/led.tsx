@@ -40,9 +40,7 @@ export type LedComponentProps = InferWidgetProps<typeof LedProps> & PVComponent;
  * tooltip property in a json file containing a led
  */
 export const LedComponent = (props: LedComponentProps): JSX.Element => {
-  const { pvData, alarmSensitive = false, bit = -1, square = false } = props;
-
-  const style = useStyle(
+  const [style, newProps] = useStyle(
     {
       ...props,
       customColors: {
@@ -54,6 +52,12 @@ export const LedComponent = (props: LedComponentProps): JSX.Element => {
     widgetName,
     props.class
   );
+  const {
+    pvData,
+    alarmSensitive = false,
+    bit = -1,
+    square = false
+  } = newProps as LedComponentProps;
 
   const { value } = getPvValueAndName(pvData);
 

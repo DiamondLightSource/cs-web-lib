@@ -35,6 +35,8 @@ export type LineComponentProps = InferWidgetProps<typeof LineProps> &
   PVComponent;
 
 export const LineComponent = (props: LineComponentProps): JSX.Element => {
+  const [style, newProps] = useStyle(props, widgetName, props.class);
+
   const {
     visible = true,
     transparent = false,
@@ -46,9 +48,7 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
     lineWidth = 3,
     lineColor,
     lineStyle = 0
-  } = props;
-
-  const style = useStyle(props, widgetName, props.class);
+  } = newProps as LineComponentProps;
 
   const color = transparent
     ? "transparent"

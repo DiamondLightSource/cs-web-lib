@@ -55,10 +55,13 @@ export const SwitchableWidget = (props: {
   );
 };
 
+type SlideShowComponentProps = InferWidgetProps<typeof SlideshowProps>;
+
 export const SlideshowComponent = (
-  props: InferWidgetProps<typeof SlideshowProps>
+  props: SlideShowComponentProps
 ): JSX.Element => {
-  const style = useStyle(props, widgetName);
+  const [style, rawProps] = useStyle(props, widgetName);
+  const newProps = rawProps as SlideShowComponentProps;
   const nextChildIndex = (index: number, length: number): number => {
     setTransition(slideRightTransition);
     if (index + 1 < length) {
@@ -86,9 +89,9 @@ export const SlideshowComponent = (
       style={{
         ...style.colors,
         ...style.border,
-        maxWidth: props.maxWidth ?? "",
-        maxHeight: props.maxHeight ?? "",
-        minHeight: props.minHeight ?? ""
+        maxWidth: newProps.maxWidth ?? "",
+        maxHeight: newProps.maxHeight ?? "",
+        minHeight: newProps.minHeight ?? ""
       }}
     >
       <button
@@ -107,7 +110,7 @@ export const SlideshowComponent = (
         onClick={(): void => {
           setTransition(slideLeftTransition);
           setChildIndex(
-            previousChildIndex(childIndex, props.children?.length ?? 0)
+            previousChildIndex(childIndex, newProps.children?.length ?? 0)
           );
         }}
       >
@@ -119,10 +122,10 @@ export const SlideshowComponent = (
           position: "relative",
           width: "80%",
           height: "100%",
-          maxHeight: props.maxHeight ?? "",
+          maxHeight: newProps.maxHeight ?? "",
           display: "flex",
           flexGrow: 1,
-          overflow: props.overflow ?? ""
+          overflow: newProps.overflow ?? ""
         }}
       >
         <SwitchableWidget
@@ -130,7 +133,7 @@ export const SlideshowComponent = (
           transition={transition}
           nodeRef={nodeRef}
         >
-          {props.children as [ReactElement]}
+          {newProps.children as [ReactElement]}
         </SwitchableWidget>
       </div>
       <button
@@ -149,7 +152,7 @@ export const SlideshowComponent = (
         onClick={(): void => {
           setTransition(slideRightTransition);
           setChildIndex(
-            nextChildIndex(childIndex, props.children?.length ?? 0)
+            nextChildIndex(childIndex, newProps.children?.length ?? 0)
           );
         }}
       >

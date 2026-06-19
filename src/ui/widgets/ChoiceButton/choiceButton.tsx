@@ -74,7 +74,7 @@ const ToggleButton = styled(MuiToggleButton)({
 export const ChoiceButtonComponent = (
   props: ChoiceButtonComponentProps
 ): JSX.Element => {
-  const style = useStyle(
+  const [style, newProps] = useStyle(
     { ...props, customColors: { selectedColor: props?.selectedColor } },
     widgetName,
     props.class
@@ -85,7 +85,7 @@ export const ChoiceButtonComponent = (
     itemsFromPv = true,
     items = ["Item 1", "Item 2"],
     horizontal = true
-  } = props;
+  } = newProps as ChoiceButtonComponentProps;
   const {
     value,
     effectivePvName: pvName,

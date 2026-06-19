@@ -42,9 +42,18 @@ export const MeterProps = {
   showValue: BoolPropOpt
 };
 
-export const MeterComponent = (
-  props: InferWidgetProps<typeof MeterProps> & PVComponent
-): JSX.Element => {
+export type MeterComponentProps = InferWidgetProps<typeof MeterProps> &
+  PVComponent;
+
+export const MeterComponent = (props: MeterComponentProps): JSX.Element => {
+  const [ref, size] = useMeasuredSize(240, 120);
+
+  const [style, newProps] = useStyle(
+    { ...props, customColors: { needleColor: props?.needleColor } },
+    widgetName,
+    props.class
+  );
+
   const {
     pvData,
     format = NumberFormatEnum.Default,
@@ -52,14 +61,8 @@ export const MeterComponent = (
     precision = undefined,
     showUnits = true,
     showValue = true
-  } = props;
-  const [ref, size] = useMeasuredSize(240, 120);
+  } = newProps as MeterComponentProps;
 
-  const style = useStyle(
-    { ...props, customColors: { needleColor: props?.needleColor } },
-    widgetName,
-    props.class
-  );
   const { value } = getPvValueAndName(pvData);
 
   const units = value?.display.units ?? "";
@@ -80,7 +83,7 @@ export const MeterComponent = (
     display?.warningRange?.max
   );
 
-  let { minimum = 0, maximum = 100 } = props;
+  let { minimum = 0, maximum = 100 } = newProps as MeterComponentProps;
   if (limitsFromPv) {
     const pvMin =
       display?.controlRange?.min ?? alarmRangeMin ?? warningRangeMin;

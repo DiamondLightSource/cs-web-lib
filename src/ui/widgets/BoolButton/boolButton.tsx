@@ -84,7 +84,7 @@ export type BoolButtonComponentProps = InferWidgetProps<
 export const BoolButtonComponent = (
   props: BoolButtonComponentProps
 ): JSX.Element => {
-  const style = useStyle(
+  const [style, newProps] = useStyle(
     {
       ...props,
       customColors: { onColor: props?.onColor, offColor: props?.offColor }
@@ -103,7 +103,7 @@ export const BoolButtonComponent = (
     enabled = true,
     textAlign = "center",
     textAlignV = "center"
-  } = props;
+  } = newProps as BoolButtonComponentProps;
   const {
     value,
     effectivePvName: pvName,

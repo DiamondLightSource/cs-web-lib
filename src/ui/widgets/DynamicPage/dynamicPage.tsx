@@ -41,19 +41,23 @@ const DynamicPageProps = {
   mjpgEndpoint: StringPropOpt
 };
 
+type DynamicPageComponentProps = InferWidgetProps<typeof DynamicPageProps> &
+  EmbeddedDisplayPropsExtra;
+
 // Generic display widget to put other things inside
 export const DynamicPageComponent = (
-  props: InferWidgetProps<typeof DynamicPageProps> & EmbeddedDisplayPropsExtra
+  props: DynamicPageComponentProps
 ): JSX.Element => {
   const theme = props.theme || phoebusTheme;
-  const style = useStyle(props, widgetName);
+  const [style, rawProps] = useStyle(props, widgetName);
+  const newProps = rawProps as DynamicPageComponentProps;
   const fileContext = useContext(FileContext);
 
-  const file = fileContext.pageState[props.location];
+  const file = fileContext.pageState[newProps.location];
 
   // Default behavior is to show close button
   const showCloseButton =
-    props.showCloseButton === undefined ? true : props.showCloseButton;
+    newProps.showCloseButton === undefined ? true : newProps.showCloseButton;
 
   const fullStyle = {
     ...style.border,
@@ -75,22 +79,22 @@ export const DynamicPageComponent = (
           ...fullStyle
         }}
       >
-        <h3>Dynamic page &quot;{props.location}&quot;: no file loaded.</h3>
+        <h3>Dynamic page &quot;{newProps.location}&quot;: no file loaded.</h3>
       </div>
     );
   } else if (showCloseButton) {
     return (
       <ExitFileContext.Provider
-        value={() => fileContext.removePage(props.location)}
+        value={() => fileContext.removePage(newProps.location)}
       >
         <div style={fullStyle}>
           <EmbeddedDisplay
             file={file}
             position={newRelativePosition()}
             scalingOrigin={"0 0"}
-            scroll={props.scroll ?? false}
+            scroll={newProps.scroll ?? false}
             theme={theme}
-            mjpgEndpoints={[props?.mjpgEndpoint, defaultMjpgEndpoint].filter(
+            mjpgEndpoints={[newProps?.mjpgEndpoint, defaultMjpgEndpoint].filter(
               x => x != null
             )}
             widgetIdsCallback={props?.widgetIdsCallback}
@@ -116,8 +120,8 @@ export const DynamicPageComponent = (
                   {
                     type: CLOSE_PAGE,
                     dynamicInfo: {
-                      name: props.location,
-                      location: props.location,
+                      name: newProps.location,
+                      location: newProps.location,
                       file: file,
                       description: "Close"
                     }
@@ -132,15 +136,15 @@ export const DynamicPageComponent = (
   } else {
     return (
       <ExitFileContext.Provider
-        value={() => fileContext.removePage(props.location)}
+        value={() => fileContext.removePage(newProps.location)}
       >
         <EmbeddedDisplay
           file={file}
           position={newRelativePosition(undefined, undefined, "100%", "100%")}
           scalingOrigin={"0 0"}
-          scroll={props.scroll ?? false}
+          scroll={newProps.scroll ?? false}
           theme={theme}
-          mjpgEndpoints={[props?.mjpgEndpoint, defaultMjpgEndpoint].filter(
+          mjpgEndpoints={[newProps?.mjpgEndpoint, defaultMjpgEndpoint].filter(
             x => x != null
           )}
           widgetIdsCallback={props?.widgetIdsCallback}

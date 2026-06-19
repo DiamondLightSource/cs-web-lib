@@ -64,15 +64,15 @@ describe("useStyle", () => {
   it("returns primary palette colors when no widgetName provided", () => {
     const { result } = renderHook(() => useStyle({}));
 
-    expect(result.current.colors.color).toBe("#ffffff"); // contrastText
-    expect(result.current.colors.backgroundColor).toBe("#123456"); // main
+    expect(result.current[0].colors.color).toBe("#ffffff"); // contrastText
+    expect(result.current[0].colors.backgroundColor).toBe("#123456"); // main
   });
 
   it("uses widget-specific palette when widgetName matches", () => {
     const { result } = renderHook(() => useStyle({}, "widgetA"));
 
-    expect(result.current.colors.color).toBe("#000000");
-    expect(result.current.colors.backgroundColor).toBe("#654321");
+    expect(result.current[0].colors.color).toBe("#000000");
+    expect(result.current[0].colors.backgroundColor).toBe("#654321");
   });
 
   it("returns transparent background when transparent=true", () => {
@@ -80,7 +80,7 @@ describe("useStyle", () => {
       useStyle({ transparent: true }, "widgetA")
     );
 
-    expect(result.current.colors.backgroundColor).toBe("transparent");
+    expect(result.current[0].colors.backgroundColor).toBe("transparent");
   });
 
   it("applies provided foreground and background colors", () => {
@@ -91,14 +91,14 @@ describe("useStyle", () => {
       })
     );
 
-    expect(result.current.colors.color).toBe("pink");
-    expect(result.current.colors.backgroundColor).toBe("blue");
+    expect(result.current[0].colors.color).toBe("pink");
+    expect(result.current[0].colors.backgroundColor).toBe("blue");
   });
 
   it("applies widget-specific border overrides", () => {
     const { result } = renderHook(() => useStyle({}, "widgetA"));
 
-    expect(result.current.border).toEqual({
+    expect(result.current[0].border).toEqual({
       borderStyle: "dashed",
       borderWidth: 2,
       borderColor: "red",
@@ -109,7 +109,7 @@ describe("useStyle", () => {
   it("falls back to theme border when no custom border given", () => {
     const { result } = renderHook(() => useStyle({}, "widgetA"));
 
-    expect(result.current.border).toEqual({
+    expect(result.current[0].border).toEqual({
       borderStyle: "dashed",
       borderWidth: 2,
       borderColor: "red",
@@ -120,7 +120,7 @@ describe("useStyle", () => {
   it("uses class border when provided", () => {
     const { result } = renderHook(() => useStyle({}, "widgetA", "MY_CLASS"));
 
-    expect(result.current.border).toEqual({
+    expect(result.current[0].border).toEqual({
       borderStyle: "solid",
       borderWidth: 3,
       borderColor: "green",
@@ -140,7 +140,7 @@ describe("useStyle", () => {
       )
     );
 
-    expect(result.current.customColors).toEqual({
+    expect(result.current[0].customColors).toEqual({
       light: "#ff00ff"
     });
   });
@@ -148,34 +148,34 @@ describe("useStyle", () => {
   it("selects the class theme over default widget theme if class exists", () => {
     const { result } = renderHook(() => useStyle({}, "widgetA", "MY_CLASS"));
 
-    expect(result.current.colors.backgroundColor).toEqual("#a52590");
-    expect(result.current.colors.color).toEqual("#dd1c1c");
+    expect(result.current[0].colors.backgroundColor).toEqual("#a52590");
+    expect(result.current[0].colors.color).toEqual("#dd1c1c");
   });
 
   it("uses provided font when fontToCss returns a value", () => {
     const font = newFont(12, FontStyle.Bold, "Liberation sans", "abc");
     const { result } = renderHook(() => useStyle({ font }));
 
-    expect(result.current.font?.fontSize).toEqual(
+    expect(result.current[0].font?.fontSize).toEqual(
       `${(font.size as number) / 16}rem`
     );
-    expect(result.current.font?.fontFamily).toEqual(
+    expect(result.current[0].font?.fontFamily).toEqual(
       "Liberation sans,sans-serif"
     );
-    expect(result.current.font?.fontWeight).toEqual("bold");
-    expect(result.current.font?.fontStyle).toEqual("normal");
+    expect(result.current[0].font?.fontWeight).toEqual("bold");
+    expect(result.current[0].font?.fontStyle).toEqual("normal");
   });
 
   it("falls back to theme typography when no font provided", () => {
     const { result } = renderHook(() => useStyle({}));
 
-    expect(result.current.font).toEqual(mockTheme.typography);
+    expect(result.current[0].font).toEqual(mockTheme.typography);
   });
 
   it("uses class font when class exists", () => {
     const { result } = renderHook(() => useStyle({}, "widgetA", "MY_CLASS"));
 
-    expect(result.current.font).toEqual({
+    expect(result.current[0].font).toEqual({
       fontFamily: "Montserrat",
       fontSize: 10
     });
@@ -196,24 +196,24 @@ describe("useStyle", () => {
       })
     );
 
-    expect(result.current.other.cursor).toBe("pointer");
+    expect(result.current[0].other.cursor).toBe("pointer");
   });
 
   it("cursor is auto when no actions exist", () => {
     const { result } = renderHook(() => useStyle({}));
 
-    expect(result.current.other.cursor).toBe("auto");
+    expect(result.current[0].other.cursor).toBe("auto");
   });
 
   it("visibility is hidden when visible=false", () => {
     const { result } = renderHook(() => useStyle({ visible: false }));
 
-    expect(result.current.other.visibility).toBe("hidden");
+    expect(result.current[0].other.visibility).toBe("hidden");
   });
 
   it("visibility defaults to visible", () => {
     const { result } = renderHook(() => useStyle({}));
 
-    expect(result.current.other.visibility).toBe("visible");
+    expect(result.current[0].other.visibility).toBe("visible");
   });
 });

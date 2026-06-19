@@ -38,10 +38,10 @@ export const TankProps = {
   showUnits: BoolPropOpt
 };
 
-export const TankComponent = (
-  props: InferWidgetProps<typeof TankProps> & PVComponent
-): JSX.Element => {
-  const style = useStyle(
+type TankComponentProps = InferWidgetProps<typeof TankProps> & PVComponent;
+
+export const TankComponent = (props: TankComponentProps): JSX.Element => {
+  const [style, newProps] = useStyle(
     {
       ...props,
       customColors: {
@@ -62,11 +62,11 @@ export const TankComponent = (
     scaleVisible = true,
     logScale = false,
     showUnits = true
-  } = props;
+  } = newProps as TankComponentProps;
 
   const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
 
-  let { minimum = 0, maximum = 100 } = props;
+  let { minimum = 0, maximum = 100 } = newProps as TankComponentProps;
   if (limitsFromPv && value?.display.controlRange) {
     minimum = value.display.controlRange?.min;
     maximum = value.display.controlRange?.max;

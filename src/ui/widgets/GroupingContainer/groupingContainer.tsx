@@ -24,7 +24,7 @@ const GroupingContainerProps = {
 export const GroupingContainerComponent = (
   props: InferWidgetProps<typeof GroupingContainerProps> & { class?: string }
 ): JSX.Element => {
-  const style = useStyle(props, widgetName, props.class);
+  const [style] = useStyle(props, widgetName, props.class);
 
   // Include and override parent macros with those from the prop.
   const { updateMacro, macros } = useContext(MacroContext);

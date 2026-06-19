@@ -52,10 +52,12 @@ export const TabBarProps = {
   visible: BoolPropOpt
 };
 
-export const TabBar = (
-  props: InferWidgetProps<typeof TabBarProps> & { class?: string }
-): JSX.Element => {
-  const { font, customColors } = useStyle(
+type TabComponentProps = InferWidgetProps<typeof TabBarProps> & {
+  class?: string;
+};
+
+export const TabBar = (props: TabComponentProps): JSX.Element => {
+  const [{ font, customColors }, rawProps] = useStyle(
     {
       ...props,
       customColors: {
@@ -66,6 +68,7 @@ export const TabBar = (
     widgetName,
     props.class
   );
+  const newProps = rawProps as TabComponentProps;
   const {
     direction = 0,
     tabWidth = 100,
@@ -73,7 +76,7 @@ export const TabBar = (
     tabSpacing = 0,
     activeTab = 0,
     visible = true
-  } = props;
+  } = newProps;
   const [value, setValue] = useState(activeTab);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -83,7 +86,9 @@ export const TabBar = (
       return;
     }
     // If a handler function is passed in, do that instead
-    props.onTabSelected ? props.onTabSelected(newValue) : setValue(newValue);
+    newProps.onTabSelected
+      ? newProps.onTabSelected(newValue)
+      : setValue(newValue);
   };
 
   return (
@@ -113,24 +118,24 @@ export const TabBar = (
         onChange={handleChange}
         orientation={direction ? "vertical" : "horizontal"}
       >
-        {props.tabs.map(
+        {newProps.tabs.map(
           (tab, index): JSX.Element => (
             <Tab
               key={index}
               // Close tab on middle click if on provided in props
               onMouseDown={(e: React.MouseEvent): void => {
-                if (e.button === 1 && props.onTabClosed) {
-                  props.onTabClosed(index);
+                if (e.button === 1 && newProps.onTabClosed) {
+                  newProps.onTabClosed(index);
                 }
               }}
               label={
                 <span>
                   {tab.name}
-                  {props.onTabClosed ? (
+                  {newProps.onTabClosed ? (
                     <IconButton
                       size="small"
                       component="span"
-                      onClick={props.onTabClosed(index)}
+                      onClick={newProps.onTabClosed(index)}
                     >
                       <Close />
                     </IconButton>
@@ -157,7 +162,7 @@ export const TabBar = (
           )
         )}
       </Tabs>
-      {props.tabs.map(
+      {newProps.tabs.map(
         (tab, index): JSX.Element => (
           <Paper
             elevation={3}
