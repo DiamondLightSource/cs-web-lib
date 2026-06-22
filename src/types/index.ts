@@ -5,5 +5,16 @@ export type { Font } from "./font";
 export { FontStyle } from "./font";
 export { BorderStyle } from "./border";
 export type { Border } from "./border";
-export type { DType } from "./dtypes";
+export {
+  type DType,
+  type DtypeValues,
+  type NumberArray,
+  newDType,
+  dTypeGetType,
+  dTypeGetStringValue,
+  dTypeGetDoubleValue,
+  dTypeGetArrayValue,
+  dTypeCoerceString,
+  dTypeByteArrToString
+} from "./dtypes";
 export { resolveMacros } from "./macros";
