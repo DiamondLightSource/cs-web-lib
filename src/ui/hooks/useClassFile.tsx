@@ -43,13 +43,10 @@ const DEFAULT_CLASS_PROPS = new Set([
   "fileId",
   "id",
   "name",
-  "position", //fix
-  "precisionFromPv", // fix
-  "showUnits", // fix
   "type",
-  "wrapWords", //fix
+  "position",
   "border",
-  "alarmSensitive" //fix
+  "alarmSensitive"
 ]);
 
 export function useClassFile(userTheme?: Theme): Theme {
@@ -112,12 +109,25 @@ export function extractStyleProps(
 
 export function createClassTheme(classFile: WidgetDescription): [Theme, any] {
   // If classfile is empty, do nothing
-  if (!classFile.children) return [phoebusTheme, {}];
+  if (!classFile) return [phoebusTheme, {}];
 
-  const palette: { [key: string]: any } = {};
+  const colour = extractThemeProps(
+    classFile,
+    CLASS_COLOR_PROPS,
+    value => value?.colorString
+  );
+  const palette: { [key: string]: any } = Object.keys(colour).length
+    ? { [`${classFile.name}display`]: colour }
+    : {};
+  const styling = extractStyleProps(
+    classFile,
+    new Set([...CLASS_FONT_PROPS, ...CLASS_COLOR_PROPS, ...DEFAULT_CLASS_PROPS])
+  );
+  const style: { [key: string]: any } = Object.keys(styling).length
+    ? { [`${classFile.name}display`]: styling }
+    : {};
   const typography: { [key: string]: any } = {};
   const borders: { [key: string]: any } = {};
-  const style: { [key: string]: any } = {};
   classFile.children?.forEach((child: WidgetDescription) => {
     const widgetType: string = child.type;
     // Construct palette name from widget type and classname

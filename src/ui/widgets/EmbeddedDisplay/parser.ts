@@ -234,17 +234,17 @@ export async function parseWidget(
 
   // Default to true if precision is not defined.
   // Applicable to BOB files.
-  if (widgetDescription.precision === undefined) {
+  if (widgetDescription.precision === undefined && !classFile) {
     widgetDescription.precisionFromPv = true;
   }
   // Default to true if showUnits is not defined.
   // Applicable to BOB files.
-  if (widgetDescription.showUnits === undefined) {
+  if (widgetDescription.showUnits === undefined && !classFile) {
     widgetDescription.showUnits = true;
   }
   // Default to true if wrapWords is not defined.
   // Applicable to BOB files.
-  if (widgetDescription.wrapWords === undefined) {
+  if (widgetDescription.wrapWords === undefined && !classFile) {
     widgetDescription.wrapWords = true;
   }
 
