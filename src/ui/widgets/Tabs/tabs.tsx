@@ -130,7 +130,7 @@ export const TabBar = (
                     <IconButton
                       size="small"
                       component="span"
-                      onClick={props.onTabClosed(index)}
+                      onClick={() => props?.onTabClosed?.(index)}
                     >
                       <Close />
                     </IconButton>

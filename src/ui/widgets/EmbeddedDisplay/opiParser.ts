@@ -762,11 +762,9 @@ export const OPI_COMPLEX_PARSERS: ComplexParserDict = {
 };
 
 export const opiPatchRules =
-  (parserDict: ParserDict, complexParsers: ComplexParserDict) =>
+  (parserDict: ParserDict, complexParsers: ComplexParserDict): PatchFunction =>
   async (
     widgetDescription: WidgetDescription,
-    path?: string,
-    macros?: MacroMap,
     allowedProps?: { [key: string]: unknown }
   ): Promise<WidgetDescription> => {
     /* Re-index simple parsers so we can find the correct one
@@ -816,9 +814,9 @@ export const opiPatchRules =
     return widgetDescription;
   };
 
-function opiPatchActions(
+const opiPatchActions: PatchFunction = (
   widgetDescription: WidgetDescription
-): WidgetDescription {
+): WidgetDescription => {
   if (
     widgetDescription.type === "actionbutton" &&
     widgetDescription.text &&
@@ -842,7 +840,7 @@ function opiPatchActions(
     }
   }
   return widgetDescription;
-}
+};
 
 export const OPI_PATCHERS = (
   parserDict: ParserDict,
@@ -855,7 +853,6 @@ export const OPI_PATCHERS = (
 export async function parseOpi(
   xmlString: string,
   defaultProtocol: string,
-  filepath: string,
   fileId?: string
 ): Promise<WidgetDescription> {
   // Convert it to a "compact format"
@@ -897,8 +894,6 @@ export async function parseOpi(
     complexParsers,
     false,
     OPI_PATCHERS(OPI_SIMPLE_PARSERS, OPI_COMPLEX_PARSERS),
-    filepath,
-    undefined,
     fileId
   );
 

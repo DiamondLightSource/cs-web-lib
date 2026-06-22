@@ -738,12 +738,9 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = await opiPatchRules(parserDict, {})(
-      widget,
-      undefined,
-      undefined,
-      { "opi.number": 123 }
-    );
+    const result = await opiPatchRules(parserDict, {})(widget, {
+      "opi.number": 123
+    });
 
     expect(result.rules?.[0].prop).toBe("opi.number");
 
@@ -766,12 +763,9 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = await opiPatchRules(parserDict, {})(
-      widget,
-      undefined,
-      undefined,
-      { "opi.flag": 123 }
-    );
+    const result = await opiPatchRules(parserDict, {})(widget, {
+      "opi.flag": 123
+    });
 
     expect(result.rules?.[0].prop).toBe("flag[0]");
 
@@ -794,12 +788,9 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = await opiPatchRules(parserDict, {})(
-      widget,
-      undefined,
-      undefined,
-      { "opi.count": 123 }
-    );
+    const result = await opiPatchRules(parserDict, {})(widget, {
+      "opi.count": 123
+    });
 
     expect(result.rules?.[0].prop).toBe("unknownProp");
     expect(result.rules?.[0].expressions[0].convertedValue).toBeUndefined();
@@ -819,12 +810,9 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = await opiPatchRules(parserDict, {})(
-      widget,
-      undefined,
-      undefined,
-      { "opi.sum": 123 }
-    );
+    const result = await opiPatchRules(parserDict, {})(widget, {
+      "opi.sum": 123
+    });
 
     expect(result.rules?.[0].prop).toBe("count");
     expect(result.rules?.[0].expressions[0].convertedValue).toBeUndefined();
@@ -844,12 +832,10 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = await opiPatchRules(parserDict, {})(
-      widget,
-      undefined,
-      undefined,
-      { "opi.num": 123, "opi.text": 345 }
-    );
+    const result = await opiPatchRules(parserDict, {})(widget, {
+      "opi.num": 123,
+      "opi.text": 345
+    });
 
     expect(result.rules?.[0].prop).toBe("opi.num");
     expect(result.rules?.[0].expressions[0].convertedValue).toBe(5);
@@ -907,12 +893,10 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = await opiPatchRules(parserDict, {})(
-      widget,
-      undefined,
-      undefined,
-      { "opi.alpha": 123, "opi.beta": 345 }
-    );
+    const result = await opiPatchRules(parserDict, {})(widget, {
+      "opi.alpha": 123,
+      "opi.beta": 345
+    });
 
     expect(result.rules?.[0].prop).toBe("opi.alpha");
     expect(result.rules?.[0].expressions[0].convertedValue).toBe("A:1");
@@ -935,12 +919,9 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = await opiPatchRules({}, complexParserDict)(
-      widget,
-      undefined,
-      undefined,
-      { file: 123 }
-    );
+    const result = await opiPatchRules({}, complexParserDict)(widget, {
+      file: 123
+    });
 
     expect(result.rules?.[0].prop).toBe("file");
 
@@ -969,12 +950,9 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = await opiPatchRules({}, complexParserDict)(
-      widget,
-      undefined,
-      undefined,
-      { file345: 123 }
-    );
+    const result = await opiPatchRules({}, complexParserDict)(widget, {
+      file345: 123
+    });
 
     expect(result.rules?.[0].prop).toBe("file");
 
@@ -1006,12 +984,9 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = await opiPatchRules(parserDict, complexParserDict)(
-      widget,
-      undefined,
-      undefined,
-      { file: 123 }
-    );
+    const result = await opiPatchRules(parserDict, complexParserDict)(widget, {
+      file: 123
+    });
 
     expect(result.rules?.[0].prop).toBe("file");
 
@@ -1043,12 +1018,9 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = await opiPatchRules(parserDict, complexParserDict)(
-      widget,
-      undefined,
-      undefined,
-      { file: 123 }
-    );
+    const result = await opiPatchRules(parserDict, complexParserDict)(widget, {
+      file: 123
+    });
 
     expect(result.rules?.[0].prop).toBe("file");
 
@@ -1080,12 +1052,9 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = await opiPatchRules(parserDict, complexParserDict)(
-      widget,
-      undefined,
-      undefined,
-      { imageFile: 123 }
-    );
+    const result = await opiPatchRules(parserDict, complexParserDict)(widget, {
+      imageFile: 123
+    });
 
     expect(result.rules?.[0].prop).toBe("imageFile");
 
@@ -1260,7 +1229,9 @@ describe("opiPatchPaths", () => {
       imageFile: "img/icon.png"
     };
 
-    const result = resolveAndNormaliseWidgetPaths(widgetDescription as WidgetDescription);
+    const result = resolveAndNormaliseWidgetPaths(
+      widgetDescription as WidgetDescription
+    );
 
     expect(result.file.path).toBe("relative/path.opi");
     expect(result.imageFile).toBe("img/icon.png");

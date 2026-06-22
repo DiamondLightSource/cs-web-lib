@@ -35,46 +35,34 @@ export interface File {
 
 export async function fetchAndConvert(
   filepath: string,
-  protocol: string,
-  macros?: MacroMap
+  protocol: string
 ): Promise<WidgetDescription> {
   try {
     const parentDir = filepath.slice(0, filepath.lastIndexOf("/"));
     const fileResponse = await httpRequest(filepath);
 
     const fileExt = filepath.split(".").pop() || "json";
-    const contents = await fileResponse.text();
+    const contents = (await fileResponse?.text()) ?? "";
     let description = EMPTY_WIDGET;
 
     // Hack!
-    if (contents.startsWith("<!DOCTYPE html>")) {
+    if (contents?.startsWith("<!DOCTYPE html>")) {
       throw new Error("File not found");
     }
     if (contents !== "") {
       // Convert the contents to widget description style object
       switch (fileExt) {
         case "bob":
-          description = await parseBob(
-            contents,
-            protocol,
-            parentDir,
-            macros,
-            filepath
-          );
+          description = await parseBob(contents, protocol, parentDir, filepath);
           break;
         case "bcf":
-          description = await parseBcf(contents, protocol, parentDir, filepath);
+          description = await parseBcf(contents, protocol, filepath);
           break;
         case "json":
-          description = await parseJson(
-            contents,
-            protocol,
-            parentDir,
-            filepath
-          );
+          description = await parseJson(contents, protocol, filepath);
           break;
         case "opi":
-          description = await parseOpi(contents, protocol, parentDir, filepath);
+          description = await parseOpi(contents, protocol, filepath);
           break;
       }
     }
@@ -106,8 +94,7 @@ export function useFile(
     const fetchData = async (): Promise<void> => {
       const widgetDescription = await fetchAndConvert(
         file.path,
-        file.defaultProtocol,
-        macros
+        file.defaultProtocol
       );
 
       // Populate the file cache.

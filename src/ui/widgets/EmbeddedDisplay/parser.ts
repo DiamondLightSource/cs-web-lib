@@ -67,8 +67,6 @@ export type MutatingPatchFunction = (
 
 export type PatchFunction = (
   props: WidgetDescription,
-  path?: string,
-  macros?: MacroMap,
   allowedProps?: { [key: string]: unknown }
 ) => WidgetDescription | Promise<WidgetDescription>;
 
@@ -194,8 +192,6 @@ export async function parseWidget(
   complexParsers: ComplexParserDict,
   passThrough: boolean,
   patchFunctions: PatchFunction[],
-  filepath?: string,
-  macros?: MacroMap,
   fileId?: string,
   classFile?: boolean
 ): Promise<WidgetDescription> {
@@ -211,12 +207,7 @@ export async function parseWidget(
   );
   // Execute patch functions.
   for (const patcher of patchFunctions) {
-    widgetDescription = await patcher(
-      widgetDescription,
-      filepath,
-      macros,
-      allowedProps
-    );
+    widgetDescription = await patcher(widgetDescription, allowedProps);
   }
   /* Child widgets */
   const childWidgets = toArray(props[childrenName]);
@@ -230,8 +221,6 @@ export async function parseWidget(
         complexParsers,
         passThrough,
         patchFunctions,
-        filepath,
-        macros,
         fileId,
         classFile
       );
@@ -254,7 +243,7 @@ export async function parseWidget(
     widgetDescription.wrapWords = true;
   }
 
-  widgetDescription.fileId = fileId ?? filepath ?? "";
+  widgetDescription.fileId = fileId ?? "";
 
   return widgetDescription;
 }

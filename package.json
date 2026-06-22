@@ -73,22 +73,21 @@
     "typescript": "^5.6.3",
     "vite": "^8.0.16",
     "vite-plugin-eslint": "^1.8.1",
-    "vite-plugin-node-polyfills": "^0.26.0",
     "vitest": "^4.0.8",
     "vitest-canvas-mock": "^0.3.3",
     "vitest-websocket-mock": "^0.4.0",
     "xml-js": "^1.6.11"
   },
   "peerDependencies": {
+    "@mui/material": "^7.3.2",
+    "@mui/x-charts": "^9.3.0",
     "@types/react": "^18.3.1",
+    "d3": "^7.9.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-gauge-component": "^2.0.26",
     "react-redux": "^7.2.9",
-    "react-router": "^7.13.0",
-    "d3": "^7.9.0",
-    "@mui/material": "^7.3.2",
-    "@mui/x-charts": "^9.3.0"
+    "react-router": "^7.13.0"
   },
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
