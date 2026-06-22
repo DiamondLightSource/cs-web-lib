@@ -29,15 +29,15 @@ const ArcProps = {
   transparent: BoolPropOpt
 };
 
-export const ArcComponent = (
-  props: InferWidgetProps<typeof ArcProps> & { class?: string }
-): JSX.Element => {
+type ArcComponentProps = InferWidgetProps<typeof ArcProps> & { class?: string };
+
+export const ArcComponent = (props: ArcComponentProps): JSX.Element => {
   // CSS uses "Fill", Phoebus uses "transparent"
   const transparent =
     props.transparent ?? (props.fill != null ? !props.fill : false);
 
   // CSS uses "Foreground Color", Phoebus uses "Line Color"
-  const style = useStyle(
+  const [style, newProps] = useStyle(
     {
       ...props,
       foregroundColor: props?.lineColor ?? props?.foregroundColor,
@@ -47,7 +47,11 @@ export const ArcComponent = (
     props.class
   );
 
-  const { startAngle = 0, totalAngle = 90, lineWidth = 3 } = props;
+  const {
+    startAngle = 0,
+    totalAngle = 90,
+    lineWidth = 3
+  } = newProps as ArcComponentProps;
 
   const [ref, size] = useMeasuredSize<SVGSVGElement>(
     WIDGET_DEFAULT_SIZES["arc"][0],

@@ -5,7 +5,11 @@ import { vi } from "vitest";
 import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: vi.fn(() => createMockStyle())
+  useStyle: vi.fn(props =>
+    createMockStyle({
+      newProps: props
+    })
+  )
 }));
 
 test("drawer opens on click", async () => {

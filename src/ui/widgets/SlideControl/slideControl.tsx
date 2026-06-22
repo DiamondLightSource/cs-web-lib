@@ -50,10 +50,13 @@ export const SliderControlProps = {
   majorTickStepHint: IntPropOpt
 };
 
+type SlideControlComponentProps = InferWidgetProps<typeof SliderControlProps> &
+  PVComponent;
+
 export const SlideControlComponent = (
-  props: InferWidgetProps<typeof SliderControlProps> & PVComponent
+  props: SlideControlComponentProps
 ): JSX.Element => {
-  const style = useStyle(props, widgetName, props.class);
+  const [style, newProps] = useStyle(props, widgetName, props.class);
   const {
     pvData,
     enabled = true,
@@ -70,9 +73,9 @@ export const SlideControlComponent = (
     showLolo = true,
     increment = 1,
     majorTickStepHint = 40
-  } = props;
+  } = newProps as SlideControlComponentProps;
 
-  let { minimum = 0, maximum = 100 } = props;
+  let { minimum = 0, maximum = 100 } = newProps as SlideControlComponentProps;
   const {
     value,
     effectivePvName: pvName,

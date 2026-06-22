@@ -33,10 +33,13 @@ export const ProgressBarProps = {
   transparent: BoolPropOpt
 };
 
+type ProgressBarComponentProps = InferWidgetProps<typeof ProgressBarProps> &
+  PVComponent;
+
 export const ProgressBarComponent = (
-  props: InferWidgetProps<typeof ProgressBarProps> & PVComponent
+  props: ProgressBarComponentProps
 ): JSX.Element => {
-  const style = useStyle(
+  const [style, newProps] = useStyle(
     { ...props, customColors: { fillColor: props?.fillColor } },
     widgetName,
     props.class
@@ -48,11 +51,11 @@ export const ProgressBarComponent = (
     horizontal = true,
     precision = undefined,
     logScale = false
-  } = props;
+  } = newProps as ProgressBarComponentProps;
 
   const { value } = getPvValueAndName(pvData);
 
-  let { min = 0, max = 100 } = props;
+  let { min = 0, max = 100 } = newProps as ProgressBarComponentProps;
   if (limitsFromPv && value?.display.controlRange) {
     min = value.display.controlRange?.min;
     max = value.display.controlRange?.max;

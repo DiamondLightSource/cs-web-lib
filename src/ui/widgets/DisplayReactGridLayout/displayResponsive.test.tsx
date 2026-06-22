@@ -6,6 +6,7 @@ import "@testing-library/jest-dom";
 import { DisplayResponsiveComponent } from "./displayResponsive";
 import { displayInstanceSetResponsiveLayout } from "../../../redux/slices/fileCacheSlice";
 import { calculateDefaultLayoutWithHorizontalCompactor } from "./displayLayoutUtilities";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
 let capturedLayouts: any;
 let capturedBreakpoints: any;
@@ -69,6 +70,14 @@ vi.mock("./displayLayoutUtilities", async () => {
     ])
   };
 });
+
+vi.mock("../../hooks/useStyle", () => ({
+  useStyle: vi.fn(props =>
+    createMockStyle({
+      newProps: props
+    })
+  )
+}));
 
 const MockWidget = ({ id }: { id: string }) => (
   <div data-testid={`widget-${id}`}>Widget {id}</div>

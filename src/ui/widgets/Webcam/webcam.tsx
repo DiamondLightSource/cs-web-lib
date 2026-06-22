@@ -23,7 +23,7 @@ const WebcamProps = {
 export const WebcamComponent = (
   props: InferWidgetProps<typeof WebcamProps>
 ): JSX.Element => {
-  const style = useStyle({}, widgetName);
+  const [style] = useStyle({}, widgetName);
   // Create image tag
   return (
     <Box

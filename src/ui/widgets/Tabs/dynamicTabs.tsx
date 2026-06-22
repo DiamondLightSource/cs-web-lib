@@ -35,13 +35,16 @@ export const DynamicTabsProps = {
   border: BorderPropOpt
 };
 
+type DynamicTabsComponentProps = InferWidgetProps<typeof DynamicTabsProps>;
+
 export const DynamicTabsComponent = (
-  props: InferWidgetProps<typeof DynamicTabsProps>
+  props: DynamicTabsComponentProps
 ): JSX.Element => {
-  const { border } = useStyle(props, widgetName);
+  const [{ border }, rawProps] = useStyle(props, widgetName);
+  const newProps = rawProps as DynamicTabsComponentProps;
 
   const fileContext = useContext(FileContext);
-  const tabState = fileContext.tabState[props.location];
+  const tabState = fileContext.tabState[newProps.location];
   const containerStyle = {
     ...border,
     height: "100%",
@@ -52,7 +55,7 @@ export const DynamicTabsComponent = (
   if (!tabState || tabState.fileDetails.length === 0) {
     return (
       <div style={containerStyle}>
-        <h3>Dynamic tabs &quot;{props.location}&quot;: no file loaded.</h3>
+        <h3>Dynamic tabs &quot;{newProps.location}&quot;: no file loaded.</h3>
       </div>
     );
   } else {
@@ -79,15 +82,15 @@ export const DynamicTabsComponent = (
     });
 
     const onTabSelected = (index: number): void => {
-      fileContext.selectTab(props.location, index);
+      fileContext.selectTab(newProps.location, index);
     };
     const onTabClosed = (index: number): void => {
       const [tabName, fileDesc] = openTabs[index];
-      fileContext.removeTab(props.location, tabName, fileDesc);
+      fileContext.removeTab(newProps.location, tabName, fileDesc);
     };
     const closeCurrentTab = (): void => {
       const [tabName, fileDesc] = openTabs[selectedTab];
-      fileContext.removeTab(props.location, tabName, fileDesc);
+      fileContext.removeTab(newProps.location, tabName, fileDesc);
     };
 
     return (

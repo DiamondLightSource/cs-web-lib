@@ -16,7 +16,7 @@ import { ColorUtils } from "../../../types/color";
 import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: vi.fn(() =>
+  useStyle: vi.fn(props =>
     createMockStyle({
       colors: {
         color: "rgb(0, 0, 0)",
@@ -28,7 +28,8 @@ vi.mock("../../hooks/useStyle", () => ({
         minorWarningColor: "rgb(255, 200, 0)",
         majorWarningColor: "rgb(255, 100, 0)",
         knobColor: "rgb(0, 0, 255)"
-      }
+      },
+      newProps: props
     })
   )
 }));

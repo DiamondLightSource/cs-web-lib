@@ -27,15 +27,21 @@ const PolygonProps = {
   transparent: BoolPropOpt
 };
 
-export const PolygonComponent = (
-  props: InferWidgetProps<typeof PolygonProps> & { class?: string }
-): JSX.Element => {
-  const { colors, customColors } = useStyle(
+type PolygonComponentProps = InferWidgetProps<typeof PolygonProps> & {
+  class?: string;
+};
+
+export const PolygonComponent = (props: PolygonComponentProps): JSX.Element => {
+  const [{ colors, customColors }, newProps] = useStyle(
     { ...props, customColors: { lineColor: props?.lineColor } },
     widgetName,
     props.class
   );
-  const { lineWidth = 3, points, rotationAngle = 0 } = props;
+  const {
+    lineWidth = 3,
+    points,
+    rotationAngle = 0
+  } = newProps as PolygonComponentProps;
   //Loop over points and convert to string for svg
   let coordinates = "";
   if (points) {

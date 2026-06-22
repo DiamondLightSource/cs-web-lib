@@ -79,7 +79,7 @@ export const ActionButtonComponent = (
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const menuOpen = Boolean(anchorEl);
 
-  const style = useStyle(
+  const [style, newProps] = useStyle(
     {
       ...props,
       actions: props?.actions as WidgetActions | undefined
@@ -97,7 +97,7 @@ export const ActionButtonComponent = (
     height = WIDGET_DEFAULT_SIZES["action_button"][1],
     width = WIDGET_DEFAULT_SIZES["action_button"][0],
     text = resolveActionsMacro(props.actions as WidgetActions, true)
-  } = props;
+  } = newProps as ActionButtonComponentProps;
 
   const { readOnly } = getPvValueAndName(pvData);
 

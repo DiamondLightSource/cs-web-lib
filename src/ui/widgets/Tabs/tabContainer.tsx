@@ -42,23 +42,26 @@ export const TabContainerProps = {
   height: IntPropOpt
 };
 
+type TabContainerComponentProps = InferWidgetProps<typeof TabContainerProps> & {
+  fileId: string;
+  id: string;
+  class?: string;
+};
+
 export const TabContainerComponent = (
-  props: InferWidgetProps<typeof TabContainerProps> & {
-    fileId: string;
-    id: string;
-    class?: string;
-  }
+  props: TabContainerComponentProps
 ): JSX.Element => {
-  const { colors } = useStyle(props, widgetName, props.class);
+  const [{ colors }, rawProps] = useStyle(props, widgetName, props.class);
+  const newProps = rawProps as TabContainerComponentProps;
   const {
     tabHeight = 30,
     width = WIDGET_DEFAULT_SIZES["tabs"][0],
     height = WIDGET_DEFAULT_SIZES["tabs"][1]
-  } = props;
+  } = newProps;
 
   // Convert tabs into React components from widget descriptions
   const tabChildren = useMemo(() => {
-    return props.tabs.map((tab, idx) => {
+    return newProps.tabs.map((tab, idx) => {
       try {
         const pixelWidth = parseToPixelInt(
           width,
@@ -68,8 +71,8 @@ export const TabContainerComponent = (
           name: tab.name,
           children: widgetDescriptionToComponent({
             type: "display",
-            id: props?.id ?? `tabContainer_${crypto.randomUUID()}`,
-            fileId: props?.fileId,
+            id: newProps?.id ?? `tabContainer_${crypto.randomUUID()}`,
+            fileId: newProps?.fileId,
             position: newRelativePosition(
               "0px",
               `${tabHeight}px`,
@@ -91,13 +94,13 @@ export const TabContainerComponent = (
       }
     });
   }, [
-    props.tabs,
+    newProps.tabs,
     colors?.backgroundColor,
     tabHeight,
     width,
     height,
-    props.id,
-    props.fileId
+    newProps.id,
+    newProps.fileId
   ]);
 
   return (
@@ -105,7 +108,7 @@ export const TabContainerComponent = (
       direction={0}
       selectedColor={newColor(colors?.backgroundColor as string)}
       deselectedColor={newColor(colors?.backgroundColor as string)}
-      {...props}
+      {...newProps}
       tabs={tabChildren}
     ></TabBar>
   );

@@ -43,17 +43,7 @@ export type ByteMonitorComponentProps = InferWidgetProps<
 export const ByteMonitorComponent = (
   props: ByteMonitorComponentProps
 ): JSX.Element => {
-  const {
-    pvData,
-    startBit = 0,
-    horizontal = true,
-    bitReverse = false,
-    ledBorder = 2,
-    square = false,
-    effect3d = false
-  } = props;
-
-  const style = useStyle(
+  const [style, newProps] = useStyle(
     {
       ...props,
       customColors: {
@@ -66,12 +56,22 @@ export const ByteMonitorComponent = (
     props.class
   );
 
+  const {
+    pvData,
+    startBit = 0,
+    horizontal = true,
+    bitReverse = false,
+    ledBorder = 2,
+    square = false,
+    effect3d = false
+  } = newProps as ByteMonitorComponentProps;
+
   const { value } = getPvValueAndName(pvData);
 
   // Check for a value, otherwise set to 0
   const doubleValue = dTypeGetDoubleValue(value) || 0;
   // Check numBits isn't out of bounds
-  let numBits = props.numBits || 8;
+  let numBits = newProps.numBits || 8;
   if (numBits < 1) numBits = 1;
   if (numBits > 64) numBits = 64;
 

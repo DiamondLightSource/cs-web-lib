@@ -7,9 +7,10 @@ import { createMockStyle } from "../../../test-utils/styleTestUtils";
 import { vi } from "vitest";
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: vi.fn(() =>
+  useStyle: vi.fn(props =>
     createMockStyle({
-      colors: { color: "rgba(0,0,255,1)", backgroundColor: "rgba(200,1,60,1)" }
+      colors: { color: "rgba(0,0,255,1)", backgroundColor: "rgba(200,1,60,1)" },
+      newProps: props
     })
   )
 }));

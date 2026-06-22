@@ -38,7 +38,7 @@ import { useStyle } from "../../hooks/useStyle";
 
 const widgetName = "linearmeter";
 
-export const LinearMeterComponentProps = {
+export const LinearMeterProps = {
   minimum: FloatPropOpt,
   maximum: FloatPropOpt,
   format: IntPropOpt,
@@ -57,10 +57,13 @@ export const LinearMeterComponentProps = {
   colors: BobColorsPropOpt
 };
 
+type LinearMeterComponentProps = InferWidgetProps<typeof LinearMeterProps> &
+  PVComponent;
+
 export const LinearMeterComponent = (
-  props: InferWidgetProps<typeof LinearMeterComponentProps> & PVComponent
+  props: LinearMeterComponentProps
 ): JSX.Element => {
-  const style = useStyle(
+  const [style, rawProps] = useStyle(
     {
       ...props,
       foregroundColor: props?.colors?.foregroundColor as Color | undefined,
@@ -82,6 +85,7 @@ export const LinearMeterComponent = (
     widgetName,
     props.class
   );
+  const newProps = rawProps as LinearMeterComponentProps;
 
   const {
     pvData,
@@ -97,7 +101,7 @@ export const LinearMeterComponent = (
     showUnits = true,
     showLimits = true,
     format = 1
-  } = props;
+  } = newProps;
 
   const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
   const units = value?.display.units ?? "";
@@ -112,7 +116,7 @@ export const LinearMeterComponent = (
   let warningRangeMin: number | undefined = levelLow;
   let warningRangeMax: number | undefined = levelHigh;
 
-  let { minimum = 0, maximum = 100 } = props;
+  let { minimum = 0, maximum = 100 } = newProps;
   if (limitsFromPv) {
     const display = value?.display;
 
@@ -208,7 +212,7 @@ export const LinearMeterComponent = (
     {
       ...style?.customColors,
       isHighlightingOfActiveRegionsEnabled:
-        props?.colors?.isHighlightingOfActiveRegionsEnabled
+        newProps?.colors?.isHighlightingOfActiveRegionsEnabled
     },
     showLimits,
     numValue
@@ -348,13 +352,13 @@ export const LinearMeterComponent = (
   );
 };
 
-const LinearMeterProps = {
-  ...LinearMeterComponentProps,
+const LinearMeterWidgetProps = {
+  ...LinearMeterProps,
   ...PVWidgetPropType
 };
 
 export const LinearMeter = (
-  props: InferWidgetProps<typeof LinearMeterProps>
+  props: InferWidgetProps<typeof LinearMeterWidgetProps>
 ): JSX.Element => <Widget baseWidget={LinearMeterComponent} {...props} />;
 
 registerWidget(LinearMeter, LinearMeterProps, widgetName);

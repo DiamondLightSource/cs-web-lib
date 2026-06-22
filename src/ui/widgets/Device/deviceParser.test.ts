@@ -7,6 +7,7 @@ import {
   parseResponse,
   Response
 } from "./deviceParser";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
 vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(() => ({
@@ -21,6 +22,23 @@ vi.mock("../../hooks/useStyle", () => ({
       fontWeight: undefined
     }
   }))
+}));
+vi.mock("../../hooks/useStyle", () => ({
+  useStyle: vi.fn(props =>
+    createMockStyle({
+      colors: {
+        color: "rgb(155, 160, 209)",
+        backgroundColor: "rgba(0, 0, 0, 1)"
+      },
+      font: {
+        fontFamily: undefined,
+        fontSize: undefined,
+        fontStyle: undefined,
+        fontWeight: undefined
+      },
+      newProps: props
+    })
+  )
 }));
 
 describe("wordSplitter", (): void => {

@@ -4,7 +4,7 @@ import React from "react";
 
 import { XYPlotComponent } from "./xyPlot";
 import * as utils from "./xyPlot.utilities";
-import { useStyle } from "../../hooks/useStyle";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
 const linePlotMock = vi.fn();
 
@@ -33,7 +33,9 @@ vi.mock("@mui/x-charts", () => ({
 }));
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: vi.fn()
+  useStyle: vi.fn(props =>
+    createMockStyle({ colors: { color: "black" }, newProps: props })
+  )
 }));
 
 vi.mock("./xyPlot.utilities", () => ({
@@ -43,10 +45,6 @@ vi.mock("./xyPlot.utilities", () => ({
   buildYAxes: vi.fn(),
   buildMarkerDataSet: vi.fn()
 }));
-
-const mockStyle = {
-  colors: { color: "black" }
-};
 
 const baseProps: any = {
   traces: [],
@@ -59,8 +57,6 @@ const baseProps: any = {
 
 beforeEach(() => {
   vi.clearAllMocks();
-
-  (useStyle as any).mockReturnValue(mockStyle);
 
   (utils.buildYAxes as any).mockReturnValue({
     yAxes: [{ id: 0 }],
@@ -108,7 +104,7 @@ describe("XYPlotComponent", () => {
     expect(utils.buildYAxes).toHaveBeenCalledWith(baseProps.axes);
     expect(utils.buildXAxes).toHaveBeenCalledWith(
       baseProps.traces,
-      mockStyle,
+      createMockStyle({ colors: { color: "black" }, newProps: baseProps })[0],
       baseProps.xAxis
     );
     expect(utils.buildSeries).toHaveBeenCalledWith(

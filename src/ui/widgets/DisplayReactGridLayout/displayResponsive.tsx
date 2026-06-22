@@ -101,17 +101,24 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
     measureBeforeMount: true
   });
   const debouncedWidth = useDebouncedValue(width, 150);
+  // Get base style from common CSS
+  const [style, rawProps] = useStyle(props, widgetName);
+  const newProps = rawProps as propsType;
   const gridCellDragEnabled =
-    props?.gridCellDragEnabled == null ? true : props?.gridCellDragEnabled;
+    newProps?.gridCellDragEnabled == null
+      ? true
+      : newProps?.gridCellDragEnabled;
   const gridCellResizeEnabled =
-    props?.gridCellResizeEnabled == null ? true : props?.gridCellResizeEnabled;
+    newProps?.gridCellResizeEnabled == null
+      ? true
+      : newProps?.gridCellResizeEnabled;
 
   const inheritedMacros: MacroMap = useContext(MacroContext).macros;
   const [displayMacros, setDisplayMacros] = useState<MacroMap>(
-    props.macros ?? {}
+    newProps.macros ?? {}
   );
 
-  const cellHeight = Number(props.gridCellHeight ?? defaultRowHeight);
+  const cellHeight = Number(newProps.gridCellHeight ?? defaultRowHeight);
 
   const updateMacro = useCallback((key: string, value: string) => {
     setDisplayMacros(prev => ({ ...prev, [key]: value }));
@@ -123,14 +130,12 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
       macros: {
         ...inheritedMacros,
         ...displayMacros,
-        DID: props.id
+        DID: newProps.id
       }
     }),
-    [updateMacro, inheritedMacros, displayMacros, props.id]
+    [updateMacro, inheritedMacros, displayMacros, newProps.id]
   );
 
-  // Get base style from common CSS
-  const style = useStyle(props, widgetName);
   const extendedStyle = useMemo<React.CSSProperties>(
     () => ({
       ...style.colors,
@@ -138,42 +143,42 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
       ...style.other,
       ...style.font,
       position: "relative",
-      overflow: props.overflow,
+      overflow: newProps.overflow,
       height: "100%",
       width: "100%"
     }),
-    [style, props.overflow]
+    [style, newProps.overflow]
   );
 
-  const cellMargins = (props.gridCellMargins ?? defaultMargins) as [
+  const cellMargins = (newProps.gridCellMargins ?? defaultMargins) as [
     number,
     number
   ];
 
   const childrenArray = useMemo(
     () =>
-      React.Children.toArray(props.children as ReactNode[]).filter(child =>
+      React.Children.toArray(newProps.children as ReactNode[]).filter(child =>
         React.isValidElement<PVWidgetComponent>(child)
       ),
-    [props.children]
+    [newProps.children]
   );
 
   const breakpoints = useMemo(
     () =>
-      (props?.responsiveBreakpoints
-        ? props.responsiveBreakpoints
+      (newProps?.responsiveBreakpoints
+        ? newProps.responsiveBreakpoints
         : defaultBreakpoints) as Breakpoints<Breakpoint>,
-    [props.responsiveBreakpoints]
+    [newProps.responsiveBreakpoints]
   );
 
   // Check that the breakpoints are consistent, between breakpoints, columns and layouts
   const areBreakpointsConsistent = useMemo(
     () =>
-      (!props.responsiveColumns ||
-        sameKeys(breakpoints, props.responsiveColumns)) &&
-      (!props.responsiveLayouts ||
-        sameKeys(breakpoints, props.responsiveLayouts)),
-    [props.responsiveColumns, props.responsiveLayouts, breakpoints]
+      (!newProps.responsiveColumns ||
+        sameKeys(breakpoints, newProps.responsiveColumns)) &&
+      (!newProps.responsiveLayouts ||
+        sameKeys(breakpoints, newProps.responsiveLayouts)),
+    [newProps.responsiveColumns, newProps.responsiveLayouts, breakpoints]
   );
   if (!areBreakpointsConsistent) {
     log.error(
@@ -184,13 +189,13 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
   const columns: Breakpoints<Breakpoint> = useMemo(
     () =>
       calculateColumns(
-        props.responsiveColumns as Breakpoints<Breakpoint>,
+        newProps.responsiveColumns as Breakpoints<Breakpoint>,
         areBreakpointsConsistent,
         breakpoints,
         cellMargins
       ),
     [
-      props.responsiveColumns,
+      newProps.responsiveColumns,
       breakpoints,
       cellMargins,
       areBreakpointsConsistent
@@ -230,8 +235,8 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
   );
 
   const initialLayouts = useMemo(
-    () => props.responsiveLayouts ?? ({} as ResponsiveLayouts<Breakpoint>),
-    [props.responsiveLayouts]
+    () => newProps.responsiveLayouts ?? ({} as ResponsiveLayouts<Breakpoint>),
+    [newProps.responsiveLayouts]
   );
 
   const { layouts } = useResponsiveLayout({
@@ -249,15 +254,15 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
 
   const hasLayouts = useMemo(() => {
     return (
-      props.responsiveLayouts &&
-      Object.keys(props.responsiveLayouts).length > 0 &&
-      Object.values(props.responsiveLayouts).every(
+      newProps.responsiveLayouts &&
+      Object.keys(newProps.responsiveLayouts).length > 0 &&
+      Object.values(newProps.responsiveLayouts).every(
         layout => Array.isArray(layout) && layout.length > 0
       ) &&
       layouts &&
       Object.keys(layouts).length > 0
     );
-  }, [props.responsiveLayouts, layouts]);
+  }, [newProps.responsiveLayouts, layouts]);
 
   return (
     <MacroContext.Provider value={displayMacroContext}>
@@ -268,7 +273,7 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
       >
         {mounted && hasLayouts && (
           <Responsive
-            key={`grid-${props.id}`}
+            key={`grid-${newProps.id}`}
             className="layout"
             layouts={layouts}
             breakpoints={breakpoints}

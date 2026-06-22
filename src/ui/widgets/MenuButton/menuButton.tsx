@@ -52,20 +52,21 @@ export type MenuButtonComponentProps = InferWidgetProps<
 export const MenuButtonComponent = (
   props: MenuButtonComponentProps
 ): JSX.Element => {
-  const style = useStyle(
+  const [style, rawProps] = useStyle(
     { ...props, actions: props.actions as WidgetActions },
     widgetName,
     props.class
   );
+  const newProps = rawProps as MenuButtonComponentProps;
   const files = useContext(FileContext);
   const {
     enabled = true,
     itemsFromPv = true,
     pvData,
     items = ["item 0"]
-  } = props;
+  } = newProps;
 
-  let actions: any[] = props.actions?.actions ?? [];
+  let actions: any[] = newProps.actions?.actions ?? [];
   const {
     value,
     effectivePvName: pvName,

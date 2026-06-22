@@ -72,13 +72,17 @@ const DisplayGridLayoutProps = {
   gridLayout: ObjectArrayPropOpt
 };
 
+type DisplayGridLayoutComponentProps = InferWidgetProps<
+  typeof DisplayGridLayoutProps
+> & {
+  id: string;
+  fileId: string;
+  embeddedDisplayUuid: string;
+};
+
 // Display widget that uses react-grid-layout to provide a responsive drag and drop container
 export const DisplayGridLayoutComponent = (
-  props: InferWidgetProps<typeof DisplayGridLayoutProps> & {
-    id: string;
-    fileId: string;
-    embeddedDisplayUuid: string;
-  }
+  props: DisplayGridLayoutComponentProps
 ): JSX.Element => {
   // Macros specific to this display. Children of this component
   // can set macros by using the updateMacro function on the
@@ -122,7 +126,8 @@ export const DisplayGridLayoutComponent = (
   );
 
   // Get base style from common CSS
-  const style = useStyle(props, widgetName);
+  const [style, rawProps] = useStyle(props, widgetName);
+  const newProps = rawProps as DisplayGridLayoutComponentProps;
   const extendedStyle = React.useMemo<React.CSSProperties>(
     () => ({
       ...style.colors,
@@ -130,19 +135,19 @@ export const DisplayGridLayoutComponent = (
       ...style.other,
       ...style.font,
       position: "relative",
-      overflow: props.overflow,
+      overflow: newProps.overflow,
       height: "100%",
       width: "100%"
     }),
-    [style, props.overflow]
+    [style, newProps.overflow]
   );
 
   const childrenArray = React.useMemo(
     () =>
-      React.Children.toArray(props.children as ReactNode[]).filter(child =>
+      React.Children.toArray(newProps.children as ReactNode[]).filter(child =>
         React.isValidElement<PVWidgetComponent>(child)
       ),
-    [props.children]
+    [newProps.children]
   );
 
   const columns = React.useMemo(

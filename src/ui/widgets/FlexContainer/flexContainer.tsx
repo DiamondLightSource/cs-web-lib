@@ -32,7 +32,7 @@ export const FlexContainerComponent = (
   props: InferWidgetProps<typeof FlexProps>
 ): JSX.Element => {
   const { flexFlow = undefined, justifyContent = undefined } = props;
-  const style = useStyle(props, widgetName);
+  const [style] = useStyle(props, widgetName);
   const fullStyle = {
     ...style.colors,
     ...style.font,

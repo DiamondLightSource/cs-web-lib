@@ -31,12 +31,14 @@ const ShapeProps = {
   visible: BoolPropOpt
 };
 
-export const ShapeComponent = (
-  props: InferWidgetProps<typeof ShapeProps> & { class?: string }
-): JSX.Element => {
+type ShapeComponentProps = InferWidgetProps<typeof ShapeProps> & {
+  class?: string;
+};
+
+export const ShapeComponent = (props: ShapeComponentProps): JSX.Element => {
   const { visible = true } = props;
 
-  const themeStyle = useStyle(
+  const [themeStyle, rawProps] = useStyle(
     {
       ...props,
       border: {
@@ -50,14 +52,15 @@ export const ShapeComponent = (
     widgetName,
     props.class
   );
+  const newProps = rawProps as ShapeComponentProps;
 
   // Style overrides - Calculate radii of corners
-  const cornerRadius = `${props.cornerWidth || 0}px / ${
-    props.cornerHeight || 0
+  const cornerRadius = `${newProps.cornerWidth || 0}px / ${
+    newProps.cornerHeight || 0
   }px`;
 
   const borderStyle = (function () {
-    switch (props.lineStyle) {
+    switch (newProps.lineStyle) {
       case 1: // Dashed
       case 3: // Dash-Dot
         return "dashed";
@@ -78,7 +81,7 @@ export const ShapeComponent = (
     width: "100%",
     height: "100%",
     boxSizing: "border-box",
-    transform: props.shapeTransform ?? "",
+    transform: newProps.shapeTransform ?? "",
     visibility: themeStyle?.other?.visibility
   };
 

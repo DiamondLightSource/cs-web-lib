@@ -4,6 +4,8 @@ import { Font, fontToCss } from "../../types/font";
 import { CSSProperties } from "react";
 import { borderToCss } from "../../types/border";
 import { WidgetActions } from "../widgets/widgetActions";
+import { useSelector } from "react-redux";
+import { selectClassStyle } from "../../redux/slices/styleSlice";
 
 export interface UseStyleResult {
   border: {
@@ -87,9 +89,17 @@ export const useStyle = (
   props: UseStyleProps,
   widgetName?: string,
   className?: string
-): UseStyleResult => {
+): [UseStyleResult, any] => {
   const theme = useTheme();
   const themeName = `${className ?? ""}${widgetName}`;
+
+  // Overwrite normal props with class props
+  const style = useSelector(state => selectClassStyle(state, themeName));
+  const newProps = {
+    ...props,
+    ...style
+  };
+
   const themePalette = selectPalette(theme, themeName);
   const themeBorder = selectBorder(theme, themeName);
   const themeFont = selectFont(theme, themeName);
@@ -149,11 +159,14 @@ export const useStyle = (
     visibility: visible ? "visible" : "hidden"
   };
 
-  return {
-    border,
-    font,
-    colors: colors,
-    customColors,
-    other
-  };
+  return [
+    {
+      border,
+      font,
+      colors: colors,
+      customColors,
+      other
+    },
+    newProps
+  ];
 };

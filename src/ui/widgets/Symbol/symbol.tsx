@@ -78,6 +78,17 @@ export type SymbolComponentProps = InferWidgetProps<typeof SymbolProps> &
  * @param props
  */
 export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
+  const [style, rawProps] = useStyle(
+    {
+      ...props,
+      transparent: props?.transparent ?? true,
+      actions: props?.actions as WidgetActions | undefined
+    },
+    widgetName,
+    props.class
+  );
+  const newProps = rawProps as SymbolComponentProps;
+
   const {
     showIndex = false,
     arrayIndex = 0,
@@ -87,29 +98,19 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
     enabled = true,
     preserveRatio = true,
     pvData
-  } = props;
-
-  const style = useStyle(
-    {
-      ...props,
-      transparent: props?.transparent ?? true,
-      actions: props?.actions as WidgetActions | undefined
-    },
-    widgetName,
-    props.class
-  );
+  } = newProps;
 
   const { value } = getPvValueAndName(pvData);
 
   // If symbols and not image file, we're in a bob file
-  const isBob = props.symbols ? true : false;
-  const symbols = props.symbols ? props.symbols : [];
+  const isBob = newProps.symbols ? true : false;
+  const symbols = newProps.symbols ? newProps.symbols : [];
 
   // Convert our value to an index, or use the initialIndex
   const index = convertValueToIndex(value, initialIndex, arrayIndex);
 
   const regex = / [0-9]\./;
-  let imageFile = isBob ? (symbols[index] ?? symbols[0]) : props.imageFile;
+  let imageFile = isBob ? (symbols[index] ?? symbols[0]) : newProps.imageFile;
   // If no provided image file
   if (!imageFile) imageFile = fallbackSymbol;
   const intValue = dTypeCoerceDouble(value);
@@ -119,7 +120,7 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
 
   let alignItems = "center";
   let justifyContent = "center";
-  switch (props.labelPosition) {
+  switch (newProps.labelPosition) {
     case "top":
       alignItems = "flex-start";
       break;
@@ -154,9 +155,9 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
   const exitContext = useContext(ExitFileContext);
   const parentMacros = useContext(MacroContext).macros;
   function onClick(event: React.MouseEvent<HTMLDivElement>): void {
-    if (props.actions !== undefined && enabled) {
+    if (newProps.actions !== undefined && enabled) {
       executeActions(
-        props.actions as WidgetActions,
+        newProps.actions as WidgetActions,
         files,
         exitContext,
         parentMacros
@@ -174,7 +175,7 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
   return (
     <>
       <ImageComponent
-        {...props}
+        {...newProps}
         transparent
         imageFile={imageFile}
         onClick={onClick}
@@ -199,7 +200,7 @@ export const SymbolComponent = (props: SymbolComponentProps): JSX.Element => {
           >
             <div style={{ padding: "5%" }}>
               <LabelComponent
-                {...props}
+                {...newProps}
                 textAlignV="bottom"
                 backgroundColor={ColorUtils.TRANSPARENT}
                 text={dTypeGetStringValue(value)}
