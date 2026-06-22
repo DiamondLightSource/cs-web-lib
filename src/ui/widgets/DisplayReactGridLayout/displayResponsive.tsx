@@ -262,7 +262,7 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
       layouts &&
       Object.keys(layouts).length > 0
     );
-  }, [props.responsiveLayouts, layouts]);
+  }, [newProps.responsiveLayouts, layouts]);
 
   return (
     <MacroContext.Provider value={displayMacroContext}>
