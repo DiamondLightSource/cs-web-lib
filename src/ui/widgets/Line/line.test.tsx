@@ -58,13 +58,13 @@ describe("<LineComponent />", (): void => {
     };
 
     const svg = LineRenderer(lineProps);
-    expect(svg.props.viewBox).toEqual("0 0 100% 100%");
+    expect(svg.props.viewBox).toEqual("0 0 20 25");
 
     const lines = svg.children as Array<ReactTestRendererJSON>;
 
     expect(lines[0].props.stroke).toEqual("rgba(200,1,60,1)");
     expect(lines[0].props.strokeWidth).toEqual(3);
-    expect(lines[0].props.transform).toEqual("rotation(0,0,0)");
+    expect(lines[0].props.transform).toEqual("rotate(0,0,0)");
     expect(lines[0].props.points).toEqual("1,10 15,20 4,15 ");
   });
 
@@ -83,13 +83,13 @@ describe("<LineComponent />", (): void => {
     };
 
     const svg = LineRenderer(lineProps);
-    expect(svg.props.viewBox).toEqual("0 0 100% 100%");
+    expect(svg.props.viewBox).toEqual("0 0 20 25");
 
     const lines = svg.children as Array<ReactTestRendererJSON>;
 
     expect(lines[0].props.stroke).toEqual("rgba(0,150,60,1)");
     expect(lines[0].props.strokeWidth).toEqual(3);
-    expect(lines[0].props.transform).toEqual("rotation(0,0,0)");
+    expect(lines[0].props.transform).toEqual("rotate(0,0,0)");
     expect(lines[0].props.points).toEqual("1,10 15,20 4,15 ");
   });
 
@@ -113,13 +113,13 @@ describe("<LineComponent />", (): void => {
     };
 
     const svg = LineRenderer(lineProps);
-    expect(svg.props.viewBox).toEqual("0 0 100% 100%");
+    expect(svg.props.viewBox).toEqual("0 0 30 20");
 
     const lines = svg.children as Array<ReactTestRendererJSON>;
 
     expect(lines[0].props.stroke).toEqual("transparent");
     expect(lines[0].props.strokeWidth).toEqual(15);
-    expect(lines[0].props.transform).toEqual("rotation(45,0,0)");
+    expect(lines[0].props.transform).toEqual("rotate(45,0,0)");
     expect(lines[0].props.points).toEqual("16,4 25,10 4,15 ");
   });
 
@@ -145,7 +145,7 @@ describe("<LineComponent />", (): void => {
     };
 
     const svg = LineRenderer(lineProps);
-    expect(svg.props.viewBox).toEqual("0 0 100% 100%");
+    expect(svg.props.viewBox).toEqual("0 0 30 20");
 
     const lines = svg.children as Array<ReactTestRendererJSON>;
     const marker = lines[0].children as Array<ReactTestRendererJSON>;
@@ -184,7 +184,7 @@ describe("<LineComponent />", (): void => {
     };
 
     const svg = LineRenderer(lineProps);
-    expect(svg.props.viewBox).toEqual("0 0 100% 100%");
+    expect(svg.props.viewBox).toEqual("0 0 30 20");
 
     const lines = svg.children as Array<ReactTestRendererJSON>;
     const marker = lines[0].children as Array<ReactTestRendererJSON>;

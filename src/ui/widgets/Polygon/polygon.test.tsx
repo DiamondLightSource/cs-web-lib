@@ -45,13 +45,13 @@ describe("<PolygonComponent />", (): void => {
     };
 
     const svg = PolygonRenderer(polygonProps);
-    expect(svg.props.viewBox).toEqual("0 0 100% 100%");
+    expect(svg.props.viewBox).toEqual("0 0 20 10");
 
     const polygons = svg.children as Array<ReactTestRendererJSON>;
 
     expect(polygons[0].props.points).toEqual("1,10 15,20 ");
     expect(polygons[0].props.fill).toEqual("rgba(200,1,60,1)");
-    expect(polygons[0].props.transform).toEqual("rotation(0,0,0)");
+    expect(polygons[0].props.transform).toEqual("rotate(0,0,0)");
     expect(polygons[0].props.stroke).toEqual("rgba(0,1,255,1)");
     expect(polygons[0].props.strokeWidth).toEqual(2);
   });
