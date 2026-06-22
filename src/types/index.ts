@@ -11,6 +11,8 @@ export {
   dTypeGetType,
   dTypeGetStringValue,
   dTypeGetDoubleValue,
-  dTypeCoerceString
+  dTypeGetArrayValue,
+  dTypeCoerceString,
+  dTypeByteArrToString
 } from "./dtypes";
 export { resolveMacros } from "./macros";
