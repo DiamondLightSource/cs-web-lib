@@ -25,7 +25,7 @@ const styleSlice = createSlice({
 export const { addClassStyle } = styleSlice.actions;
 export default styleSlice.reducer;
 
-export const selectStyle = (state: any) => state.style.classes;
+export const { selectStyle } = styleSlice.selectors;
 
 export const selectClassStyle = createSelector(
   [selectStyle, (_state, className: string) => className],
