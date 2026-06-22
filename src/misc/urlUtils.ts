@@ -1,3 +1,6 @@
+import { resolveMacros } from "../types";
+import { MacroMap } from "../types/macros";
+
 export const isFullyQualifiedUrl = (url: string): boolean => {
   try {
     const parsed = new URL(url);
@@ -45,4 +48,21 @@ export const buildUrl = (
   } else {
     return `${baseHost}${path}`;
   }
+};
+
+export const normalisePath = (
+  path: string,
+  parentDir?: string,
+  macros?: MacroMap
+): string => {
+  let prefix = parentDir ?? "";
+  while (path.startsWith("../")) {
+    path = path.slice(3);
+    prefix = prefix.slice(0, prefix.lastIndexOf("/"));
+  }
+
+  // If path contains macros, we need to apply these before building the url
+  const resolvedPath = macros ? resolveMacros(path, macros) : path;
+
+  return buildUrl(prefix, resolvedPath);
 };

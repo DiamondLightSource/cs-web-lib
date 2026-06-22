@@ -59,6 +59,12 @@ export type ComplexParserDict = {
   [key: string]: (value: any) => GenericProp | Promise<GenericProp>;
 };
 
+export type MutatingPatchFunction = (
+  props: WidgetDescription,
+  path?: string,
+  macros?: MacroMap
+) => WidgetDescription | Promise<WidgetDescription>;
+
 export type PatchFunction = (
   props: WidgetDescription,
   path?: string,

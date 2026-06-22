@@ -14,6 +14,7 @@ import { Position } from "../../types";
 import { MacroMap } from "../../types/macros";
 import stringify from "safe-stable-stringify";
 import { Breakpoints, Layout, ResponsiveLayouts } from "react-grid-layout";
+import { resolveWidgetPathsAndMacros } from "./fileCacheSliceUtils";
 
 export interface FileCache {
   [fileId: string]: WidgetDescription;
@@ -252,8 +253,14 @@ const fileCacheSlice = createSlice({
       });
 
       if (state.displayInstanceCache) {
+        const parentDir = file.slice(0, file.lastIndexOf("/"));
+
         state.displayInstanceCache[uuid] = {
-          description: description,
+          description: resolveWidgetPathsAndMacros(
+            description,
+            parentDir,
+            macros
+          ),
           fileId: file,
           macros: macros,
           uuid,

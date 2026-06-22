@@ -4,9 +4,9 @@ import {
   XmlDescription,
   opiParseBoolean,
   opiParseString,
-  opiParseNumber,
-  normalisePath
+  opiParseNumber
 } from "./opiParser";
+import { normalisePath } from "../../../misc/urlUtils";
 import { parseChildProps, ParserDict } from "./parser";
 import { Axis, newAxis } from "../../../types/axis";
 import { Archiver, newTrace, Trace } from "../../../types/trace";
