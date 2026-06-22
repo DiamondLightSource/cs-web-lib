@@ -7,6 +7,8 @@ export { BorderStyle } from "./border";
 export type { Border } from "./border";
 export {
   type DType,
+  type DtypeValues,
+  type NumberArray,
   newDType,
   dTypeGetType,
   dTypeGetStringValue,
