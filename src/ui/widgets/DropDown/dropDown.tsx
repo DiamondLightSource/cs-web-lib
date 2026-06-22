@@ -35,7 +35,7 @@ const DropDownWidgetProps = {
 export const DropDownComponent = (
   props: InferWidgetProps<typeof DropDownContainerProps>
 ): JSX.Element => {
-  const style = useStyle(props, widgetName);
+  const [style] = useStyle(props, widgetName);
   return (
     <details
       className={classes.Detail}

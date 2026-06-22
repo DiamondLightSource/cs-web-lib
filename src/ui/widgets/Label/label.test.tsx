@@ -11,7 +11,11 @@ const BASE_PROPS = {
 };
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: vi.fn(() => createMockStyle())
+  useStyle: vi.fn(props =>
+    createMockStyle({
+      newProps: props
+    })
+  )
 }));
 
 const LabelRenderer = (labelProps: any): JSX.Element => {

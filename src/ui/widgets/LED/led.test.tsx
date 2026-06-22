@@ -14,14 +14,15 @@ import { createMockStyle } from "../../../test-utils/styleTestUtils";
 import { vi } from "vitest";
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: vi.fn(() =>
+  useStyle: vi.fn(props =>
     createMockStyle({
       colors: { color: "rgba(0,0,255,1)", backgroundColor: "rgba(200,1,60,1)" },
       customColors: {
         onColor: "rgba(0,255,0,1)",
         offColor: "rgba(255,100,0,1)",
         lineColor: "rgba(150,0,200,1)"
-      }
+      },
+      newProps: props
     })
   )
 }));

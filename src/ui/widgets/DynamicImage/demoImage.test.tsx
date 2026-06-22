@@ -8,7 +8,11 @@ import { PvDatum } from "../../../redux/csState";
 import { DAlarmNONE, newDType } from "../../../types/dtypes";
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: vi.fn(() => createMockStyle())
+  useStyle: vi.fn(props =>
+    createMockStyle({
+      newProps: props
+    })
+  )
 }));
 
 const showWarningMock = vi.fn();

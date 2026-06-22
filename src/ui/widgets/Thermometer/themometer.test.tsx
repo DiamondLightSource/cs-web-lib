@@ -52,7 +52,7 @@ vi.mock("../../hooks/useMeasuredSize", () => ({
 }));
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: vi.fn(() => createMockStyle())
+  useStyle: vi.fn(props => createMockStyle({ newProps: props }))
 }));
 
 describe("Thermometer Component", () => {

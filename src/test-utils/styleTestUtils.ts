@@ -1,3 +1,5 @@
+import { UseStyleResult } from "../ui/hooks/useStyle";
+
 const defaultStyle = {
   colors: {
     color: "rgb(155, 160, 209)",
@@ -24,17 +26,23 @@ export const createMockStyle = (
     customColors?: object;
     font?: object;
     border?: object;
+    newProps?: object;
   } = {
     colors: {},
     customColors: {},
     font: {},
-    border: {}
+    border: {},
+    newProps: {}
   }
-) => ({
-  ...defaultStyle,
-  ...overrides,
-  colors: { ...defaultStyle.colors, ...overrides?.colors },
-  font: { ...defaultStyle.font, ...overrides?.font },
-  border: { ...defaultStyle.border, ...overrides?.border },
-  customColors: { ...defaultStyle.customColors, ...overrides?.customColors }
-});
+): [UseStyleResult, any] => {
+  const style: UseStyleResult = {
+    ...defaultStyle,
+    ...overrides,
+    colors: { ...defaultStyle.colors, ...overrides?.colors },
+    font: { ...defaultStyle.font, ...overrides?.font },
+    border: { ...defaultStyle.border, ...overrides?.border },
+    customColors: { ...defaultStyle.customColors, ...overrides?.customColors },
+    other: {}
+  };
+  return [style, overrides.newProps ?? {}];
+};

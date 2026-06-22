@@ -53,11 +53,13 @@ const Typography = styled(MuiTypography)({
   padding: 0
 });
 
-export const LabelComponent = (
-  props: InferWidgetProps<typeof LabelProps> & { class?: string }
-): JSX.Element => {
+type LabelComponentProps = InferWidgetProps<typeof LabelProps> & {
+  class?: string;
+};
+
+export const LabelComponent = (props: LabelComponentProps): JSX.Element => {
   // Default labels to transparent.
-  const style = useStyle(
+  const [style, newProps] = useStyle(
     { ...props, transparent: props.transparent ?? true },
     widgetName,
     props.class
@@ -72,7 +74,7 @@ export const LabelComponent = (
     visible = true,
     height = WIDGET_DEFAULT_SIZES["label"][1],
     width = WIDGET_DEFAULT_SIZES["label"][0]
-  } = props;
+  } = newProps as LabelComponentProps;
 
   const [inputWidth, inputHeight, transform] = calculateRotationTransform(
     rotationStep,

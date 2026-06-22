@@ -8,6 +8,7 @@ import csReducer from "./csState";
 import notificationsReducer from "./slices/notificationsSlice";
 import configurationReducer from "./slices/configurationSlice";
 import fileCacheReducer from "./slices/fileCacheSlice";
+import styleReducer from "./slices/styleSlice";
 import { connectionMiddleware } from "./connectionMiddleware";
 import { throttleMiddleware, UpdateThrottle } from "./throttleMiddleware";
 import { CsWebLibConfig } from "./csWebLibConfig";
@@ -19,7 +20,8 @@ export const rootReducer = combineReducers({
   configuration: configurationReducer,
   cs: csReducer,
   notifications: notificationsReducer,
-  fileCache: fileCacheReducer
+  fileCache: fileCacheReducer,
+  style: styleReducer
 });
 
 const createStoreInstance = (config?: CsWebLibConfig) => {

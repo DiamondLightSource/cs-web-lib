@@ -33,7 +33,7 @@ export const DrawerProps = {
 export const DrawerComponent = (
   props: InferWidgetProps<typeof DrawerProps>
 ): JSX.Element => {
-  const style = useStyle(props, widgetName);
+  const [style] = useStyle(props, widgetName);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
   // To satisfy the typing for the literals

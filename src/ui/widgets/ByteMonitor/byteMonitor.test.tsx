@@ -22,6 +22,19 @@ vi.mock("../../hooks/useStyle", () => ({
   )
 }));
 
+vi.mock("../../hooks/useStyle", () => ({
+  useStyle: vi.fn(props =>
+    createMockStyle({
+      customColors: {
+        onColor: "rgb(155, 160, 209)",
+        offColor: "rgba(0, 0, 0, 1)",
+        borderColor: "rgba(150, 150, 150, 1)"
+      },
+      newProps: props
+    })
+  )
+}));
+
 const ByteMonitorRenderer = (byteMonitorProps: any): ReactTestRendererJSON => {
   return renderer
     .create(<ByteMonitorComponent {...byteMonitorProps} />)

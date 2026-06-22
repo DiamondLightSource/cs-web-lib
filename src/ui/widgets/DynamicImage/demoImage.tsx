@@ -45,8 +45,11 @@ const DemoImageProps = {
   regionsOfInterest: RoisPropOpt
 };
 
+type DemoImageComponentProps = InferWidgetProps<typeof DemoImageProps> &
+  PVComponent;
+
 export const DemoImageComponent = (
-  props: InferWidgetProps<typeof DemoImageProps> & PVComponent
+  props: DemoImageComponentProps
 ): JSX.Element => {
   // const {
   //   colorMap = ColorMap.VIRIDIS,
@@ -61,9 +64,10 @@ export const DemoImageComponent = (
   //   dataHeight = 100,
   //   visible = true
   // } = props;
-  const { colors } = useStyle(props, widgetName, props.class);
-  const { effectivePvName } = getPvValueAndName(props?.pvData);
-  const urls = buildMjpgPvUrls(props?.mjpgEndpoints, effectivePvName);
+  const [{ colors }, rawProps] = useStyle(props, widgetName, props.class);
+  const newProps = rawProps as DemoImageComponentProps;
+  const { effectivePvName } = getPvValueAndName(newProps?.pvData);
+  const urls = buildMjpgPvUrls(newProps?.mjpgEndpoints, effectivePvName);
 
   const [src, setSrc] = useState(urls?.[0]);
   const [numberOfFailures, setNumberOfFailures] = useState(0);

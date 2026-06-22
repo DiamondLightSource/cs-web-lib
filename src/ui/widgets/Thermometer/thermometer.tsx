@@ -23,7 +23,7 @@ const widgetName = "thermometer";
 export const bulbStemAngle = Math.PI / 5;
 export const thermometerOutlineWidth = 2;
 
-export const ThermometerComponentProps = {
+export const ThermometerProps = {
   minimum: FloatPropOpt,
   maximum: FloatPropOpt,
   limitsFromPv: BoolPropOpt,
@@ -44,17 +44,21 @@ interface ThermometerDimensions {
   bulbRadius: number;
 }
 
+type ThermometerComponentProps = InferWidgetProps<typeof ThermometerProps> &
+  PVComponent;
+
 export const ThermometerComponent = (
-  props: InferWidgetProps<typeof ThermometerComponentProps> & PVComponent
+  props: ThermometerComponentProps
 ): JSX.Element => {
   const svgRef = useRef<SVGSVGElement>(null);
-  const style = useStyle(
+  const [style, newProps] = useStyle(
     { foregroundColor: props.fillColor },
     widgetName,
     props.class
   );
 
-  const { pvData, limitsFromPv = false } = props;
+  const { pvData, limitsFromPv = false } =
+    newProps as ThermometerComponentProps;
   const { value } = getPvValueAndName(pvData);
 
   const colors = useMemo(
@@ -80,7 +84,7 @@ export const ThermometerComponent = (
     [size]
   );
 
-  let { minimum = 0, maximum = 100 } = props;
+  let { minimum = 0, maximum = 100 } = newProps as ThermometerComponentProps;
   if (limitsFromPv && value?.display.controlRange) {
     minimum = value.display.controlRange?.min;
     maximum = value.display.controlRange?.max;
@@ -156,7 +160,7 @@ export const ThermometerComponent = (
 };
 
 const ThermometerWidgetProps = {
-  ...ThermometerComponentProps,
+  ...ThermometerProps,
   ...PVWidgetPropType
 };
 

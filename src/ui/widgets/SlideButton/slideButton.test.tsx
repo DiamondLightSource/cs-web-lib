@@ -14,7 +14,7 @@ const mockWritePv = vi
   .mockImplementation(vi.fn());
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: vi.fn(() =>
+  useStyle: vi.fn(props =>
     createMockStyle({
       colors: {
         color: "rgb(0, 0, 0)",
@@ -23,7 +23,8 @@ vi.mock("../../hooks/useStyle", () => ({
       customColors: {
         onColor: "rgb(0, 235, 10)",
         offColor: "rgb(100, 100, 100)"
-      }
+      },
+      newProps: props
     })
   )
 }));

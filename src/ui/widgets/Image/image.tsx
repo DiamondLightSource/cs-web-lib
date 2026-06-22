@@ -37,9 +37,20 @@ const ImageProps = {
   opacity: FloatPropOpt
 };
 
-export const ImageComponent = (
-  props: InferWidgetProps<typeof ImageProps> & { class?: string }
-): JSX.Element => {
+type ImageComponentProps = InferWidgetProps<typeof ImageProps> & {
+  class?: string;
+};
+
+export const ImageComponent = (props: ImageComponentProps): JSX.Element => {
+  const onClick = (event: React.MouseEvent<HTMLDivElement>): void => {
+    if (props.onClick) {
+      props.onClick(event);
+    }
+  };
+
+  const [style, rawProps] = useStyle(props, widgetName, props.class);
+  const newProps = rawProps as ImageComponentProps;
+
   const {
     rotation = 0,
     flipHorizontal,
@@ -47,17 +58,9 @@ export const ImageComponent = (
     stretchToFit = false,
     preserveRatio = false,
     opacity = 1
-  } = props;
+  } = newProps;
+  const overflow = newProps.overflow ? "visible" : "hidden";
 
-  const onClick = (event: React.MouseEvent<HTMLDivElement>): void => {
-    if (props.onClick) {
-      props.onClick(event);
-    }
-  };
-
-  const overflow = props.overflow ? "visible" : "hidden";
-
-  const style = useStyle(props, widgetName, props.class);
   const fullStyle: CSSProperties = {
     ...style.colors,
     ...style.font,
@@ -70,7 +73,7 @@ export const ImageComponent = (
   };
 
   // Should we be refreshing image instead of using cache
-  let imageFileName = props.imageFile;
+  let imageFileName = newProps.imageFile;
   // If a filename has been appended with '#' or '#{number}' this indicates
   // that it should be refreshed. The only way to refresh the image from it's
   // source instead of the browser cache is to further append the timestamp
@@ -89,7 +92,7 @@ export const ImageComponent = (
       <img
         className={classes.Image}
         src={imageFileName}
-        alt={props.alt || undefined}
+        alt={newProps.alt || undefined}
         style={{
           display: "block",
           transform: `rotate(${rotation}deg) scaleX(${

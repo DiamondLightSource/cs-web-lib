@@ -83,7 +83,7 @@ export const DeviceComponent = (
     loadComponent();
   }, [description, deviceName, replacedDeviceName, props.id]);
 
-  const style = useStyle({ border }, widgetName);
+  const [style] = useStyle({ border }, widgetName);
   return (
     <Box
       sx={{ ...style.colors, ...style.font, ...style.border, ...style.other }}

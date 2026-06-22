@@ -6,7 +6,7 @@ import { createMockStyle } from "../../../test-utils/styleTestUtils";
 import { vi } from "vitest";
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: vi.fn(() => createMockStyle())
+  useStyle: vi.fn(props => createMockStyle({ newProps: props }))
 }));
 
 vi.mock("../../hooks/useMeasuredSize", () => ({

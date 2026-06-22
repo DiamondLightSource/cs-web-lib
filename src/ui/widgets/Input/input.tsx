@@ -28,7 +28,7 @@ import { TextField as MuiTextField, styled } from "@mui/material";
 import { getPvValueAndName } from "../utils";
 import { useStyle } from "../../hooks/useStyle";
 
-const InputComponentProps = {
+const InputProps = {
   pvName: StringPropOpt,
   font: FontPropOpt,
   foregroundColor: ColorPropOpt,
@@ -84,10 +84,12 @@ const TextField = styled(MuiTextField)({
   }
 });
 
+type InputComponentProps = PVComponent & InferWidgetProps<typeof InputProps>;
+
 export const SmartInputComponent = (
-  props: PVComponent & InferWidgetProps<typeof InputComponentProps>
+  props: InputComponentProps
 ): JSX.Element => {
-  const style = useStyle(props, widgetName, props.class);
+  const [style, newProps] = useStyle(props, widgetName, props.class);
 
   const {
     precision = -1,
@@ -100,7 +102,7 @@ export const SmartInputComponent = (
     showUnits = false,
     precisionFromPv = false,
     formatType = "default"
-  } = props;
+  } = newProps as InputComponentProps;
 
   const {
     value,
@@ -264,7 +266,7 @@ export const SmartInputComponent = (
 };
 
 const InputWidgetProps = {
-  ...InputComponentProps,
+  ...InputProps,
   ...PVWidgetPropType
 };
 

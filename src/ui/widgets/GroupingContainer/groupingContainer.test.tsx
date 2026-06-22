@@ -3,16 +3,16 @@ import { GroupingContainerComponent } from "./groupingContainer";
 import { contextRender } from "../../../testResources";
 import { create } from "react-test-renderer";
 import { vi } from "vitest";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
 const grouping = <GroupingContainerComponent name={"Test"} />;
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: vi.fn(() => ({
-    color: undefined,
-    backgroundColor: undefined,
-    cursor: undefined,
-    visibility: undefined
-  }))
+  useStyle: vi.fn(props =>
+    createMockStyle({
+      newProps: props
+    })
+  )
 }));
 
 describe("<GroupingContainerComponent />", (): void => {

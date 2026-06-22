@@ -10,11 +10,13 @@ vi.mock("../../hooks/useStyle", () => ({
     props?.transparent
       ? createMockStyle({
           colors: { backgroundColor: "transparent" },
-          customColors: { lineColor: "rgba(0,1,255,1)" }
+          customColors: { lineColor: "rgba(0,1,255,1)" },
+          newProps: props
         })
       : createMockStyle({
           colors: { backgroundColor: props.backgroundColor.colorString },
-          customColors: { lineColor: "rgba(0,1,255,1)" }
+          customColors: { lineColor: "rgba(0,1,255,1)" },
+          newProps: props
         })
   )
 }));

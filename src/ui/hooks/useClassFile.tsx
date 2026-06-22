@@ -1,4 +1,4 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { createTheme, Theme } from "@mui/material";
 import { fetchAndConvert } from "./useFile";
@@ -7,6 +7,7 @@ import { selectClassFile } from "../../redux/slices/configurationSlice";
 import { phoebusTheme } from "../../phoebusTheme";
 import { borderToCss } from "../../types/border";
 import { fontToCss } from "../../types/font";
+import { addClassStyle } from "../../redux/slices/styleSlice";
 
 // Map widget props to MUI theme props
 const keyMap: Record<string, string> = {
@@ -37,7 +38,19 @@ const CLASS_FONT_PROPS = new Set([
   "legendFont"
 ]);
 
+const DEFAULT_CLASS_PROPS = new Set([
+  "children",
+  "fileId",
+  "id",
+  "name",
+  "type",
+  "position",
+  "border",
+  "alarmSensitive"
+]);
+
 export function useClassFile(userTheme?: Theme): Theme {
+  const dispatch = useDispatch();
   const classFile = useSelector(selectClassFile);
   const [theme, setTheme] = useState<Theme>(userTheme ?? phoebusTheme);
 
@@ -47,13 +60,15 @@ export function useClassFile(userTheme?: Theme): Theme {
         classFile as string,
         "ca"
       );
-      setTheme(createClassTheme(widgetDescription));
+      const [classTheme, classStyle] = createClassTheme(widgetDescription);
+      setTheme(classTheme);
+      dispatch(addClassStyle({ classes: classStyle }));
     };
 
     if (classFile !== undefined) {
       fetchData();
     }
-  }, [classFile, userTheme]);
+  }, [classFile, userTheme, dispatch]);
 
   return theme;
 }
@@ -80,11 +95,36 @@ export function extractThemeProps(
   );
 }
 
-export function createClassTheme(classFile: WidgetDescription): Theme {
-  // If classfile is empty, do nothing
-  if (!classFile.children) return phoebusTheme;
+export function extractStyleProps(
+  widget: WidgetDescription,
+  disallowedProps: Set<string>
+): Record<string, any> {
+  return Object.fromEntries(
+    Object.entries(widget)
+      .filter(([key]) => !disallowedProps.has(key))
+      .map(([key, value]) => [key, value ?? undefined])
+  );
+}
 
-  const palette: { [key: string]: any } = {};
+export function createClassTheme(classFile: WidgetDescription): [Theme, any] {
+  // If classfile is empty, do nothing
+  if (!classFile) return [phoebusTheme, {}];
+
+  const colour = extractThemeProps(
+    classFile,
+    CLASS_COLOR_PROPS,
+    value => value?.colorString
+  );
+  const palette: { [key: string]: any } = Object.keys(colour).length
+    ? { [`${classFile.name}display`]: colour }
+    : {};
+  const styling = extractStyleProps(
+    classFile,
+    new Set([...CLASS_FONT_PROPS, ...CLASS_COLOR_PROPS, ...DEFAULT_CLASS_PROPS])
+  );
+  const style: { [key: string]: any } = Object.keys(styling).length
+    ? { [`${classFile.name}display`]: styling }
+    : {};
   const typography: { [key: string]: any } = {};
   const borders: { [key: string]: any } = {};
   classFile.children?.forEach((child: WidgetDescription) => {
@@ -105,6 +145,17 @@ export function createClassTheme(classFile: WidgetDescription): Theme {
     if (Object.keys(fonts).length) typography[paletteName] = fonts;
 
     borders[paletteName] = borderToCss(child.border);
+
+    // Pass all remaining props to the generic style
+    const styleProps = extractStyleProps(
+      child,
+      new Set([
+        ...CLASS_FONT_PROPS,
+        ...CLASS_COLOR_PROPS,
+        ...DEFAULT_CLASS_PROPS
+      ])
+    );
+    if (Object.keys(styleProps).length) style[paletteName] = styleProps;
   });
 
   // Create Theme
@@ -123,5 +174,5 @@ export function createClassTheme(classFile: WidgetDescription): Theme {
       ...borders
     }
   });
-  return classTheme;
+  return [classTheme, style];
 }

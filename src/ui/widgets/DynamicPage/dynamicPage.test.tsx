@@ -7,14 +7,14 @@ import { FileContext } from "../../../misc/fileContext";
 
 import { useSelector } from "react-redux";
 import { Theme } from "@mui/material";
+import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: () => ({
-    border: {},
-    colors: {},
-    font: {},
-    other: {}
-  })
+  useStyle: vi.fn(props =>
+    createMockStyle({
+      newProps: props
+    })
+  )
 }));
 
 const mockEmbeddedDisplay = vi.fn((props?: any) => (

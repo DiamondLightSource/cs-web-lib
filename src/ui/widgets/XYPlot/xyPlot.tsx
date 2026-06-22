@@ -81,7 +81,7 @@ export interface TimeSeriesPoint {
 }
 
 export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
-  const style = useStyle(props, widgetName, props.class);
+  const [style, newProps] = useStyle(props, widgetName, props.class);
 
   const {
     traces,
@@ -95,7 +95,7 @@ export const XYPlotComponent = (props: XYPlotComponentProps): JSX.Element => {
     labelFont = newFont(),
     showLegend = true,
     visible = true
-  } = props;
+  } = newProps as XYPlotComponentProps;
 
   const { yAxes, yAxesStyle } = useMemo(() => buildYAxes(axes as Axes), [axes]);
   const { xAxis: xAxisMui, hasXAxisData } = useMemo(

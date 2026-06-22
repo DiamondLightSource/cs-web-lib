@@ -73,7 +73,7 @@ export interface TimeSeriesPoint {
 export const StripChartComponent = (
   props: StripChartComponentProps
 ): JSX.Element => {
-  const style = useStyle(props, widgetName, props.class);
+  const [style, newProps] = useStyle(props, widgetName, props.class);
 
   const {
     traces,
@@ -91,7 +91,7 @@ export const StripChartComponent = (
     archivedDataLoaded = false,
     updatePeriod = 0,
     bufferSize = 10000
-  } = props;
+  } = newProps as StripChartComponentProps;
 
   // If we're passed an empty array fill in defaults
   const localAxes = useMemo(
