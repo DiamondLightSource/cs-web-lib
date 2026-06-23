@@ -8,11 +8,13 @@ import {
   BoolPropOpt,
   PointsProp,
   MacrosPropOpt,
-  IntPropOpt
+  IntPropOpt,
+  StringPropOpt
 } from "../propTypes";
 import { registerWidget } from "../register";
 import { Point } from "../../../types/points";
 import { useStyle } from "../../hooks/useStyle";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const widgetName = "line";
 
@@ -28,7 +30,9 @@ const LineProps = {
   rotationAngle: FloatPropOpt,
   arrows: FloatPropOpt,
   arrowLength: FloatPropOpt,
-  fillArrow: BoolPropOpt
+  fillArrow: BoolPropOpt,
+  width: StringPropOpt,
+  height: StringPropOpt
 };
 
 export type LineComponentProps = InferWidgetProps<typeof LineProps> &
@@ -47,7 +51,9 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
     fillArrow = true,
     lineWidth = 3,
     lineColor,
-    lineStyle = 0
+    lineStyle = 0,
+    width = WIDGET_DEFAULT_SIZES["polyline"][0],
+    height = WIDGET_DEFAULT_SIZES["polyline"][1]
   } = newProps as LineComponentProps;
 
   const color = transparent
@@ -69,7 +75,7 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
     }
   })();
 
-  const transform = `rotation(${rotationAngle},0,0)`;
+  const transform = `rotate(${rotationAngle},0,0)`;
 
   // Each marker definition needs a unique ID or colours overlap
   const uid = crypto.randomUUID();
@@ -159,7 +165,7 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
     return (
       <svg
         display={"block"}
-        viewBox={`0 0 100% 100%`}
+        viewBox={`0 0 ${width} ${height}`}
         xmlns="http://www.w3.org/2000/svg"
         overflow={"visible"}
       >

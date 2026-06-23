@@ -9,10 +9,12 @@ import {
   IntPropOpt,
   BoolPropOpt,
   PointsPropOpt,
-  MacrosPropOpt
+  MacrosPropOpt,
+  StringPropOpt
 } from "../propTypes";
 import { Point } from "../../../types/points";
 import { useStyle } from "../../hooks/useStyle";
+import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 
 const widgetName = "polygon";
 
@@ -24,7 +26,9 @@ const PolygonProps = {
   backgroundColor: ColorPropOpt,
   points: PointsPropOpt,
   rotationAngle: IntPropOpt,
-  transparent: BoolPropOpt
+  transparent: BoolPropOpt,
+  width: StringPropOpt,
+  height: StringPropOpt
 };
 
 type PolygonComponentProps = InferWidgetProps<typeof PolygonProps> & {
@@ -40,7 +44,9 @@ export const PolygonComponent = (props: PolygonComponentProps): JSX.Element => {
   const {
     lineWidth = 3,
     points,
-    rotationAngle = 0
+    rotationAngle = 0,
+    width = WIDGET_DEFAULT_SIZES["polygon"][0],
+    height = WIDGET_DEFAULT_SIZES["polygon"][1]
   } = newProps as PolygonComponentProps;
   //Loop over points and convert to string for svg
   let coordinates = "";
@@ -52,7 +58,7 @@ export const PolygonComponent = (props: PolygonComponentProps): JSX.Element => {
 
   return (
     <svg
-      viewBox={`0 0 100% 100%`}
+      viewBox={`0 0 ${width} ${height}`}
       xmlns="http://www.w3.org/2000/svg"
       overflow={"visible"}
     >
@@ -61,7 +67,7 @@ export const PolygonComponent = (props: PolygonComponentProps): JSX.Element => {
         stroke={customColors?.lineColor}
         strokeWidth={lineWidth}
         fill={colors?.backgroundColor}
-        transform={`rotation(${rotationAngle},0,0)`}
+        transform={`rotate(${rotationAngle},0,0)`}
         points={coordinates}
       />
     </svg>
