@@ -4,19 +4,14 @@ import * as urlUtils from "../../../misc/urlUtils";
 import { normalisePath } from "../../../misc/urlUtils";
 
 vi.mock("../../../misc/urlUtils", () => ({
-  normalisePath: vi.fn(),
-  isFullyQualifiedUrl: vi.fn()
-}));
-
-vi.mock("../../../misc/urlUtils", () => ({
   normalisePath: vi.fn(path => `resolved:${path}`),
   isFullyQualifiedUrl: vi.fn(
     path => typeof path === "string" && path.startsWith("http")
   )
 }));
 
-const normalisePath = urlUtils.normalisePath as unknown as ReturnType<typeof vi.fn>;
-const isFullyQualifiedUrl = urlUtils.isFullyQualifiedUrl as unknown as ReturnType<typeof vi.fn>;
+const isFullyQualifiedUrl =
+  urlUtils.isFullyQualifiedUrl as unknown as ReturnType<typeof vi.fn>;
 
 describe("resolveAndNormaliseWidgetPaths", () => {
   beforeEach(() => {
@@ -70,7 +65,9 @@ describe("resolveAndNormaliseWidgetPaths", () => {
   });
 
   it("skips image if fully qualified URL", () => {
-    isFullyQualifiedUrl.mockImplementation(path => path && path?.startsWith("http"));
+    isFullyQualifiedUrl.mockImplementation(
+      path => path && path?.startsWith("http")
+    );
 
     const widget: any = {
       image: "http://example.com/img.png"
@@ -112,7 +109,9 @@ describe("resolveAndNormaliseWidgetPaths", () => {
   });
 
   it("skips fully qualified symbols", () => {
-    isFullyQualifiedUrl.mockImplementation(path => path && path?.startsWith("http"));
+    isFullyQualifiedUrl.mockImplementation(
+      path => path && path?.startsWith("http")
+    );
 
     const widget: any = {
       symbols: ["http://example.com/a.sym"]
@@ -199,10 +198,6 @@ describe("resolveAndNormaliseWidgetPaths", () => {
 
     resolveAndNormaliseWidgetPaths(widget, undefined, {});
 
-    expect(normalisePath).toHaveBeenCalledWith(
-        "img.png",
-        undefined,
-        {}
-    );
+    expect(normalisePath).toHaveBeenCalledWith("img.png", undefined, {});
   });
 });
