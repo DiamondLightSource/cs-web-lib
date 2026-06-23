@@ -3,7 +3,7 @@
 import log from "loglevel";
 import { ElementCompact, xml2js } from "xml-js";
 import { Rule, Expression, OpiFile } from "../../../types/props";
-import { MacroMap, resolveMacros } from "../../../types/macros";
+import { MacroMap } from "../../../types/macros";
 import { Color, ColorUtils } from "../../../types/color";
 import { FontStyle, Font, newFont } from "../../../types/font";
 import { Border, BorderStyle, newBorder } from "../../../types/border";
@@ -33,7 +33,6 @@ import {
 } from "../widgetActions";
 import { snakeCaseToCamelCase } from "../utils";
 import { newPoint, newPoints, Point, Points } from "../../../types/points";
-import { buildUrl, isFullyQualifiedUrl } from "../../../misc/urlUtils";
 import { parseArrayString } from "../../../misc/stringUtils";
 
 export interface XmlDescription {
@@ -763,11 +762,9 @@ export const OPI_COMPLEX_PARSERS: ComplexParserDict = {
 };
 
 export const opiPatchRules =
-  (parserDict: ParserDict, complexParsers: ComplexParserDict) =>
+  (parserDict: ParserDict, complexParsers: ComplexParserDict): PatchFunction =>
   async (
     widgetDescription: WidgetDescription,
-    path?: string,
-    macros?: MacroMap,
     allowedProps?: { [key: string]: unknown }
   ): Promise<WidgetDescription> => {
     /* Re-index simple parsers so we can find the correct one
@@ -817,127 +814,9 @@ export const opiPatchRules =
     return widgetDescription;
   };
 
-export function normalisePath(
-  path: string,
-  parentDir?: string,
-  macros?: MacroMap
-): string {
-  let prefix = parentDir ?? "";
-  while (path.startsWith("../")) {
-    path = path.slice(3);
-    prefix = prefix.slice(0, prefix.lastIndexOf("/"));
-  }
-
-  // If path contains macros, we need to apply these before building the url
-  const resolvedPath = macros ? resolveMacros(path, macros) : path;
-
-  return buildUrl(prefix, resolvedPath);
-}
-
-export function opiPatchPaths(
-  widgetDescription: WidgetDescription,
-  parentDir?: string,
-  macros?: MacroMap
-): WidgetDescription {
-  log.debug(`opiPatchPaths ${parentDir}`);
-  // file: OpiFile type
-
-  if (
-    widgetDescription["file"] &&
-    parentDir &&
-    !isFullyQualifiedUrl(widgetDescription["file"].path)
-  ) {
-    widgetDescription["file"].path = normalisePath(
-      widgetDescription["file"].path,
-      parentDir,
-      macros
-    );
-    log.debug(`Corrected opi file to ${widgetDescription["file"].path}`);
-  }
-  // imageFile and image: just strings
-  for (const prop of ["imageFile", "image"]) {
-    // If image over http do not manipulate path.
-    if (isFullyQualifiedUrl(widgetDescription[prop])) {
-      continue;
-    }
-    if (widgetDescription[prop]) {
-      widgetDescription[prop] = normalisePath(
-        widgetDescription[prop],
-        parentDir,
-        macros
-      );
-      log.debug(`Corrected image file to ${widgetDescription.imageFile}`);
-    }
-  }
-  // action.file: OpiFile type
-  if (widgetDescription.actions && parentDir) {
-    for (const action of widgetDescription.actions.actions) {
-      if (action.dynamicInfo) {
-        action.dynamicInfo.file.path = normalisePath(
-          action.dynamicInfo.file.path,
-          parentDir,
-          macros
-        );
-        log.debug(`Corrected path to ${action.dynamicInfo.file.path}`);
-      }
-    }
-  }
-
-  // symbols: list of string file paths
-  if (widgetDescription["symbols"] && parentDir) {
-    widgetDescription["symbols"] = widgetDescription["symbols"].map(
-      (symbol: string) => {
-        if (isFullyQualifiedUrl(symbol)) return symbol;
-        return normalisePath(symbol, parentDir, macros);
-      }
-    );
-    // For the case where a symbol contains a rule that updates a symbol path
-    widgetDescription["rules"]
-      ?.filter((rule: any) => rule?.prop?.startsWith("symbols["))
-      ?.forEach((rule: any) => {
-        rule?.expressions
-          ?.filter((expression: any) => expression.convertedValue)
-          ?.forEach((expression: any) => {
-            expression.convertedValue = normalisePath(
-              expression.convertedValue,
-              parentDir,
-              macros
-            );
-          });
-      });
-  }
-
-  // case where a rule contains a file
-  if (widgetDescription["rules"] && parentDir) {
-    widgetDescription["rules"]
-      ?.filter((rule: any) => rule?.prop?.startsWith("file"))
-      ?.forEach((rule: any) => {
-        rule?.expressions
-          ?.filter((expression: any) => expression?.convertedValue?.path)
-          ?.forEach((expression: any) => {
-            expression.convertedValue.path = normalisePath(
-              expression.convertedValue.path,
-              parentDir,
-              macros
-            );
-          });
-      });
-  }
-
-  // When a tab widget contains a file
-  if (widgetDescription["tabs"] && parentDir) {
-    widgetDescription["tabs"].forEach((tab: any) => {
-      if (isFullyQualifiedUrl(tab.file)) return;
-      tab.file = normalisePath(tab.file, parentDir, macros);
-    });
-  }
-
-  return widgetDescription;
-}
-
-function opiPatchActions(
+const opiPatchActions: PatchFunction = (
   widgetDescription: WidgetDescription
-): WidgetDescription {
+): WidgetDescription => {
   if (
     widgetDescription.type === "actionbutton" &&
     widgetDescription.text &&
@@ -961,21 +840,19 @@ function opiPatchActions(
     }
   }
   return widgetDescription;
-}
+};
 
 export const OPI_PATCHERS = (
   parserDict: ParserDict,
   complexParsers: ComplexParserDict
 ): PatchFunction[] => [
   opiPatchRules(parserDict, complexParsers),
-  opiPatchPaths,
   opiPatchActions
 ];
 
 export async function parseOpi(
   xmlString: string,
   defaultProtocol: string,
-  filepath: string,
   fileId?: string
 ): Promise<WidgetDescription> {
   // Convert it to a "compact format"
@@ -1017,8 +894,6 @@ export async function parseOpi(
     complexParsers,
     false,
     OPI_PATCHERS(OPI_SIMPLE_PARSERS, OPI_COMPLEX_PARSERS),
-    filepath,
-    undefined,
     fileId
   );
 

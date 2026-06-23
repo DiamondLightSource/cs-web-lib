@@ -135,7 +135,7 @@ export const TabBar = (props: TabComponentProps): JSX.Element => {
                     <IconButton
                       size="small"
                       component="span"
-                      onClick={newProps.onTabClosed(index)}
+                      onClick={() => newProps?.onTabClosed?.(index)}
                     >
                       <Close />
                     </IconButton>

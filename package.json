@@ -1,6 +1,7 @@
 {
   "name": "@diamondlightsource/cs-web-lib",
-  "version": "0.10.17",
+  "type": "module",
+  "version": "0.10.18",
   "description": "Control system web library",
   "main": "./dist/index.cjs",
   "scripts": {
@@ -20,17 +21,17 @@
     "url": "https://github.com/DiamondLightSource/cs-web-lib.git"
   },
   "dependencies": {
-    "@mui/icons-material": "^7.3.7",
-    "@reduxjs/toolkit": "^2.11.2",
     "apollo-link-retry": "^2.2.16",
     "bufferutil": "^4.0.8",
     "loglevel": "^1.9.2",
-    "react-grid-layout": "^2.2.3",
-    "react-toastify": "^11.0.5",
     "safe-stable-stringify": "^2.5.0",
     "utf-8-validate": "^5.0.10"
   },
   "devDependencies": {
+    "react-grid-layout": "^2.2.3",
+    "react-toastify": "^11.0.5",
+    "@mui/icons-material": "^7.3.7",
+    "@reduxjs/toolkit": "^2.11.2",
     "@apollo/client": "^3.11.8",
     "@emotion/styled": "^11.13.0",
     "@mui/material": "^7.3.2",
@@ -59,7 +60,7 @@
     "graphql-ws": "^5.16.0",
     "jsdom": "^25.0.1",
     "prettier": "^3.3.3",
-    "react-gauge-component": "^2.0.26",
+    "react-gauge-component": "^2.0.29",
     "react-id-generator": "^3.0.2",
     "react-router": "^7.13.0",
     "react-test-renderer": "^18.3.1",
@@ -73,22 +74,25 @@
     "typescript": "^5.6.3",
     "vite": "^8.0.16",
     "vite-plugin-eslint": "^1.8.1",
-    "vite-plugin-node-polyfills": "^0.26.0",
     "vitest": "^4.0.8",
     "vitest-canvas-mock": "^0.3.3",
     "vitest-websocket-mock": "^0.4.0",
     "xml-js": "^1.6.11"
   },
   "peerDependencies": {
+    "@mui/icons-material": "^7.3.7",
+    "@reduxjs/toolkit": "^2.11.2",
+    "react-grid-layout": "^2.2.3",
+    "react-toastify": "^11.0.5",
+    "@mui/material": "^7.3.2",
+    "@mui/x-charts": "^9.3.0",
     "@types/react": "^18.3.1",
+    "d3": "^7.9.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-gauge-component": "^2.0.26",
+    "react-gauge-component": "^2.0.29",
     "react-redux": "^7.2.9",
-    "react-router": "^7.13.0",
-    "d3": "^7.9.0",
-    "@mui/material": "^7.3.2",
-    "@mui/x-charts": "^9.3.0"
+    "react-router": "^7.13.0"
   },
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",

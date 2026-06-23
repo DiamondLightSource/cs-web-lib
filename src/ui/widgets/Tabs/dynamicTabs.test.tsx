@@ -16,6 +16,10 @@ vi.spyOn(global, "fetch").mockImplementation(
   ) as Mock
 );
 
+vi.mock("../EmbeddedDisplay/embeddedDisplay", () => ({
+  EmbeddedDisplay: () => <div data-testid="embedded-display" />
+}));
+
 const TAB_ONE: FileDescription = {
   path: "one.json",
   macros: {},

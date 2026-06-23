@@ -2,13 +2,7 @@ import log from "loglevel";
 import { ColorUtils } from "../../../types/color";
 import { borderNONE } from "../../../types/border";
 import { Rule } from "../../../types/props";
-import {
-  normalisePath,
-  opiParseRules,
-  opiPatchPaths,
-  opiPatchRules,
-  parseOpi
-} from "./opiParser";
+import { opiParseRules, opiPatchRules, parseOpi } from "./opiParser";
 import {
   newAbsolutePosition,
   newRelativePosition
@@ -18,6 +12,7 @@ import { WidgetDescription } from "../createComponent";
 import { ElementCompact } from "xml-js";
 import { ComplexParserDict, ParserDict } from "./parser";
 import { pvQualifiedName } from "../../../types/pv";
+import { resolveAndNormaliseWidgetPaths } from "./parserPatcherUtils";
 
 ensureWidgetsRegistered();
 
@@ -211,9 +206,9 @@ describe("opi widget parser", (): void => {
     expect(widget.actions.actions.length).toEqual(1);
     const action = widget.actions.actions[0];
     expect(action.type).toEqual("OPEN_TAB");
-    // Relative paths handled.
+    // Paths are resloved after file parsing as they may contain macros.
     expect(action.dynamicInfo.file.path).toEqual(
-      "prefix/dlsPLCApp_opi/vacValve_detail.opi"
+      "../dlsPLCApp_opi/vacValve_detail.opi"
     );
     expect(action.dynamicInfo.description).toEqual("Open OPI");
   });
@@ -429,79 +424,6 @@ $(trace_0_y_pv_value)</tooltip>
     expect(widget.axes.length).toEqual(3);
     expect(widget.traces[0].bufferSize).toEqual(65536);
     expect(widget.axes[2].onRight).toEqual(true);
-  });
-});
-
-describe("normalisePath", (): void => {
-  it("returns path when no other arguments are specified", async (): Promise<void> => {
-    const result = normalisePath("/a/path");
-    expect(result).toBe("/a/path");
-  });
-
-  it("returns path without .. when no other arguments are specified and path starts with ../", async (): Promise<void> => {
-    const result = normalisePath("../../a/path");
-    expect(result).toBe("a/path");
-  });
-
-  it("Joins path and parent when parent is a valid url", async (): Promise<void> => {
-    const result = normalisePath("/a/path", "http://test.diamond.ac.uk/");
-    expect(result).toBe("http://test.diamond.ac.uk/a/path");
-  });
-
-  it("Joins path and parent when parent is a path", async (): Promise<void> => {
-    const result = normalisePath("/a/path", "/parent/path");
-    expect(result).toBe("/parent/path/a/path");
-  });
-
-  it("Joins path when path contains .. and removes trailing folders from paren path", async (): Promise<void> => {
-    const result = normalisePath("../a/path", "/parent/path");
-    expect(result).toBe("/parent/a/path");
-  });
-
-  it("Returns path if path is a valid url", async (): Promise<void> => {
-    const result = normalisePath(
-      "https://anothertest.diamond.ac.uk/a/path",
-      "http://test.diamond.ac.uk/"
-    );
-    expect(result).toBe("https://anothertest.diamond.ac.uk/a/path");
-  });
-
-  it("Does not substitute macros if macros undefined", async (): Promise<void> => {
-    const result = normalisePath(
-      "$(some_macro)/$(another_macro)/path",
-      "$(another_macro)/parent"
-    );
-    expect(result).toBe(
-      "$(another_macro)/parent/$(some_macro)/$(another_macro)/path"
-    );
-  });
-
-  it("Substitutes macros into path if macros defined", async (): Promise<void> => {
-    const result = normalisePath(
-      "$(some_macro)/$(another_macro)/path",
-      "$(another_macro)/parent",
-      {
-        some_macro: "macroPath",
-        another_macro: "anotherMacroPath",
-        absent_macro: "no_match"
-      }
-    );
-    expect(result).toBe(
-      "$(another_macro)/parent/macroPath/anotherMacroPath/path"
-    );
-  });
-
-  it("Substitutes macros into path, returns path if path becomes a fully qualified url", async (): Promise<void> => {
-    const result = normalisePath(
-      "$(some_macro)/$(another_macro)/path",
-      "$(another_macro)/parent",
-      {
-        some_macro: "http://test.diamond.ac.uk",
-        another_macro: "anotherMacroPath",
-        absent_macro: "no_match"
-      }
-    );
-    expect(result).toBe("http://test.diamond.ac.uk/anotherMacroPath/path");
   });
 });
 
@@ -816,12 +738,9 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = await opiPatchRules(parserDict, {})(
-      widget,
-      undefined,
-      undefined,
-      { "opi.number": 123 }
-    );
+    const result = await opiPatchRules(parserDict, {})(widget, {
+      "opi.number": 123
+    });
 
     expect(result.rules?.[0].prop).toBe("opi.number");
 
@@ -844,12 +763,9 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = await opiPatchRules(parserDict, {})(
-      widget,
-      undefined,
-      undefined,
-      { "opi.flag": 123 }
-    );
+    const result = await opiPatchRules(parserDict, {})(widget, {
+      "opi.flag": 123
+    });
 
     expect(result.rules?.[0].prop).toBe("flag[0]");
 
@@ -872,12 +788,9 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = await opiPatchRules(parserDict, {})(
-      widget,
-      undefined,
-      undefined,
-      { "opi.count": 123 }
-    );
+    const result = await opiPatchRules(parserDict, {})(widget, {
+      "opi.count": 123
+    });
 
     expect(result.rules?.[0].prop).toBe("unknownProp");
     expect(result.rules?.[0].expressions[0].convertedValue).toBeUndefined();
@@ -897,12 +810,9 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = await opiPatchRules(parserDict, {})(
-      widget,
-      undefined,
-      undefined,
-      { "opi.sum": 123 }
-    );
+    const result = await opiPatchRules(parserDict, {})(widget, {
+      "opi.sum": 123
+    });
 
     expect(result.rules?.[0].prop).toBe("count");
     expect(result.rules?.[0].expressions[0].convertedValue).toBeUndefined();
@@ -922,12 +832,10 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = await opiPatchRules(parserDict, {})(
-      widget,
-      undefined,
-      undefined,
-      { "opi.num": 123, "opi.text": 345 }
-    );
+    const result = await opiPatchRules(parserDict, {})(widget, {
+      "opi.num": 123,
+      "opi.text": 345
+    });
 
     expect(result.rules?.[0].prop).toBe("opi.num");
     expect(result.rules?.[0].expressions[0].convertedValue).toBe(5);
@@ -985,12 +893,10 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = await opiPatchRules(parserDict, {})(
-      widget,
-      undefined,
-      undefined,
-      { "opi.alpha": 123, "opi.beta": 345 }
-    );
+    const result = await opiPatchRules(parserDict, {})(widget, {
+      "opi.alpha": 123,
+      "opi.beta": 345
+    });
 
     expect(result.rules?.[0].prop).toBe("opi.alpha");
     expect(result.rules?.[0].expressions[0].convertedValue).toBe("A:1");
@@ -1013,12 +919,9 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = await opiPatchRules({}, complexParserDict)(
-      widget,
-      undefined,
-      undefined,
-      { file: 123 }
-    );
+    const result = await opiPatchRules({}, complexParserDict)(widget, {
+      file: 123
+    });
 
     expect(result.rules?.[0].prop).toBe("file");
 
@@ -1047,12 +950,9 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = await opiPatchRules({}, complexParserDict)(
-      widget,
-      undefined,
-      undefined,
-      { file345: 123 }
-    );
+    const result = await opiPatchRules({}, complexParserDict)(widget, {
+      file345: 123
+    });
 
     expect(result.rules?.[0].prop).toBe("file");
 
@@ -1084,12 +984,9 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = await opiPatchRules(parserDict, complexParserDict)(
-      widget,
-      undefined,
-      undefined,
-      { file: 123 }
-    );
+    const result = await opiPatchRules(parserDict, complexParserDict)(widget, {
+      file: 123
+    });
 
     expect(result.rules?.[0].prop).toBe("file");
 
@@ -1121,12 +1018,9 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = await opiPatchRules(parserDict, complexParserDict)(
-      widget,
-      undefined,
-      undefined,
-      { file: 123 }
-    );
+    const result = await opiPatchRules(parserDict, complexParserDict)(widget, {
+      file: 123
+    });
 
     expect(result.rules?.[0].prop).toBe("file");
 
@@ -1158,12 +1052,9 @@ describe("opiPatchRules", () => {
       ]
     } as Partial<WidgetDescription> as WidgetDescription;
 
-    const result = await opiPatchRules(parserDict, complexParserDict)(
-      widget,
-      undefined,
-      undefined,
-      { imageFile: 123 }
-    );
+    const result = await opiPatchRules(parserDict, complexParserDict)(widget, {
+      imageFile: 123
+    });
 
     expect(result.rules?.[0].prop).toBe("imageFile");
 
@@ -1180,7 +1071,7 @@ describe("opiPatchPaths", () => {
     };
     const parentDir = "/parent/dir";
 
-    const result = opiPatchPaths(
+    const result = resolveAndNormaliseWidgetPaths(
       widgetDescription as WidgetDescription,
       parentDir
     );
@@ -1194,7 +1085,7 @@ describe("opiPatchPaths", () => {
     };
     const parentDir = "/parent/dir";
 
-    const result = opiPatchPaths(
+    const result = resolveAndNormaliseWidgetPaths(
       widgetDescription as WidgetDescription,
       parentDir
     );
@@ -1209,7 +1100,7 @@ describe("opiPatchPaths", () => {
     };
     const parentDir = "/parent/dir";
 
-    const result = opiPatchPaths(
+    const result = resolveAndNormaliseWidgetPaths(
       widgetDescription as WidgetDescription,
       parentDir
     );
@@ -1225,7 +1116,7 @@ describe("opiPatchPaths", () => {
     };
     const parentDir = "/parent/dir";
 
-    const result = opiPatchPaths(
+    const result = resolveAndNormaliseWidgetPaths(
       widgetDescription as WidgetDescription,
       parentDir
     );
@@ -1253,7 +1144,7 @@ describe("opiPatchPaths", () => {
     };
     const parentDir = "/parent/dir";
 
-    const result = opiPatchPaths(
+    const result = resolveAndNormaliseWidgetPaths(
       widgetDescription as WidgetDescription,
       parentDir
     );
@@ -1276,7 +1167,7 @@ describe("opiPatchPaths", () => {
     };
     const parentDir = "/parent/dir";
 
-    const result = opiPatchPaths(
+    const result = resolveAndNormaliseWidgetPaths(
       widgetDescription as WidgetDescription,
       parentDir
     );
@@ -1300,7 +1191,7 @@ describe("opiPatchPaths", () => {
     };
     const parentDir = "/parent/dir";
 
-    const result = opiPatchPaths(
+    const result = resolveAndNormaliseWidgetPaths(
       widgetDescription as WidgetDescription,
       parentDir
     );
@@ -1322,7 +1213,7 @@ describe("opiPatchPaths", () => {
     };
     const parentDir = "/parent/dir";
 
-    const result = opiPatchPaths(
+    const result = resolveAndNormaliseWidgetPaths(
       widgetDescription as WidgetDescription,
       parentDir
     );
@@ -1338,7 +1229,9 @@ describe("opiPatchPaths", () => {
       imageFile: "img/icon.png"
     };
 
-    const result = opiPatchPaths(widgetDescription as WidgetDescription);
+    const result = resolveAndNormaliseWidgetPaths(
+      widgetDescription as WidgetDescription
+    );
 
     expect(result.file.path).toBe("relative/path.opi");
     expect(result.imageFile).toBe("img/icon.png");
@@ -1351,7 +1244,7 @@ describe("opiPatchPaths", () => {
     const parentDir = "/parent/dir";
     const macros = { MACRO: "expanded" };
 
-    const result = opiPatchPaths(
+    const result = resolveAndNormaliseWidgetPaths(
       widgetDescription as WidgetDescription,
       parentDir,
       macros
@@ -1367,7 +1260,7 @@ describe("opiPatchPaths", () => {
     const parentDir = "/parent/dir";
     const macros = { MACRO: "http://example.com" };
 
-    const result = opiPatchPaths(
+    const result = resolveAndNormaliseWidgetPaths(
       widgetDescription as WidgetDescription,
       parentDir,
       macros
@@ -1380,7 +1273,7 @@ describe("opiPatchPaths", () => {
     const widgetDescription: Partial<WidgetDescription> = {};
     const parentDir = "/parent/dir";
 
-    const result = opiPatchPaths(
+    const result = resolveAndNormaliseWidgetPaths(
       widgetDescription as WidgetDescription,
       parentDir
     );

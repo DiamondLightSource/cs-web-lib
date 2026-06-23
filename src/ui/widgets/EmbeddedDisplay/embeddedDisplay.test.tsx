@@ -8,7 +8,6 @@ import { MacroContext } from "../../../types/macros";
 import { useFile } from "../../hooks/useFile";
 import { BorderStyle, newRelativePosition } from "../../../types";
 import { newBorder } from "../../../types/border";
-import { newColor } from "../../../types/color";
 
 vi.mock("../../hooks/useFile", () => ({
   useFile: vi.fn(),
@@ -52,11 +51,11 @@ vi.mock("../utils", () => ({
 }));
 
 vi.mock("../../../types/color", () => ({
-  newColor: () => "color"
+  newColor: () => ({ colorString: "color" })
 }));
 
 vi.mock("../../../types/border", () => ({
-  newBorder: (style: any) => ({ style }),
+  newBorder: (style: any, color: any) => ({ style, color, width: 1 }),
   BorderStyle: { Line: "line", GroupBox: "groupbox" }
 }));
 
@@ -293,7 +292,7 @@ describe("EmbeddedDisplay (unit)", () => {
 
     const props = {
       ...baseProps,
-      border: newBorder(BorderStyle.GroupBox, newColor("white"), 1) as any
+      border: newBorder(BorderStyle.GroupBox, { colorString: "white" }, 1)
     };
 
     const { getByTestId } = renderWithContext(<EmbeddedDisplay {...props} />);

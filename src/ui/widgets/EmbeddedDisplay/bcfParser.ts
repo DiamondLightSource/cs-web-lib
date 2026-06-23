@@ -15,7 +15,6 @@ import { ParserDict, parseChildProps, parseWidget } from "./parser";
 export async function parseBcf(
   xmlString: string,
   defaultProtocol: string,
-  filepath: string,
   fileId?: string
 ): Promise<WidgetDescription> {
   // Convert it to a "compact format"
@@ -59,14 +58,7 @@ export async function parseBcf(
     colors: (props: ElementCompact) =>
       parseChildProps(props["colors"], BOB_SIMPLE_PARSERS),
     tabs: async (props: ElementCompact) =>
-      bobParseTabs(
-        props["tabs"],
-        simpleParsers,
-        complexParsers,
-        filepath,
-        {},
-        fileId
-      )
+      bobParseTabs(props["tabs"], simpleParsers, complexParsers, fileId)
   };
 
   const classFile = await parseWidget(
@@ -77,8 +69,6 @@ export async function parseBcf(
     complexParsers,
     false,
     OPI_PATCHERS(BOB_SIMPLE_PARSERS, BOB_COMPLEX_PARSERS),
-    filepath,
-    {},
     fileId,
     true
   );

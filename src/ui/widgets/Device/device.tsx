@@ -57,7 +57,6 @@ export const DeviceComponent = (
           componentDescription = await parseObject(
             jsonObject,
             "ca",
-            undefined,
             replacedDeviceName
           );
         } else {

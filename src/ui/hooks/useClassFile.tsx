@@ -58,8 +58,7 @@ export function useClassFile(userTheme?: Theme): Theme {
     const fetchData = async (): Promise<void> => {
       const widgetDescription = await fetchAndConvert(
         classFile as string,
-        "ca",
-        {}
+        "ca"
       );
       const [classTheme, classStyle] = createClassTheme(widgetDescription);
       setTheme(classTheme);

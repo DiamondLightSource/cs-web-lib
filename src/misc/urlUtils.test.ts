@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildUrl, isFullyQualifiedUrl } from "./urlUtils";
+import { buildUrl, isFullyQualifiedUrl, normalisePath } from "./urlUtils";
 
 describe("urlUtils", () => {
   describe("isFullyQualifiedUrl", () => {
@@ -133,5 +133,78 @@ describe("urlUtils", () => {
 
       expect(result).toEqual("path1/filename.json");
     });
+  });
+});
+
+describe("normalisePath", (): void => {
+  it("returns path when no other arguments are specified", async (): Promise<void> => {
+    const result = normalisePath("/a/path");
+    expect(result).toBe("/a/path");
+  });
+
+  it("returns path without .. when no other arguments are specified and path starts with ../", async (): Promise<void> => {
+    const result = normalisePath("../../a/path");
+    expect(result).toBe("a/path");
+  });
+
+  it("Joins path and parent when parent is a valid url", async (): Promise<void> => {
+    const result = normalisePath("/a/path", "http://test.diamond.ac.uk/");
+    expect(result).toBe("http://test.diamond.ac.uk/a/path");
+  });
+
+  it("Joins path and parent when parent is a path", async (): Promise<void> => {
+    const result = normalisePath("/a/path", "/parent/path");
+    expect(result).toBe("/parent/path/a/path");
+  });
+
+  it("Joins path when path contains .. and removes trailing folders from paren path", async (): Promise<void> => {
+    const result = normalisePath("../a/path", "/parent/path");
+    expect(result).toBe("/parent/a/path");
+  });
+
+  it("Returns path if path is a valid url", async (): Promise<void> => {
+    const result = normalisePath(
+      "https://anothertest.diamond.ac.uk/a/path",
+      "http://test.diamond.ac.uk/"
+    );
+    expect(result).toBe("https://anothertest.diamond.ac.uk/a/path");
+  });
+
+  it("Does not substitute macros if macros undefined", async (): Promise<void> => {
+    const result = normalisePath(
+      "$(some_macro)/$(another_macro)/path",
+      "$(another_macro)/parent"
+    );
+    expect(result).toBe(
+      "$(another_macro)/parent/$(some_macro)/$(another_macro)/path"
+    );
+  });
+
+  it("Substitutes macros into path if macros defined", async (): Promise<void> => {
+    const result = normalisePath(
+      "$(some_macro)/$(another_macro)/path",
+      "$(another_macro)/parent",
+      {
+        some_macro: "macroPath",
+        another_macro: "anotherMacroPath",
+        absent_macro: "no_match"
+      }
+    );
+    expect(result).toBe(
+      "$(another_macro)/parent/macroPath/anotherMacroPath/path"
+    );
+  });
+
+  it("Substitutes macros into path, returns path if path becomes a fully qualified url", async (): Promise<void> => {
+    const result = normalisePath(
+      "$(some_macro)/$(another_macro)/path",
+      "$(another_macro)/parent",
+      {
+        some_macro: "http://test.diamond.ac.uk",
+        another_macro: "anotherMacroPath",
+        absent_macro: "no_match"
+      }
+    );
+    expect(result).toBe("http://test.diamond.ac.uk/anotherMacroPath/path");
   });
 });

@@ -48,7 +48,6 @@ import { Axis, newAxis } from "../../../types/axis";
 import { newTrace, Trace } from "../../../types/trace";
 import { parsePlt } from "./pltParser";
 import { scriptParser } from "./scripts/scriptParser";
-import { MacroMap } from "../../../types/macros";
 import { bobParseNumber } from "./BobParsers/baseBobParsers";
 import {
   bobParseResponsiveBreakpoints,
@@ -444,8 +443,6 @@ export async function bobParseTabs(
   props: any,
   simpleParsers: ParserDict,
   complexParsers: ComplexParserDict,
-  filepath?: string,
-  macros?: MacroMap,
   fileId?: string
 ): Promise<any> {
   const tabs = await Promise.all(
@@ -467,8 +464,6 @@ export async function bobParseTabs(
               complexParsers,
               false,
               OPI_PATCHERS(BOB_SIMPLE_PARSERS, BOB_COMPLEX_PARSERS),
-              filepath,
-              macros,
               fileId
             );
           })
@@ -700,7 +695,6 @@ export async function parseBob(
   xmlString: string,
   defaultProtocol: string,
   filepath: string,
-  macros?: MacroMap,
   fileId?: string
 ): Promise<WidgetDescription> {
   // Convert it to a "compact format"
@@ -755,14 +749,7 @@ export async function parseBob(
     colors: (props: ElementCompact) =>
       parseChildProps(props["colors"], BOB_SIMPLE_PARSERS),
     tabs: async (props: ElementCompact) =>
-      bobParseTabs(
-        props["tabs"],
-        simpleParsers,
-        complexParsers,
-        filepath,
-        macros,
-        fileId
-      )
+      bobParseTabs(props["tabs"], simpleParsers, complexParsers, fileId)
   };
 
   const displayWidget = await parseWidget(
@@ -773,8 +760,6 @@ export async function parseBob(
     complexParsers,
     false,
     OPI_PATCHERS(BOB_SIMPLE_PARSERS, BOB_COMPLEX_PARSERS),
-    filepath,
-    macros,
     fileId
   );
 

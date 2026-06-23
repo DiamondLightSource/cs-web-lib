@@ -7,10 +7,21 @@ import postcss from "rollup-plugin-postcss";
 import peerDepsExternal from "rollup-plugin-peer-deps-external";
 import preserveDirectives from 'rollup-preserve-directives';
 
+const external = [
+  'react',
+  'react-dom',
+  'react-gauge-component',
+  'react-redux',
+  '@reduxjs/toolkit',
+  '@mui/material',
+  '@mui/system',
+  '@mui/icons-material'
+];
+
 const config = [
   {
     input: "src/index.ts",
-
+    external,
     output: [
       {
         dir: "dist",
@@ -38,7 +49,8 @@ const config = [
       peerDepsExternal(),
 
       resolve({
-        preferBuiltins: true
+        preferBuiltins: true,
+        dedupe: ['react', 'react-dom']
       }),
       commonjs({
         include: [
@@ -58,7 +70,7 @@ const config = [
     input: "dist/index.d.ts",
     output: [{ file: "dist/index.d.ts", format: "esm" }],
     plugins: [dts()],
-    external: [/\.css$/, '@reduxjs/toolkit']
+    external: [/\.css$/, ...external]
   }
 ];
 
