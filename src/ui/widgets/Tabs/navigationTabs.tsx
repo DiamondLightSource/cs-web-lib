@@ -43,18 +43,20 @@ export const NavigationTabsComponent = (
       return {
         name: tab.name,
         children: (
-          <EmbeddedDisplay
-            height={"100%"}
-            width={"100%"}
-            position={newRelativePosition()}
-            scroll={true}
-            resize={0}
-            file={{
-              path: tab.file,
-              macros: tab.macros,
-              defaultProtocol: tab.protocol ?? "ca"
-            }}
-          />
+          <div style={{ border: "6px solid transparent" }}>
+            <EmbeddedDisplay
+              height={"100%"}
+              width={"100%"}
+              position={newRelativePosition()}
+              scroll={true}
+              resize={0}
+              file={{
+                path: tab.file,
+                macros: tab.macros,
+                defaultProtocol: tab.protocol ?? "ca"
+              }}
+            />
+          </div>
         )
       };
     });
