@@ -42,6 +42,10 @@ const ByteMonitorRenderer = (byteMonitorProps: any): ReactTestRendererJSON => {
 };
 
 describe("<ByteMonitorComponent />", (): void => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   test("default properties are added to bytemonitor component", (): void => {
     const byteMonitorProps = {
       pvData: [
