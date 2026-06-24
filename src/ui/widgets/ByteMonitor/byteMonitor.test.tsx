@@ -11,18 +11,6 @@ import { vi } from "vitest";
 import { createMockStyle } from "../../../test-utils/styleTestUtils";
 
 vi.mock("../../hooks/useStyle", () => ({
-  useStyle: vi.fn(() =>
-    createMockStyle({
-      customColors: {
-        onColor: "rgb(155, 160, 209)",
-        offColor: "rgba(0, 0, 0, 1)",
-        borderColor: "rgba(150, 150, 150, 1)"
-      }
-    })
-  )
-}));
-
-vi.mock("../../hooks/useStyle", () => ({
   useStyle: vi.fn(props =>
     createMockStyle({
       customColors: {
@@ -42,6 +30,10 @@ const ByteMonitorRenderer = (byteMonitorProps: any): ReactTestRendererJSON => {
 };
 
 describe("<ByteMonitorComponent />", (): void => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   test("default properties are added to bytemonitor component", (): void => {
     const byteMonitorProps = {
       pvData: [

@@ -95,7 +95,8 @@ export const StripChartComponent = (
 
   // If we're passed an empty array fill in defaults
   const localAxes = useMemo(
-    () => (axes.length > 0 ? [...(axes as Axes)] : [newAxis({ xAxis: false })]),
+    () =>
+      axes?.length > 0 ? [...(axes as Axes)] : [newAxis({ xAxis: false })],
     [axes]
   );
   // Convert start time into milliseconds period
