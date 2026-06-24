@@ -361,4 +361,4 @@ export const LinearMeter = (
   props: InferWidgetProps<typeof LinearMeterWidgetProps>
 ): JSX.Element => <Widget baseWidget={LinearMeterComponent} {...props} />;
 
-registerWidget(LinearMeter, LinearMeterProps, widgetName);
+registerWidget(LinearMeter, LinearMeterWidgetProps, widgetName);

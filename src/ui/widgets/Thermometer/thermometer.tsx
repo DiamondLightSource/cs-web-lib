@@ -52,7 +52,7 @@ export const ThermometerComponent = (
 ): JSX.Element => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [style, newProps] = useStyle(
-    { foregroundColor: props.fillColor },
+    { ...props, foregroundColor: props.fillColor },
     widgetName,
     props.class
   );
