@@ -1,5 +1,11 @@
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor
+} from "@testing-library/react";
 import { DemoImageComponent, buildMjpgPvUrls } from "./demoImage";
 import { newColor } from "../../../types/color";
 import { vi } from "vitest";
@@ -84,41 +90,39 @@ describe("DemoImageComponent", () => {
       />
     );
 
-    const img = screen.getByRole("img");
+    expect(screen.getByRole("img")).toHaveAttribute("src", "http://a/TEST:PV");
 
-    expect(img).toHaveAttribute("src", "http://a/TEST:PV");
+    fireEvent.error(screen.getByRole("img"));
+    expect(screen.getByRole("img")).toHaveAttribute("src", "http://b/TEST:PV");
 
-    fireEvent.error(img);
-    expect(img).toHaveAttribute("src", "http://b/TEST:PV");
-
-    fireEvent.error(img);
-    expect(img).toHaveAttribute("src", "http://c/TEST:PV");
+    fireEvent.error(screen.getByRole("img"));
+    expect(screen.getByRole("img")).toHaveAttribute("src", "http://c/TEST:PV");
   });
 
-  it("shows warning when all URLs fail", () => {
+  it("shows warning when all URLs fail", async () => {
     const data = [
       { value: newDType({ stringValue: "ignored" }, DAlarmNONE()) } as PvDatum
     ];
 
-    render(
-      <DemoImageComponent
-        macros={{}}
-        pvData={data}
-        mjpgEndpoints={["http://a", "http://b"]}
-      />
-    );
+    const { getByRole } = await act(() => {
+      return render(
+        <DemoImageComponent
+          macros={{}}
+          pvData={data}
+          mjpgEndpoints={["http://a", "http://b"]}
+        />
+      );
+    });
 
-    const img = screen.getByRole("img");
-
-    fireEvent.error(img); // move to second URL
-    fireEvent.error(img); // no more URLs → warning
+    fireEvent.error(getByRole("img")); // move to second URL
+    fireEvent.error(getByRole("img")); // no more URLs → warning
 
     expect(showWarningMock).toHaveBeenCalledWith(
       "Could not load mjpg image stream for the PV: TEST:PV"
     );
   });
 
-  it("resets failure counter after exhausting URLs", () => {
+  it("resets failure counter after exhausting URLs", async () => {
     const data = [
       { value: newDType({ stringValue: "ignored" }, DAlarmNONE()) } as PvDatum
     ];
@@ -131,15 +135,18 @@ describe("DemoImageComponent", () => {
       />
     );
 
-    const img = screen.getByRole("img");
-
-    fireEvent.error(img); // → b
-    fireEvent.error(img); // → warning + reset
+    fireEvent.error(screen.getByRole("img")); // → b
+    fireEvent.error(screen.getByRole("img")); // → warning + reset
 
     // Trigger again → should start sequence again from second URL
-    fireEvent.error(img);
+    fireEvent.error(screen.getByRole("img"));
 
-    expect(img).toHaveAttribute("src", "http://b/TEST:PV");
+    await waitFor(() => {
+      expect(screen.getByRole("img")).toHaveAttribute(
+        "src",
+        "http://b/TEST:PV"
+      );
+    });
   });
 
   it("handles missing endpoints without crashing", () => {

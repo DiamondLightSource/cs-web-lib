@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Widget } from "../widget";
 import { PVComponent, PVWidgetPropType } from "../widgetProps";
 import {
@@ -86,9 +86,14 @@ export const DemoImageComponent = (
     }
   };
 
+  useEffect(() => {
+    setSrc(urls?.[numberOfFailures]);
+  }, [urls, numberOfFailures]);
+
   return (
     <Box
       component="img"
+      key={`image_${crypto.randomUUID()}`}
       src={src}
       alt={`PvName: ${effectivePvName}`}
       onError={handleError}
