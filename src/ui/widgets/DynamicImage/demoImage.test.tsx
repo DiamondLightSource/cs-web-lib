@@ -115,6 +115,7 @@ describe("DemoImageComponent", () => {
     });
 
     fireEvent.error(getByRole("img")); // move to second URL
+    fireEvent.error(getByRole("img")); // move to default URL
     fireEvent.error(getByRole("img")); // no more URLs → warning
 
     expect(showWarningMock).toHaveBeenCalledWith(
@@ -136,6 +137,7 @@ describe("DemoImageComponent", () => {
     );
 
     fireEvent.error(screen.getByRole("img")); // → b
+    fireEvent.error(screen.getByRole("img")); // → default
     fireEvent.error(screen.getByRole("img")); // → warning + reset
 
     // Trigger again → should start sequence again from second URL
@@ -172,7 +174,7 @@ describe("buildMjpgPvUrls", () => {
     expect(result).toEqual([]);
   });
 
-  it("returns empty array if endpoints are empty", () => {
+  it("returns empty array if endpoints empty", () => {
     const result = buildMjpgPvUrls([], "TEST:PV");
     expect(result).toEqual([]);
   });
@@ -183,30 +185,47 @@ describe("buildMjpgPvUrls", () => {
       "TEST:PV"
     );
 
-    expect(result).toEqual(["http://a/TEST:PV", "http://b/TEST:PV"]);
+    expect(result).toEqual([
+      "http://a/TEST:PV",
+      "http://b/TEST:PV",
+      "/images/disconnectedImage.svg"
+    ]);
   });
 
   it("removes pva:// prefix from pvName", () => {
     const result = buildMjpgPvUrls(["http://a"], "pva://TEST:PV");
 
-    expect(result).toEqual(["http://a/TEST:PV"]);
+    expect(result).toEqual([
+      "http://a/TEST:PV",
+      "/images/disconnectedImage.svg"
+    ]);
   });
 
   it("replaces :ARRAY suffix with :OUTPUT", () => {
     const result = buildMjpgPvUrls(["http://a"], "TEST:PV:ARRAY");
 
-    expect(result).toEqual(["http://a/TEST:PV:OUTPUT"]);
+    expect(result).toEqual([
+      "http://a/TEST:PV:OUTPUT",
+      "/images/disconnectedImage.svg"
+    ]);
   });
 
   it("handles both prefix removal and suffix replacement together", () => {
     const result = buildMjpgPvUrls(["http://a"], "pva://TEST:PV:ARRAY");
 
-    expect(result).toEqual(["http://a/TEST:PV:OUTPUT"]);
+    expect(result).toEqual([
+      "http://a/TEST:PV:OUTPUT",
+      "/images/disconnectedImage.svg"
+    ]);
   });
 
   it("builds urls for multiple endpoints", () => {
     const result = buildMjpgPvUrls(["http://a", "http://b"], "TEST:PV");
 
-    expect(result).toEqual(["http://a/TEST:PV", "http://b/TEST:PV"]);
+    expect(result).toEqual([
+      "http://a/TEST:PV",
+      "http://b/TEST:PV",
+      "/images/disconnectedImage.svg"
+    ]);
   });
 });
