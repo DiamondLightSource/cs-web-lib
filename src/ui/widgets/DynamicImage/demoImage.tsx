@@ -124,7 +124,8 @@ export const buildMjpgPvUrls = (
     ?.filter(x => x != null)
     ?.map((endpoint, i) => `${endpoint}/${trimmedPvName}`);
 
-  return additionalPvData ?? [];
+  additionalPvData.push("/images/disconnectedImage.svg");
+  return additionalPvData ?? ["/images/disconnectedImage.svg"];
 };
 
 const DemoImageWidgetProps = {
