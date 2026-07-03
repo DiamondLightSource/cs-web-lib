@@ -39,13 +39,15 @@ export const MeterProps = {
   font: FontPropOpt,
   transparent: BoolPropOpt,
   showUnits: BoolPropOpt,
-  showValue: BoolPropOpt
+  showValue: BoolPropOpt,
+  showLimits: BoolPropOpt
 };
 
 export type MeterComponentProps = InferWidgetProps<typeof MeterProps> &
   PVComponent;
 
 export const MeterComponent = (props: MeterComponentProps): JSX.Element => {
+  console.log("MeterComponent props:", props);
   const [ref, size] = useMeasuredSize(240, 120);
 
   const [style, newProps] = useStyle(
@@ -60,7 +62,8 @@ export const MeterComponent = (props: MeterComponentProps): JSX.Element => {
     limitsFromPv = true,
     precision = undefined,
     showUnits = true,
-    showValue = true
+    showValue = true,
+    showLimits = true
   } = newProps as MeterComponentProps;
 
   const { value } = getPvValueAndName(pvData);
@@ -149,7 +152,7 @@ export const MeterComponent = (props: MeterComponentProps): JSX.Element => {
         arc={{
           padding: 0,
           cornerRadius: 0,
-          subArcs: buildSubArcs(
+          subArcs: buildSubArcs(showLimits,
             style?.colors?.color as string,
             minimum,
             maximum,
