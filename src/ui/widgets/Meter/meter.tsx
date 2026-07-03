@@ -152,7 +152,8 @@ export const MeterComponent = (props: MeterComponentProps): JSX.Element => {
         arc={{
           padding: 0,
           cornerRadius: 0,
-          subArcs: buildSubArcs(showLimits,
+          subArcs: buildSubArcs(
+            showLimits,
             style?.colors?.color as string,
             minimum,
             maximum,

@@ -187,7 +187,16 @@ describe("buildSubArcs", () => {
   });
 
   it("should build sub arcs with only warning ranges", () => {
-    const subArcs = buildSubArcs(true, "green", 0, 100, undefined, 20, 80, undefined);
+    const subArcs = buildSubArcs(
+      true,
+      "green",
+      0,
+      100,
+      undefined,
+      20,
+      80,
+      undefined
+    );
 
     expect(subArcs).toHaveLength(3);
     expect(subArcs[0].limit).toBe(20);
@@ -201,7 +210,16 @@ describe("buildSubArcs", () => {
   });
 
   it("should build sub arcs with only alarm ranges", () => {
-    const subArcs = buildSubArcs(true, "red", 0, 100, 10, undefined, undefined, 90);
+    const subArcs = buildSubArcs(
+      true,
+      "red",
+      0,
+      100,
+      10,
+      undefined,
+      undefined,
+      90
+    );
 
     expect(subArcs).toHaveLength(3);
     expect(subArcs[0].limit).toBe(10);
@@ -249,7 +267,8 @@ describe("buildSubArcs", () => {
   });
 
   it("should build sub arcs with no ranges", () => {
-    const subArcs = buildSubArcs(true,
+    const subArcs = buildSubArcs(
+      true,
       "purple",
       0,
       100,
