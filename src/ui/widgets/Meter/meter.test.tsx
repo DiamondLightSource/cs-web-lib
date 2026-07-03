@@ -159,6 +159,7 @@ describe("MeterComponent", () => {
     render(<MeterComponent {...defaultProps} />);
 
     expect(meterUtilities.buildSubArcs).toHaveBeenCalledWith(
+      true,
       "rgba(0,0,0,1)",
       0,
       100,
