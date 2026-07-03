@@ -47,7 +47,7 @@ export type MeterComponentProps = InferWidgetProps<typeof MeterProps> &
   PVComponent;
 
 export const MeterComponent = (props: MeterComponentProps): JSX.Element => {
-  console.log("MeterComponent props:", props);
+
   const [ref, size] = useMeasuredSize(240, 120);
 
   const [style, newProps] = useStyle(
