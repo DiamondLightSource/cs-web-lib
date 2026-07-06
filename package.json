@@ -36,6 +36,7 @@
     "@emotion/styled": "^11.13.0",
     "@mui/material": "^7.3.2",
     "@mui/x-charts": "^9.3.0",
+    "@react-three/fiber": "^8.18.0",
     "@rollup/plugin-commonjs": "^28",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-typescript": "^12.3.0",
@@ -103,6 +104,9 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.js"
     }
+  },
+  "overrides": {
+    "minimist": "^1.2.8"
   },
   "files": [
     "dist"
