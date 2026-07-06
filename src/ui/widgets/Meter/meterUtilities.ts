@@ -98,6 +98,7 @@ export const formatValue =
  * @returns An array of sub arc for the meter
  */
 export const buildSubArcs = (
+  showLimits: boolean,
   foregroundColor: string,
   minimum: number,
   maximum: number,
@@ -111,7 +112,7 @@ export const buildSubArcs = (
   const withinBounds = (value: number) =>
     Math.min(maximum, Math.max(minimum, value));
 
-  if (alarmRangeMin && alarmRangeMin > minimum) {
+  if (alarmRangeMin && alarmRangeMin > minimum && showLimits) {
     subArcs.push({
       limit: withinBounds(alarmRangeMin),
       width: 0.04,
@@ -120,7 +121,11 @@ export const buildSubArcs = (
     });
   }
 
-  if (warningRangeMin && warningRangeMin > (alarmRangeMin ?? minimum)) {
+  if (
+    warningRangeMin &&
+    warningRangeMin > (alarmRangeMin ?? minimum) &&
+    showLimits
+  ) {
     subArcs.push({
       limit: withinBounds(warningRangeMin),
       width: 0.04,
@@ -131,14 +136,20 @@ export const buildSubArcs = (
 
   subArcs.push({
     limit: withinBounds(
-      Math.min(warningRangeMax ?? maximum, alarmRangeMax ?? maximum)
+      !showLimits
+        ? maximum
+        : Math.min(warningRangeMax ?? maximum, alarmRangeMax ?? maximum)
     ),
     width: 0.02,
     showTick: false,
     color: foregroundColor
   });
 
-  if (warningRangeMax && warningRangeMax < (alarmRangeMax ?? maximum)) {
+  if (
+    warningRangeMax &&
+    warningRangeMax < (alarmRangeMax ?? maximum) &&
+    showLimits
+  ) {
     subArcs.push({
       limit: withinBounds(alarmRangeMax ?? maximum),
       width: 0.04,
@@ -147,7 +158,7 @@ export const buildSubArcs = (
     });
   }
 
-  if (alarmRangeMax && alarmRangeMax < maximum) {
+  if (alarmRangeMax && alarmRangeMax < maximum && showLimits) {
     subArcs.push({
       limit: withinBounds(maximum),
       width: 0.04,

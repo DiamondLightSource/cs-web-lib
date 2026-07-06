@@ -167,7 +167,7 @@ describe("formatValue", () => {
 
 describe("buildSubArcs", () => {
   it("should build sub arcs with all ranges defined", () => {
-    const subArcs = buildSubArcs("blue", 0, 100, 10, 20, 80, 90);
+    const subArcs = buildSubArcs(true, "blue", 0, 100, 10, 20, 80, 90);
 
     expect(subArcs).toHaveLength(5);
     expect(subArcs[0].limit).toBe(10);
@@ -187,7 +187,16 @@ describe("buildSubArcs", () => {
   });
 
   it("should build sub arcs with only warning ranges", () => {
-    const subArcs = buildSubArcs("green", 0, 100, undefined, 20, 80, undefined);
+    const subArcs = buildSubArcs(
+      true,
+      "green",
+      0,
+      100,
+      undefined,
+      20,
+      80,
+      undefined
+    );
 
     expect(subArcs).toHaveLength(3);
     expect(subArcs[0].limit).toBe(20);
@@ -201,7 +210,16 @@ describe("buildSubArcs", () => {
   });
 
   it("should build sub arcs with only alarm ranges", () => {
-    const subArcs = buildSubArcs("red", 0, 100, 10, undefined, undefined, 90);
+    const subArcs = buildSubArcs(
+      true,
+      "red",
+      0,
+      100,
+      10,
+      undefined,
+      undefined,
+      90
+    );
 
     expect(subArcs).toHaveLength(3);
     expect(subArcs[0].limit).toBe(10);
@@ -215,7 +233,7 @@ describe("buildSubArcs", () => {
   });
 
   it("should build sub arcs when low value alarm range greater then low value warning range", () => {
-    const subArcs = buildSubArcs("green", 0, 100, 20, 10, 80, 90);
+    const subArcs = buildSubArcs(true, "green", 0, 100, 20, 10, 80, 90);
 
     expect(subArcs).toHaveLength(4);
     expect(subArcs[0].limit).toBe(20);
@@ -232,7 +250,7 @@ describe("buildSubArcs", () => {
   });
 
   it("should build sub arcs when high value alarm range lower than high value warning range", () => {
-    const subArcs = buildSubArcs("green", 0, 100, 10, 20, 80, 70);
+    const subArcs = buildSubArcs(true, "green", 0, 100, 10, 20, 80, 70);
 
     expect(subArcs).toHaveLength(4);
     expect(subArcs[0].limit).toBe(10);
@@ -250,6 +268,7 @@ describe("buildSubArcs", () => {
 
   it("should build sub arcs with no ranges", () => {
     const subArcs = buildSubArcs(
+      true,
       "purple",
       0,
       100,
@@ -265,10 +284,18 @@ describe("buildSubArcs", () => {
   });
 
   it("should clamp values to min/max bounds", () => {
-    const subArcs = buildSubArcs("blue", 50, 150, 0, 60, 160, 200);
+    const subArcs = buildSubArcs(true, "blue", 50, 150, 0, 60, 160, 200);
 
     expect(subArcs[0].limit).toBe(60); // upper limit of low value alarm range
     expect(subArcs[2].limit).toBe(150); // Maximum value
+  });
+
+  it("should not build sub arcs when showLimits is false", () => {
+    const subArcs = buildSubArcs(false, "blue", 0, 100, 10, 20, 80, 90);
+
+    expect(subArcs).toHaveLength(1);
+    expect(subArcs[0].limit).toBe(100);
+    expect(subArcs[0].color).toBe("blue");
   });
 });
 
