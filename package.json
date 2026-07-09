@@ -105,9 +105,6 @@
       "default": "./dist/index.js"
     }
   },
-  "overrides": {
-    "minimist": "^1.2.8"
-  },
   "files": [
     "dist"
   ],
