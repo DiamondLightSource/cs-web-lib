@@ -82,8 +82,13 @@ To make use of PVs in cs-web-lib widgets, you need to connect to PVWS. The basic
 
 ```
 {
-  storeMode: "DEV" | PROD"
-  PVWS_SOCKET: string
+  storeMode: "DEV" | PROD",
+  classFile: string,
+  defaultMjpgEndpoint: string,
+  csWebLibFeatureFlags: {
+    enableDynamicScripts: boolean
+  },
+  PVWS_SOCKET: string,
   PVWS_SSL: boolean,
   THROTTLE_PERIOD: integer
 }
@@ -94,6 +99,9 @@ The configuration parameters are:
 | Parameter | type | Description |
 |- | -| - |
 | storeMode | string | Either DEV or PROD, default is PROD. In DEV mode the redux store devTools, immutable & serializable checks are switched on; in prod mode they are switch off to improve performance. |
+| classFile | string | A URL that points towards the location of a .bcf, or .bob class file. This file will be used to apply style via classes like Phoebus does to all files. |
+| defaultMjpgEndpoint | string | A URL that points towards the Mjpeg endpoint for the Image widget. This endpoint combined with a PV name returns an MJPEG stream to be displayed. |
+| enableDynamicScripts | boolean | Either enables or disables the dynamic scripting functionality. It is `false` by default. |
 | PVWS_SOCKET | string | The fully qualified hostname and port of the instance of the PVWS web service |
 | PVWS_SSL | boolean | If true use https, if false use http for connecting to the PVWS web service |
 | THROTTLE_PERIOD | integer | The period in milliseconds between updates of the PV state variables |
@@ -118,7 +126,13 @@ export const loadConfig = async (): Promise<CsWebLibConfig> => {
     config = {
       PVWS_SOCKET: undefined,
       PVWS_SSL: undefined,
-      THROTTLE_PERIOD: undefined
+      THROTTLE_PERIOD: undefined,
+      storeMode: undefined,
+      defaultMjpgEndpoint: undefined,
+      csWebLibFeatureFlags: {
+        enableDynamicScripts: false
+      },
+      classFile: undefined
     };
   }
 
@@ -153,6 +167,8 @@ export default App;
 
 Now you can use cs-web-lib to display .bob files and see updates to PV values.
 
+If you're making use of a widget such as the Image widget, you can provide a default disconnected symbol for this widget to use by creating a file `/public/images/disconnectedImage.svg`. If the stream fails to connect, it will instead show this image.
+
 **Displaying a .bob file**
 
 To view a file in the client application, make use of the display components. These are:
@@ -166,7 +182,7 @@ To view a file in the client application, make use of the display components. Th
           defaultProtocol: "ca" // Or "pva",
           macros: {}
         }}
-        position={new RelativePosition("0", "0", "100%", "100%")}
+        position={newRelativePosition("0", "0", "100%", "100%")}
         scroll={false}
         resize={"scroll-content"}
       />
@@ -197,17 +213,18 @@ To view a file in the client application, make use of the display components. Th
             name: "new",
             location: "main",
             description: undefined,
+            pvwsHost: "pvws-host.diamond.ac.uk"
             file: {
                 path: "/my/new_file.bob
                 macros: {},
                 defaultProtocol: "ca"
             }
           }
-        },
-        fileContext,
-        undefined,
-        {},
-        "
+        }, // our action to execute
+        fileContext, // the file context
+        undefined, //files
+        {}, //macros
+        "browser-url.diamond.ac.uk" //url address
       );
     };
 
@@ -216,7 +233,7 @@ To view a file in the client application, make use of the display components. Th
             <Button onClick={handleClick}>
             <DynamicPageWidget
                 location={"main"}
-                position={new RelativePosition()}
+                position={newRelativePosition()}
                 scroll={false}
                 showCloseButton={false}
             />
