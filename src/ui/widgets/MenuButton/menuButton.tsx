@@ -18,7 +18,13 @@ import {
   WidgetActions
 } from "../widgetActions";
 import { FileContext } from "../../../misc/fileContext";
-import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import {
+  Autocomplete,
+  createFilterOptions,
+  MenuItem,
+  Select,
+  TextField
+} from "@mui/material";
 import { getPvValueAndName } from "../utils";
 import log from "loglevel";
 import {
@@ -36,6 +42,7 @@ export const MenuButtonProps = {
   font: FontPropOpt,
   border: BorderPropOpt,
   enabled: BoolPropOpt,
+  editable: BoolPropOpt,
   // opi specific prop
   actionsFromPv: BoolPropOpt,
   actions: ActionsPropType,
@@ -132,19 +139,35 @@ export const MenuButtonComponent = (
     );
   });
 
-  function onChange(event: SelectChangeEvent): void {
+  function onChange(newValue: string | null): void {
     // Do nothing if we click on the first blank option
-    if (event.target.value) {
+    if (newValue) {
       // If no PV connected, reset to No PV
       if (!pvName) {
         setDisplayValue("No PV");
       } else {
         // If PV connected, we allow the value to change and trigger index change
         try {
-          executeAction(actions[options.indexOf(event.target.value)], files);
+          if (options.includes(newValue)) {
+            executeAction(actions[options.indexOf(newValue)], files);
+          } else {
+            executeAction(
+              {
+                type: WRITE_PV,
+                writePvInfo: {
+                  pvName: pvName,
+                  value:
+                    valueType === DtypeValues.NUMBER
+                      ? Number(newValue)
+                      : newValue
+                }
+              } as WritePv,
+              files
+            );
+          }
         } catch (e: any) {
           // If action fails due to widget items not existing on PV
-          if (enumPv && !value?.display.choices?.includes(event.target.value)) {
+          if (enumPv && !value?.display.choices?.includes(newValue)) {
             // Add an option to display our error string
             setDisplayValue(e.toString());
           } else {
@@ -155,7 +178,67 @@ export const MenuButtonComponent = (
     }
   }
 
-  return (
+  const filter = createFilterOptions<string>();
+
+  return props.editable ? (
+    <Autocomplete
+      value={displayValue}
+      onChange={(_, newValue) => onChange(newValue)}
+      selectOnFocus
+      clearOnBlur
+      handleHomeEndKeys
+      freeSolo
+      options={options}
+      filterOptions={(options, params) => {
+        const filtered = filter(options, params);
+        const { inputValue } = params;
+        const isExisting = options.some(option => inputValue === option);
+        if (inputValue !== "" && !isExisting) {
+          filtered.push(inputValue);
+        }
+        return filtered;
+      }}
+      renderInput={params => <TextField {...params} />}
+      renderOption={(props, option) => {
+        const { key, ...optionProps } = props;
+        return (
+          <li key={key} {...optionProps} style={{ ...style?.colors }}>
+            {option}
+          </li>
+        );
+      }}
+      slotProps={{
+        paper: {
+          sx: { ...style?.colors }
+        }
+      }}
+      sx={{
+        cursor: disabled ? "not-allowed" : "default",
+        height: "100%",
+        width: "100%",
+        "& .MuiFormControl-root": {
+          height: "100%",
+          width: "100%"
+        },
+        "& .MuiInputBase-root": {
+          ...style?.colors,
+          height: "100%",
+          widht: "100%"
+        },
+        "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+          borderRadius: "4px",
+          inset: "0px",
+          "& .css-1nf2c5d-MuiNotchedOutlined-root": {
+            height: "0px"
+          }
+        },
+        "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
+          {
+            borderColor: "#000000"
+          }
+      }}
+    />
+  ) : (
     <Select
       disabled={disabled}
       value={displayValue}
@@ -166,7 +249,7 @@ export const MenuButtonComponent = (
           }
         }
       }}
-      onChange={event => onChange(event)}
+      onChange={event => onChange(event.target.value)}
       sx={{
         ...style?.colors,
         cursor: disabled ? "not-allowed" : "default",
