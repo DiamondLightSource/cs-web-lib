@@ -45,12 +45,12 @@ const BoolButtonProps = {
   enabled: BoolPropOpt,
   font: FontPropOpt,
   textAlign: ChoicePropOpt(["left", "center", "right"]),
-  textAlignV: ChoicePropOpt(["top", "center", "bottom"])
+  textAlignV: ChoicePropOpt(["top", "center", "bottom"]),
+  visible: BoolPropOpt
 };
 
 const Button = styled(MuiButton)({
   "&.MuiButton-root": {
-    display: "flex",
     lineHeight: 1.3,
     height: "100%",
     width: "100%",
@@ -102,7 +102,8 @@ export const BoolButtonComponent = (
     labelsFromPv = false,
     enabled = true,
     textAlign = "center",
-    textAlignV = "center"
+    textAlignV = "center",
+    visible = true
   } = newProps as BoolButtonComponentProps;
   const {
     value,
@@ -178,6 +179,7 @@ export const BoolButtonComponent = (
         onClick={handleClick}
         disabled={readOnly || !enabled}
         sx={{
+          display: visible ? "flex" : "none",
           cursor: readOnly ? "not-allowed" : "default",
           ...style.colors,
           ...style.font,
