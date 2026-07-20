@@ -24,7 +24,8 @@ const DropDownContainerProps = {
   minHeight: StringOrNumPropOpt,
   foregroundColor: ColorPropOpt,
   backgroundColor: ColorPropOpt,
-  children: ChildrenPropOpt
+  children: ChildrenPropOpt,
+  visible: BoolPropOpt
 };
 
 const DropDownWidgetProps = {
@@ -36,6 +37,7 @@ export const DropDownComponent = (
   props: InferWidgetProps<typeof DropDownContainerProps>
 ): JSX.Element => {
   const [style] = useStyle(props, widgetName);
+  const { visible = true } = props;
   return (
     <details
       className={classes.Detail}
@@ -43,6 +45,7 @@ export const DropDownComponent = (
       style={{
         ...style.colors,
         ...style.border,
+        visibility: visible ? "visible" : "hidden",
         minHeight: props.minHeight ?? ""
       }}
     >
