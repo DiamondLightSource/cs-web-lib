@@ -27,7 +27,8 @@ export const ByteMonitorProps = {
   square: BoolPropOpt,
   ledBorder: IntPropOpt,
   ledBorderColor: ColorPropOpt,
-  effect3d: BoolPropOpt
+  effect3d: BoolPropOpt,
+  visible: BoolPropOpt
 };
 
 export type ByteMonitorComponentProps = InferWidgetProps<
@@ -63,7 +64,8 @@ export const ByteMonitorComponent = (
     bitReverse = false,
     ledBorder = 2,
     square = false,
-    effect3d = false
+    effect3d = false,
+    visible = true
   } = newProps as ByteMonitorComponentProps;
 
   const { value } = getPvValueAndName(pvData);
@@ -151,7 +153,11 @@ export const ByteMonitorComponent = (
     <div
       ref={ref}
       className={classes.ByteMonitor}
-      style={{ height: "100%", width: "100%" }}
+      style={{
+        height: "100%",
+        width: "100%",
+        display: visible ? "flex" : "none"
+      }}
     >
       {ledArray}
     </div>
