@@ -28,7 +28,8 @@ export const LedProps = {
   lineColor: ColorPropOpt,
   alarmSensitive: BoolPropOpt,
   bit: IntPropOpt,
-  square: BoolPropOpt
+  square: BoolPropOpt,
+  visible: BoolPropOpt
 };
 
 export type LedComponentProps = InferWidgetProps<typeof LedProps> & PVComponent;
@@ -56,7 +57,8 @@ export const LedComponent = (props: LedComponentProps): JSX.Element => {
     pvData,
     alarmSensitive = false,
     bit = -1,
-    square = false
+    square = false,
+    visible = true
   } = newProps as LedComponentProps;
 
   const { value } = getPvValueAndName(pvData);
@@ -82,6 +84,7 @@ export const LedComponent = (props: LedComponentProps): JSX.Element => {
   divStyle["borderRadius"] = square ? "0%" : "50%";
   divStyle.width = "100%";
   divStyle.height = "100%";
+  divStyle.visibility = visible ? "visible" : "hidden";
 
   let className = classes.Led;
   if (alarmSensitive) {
