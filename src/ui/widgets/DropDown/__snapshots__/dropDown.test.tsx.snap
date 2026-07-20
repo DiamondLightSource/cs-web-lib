@@ -13,6 +13,7 @@ exports[`<DropDownComponent /> > it matches the snapshot 1`] = `
       "borderWidth": "1px",
       "color": "rgb(155, 160, 209)",
       "minHeight": "",
+      "visibility": "visible",
     }
   }
 >
