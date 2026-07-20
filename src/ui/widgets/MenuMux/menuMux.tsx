@@ -3,7 +3,12 @@ import React, { useContext, useEffect } from "react";
 import { Widget } from "../widget";
 import { PVWidgetPropType } from "../widgetProps";
 import { registerWidget } from "../register";
-import { InferWidgetProps, StringProp, MacrosProp } from "../propTypes";
+import {
+  InferWidgetProps,
+  StringProp,
+  MacrosProp,
+  BoolProp
+} from "../propTypes";
 import { MacroContext } from "../../../types/macros";
 
 const widgetName = "menumux";
@@ -12,6 +17,7 @@ export interface MenuMuxProps {
   onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   values: { [key: string]: string };
   selected: string;
+  visible?: boolean;
 }
 
 export const MenuMuxComponent = (props: MenuMuxProps): JSX.Element => {
@@ -25,10 +31,15 @@ export const MenuMuxComponent = (props: MenuMuxProps): JSX.Element => {
     }
   );
 
+  const { visible = true } = props;
+
   return (
     <select
       value={props.selected}
-      style={{ width: "100%" }}
+      style={{
+        width: "100%",
+        visibility: visible ? "visible" : "hidden"
+      }}
       onChange={props.onChange}
     >
       {mappedOptions}
@@ -40,6 +51,7 @@ export const SmartMenuMux = (props: {
   connected: boolean;
   symbol: string;
   values: { [key: string]: string };
+  visible: boolean;
 }): JSX.Element => {
   const macroContext = useContext(MacroContext);
   function onChange(event: React.ChangeEvent<HTMLSelectElement>): void {
@@ -56,6 +68,7 @@ export const SmartMenuMux = (props: {
       onChange={onChange}
       values={props.values}
       selected={macroContext.macros[props.symbol]}
+      visible={props.visible}
     />
   );
 };
@@ -63,7 +76,8 @@ export const SmartMenuMux = (props: {
 const MenuMuxWidgetProps = {
   ...PVWidgetPropType,
   symbol: StringProp,
-  values: MacrosProp
+  values: MacrosProp,
+  visible: BoolProp
 };
 
 export const MenuMux = (
