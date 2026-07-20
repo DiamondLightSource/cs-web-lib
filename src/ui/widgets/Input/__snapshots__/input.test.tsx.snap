@@ -4,7 +4,7 @@ exports[`<Input /> > renders an input with readonly parameters 1`] = `
 <DocumentFragment>
   <div
     aria-label="input"
-    class="MuiFormControl-root MuiTextField-root css-5jxj9a-MuiFormControl-root-MuiTextField-root"
+    class="MuiFormControl-root MuiTextField-root css-1xfy424-MuiFormControl-root-MuiTextField-root"
   >
     <div
       class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-quhxjy-MuiInputBase-root-MuiOutlinedInput-root"

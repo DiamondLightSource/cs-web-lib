@@ -64,7 +64,7 @@ exports[`<Symbol /> from .opi file > matches snapshot (with rotation) 1`] = `
     <img
       class="_Image_171889"
       src="img 1.gif"
-      style="display: block; transform: rotate(45deg) scaleX(1) scaleY(1); object-fit: contain; object-position: top left; opacity: 1;"
+      style="display: block; visibility: visible; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: contain; object-position: top left; opacity: 1;"
     />
   </div>
 </DocumentFragment>
@@ -78,7 +78,7 @@ exports[`<Symbol /> from .opi file > matches snapshot 1`] = `
     <img
       class="_Image_171889"
       src="img 1.gif"
-      style="display: block; transform: rotate(0deg) scaleX(1) scaleY(1); object-fit: contain; object-position: top left; opacity: 1;"
+      style="display: block; visibility: visible; transform: rotate(45deg) scaleX(1) scaleY(1); object-fit: contain; object-position: top left; opacity: 1;"
     />
   </div>
   <div

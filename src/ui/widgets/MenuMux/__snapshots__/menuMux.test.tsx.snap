@@ -5,6 +5,7 @@ exports[`<MenuMux /> > it matches the snapshot 1`] = `
   onChange={[MockFunction]}
   style={
     {
+      "visibility": "visible",
       "width": "100%",
     }
   }
