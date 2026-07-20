@@ -28,7 +28,8 @@ const PolygonProps = {
   rotationAngle: IntPropOpt,
   transparent: BoolPropOpt,
   width: StringPropOpt,
-  height: StringPropOpt
+  height: StringPropOpt,
+  visible: BoolPropOpt
 };
 
 type PolygonComponentProps = InferWidgetProps<typeof PolygonProps> & {
@@ -46,7 +47,8 @@ export const PolygonComponent = (props: PolygonComponentProps): JSX.Element => {
     points,
     rotationAngle = 0,
     width = WIDGET_DEFAULT_SIZES["polygon"][0],
-    height = WIDGET_DEFAULT_SIZES["polygon"][1]
+    height = WIDGET_DEFAULT_SIZES["polygon"][1],
+    visible = true
   } = newProps as PolygonComponentProps;
   //Loop over points and convert to string for svg
   let coordinates = "";
@@ -61,6 +63,7 @@ export const PolygonComponent = (props: PolygonComponentProps): JSX.Element => {
       viewBox={`0 0 ${width} ${height}`}
       xmlns="http://www.w3.org/2000/svg"
       overflow={"visible"}
+      visibility={visible ? "visible" : "hidden"}
     >
       <polygon
         overflow={"visible"}
