@@ -27,7 +27,8 @@ export const ThermometerProps = {
   minimum: FloatPropOpt,
   maximum: FloatPropOpt,
   limitsFromPv: BoolPropOpt,
-  fillColor: ColorPropOpt
+  fillColor: ColorPropOpt,
+  visible: BoolPropOpt
 };
 
 interface ThermometerDimensions {
@@ -57,8 +58,11 @@ export const ThermometerComponent = (
     props.class
   );
 
-  const { pvData, limitsFromPv = false } =
-    newProps as ThermometerComponentProps;
+  const {
+    pvData,
+    limitsFromPv = false,
+    visible = true
+  } = newProps as ThermometerComponentProps;
   const { value } = getPvValueAndName(pvData);
 
   const colors = useMemo(
@@ -151,7 +155,8 @@ export const ThermometerComponent = (
       sx={{
         height: "100%",
         width: "100%",
-        backgroundColor: "transparent"
+        backgroundColor: "transparent",
+        visibility: visible ? "visible" : "hidden"
       }}
     >
       <svg ref={svgRef} />
