@@ -105,7 +105,9 @@ export const useStyle = (
   const themeFont = selectFont(theme, themeName);
 
   const propsBorder = borderToCss(props.border);
-  const hasClassBorder = Boolean(className && themeName in theme?.borders);
+  const hasClassBorder = Boolean(
+    className && theme.borders && themeName in theme?.borders
+  );
   const border = hasClassBorder
     ? themeBorder
     : {
@@ -115,7 +117,9 @@ export const useStyle = (
 
   const visible = props.visible === undefined || props.visible;
 
-  const hasClassColour = Boolean(className && themeName in theme?.palette);
+  const hasClassColour = Boolean(
+    className && theme.palette && themeName in theme?.palette
+  );
   // If palette for class exists, use that
   const colors = hasClassColour
     ? {
@@ -149,7 +153,9 @@ export const useStyle = (
       .filter(x => x[0] != null)
   );
 
-  const hasClassFont = Boolean(className && themeName in theme?.typography);
+  const hasClassFont = Boolean(
+    className && theme.typography && themeName in theme?.typography
+  );
   const font = hasClassFont ? themeFont : fontSelector(theme, props?.font);
 
   const cursor = props.actions?.actions.length ? "pointer" : "auto";
