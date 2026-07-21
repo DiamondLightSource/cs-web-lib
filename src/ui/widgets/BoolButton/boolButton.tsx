@@ -46,7 +46,9 @@ const BoolButtonProps = {
   font: FontPropOpt,
   textAlign: ChoicePropOpt(["left", "center", "right"]),
   textAlignV: ChoicePropOpt(["top", "center", "bottom"]),
-  visible: BoolPropOpt
+  visible: BoolPropOpt,
+  onImage: StringPropOpt,
+  offImage: StringPropOpt
 };
 
 const Button = styled(MuiButton)({
@@ -103,7 +105,9 @@ export const BoolButtonComponent = (
     enabled = true,
     textAlign = "center",
     textAlignV = "center",
-    visible = true
+    visible = true,
+    onImage,
+    offImage
   } = newProps as BoolButtonComponentProps;
   const {
     value,
@@ -133,6 +137,7 @@ export const BoolButtonComponent = (
   const [label, setLabel] = useState(showBooleanLabel ? offLabel : "");
   const doubleValue = dTypeGetDoubleValue(value);
   const [ledColor, setLedColor] = useState(style?.customColors?.offColor);
+  const [imageFileName, setImageFileName] = useState(offImage);
 
   // Establish LED style
   const ledDiameter = showLed ? getDimensions(size.width, size.height) : 0;
@@ -144,9 +149,11 @@ export const BoolButtonComponent = (
   useEffect(() => {
     if (doubleValue === onState) {
       if (showBooleanLabel) setLabel(onLabel);
+      setImageFileName(onImage);
       setLedColor(style?.customColors?.onColor);
     } else if (doubleValue === offState) {
       if (showBooleanLabel) setLabel(offLabel);
+      setImageFileName(offImage);
       setLedColor(style?.customColors?.offColor);
     }
   }, [
@@ -157,7 +164,9 @@ export const BoolButtonComponent = (
     style?.customColors?.onColor,
     offState,
     offLabel,
-    showBooleanLabel
+    showBooleanLabel,
+    onImage,
+    offImage
   ]);
 
   function handleClick() {
@@ -196,19 +205,29 @@ export const BoolButtonComponent = (
           }
         }}
         startIcon={
-          showLed ? (
-            <div
-              style={{ width: `${ledDiameter}px`, height: `${ledDiameter}px` }}
-            >
+          <div
+            style={{ width: `${ledDiameter}px`, height: `${ledDiameter}px` }}
+          >
+            {imageFileName ? (
+              <img
+                src={imageFileName}
+                alt=""
+                style={{
+                  objectFit: "contain",
+                  height: "100%",
+                  width: "100%"
+                }}
+              />
+            ) : showLed ? (
               <LedComponent
                 pvData={pvData}
                 onColor={newColor(style?.customColors?.onColor)}
                 offColor={newColor(style?.customColors?.offColor)}
               />
-            </div>
-          ) : (
-            <></>
-          )
+            ) : (
+              <></>
+            )}
+          </div>
         }
       >
         {label}
