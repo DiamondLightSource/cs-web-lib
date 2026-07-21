@@ -40,7 +40,8 @@ const ChoiceButtonProps = {
   backgroundColor: ColorPropOpt,
   horizontal: BoolPropOpt,
   enabled: BoolPropOpt,
-  font: FontPropOpt
+  font: FontPropOpt,
+  visible: BoolPropOpt
 };
 
 export type ChoiceButtonComponentProps = InferWidgetProps<
@@ -52,7 +53,6 @@ const ToggleButton = styled(MuiToggleButton)({
   "&.MuiToggleButton-root": {
     textTransform: "none",
     overflow: "hidden",
-    display: "flex",
     padding: 0,
     lineHeight: 1.2,
     alignItems: "center",
@@ -84,7 +84,8 @@ export const ChoiceButtonComponent = (
     enabled = true,
     itemsFromPv = true,
     items = ["Item 1", "Item 2"],
-    horizontal = true
+    horizontal = true,
+    visible = true
   } = newProps as ChoiceButtonComponentProps;
   const {
     value,
@@ -154,7 +155,7 @@ export const ChoiceButtonComponent = (
       onChange={handleChange}
       orientation={horizontal ? "horizontal" : "vertical"}
       sx={{
-        display: "flex",
+        visibility: visible ? "visible" : "hidden",
         height: "100%",
         width: "100%"
       }}

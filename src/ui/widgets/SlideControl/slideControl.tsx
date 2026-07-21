@@ -47,7 +47,8 @@ export const SliderControlProps = {
   showLow: BoolPropOpt,
   showLolo: BoolPropOpt,
   increment: FloatPropOpt,
-  majorTickStepHint: IntPropOpt
+  majorTickStepHint: IntPropOpt,
+  visible: BoolPropOpt
 };
 
 type SlideControlComponentProps = InferWidgetProps<typeof SliderControlProps> &
@@ -72,7 +73,8 @@ export const SlideControlComponent = (
     showLow = true,
     showLolo = true,
     increment = 1,
-    majorTickStepHint = 40
+    majorTickStepHint = 40,
+    visible = true
   } = newProps as SlideControlComponentProps;
 
   let { minimum = 0, maximum = 100 } = newProps as SlideControlComponentProps;
@@ -199,7 +201,8 @@ export const SlideControlComponent = (
         minWidth: "30px",
         minHeight: "30px",
         paddingInline: horizontal ? "6px" : 0,
-        boxSizing: "border-box"
+        boxSizing: "border-box",
+        visibility: visible ? "visible" : "hidden"
       }}
     >
       <Slider

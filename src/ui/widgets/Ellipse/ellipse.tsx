@@ -35,19 +35,24 @@ export const EllipseProps = {
   backgroundColor: ColorPropOpt,
   border: BorderPropOpt,
   horizontalFill: BoolPropOpt,
-  fillLevel: IntPropOpt
+  fillLevel: IntPropOpt,
+  visible: BoolPropOpt
 };
 
 export const EllipseComponent = (
   props: InferWidgetProps<typeof EllipseProps>
 ): JSX.Element => {
   // Set up CSS style
+  const { visible = true } = props;
+
   let style: CSSProperties = {
     width: "100%",
     height: "100%",
     borderWidth: 3,
     borderColor:
-      props.lineColor?.colorString || ColorUtils.fromRgba(0, 0, 255).colorString
+      props.lineColor?.colorString ||
+      ColorUtils.fromRgba(0, 0, 255).colorString,
+    visibility: visible ? "visible" : "hidden"
   };
 
   style.borderStyle = (function () {

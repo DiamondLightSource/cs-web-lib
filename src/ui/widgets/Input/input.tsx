@@ -43,7 +43,8 @@ const InputProps = {
   precision: IntPropOpt,
   formatType: ChoicePropOpt(["default", "decimal", "exponential", "string"]),
   showUnits: BoolPropOpt,
-  precisionFromPv: BoolPropOpt
+  precisionFromPv: BoolPropOpt,
+  visible: BoolPropOpt
 };
 
 const widgetName = "input";
@@ -55,8 +56,7 @@ const TextField = styled(MuiTextField)({
   },
   "&.MuiFormControl-root": {
     height: "100%",
-    width: "100%",
-    display: "flex"
+    width: "100%"
   },
   "& .MuiInputBase-root": {
     height: "100%",
@@ -101,7 +101,8 @@ export const SmartInputComponent = (
     alarmSensitive = true,
     showUnits = false,
     precisionFromPv = false,
-    formatType = "default"
+    formatType = "default",
+    visible = true
   } = newProps as InputComponentProps;
 
   const {
@@ -229,6 +230,7 @@ export const SmartInputComponent = (
       }}
       onChange={event => setInputValue(event.target.value)}
       sx={{
+        visibility: visible ? "visible" : "hidden",
         cursor: readOnly ? "not-allowed" : "default",
         "& .MuiInputBase-input": {
           cursor: readOnly ? "not-allowed" : "default",

@@ -40,7 +40,8 @@ export const MeterProps = {
   transparent: BoolPropOpt,
   showUnits: BoolPropOpt,
   showValue: BoolPropOpt,
-  showLimits: BoolPropOpt
+  showLimits: BoolPropOpt,
+  visible: BoolPropOpt
 };
 
 export type MeterComponentProps = InferWidgetProps<typeof MeterProps> &
@@ -62,7 +63,8 @@ export const MeterComponent = (props: MeterComponentProps): JSX.Element => {
     precision = undefined,
     showUnits = true,
     showValue = true,
-    showLimits = true
+    showLimits = true,
+    visible = true
   } = newProps as MeterComponentProps;
 
   const { value } = getPvValueAndName(pvData);
@@ -115,7 +117,7 @@ export const MeterComponent = (props: MeterComponentProps): JSX.Element => {
       ref={ref}
       sx={{
         ...style.colors,
-        display: "flex",
+        visibility: visible ? "visible" : "hidden",
         alignItems: "center",
         justifyContent: "center",
         height: "100%",

@@ -35,7 +35,8 @@ export const TankProps = {
   border: BorderPropOpt,
   transparent: BoolPropOpt,
   scaleVisible: BoolPropOpt,
-  showUnits: BoolPropOpt
+  showUnits: BoolPropOpt,
+  visible: BoolPropOpt
 };
 
 type TankComponentProps = InferWidgetProps<typeof TankProps> & PVComponent;
@@ -61,7 +62,8 @@ export const TankComponent = (props: TankComponentProps): JSX.Element => {
     precision = undefined,
     scaleVisible = true,
     logScale = false,
-    showUnits = true
+    showUnits = true,
+    visible = true
   } = newProps as TankComponentProps;
 
   const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
@@ -113,7 +115,7 @@ export const TankComponent = (props: TankComponentProps): JSX.Element => {
   ];
 
   return (
-    <Box>
+    <Box visibility={visible ? "visible" : "hidden"}>
       <BarChart
         skipAnimation
         borderRadius={4}

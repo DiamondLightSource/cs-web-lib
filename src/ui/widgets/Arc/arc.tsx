@@ -26,7 +26,8 @@ const ArcProps = {
   totalAngle: IntPropOpt,
   lineWidth: IntPropOpt,
   lineColor: ColorPropOpt,
-  transparent: BoolPropOpt
+  transparent: BoolPropOpt,
+  visible: BoolPropOpt
 };
 
 type ArcComponentProps = InferWidgetProps<typeof ArcProps> & { class?: string };
@@ -50,7 +51,8 @@ export const ArcComponent = (props: ArcComponentProps): JSX.Element => {
   const {
     startAngle = 0,
     totalAngle = 90,
-    lineWidth = 3
+    lineWidth = 3,
+    visible = true
   } = newProps as ArcComponentProps;
 
   const [ref, size] = useMeasuredSize<SVGSVGElement>(
@@ -86,7 +88,8 @@ export const ArcComponent = (props: ArcComponentProps): JSX.Element => {
       width="100%"
       height="100%"
       viewBox={`0 0 ${size.width} ${size.height}`}
-      overflow={"visible"}
+      overflow="visible"
+      visibility={visible ? "visible" : "hidden"}
     >
       {element}
     </svg>

@@ -54,7 +54,8 @@ export const LinearMeterProps = {
   levelLolo: FloatPropOpt,
   needleWidth: FloatPropOpt,
   knobSize: FloatPropOpt,
-  colors: BobColorsPropOpt
+  colors: BobColorsPropOpt,
+  visible: BoolPropOpt
 };
 
 type LinearMeterComponentProps = InferWidgetProps<typeof LinearMeterProps> &
@@ -100,7 +101,8 @@ export const LinearMeterComponent = (
     scaleVisible = true,
     showUnits = true,
     showLimits = true,
-    format = 1
+    format = 1,
+    visible = true
   } = newProps;
 
   const { value, effectivePvName: pvName } = getPvValueAndName(pvData);
@@ -281,6 +283,7 @@ export const LinearMeterComponent = (
         }
         series={dataBar}
         sx={{
+          visibility: visible ? "visible" : "hidden",
           height: "100%",
           width: "100%",
           position: "absolute",

@@ -34,7 +34,8 @@ const ImageProps = {
   backgroundColor: ColorPropOpt,
   transparent: BoolPropOpt,
   preserveRatio: BoolPropOpt,
-  opacity: FloatPropOpt
+  opacity: FloatPropOpt,
+  visible: BoolPropOpt
 };
 
 type ImageComponentProps = InferWidgetProps<typeof ImageProps> & {
@@ -57,7 +58,8 @@ export const ImageComponent = (props: ImageComponentProps): JSX.Element => {
     flipVertical,
     stretchToFit = false,
     preserveRatio = false,
-    opacity = 1
+    opacity = 1,
+    visible = true
   } = newProps;
   const overflow = newProps.overflow ? "visible" : "hidden";
 
@@ -95,6 +97,7 @@ export const ImageComponent = (props: ImageComponentProps): JSX.Element => {
         alt={newProps.alt || undefined}
         style={{
           display: "block",
+          visibility: visible ? "visible" : "hidden",
           transform: `rotate(${rotation}deg) scaleX(${
             flipHorizontal ? -1 : 1
           }) scaleY(${flipVertical ? -1 : 1})`,

@@ -43,6 +43,7 @@ export const MenuButtonProps = {
   border: BorderPropOpt,
   enabled: BoolPropOpt,
   editable: BoolPropOpt,
+  visible: BoolPropOpt,
   // opi specific prop
   actionsFromPv: BoolPropOpt,
   actions: ActionsPropType,
@@ -70,7 +71,8 @@ export const MenuButtonComponent = (
     enabled = true,
     itemsFromPv = true,
     pvData,
-    items = ["item 0"]
+    items = ["item 0"],
+    visible = true
   } = newProps;
 
   let actions: any[] = newProps.actions?.actions ?? [];
@@ -213,6 +215,7 @@ export const MenuButtonComponent = (
         }
       }}
       sx={{
+        visibility: visible ? "visible" : "hidden",
         cursor: disabled ? "not-allowed" : "default",
         height: "100%",
         width: "100%",
@@ -252,6 +255,7 @@ export const MenuButtonComponent = (
       onChange={event => onChange(event.target.value)}
       sx={{
         ...style?.colors,
+        visibility: visible ? "visible" : "hidden",
         cursor: disabled ? "not-allowed" : "default",
         height: "100%",
         width: "100%",

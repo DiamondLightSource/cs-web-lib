@@ -30,7 +30,8 @@ export const ProgressBarProps = {
   precision: IntPropOpt,
   font: FontPropOpt,
   border: BorderPropOpt,
-  transparent: BoolPropOpt
+  transparent: BoolPropOpt,
+  visible: BoolPropOpt
 };
 
 type ProgressBarComponentProps = InferWidgetProps<typeof ProgressBarProps> &
@@ -50,7 +51,8 @@ export const ProgressBarComponent = (
     showLabel = false,
     horizontal = true,
     precision = undefined,
-    logScale = false
+    logScale = false,
+    visible = true
   } = newProps as ProgressBarComponentProps;
 
   const { value } = getPvValueAndName(pvData);
@@ -91,6 +93,7 @@ export const ProgressBarComponent = (
           position: "absolute",
           height: "100%",
           width: "100%",
+          visibility: visible ? "visible" : "hidden",
           border: 1,
           borderColor: "#D2D2D2",
           borderRadius: "4px",

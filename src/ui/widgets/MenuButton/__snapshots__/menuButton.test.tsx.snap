@@ -3,7 +3,7 @@
 exports[`<MenuButton /> > it matches the snapshot 1`] = `
 <DocumentFragment>
   <div
-    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiSelect-root css-jpwdho-MuiInputBase-root-MuiOutlinedInput-root-MuiSelect-root"
+    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiSelect-root css-144viux-MuiInputBase-root-MuiOutlinedInput-root-MuiSelect-root"
   >
     <div
       aria-expanded="false"

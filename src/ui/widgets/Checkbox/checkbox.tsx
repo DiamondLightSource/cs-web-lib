@@ -26,7 +26,8 @@ export const CheckboxProps = {
   font: FontPropOpt,
   foregroundColor: ColorPropOpt,
   enabled: BoolPropOpt,
-  pvName: StringPropOpt
+  pvName: StringPropOpt,
+  visible: BoolPropOpt
 };
 
 const FormControlLabel = styled(MuiFormControlLabel)({
@@ -35,7 +36,6 @@ const FormControlLabel = styled(MuiFormControlLabel)({
     width: "100%",
     maxHeight: "100%",
     maxWidth: "100%",
-    display: "flex",
     justifyContent: "flex-start",
     alignItems: "center",
     cursor: "pointer",
@@ -71,6 +71,7 @@ export const CheckboxComponent = (
   const {
     enabled = true,
     label = "Label",
+    visible = true,
     pvData
   } = newProps as CheckboxComponentProps;
   const {
@@ -90,6 +91,7 @@ export const CheckboxComponent = (
     <FormControlLabel
       disabled={!enabled}
       sx={{
+        visibility: visible ? "visible" : "hidden",
         color: style.colors.color,
         ".MuiFormControlLabel-label": style?.font
       }}
