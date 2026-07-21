@@ -677,7 +677,9 @@ export const BOB_SIMPLE_PARSERS: ParserDict = {
   tabHeight: ["tab_height", bobParseNumber],
   tabSpacing: ["tab_spacing", bobParseNumber],
   activeTab: ["active_tab", bobParseNumber],
-  editable: ["editable", opiParseBoolean]
+  editable: ["editable", opiParseBoolean],
+  onImage: ["on_image", opiParseString],
+  offImage: ["off_image", opiParseString]
 };
 
 export const BOB_COMPLEX_PARSERS: ComplexParserDict = {
