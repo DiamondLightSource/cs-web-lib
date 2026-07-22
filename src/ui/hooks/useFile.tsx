@@ -5,7 +5,8 @@ import {
   selectFile,
   fileComparator,
   selectDisplayInstanceByFileAndMacros,
-  createDisplayInstanceFromFile
+  createDisplayInstanceFromFile,
+  convertDisplayInstanceType
 } from "../../redux/slices/fileCacheSlice";
 import { MacroMap } from "../../types/macros";
 import { errorWidget, WidgetDescription } from "../widgets/createComponent";
@@ -77,7 +78,8 @@ export async function fetchAndConvert(
 
 export function useFile(
   file: File,
-  macros?: MacroMap
+  macros?: MacroMap,
+  targetDisplayType?: string
 ): [WidgetDescription, string] {
   const dispatch = useDispatch();
 
@@ -106,6 +108,14 @@ export function useFile(
             macros: macros ?? {}
           })
         );
+        if (targetDisplayType)
+          dispatch(
+            convertDisplayInstanceType({
+              file: file.path,
+              macros: macros ?? {},
+              displayType: targetDisplayType
+            })
+          );
       }
     };
     let isMounted = true;
@@ -116,6 +126,14 @@ export function useFile(
       dispatch(
         createDisplayInstanceFromFile({ file: file.path, macros: macros ?? {} })
       );
+      if (targetDisplayType)
+        dispatch(
+          convertDisplayInstanceType({
+            file: file.path,
+            macros: macros ?? {},
+            displayType: targetDisplayType
+          })
+        );
     }
 
     // Tidy up in case component is unmounted

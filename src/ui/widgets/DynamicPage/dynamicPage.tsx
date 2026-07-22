@@ -38,7 +38,8 @@ const DynamicPageProps = {
   border: BorderPropOpt,
   showCloseButton: BoolPropOpt,
   scroll: BoolPropOpt,
-  mjpgEndpoint: StringPropOpt
+  mjpgEndpoint: StringPropOpt,
+  targetDisplayType: StringPropOpt
 };
 
 type DynamicPageComponentProps = InferWidgetProps<typeof DynamicPageProps> &
@@ -148,6 +149,7 @@ export const DynamicPageComponent = (
             x => x != null
           )}
           widgetIdsCallback={props?.widgetIdsCallback}
+          targetDisplayType={newProps.targetDisplayType}
         />
       </ExitFileContext.Provider>
     );

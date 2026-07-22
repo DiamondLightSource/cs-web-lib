@@ -120,17 +120,7 @@ const fileCacheSlice = createSlice({
       display.gridCellDragEnabled = gridCellDragEnabled;
       display.gridCellResizeEnabled = gridCellResizeEnabled;
 
-      display.children?.forEach(c => {
-        if (c.position) {
-          c.position = {
-            ...c.position,
-            x: "0",
-            y: "0",
-            width: "100%",
-            height: "100%"
-          };
-        }
-      });
+      normaliseChildren(display);
     },
     displayInstanceUpdateGridLayout(
       state,
@@ -201,17 +191,7 @@ const fileCacheSlice = createSlice({
         display.position.width = "100%";
       }
 
-      display.children?.forEach(c => {
-        if (c.position) {
-          c.position = {
-            ...c.position,
-            x: "0",
-            y: "0",
-            width: "100%",
-            height: "100%"
-          };
-        }
-      });
+      normaliseChildren(display);
     },
 
     displayInstanceUpdateResponsiveLayout(
@@ -269,6 +249,23 @@ const fileCacheSlice = createSlice({
 
         state.displayInstanceIndex[hash] = uuid;
       }
+    },
+    convertDisplayInstanceType(state, action) {
+      const { uuid, file, macros, displayType } = action.payload;
+      let id = uuid;
+      if (!id) {
+        const hash = `${file}::${stringify(macros)}`;
+        id = state.displayInstanceIndex[hash];
+      }
+      const instance = state.displayInstanceCache[id];
+
+      if (!instance) return;
+
+      instance.description = convertDisplayType(
+        instance.description,
+        displayType
+      );
+      state.displayInstanceCache[id] = instance;
     }
   },
   selectors: {
@@ -285,7 +282,8 @@ export const {
   displayInstanceSetResponsiveLayout,
   displayInstanceUpdateGridLayout,
   displayInstanceUpdateResponsiveLayout,
-  createDisplayInstanceFromFile
+  createDisplayInstanceFromFile,
+  convertDisplayInstanceType
 } = fileCacheSlice.actions;
 
 export default fileCacheSlice.reducer;
@@ -362,3 +360,65 @@ export const fileComparator = (
   }
   return true;
 };
+
+function clearLayoutProperties(display: WidgetDescription) {
+  delete display.gridLayout;
+  delete display.gridLayoutColumns;
+  delete display.gridCellMargins;
+  delete display.gridCellHeight;
+  delete display.gridCellDragEnabled;
+  delete display.gridCellResizeEnabled;
+
+  delete display.responsiveLayouts;
+  delete display.responsiveBreakpoints;
+  delete display.responsiveColumns;
+}
+
+function normaliseChildren(display: WidgetDescription) {
+  display.children?.forEach(child => {
+    if (!child.position) return;
+    child.position = {
+      ...child.position,
+      x: "0",
+      y: "0",
+      width: "100%",
+      height: "100%"
+    };
+  });
+}
+
+function convertDisplayType(
+  display: WidgetDescription,
+  displayType: string
+): WidgetDescription {
+  //If no conversion passed in, don't do anything
+  if (!displayType || displayType === display.type) return display;
+  
+  const newDisplay = { ...display };
+  // Clear old properties
+  newDisplay.type = displayType;
+  clearLayoutProperties(newDisplay);
+
+  switch (displayType) {
+    case "display":
+      break;
+    case "displayGridLayout":
+      newDisplay.gridCellDragEnabled = true;
+      newDisplay.gridCellResizeEnabled = true;
+      newDisplay.gridCellMargins = [6, 6];
+      newDisplay.gridCellHeight = 15;
+      newDisplay.gridLayoutColumns = 14;
+      //newDisplay.gridLayout = calculateDefaultLayout(...);
+      break;
+    case "displayResponsive":
+      newDisplay.gridCellDragEnabled = true;
+      newDisplay.gridCellResizeEnabled = true;
+      newDisplay.gridCellMargins = [6, 6];
+      newDisplay.gridCellHeight = 15;
+      newDisplay.responsiveColumns = 14;
+      newDisplay.responsiveBreakpoints = 3;
+      break;
+  }
+  normaliseChildren(newDisplay);
+  return newDisplay;
+}
