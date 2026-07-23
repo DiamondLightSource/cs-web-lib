@@ -364,9 +364,9 @@ export const fileComparator = (
 /**
  * Sets position of Child and dimensions inside parent
  * react-grid-item
- * @param display 
+ * @param display
  */
-function normaliseChildren(display: WidgetDescription) {
+export function normaliseChildren(display: WidgetDescription) {
   display.children?.forEach(child => {
     if (!child.position) return;
     child.position = {
@@ -382,17 +382,17 @@ function normaliseChildren(display: WidgetDescription) {
 /**
  * Changes between display, displayGridLayout and DisplayResponsive
  * widget types
- * @param display 
- * @param displayType 
- * @returns 
+ * @param display
+ * @param displayType
+ * @returns
  */
-function convertDisplayType(
+export function convertDisplayType(
   display: WidgetDescription,
   displayType: string
 ): WidgetDescription {
   //If no conversion passed in, don't do anything
   if (!displayType || displayType === display.type) return display;
-  
+
   const newDisplay = { ...display };
   // Clear old properties
   newDisplay.type = displayType;
@@ -407,9 +407,9 @@ function convertDisplayType(
 /**
  * Clears grid layout and responsive properties from
  * a widget in preparation to reset
- * @param display 
+ * @param display
  */
-function clearLayoutProperties(display: WidgetDescription) {
+export function clearLayoutProperties(display: WidgetDescription) {
   delete display.gridLayout;
   delete display.gridLayoutColumns;
   delete display.gridCellMargins;

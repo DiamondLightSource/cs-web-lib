@@ -76,7 +76,7 @@ const overlapCompactor = getCompactor(
   null, // use no compactor so elements can float
   true, // allow overlap
   false // dont avoid collisions
-)
+);
 
 type DisplayGridLayoutComponentProps = InferWidgetProps<
   typeof DisplayGridLayoutProps

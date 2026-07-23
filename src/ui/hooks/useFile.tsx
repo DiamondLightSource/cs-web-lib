@@ -146,7 +146,8 @@ export function useFile(
     fileContents,
     dispatch,
     macros,
-    displayInstance
+    displayInstance,
+    targetDisplayType
   ]);
 
   return [

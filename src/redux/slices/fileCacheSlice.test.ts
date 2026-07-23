@@ -15,7 +15,11 @@ import fileCacheReducer, {
   displayInstanceUpdateResponsiveLayout,
   selectDisplayInstance,
   selectDisplayInstanceByFileAndMacros,
-  displayInstanceUpdateGridLayout
+  displayInstanceUpdateGridLayout,
+  convertDisplayInstanceType,
+  clearLayoutProperties,
+  convertDisplayType,
+  normaliseChildren
 } from "./fileCacheSlice";
 
 const initialState: FileCacheState = {
@@ -739,5 +743,165 @@ describe("displayInstanceUpdateResponsiveLayout", () => {
     );
 
     expect(result).toEqual(state);
+  });
+});
+
+describe("convertDisplayInstanceType", () => {
+  it("does nothing if display instance not found", () => {
+    const result = fileCacheReducer(
+      initialState,
+      convertDisplayInstanceType({
+        uuid: "missing",
+        displayType: "displayGridLayout"
+      })
+    );
+
+    expect(result).toEqual(initialState);
+  });
+  it("correctly converts a display to new type", () => {
+    const result = fileCacheReducer(
+      initialState,
+      convertDisplayInstanceType({
+        uuid: "UUID1",
+        displayType: "displayGridLayout"
+      })
+    );
+
+    const converted = result.displayInstanceCache.UUID1.description;
+
+    expect(converted.type).toBe("displayGridLayout");
+    expect(converted.gridCellDragEnabled).toBe(true);
+    expect(converted.gridCellResizeEnabled).toBe(true);
+  });
+});
+
+describe("clearLayoutProperties", () => {
+  it("clears all specificed properties on grid display", () => {
+    const display: WidgetDescription = {
+      id: "display",
+      fileId: "myFile",
+      type: "displayGridLayout",
+      gridLayout: [],
+      gridLayoutColumns: 12,
+      gridCellMargins: [5, 5],
+      gridCellHeight: 30,
+      gridCellDragEnabled: true,
+      gridCellResizeEnabled: true
+    };
+
+    clearLayoutProperties(display);
+
+    expect(display.gridLayout).toBeUndefined();
+    expect(display.gridLayoutColumns).toBeUndefined();
+    expect(display.gridCellMargins).toBeUndefined();
+    expect(display.gridCellHeight).toBeUndefined();
+    expect(display.gridCellDragEnabled).toBeUndefined();
+    expect(display.gridCellResizeEnabled).toBeUndefined();
+  });
+  it("clears all specificed properties on responsive display", () => {
+    const display: WidgetDescription = {
+      id: "display",
+      fileId: "myFile",
+      type: "displayGridLayout",
+      gridLayoutColumns: 12,
+      gridCellMargins: [5, 5],
+      gridCellHeight: 33,
+      gridCellDragEnabled: false,
+      gridCellResizeEnabled: true,
+      responsiveLayouts: {},
+      responsiveBreakpoints: {},
+      responsiveColumns: {}
+    };
+
+    clearLayoutProperties(display);
+
+    expect(display.gridLayoutColumns).toBeUndefined();
+    expect(display.gridCellMargins).toBeUndefined();
+    expect(display.gridCellHeight).toBeUndefined();
+    expect(display.gridCellDragEnabled).toBeUndefined();
+    expect(display.gridCellResizeEnabled).toBeUndefined();
+    expect(display.responsiveLayouts).toBeUndefined();
+    expect(display.responsiveBreakpoints).toBeUndefined();
+    expect(display.responsiveColumns).toBeUndefined();
+  });
+});
+
+describe("convertDisplayType()", () => {
+  it("does nothing if no display type", () => {
+    const display: WidgetDescription = {
+      id: "display",
+      fileId: "file",
+      type: "display"
+    };
+
+    expect(convertDisplayType(display, "")).toBe(display);
+  });
+  it("does nothing if display is already specified type", () => {
+    const display: WidgetDescription = {
+      id: "display",
+      fileId: "file",
+      type: "display"
+    };
+
+    expect(convertDisplayType(display, "display")).toBe(display);
+  });
+  it("converts the display to the correct type", () => {
+    const display: WidgetDescription = {
+      id: "display",
+      fileId: "file",
+      type: "display"
+    };
+
+    const converted = convertDisplayType(display, "displayResponsive");
+
+    expect(converted.type).toBe("displayResponsive");
+    expect(converted.gridCellDragEnabled).toBe(true);
+    expect(converted.gridCellResizeEnabled).toBe(true);
+  });
+});
+
+describe("normaliseChildren()", () => {
+  it("does nothing if child has no position", () => {
+    const display: WidgetDescription = {
+      id: "display",
+      fileId: "file",
+      type: "display",
+      children: [
+        {
+          id: "child",
+          fileId: "file",
+          type: "shape"
+        }
+      ]
+    };
+
+    normaliseChildren(display);
+
+    expect(display.children?.[0].position).toBeUndefined();
+  });
+  it("sets positions to 0px/100%", () => {
+    const display: WidgetDescription = {
+      id: "file1",
+      fileId: "file",
+      type: "display",
+      children: [
+        {
+          id: "shape1",
+          fileId: "file",
+          type: "shape",
+          position: newAbsolutePosition("10", "20", "30", "40"),
+          backgroundColor: ColorUtils.WHITE
+        }
+      ]
+    };
+
+    normaliseChildren(display);
+
+    expect(display.children?.[0].position).toMatchObject({
+      x: "0",
+      y: "0",
+      width: "100%",
+      height: "100%"
+    });
   });
 });
