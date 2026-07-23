@@ -1,7 +1,7 @@
 {
   "name": "@diamondlightsource/cs-web-lib",
   "type": "module",
-  "version": "0.10.20",
+  "version": "0.10.21",
   "description": "Control system web library",
   "main": "./dist/index.cjs",
   "scripts": {
