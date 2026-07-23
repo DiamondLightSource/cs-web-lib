@@ -9,7 +9,7 @@ import {
   Layout,
   useGridLayout,
   ReactGridLayout,
-  verticalCompactor
+  getCompactor
 } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
@@ -71,6 +71,12 @@ const DisplayGridLayoutProps = {
   gridLayoutColumns: IntPropOpt,
   gridLayout: ObjectArrayPropOpt
 };
+
+const overlapCompactor = getCompactor(
+  null, // use no compactor so elements can float
+  true, // allow overlap
+  false // dont avoid collisions
+);
 
 type DisplayGridLayoutComponentProps = InferWidgetProps<
   typeof DisplayGridLayoutProps
@@ -244,7 +250,7 @@ export const DisplayGridLayoutComponent = (
               cancel: ".no-drag"
             }}
             resizeConfig={{ enabled: gridCellResizeEnabled, handles: ["se"] }}
-            compactor={verticalCompactor}
+            compactor={overlapCompactor}
             onDragStart={(
               layout,
               oldItem,

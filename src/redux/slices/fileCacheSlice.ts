@@ -120,17 +120,7 @@ const fileCacheSlice = createSlice({
       display.gridCellDragEnabled = gridCellDragEnabled;
       display.gridCellResizeEnabled = gridCellResizeEnabled;
 
-      display.children?.forEach(c => {
-        if (c.position) {
-          c.position = {
-            ...c.position,
-            x: "0",
-            y: "0",
-            width: "100%",
-            height: "100%"
-          };
-        }
-      });
+      normaliseChildren(display);
     },
     displayInstanceUpdateGridLayout(
       state,
@@ -201,17 +191,7 @@ const fileCacheSlice = createSlice({
         display.position.width = "100%";
       }
 
-      display.children?.forEach(c => {
-        if (c.position) {
-          c.position = {
-            ...c.position,
-            x: "0",
-            y: "0",
-            width: "100%",
-            height: "100%"
-          };
-        }
-      });
+      normaliseChildren(display);
     },
 
     displayInstanceUpdateResponsiveLayout(
@@ -269,6 +249,23 @@ const fileCacheSlice = createSlice({
 
         state.displayInstanceIndex[hash] = uuid;
       }
+    },
+    convertDisplayInstanceType(state, action) {
+      const { uuid, file, macros, displayType } = action.payload;
+      let id = uuid;
+      if (!id) {
+        const hash = `${file}::${stringify(macros)}`;
+        id = state.displayInstanceIndex[hash];
+      }
+      const instance = state.displayInstanceCache[id];
+
+      if (!instance) return;
+
+      instance.description = convertDisplayType(
+        instance.description,
+        displayType
+      );
+      state.displayInstanceCache[id] = instance;
     }
   },
   selectors: {
@@ -285,7 +282,8 @@ export const {
   displayInstanceSetResponsiveLayout,
   displayInstanceUpdateGridLayout,
   displayInstanceUpdateResponsiveLayout,
-  createDisplayInstanceFromFile
+  createDisplayInstanceFromFile,
+  convertDisplayInstanceType
 } = fileCacheSlice.actions;
 
 export default fileCacheSlice.reducer;
@@ -362,3 +360,64 @@ export const fileComparator = (
   }
   return true;
 };
+
+/**
+ * Sets position of Child and dimensions inside parent
+ * react-grid-item
+ * @param display
+ */
+export function normaliseChildren(display: WidgetDescription) {
+  display.children?.forEach(child => {
+    if (!child.position) return;
+    child.position = {
+      ...child.position,
+      x: "0",
+      y: "0",
+      width: "100%",
+      height: "100%"
+    };
+  });
+}
+
+/**
+ * Changes between display, displayGridLayout and DisplayResponsive
+ * widget types
+ * @param display
+ * @param displayType
+ * @returns
+ */
+export function convertDisplayType(
+  display: WidgetDescription,
+  displayType: string
+): WidgetDescription {
+  //If no conversion passed in, don't do anything
+  if (!displayType || displayType === display.type) return display;
+
+  const newDisplay = { ...display };
+  // Clear old properties
+  newDisplay.type = displayType;
+  clearLayoutProperties(newDisplay);
+  if (displayType === "display") return newDisplay;
+  newDisplay.gridCellDragEnabled = true;
+  newDisplay.gridCellResizeEnabled = true;
+
+  return newDisplay;
+}
+
+/**
+ * Clears grid layout and responsive properties from
+ * a widget in preparation to reset
+ * @param display
+ */
+export function clearLayoutProperties(display: WidgetDescription) {
+  delete display.gridLayout;
+  delete display.gridLayoutColumns;
+  delete display.gridCellMargins;
+  delete display.gridCellHeight;
+  delete display.gridCellDragEnabled;
+  delete display.gridCellResizeEnabled;
+
+  delete display.responsiveLayouts;
+  delete display.responsiveBreakpoints;
+  delete display.responsiveColumns;
+}
