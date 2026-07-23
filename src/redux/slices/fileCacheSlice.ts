@@ -361,19 +361,11 @@ export const fileComparator = (
   return true;
 };
 
-function clearLayoutProperties(display: WidgetDescription) {
-  delete display.gridLayout;
-  delete display.gridLayoutColumns;
-  delete display.gridCellMargins;
-  delete display.gridCellHeight;
-  delete display.gridCellDragEnabled;
-  delete display.gridCellResizeEnabled;
-
-  delete display.responsiveLayouts;
-  delete display.responsiveBreakpoints;
-  delete display.responsiveColumns;
-}
-
+/**
+ * Sets position of Child and dimensions inside parent
+ * react-grid-item
+ * @param display 
+ */
 function normaliseChildren(display: WidgetDescription) {
   display.children?.forEach(child => {
     if (!child.position) return;
@@ -387,6 +379,13 @@ function normaliseChildren(display: WidgetDescription) {
   });
 }
 
+/**
+ * Changes between display, displayGridLayout and DisplayResponsive
+ * widget types
+ * @param display 
+ * @param displayType 
+ * @returns 
+ */
 function convertDisplayType(
   display: WidgetDescription,
   displayType: string
@@ -398,27 +397,27 @@ function convertDisplayType(
   // Clear old properties
   newDisplay.type = displayType;
   clearLayoutProperties(newDisplay);
+  if (displayType === "display") return newDisplay;
+  newDisplay.gridCellDragEnabled = true;
+  newDisplay.gridCellResizeEnabled = true;
 
-  switch (displayType) {
-    case "display":
-      break;
-    case "displayGridLayout":
-      newDisplay.gridCellDragEnabled = true;
-      newDisplay.gridCellResizeEnabled = true;
-      newDisplay.gridCellMargins = [6, 6];
-      newDisplay.gridCellHeight = 15;
-      newDisplay.gridLayoutColumns = 14;
-      //newDisplay.gridLayout = calculateDefaultLayout(...);
-      break;
-    case "displayResponsive":
-      newDisplay.gridCellDragEnabled = true;
-      newDisplay.gridCellResizeEnabled = true;
-      newDisplay.gridCellMargins = [6, 6];
-      newDisplay.gridCellHeight = 15;
-      newDisplay.responsiveColumns = 14;
-      newDisplay.responsiveBreakpoints = 3;
-      break;
-  }
-  normaliseChildren(newDisplay);
   return newDisplay;
+}
+
+/**
+ * Clears grid layout and responsive properties from
+ * a widget in preparation to reset
+ * @param display 
+ */
+function clearLayoutProperties(display: WidgetDescription) {
+  delete display.gridLayout;
+  delete display.gridLayoutColumns;
+  delete display.gridCellMargins;
+  delete display.gridCellHeight;
+  delete display.gridCellDragEnabled;
+  delete display.gridCellResizeEnabled;
+
+  delete display.responsiveLayouts;
+  delete display.responsiveBreakpoints;
+  delete display.responsiveColumns;
 }
