@@ -153,6 +153,7 @@ export function useRules(props: AnyProps): AnyProps {
             log.debug(`Output expression ${expression}`);
             // eslint-disable-next-line no-new-func
             const f = Function(...Object.keys(pvVars), expression);
+
             newProps[prop] = f(...Object.values(pvVars));
           }
           log.debug("Props after rule evaluation:");

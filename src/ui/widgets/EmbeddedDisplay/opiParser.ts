@@ -295,7 +295,7 @@ export const opiParseRules = (
       const expArray = toArray(ruleElement.exp);
       const expressions = expArray.map(
         (expression: ElementCompact): Expression => {
-          const value = expression.value;
+          const value = expression.value ?? expression.expression?._text;
           return {
             boolExp: expression._attributes?.bool_exp as string,
             value: value
