@@ -150,7 +150,7 @@ export function useRules(props: AnyProps): AnyProps {
           } else {
             // 'Output expression' - evaluate 'value' and set the prop to the result.
             const expression =
-              "return " + (exp.convertedValue ?? exp.value._text);
+              "return " + (exp.convertedValue ?? exp.value);
             log.debug(`Output expression ${expression}`);
             // eslint-disable-next-line no-new-func
             const f = Function(...Object.keys(pvVars), expression);
