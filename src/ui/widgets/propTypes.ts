@@ -182,15 +182,15 @@ export const PositionTypeProp = PropTypes.oneOf(
 ).isRequired;
 
 export const PositionProp = PropTypes.shape({
-  x: StringProp,
-  y: StringProp,
-  width: StringProp,
-  height: StringProp,
-  margin: StringProp,
-  padding: StringProp,
-  minWidth: StringProp,
-  maxWidth: StringProp,
-  minHeight: StringProp,
+  x: StringOrNumProp,
+  y: StringOrNumProp,
+  width: StringOrNumProp,
+  height: StringOrNumProp,
+  margin: StringOrNumProp,
+  padding: StringOrNumProp,
+  minWidth: StringOrNumProp,
+  maxWidth: StringOrNumProp,
+  minHeight: StringOrNumProp,
   positionType: PositionTypeProp
 }).isRequired;
 

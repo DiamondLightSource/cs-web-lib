@@ -6,19 +6,19 @@ export enum PositionType {
 }
 
 export interface Position {
-  x: string;
-  y: string;
-  width: string;
-  height: string;
-  margin: string;
-  padding: string;
-  minWidth: string;
-  maxWidth: string;
-  minHeight: string;
+  x: string | number;
+  y: string | number;
+  width: string | number;
+  height: string | number;
+  margin: string | number;
+  padding: string | number;
+  minWidth: string | number;
+  maxWidth: string | number;
+  minHeight: string | number;
   positionType: PositionType;
 }
 
-const invalidSize = (size?: string): boolean =>
+const invalidSize = (size?: string | number): boolean =>
   size === "" || size === undefined;
 
 export type PositionPropNames =
@@ -34,15 +34,15 @@ export type PositionPropNames =
   | "positionType";
 
 export const newAbsolutePosition = (
-  x: string,
-  y: string,
-  width: string,
-  height: string,
-  margin = "",
-  padding = "",
-  minWidth = "",
-  maxWidth = "",
-  minHeight = ""
+  x: string | number,
+  y: string | number,
+  width: string | number,
+  height: string | number,
+  margin: string | number = "",
+  padding: string | number = "",
+  minWidth: string | number = "",
+  maxWidth: string | number = "",
+  minHeight: string | number = ""
 ): Position => {
   if (
     invalidSize(x) ||
@@ -67,15 +67,15 @@ export const newAbsolutePosition = (
 };
 
 export const newRelativePosition = (
-  x = "",
-  y = "",
-  width = "",
-  height = "",
-  margin = "",
-  padding = "",
-  minWidth = "",
-  maxWidth = "",
-  minHeight = ""
+  x: string | number = "",
+  y: string | number = "",
+  width: string | number = "",
+  height: string | number = "",
+  margin: string | number = "",
+  padding: string | number = "",
+  minWidth: string | number = "",
+  maxWidth: string | number = "",
+  minHeight: string | number = ""
 ): Position => ({
   x,
   y,
@@ -125,7 +125,7 @@ export const positionToCss = (position: Position): CSSProperties => {
   };
 };
 
-const toCssUnit = (value: string | undefined): string => {
+const toCssUnit = (value: string | number | undefined): string => {
   if (value === undefined || value === null || value === "") {
     return "";
   }
@@ -134,7 +134,18 @@ const toCssUnit = (value: string | undefined): string => {
     return "0";
   }
 
-  if (!isNaN(Number(value))) {
+  if (
+    typeof value === "string" &&
+    (value.includes("%") ||
+      value.includes("vh") ||
+      value.includes("vw") ||
+      value.includes("em") ||
+      value.includes("rem"))
+  ) {
+    return value;
+  }
+
+  if (!isNaN(Number(value)) || typeof value === "number") {
     return `${value}px`;
   }
 
