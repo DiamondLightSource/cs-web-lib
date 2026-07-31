@@ -4,12 +4,15 @@ import { useStyle } from "./useStyle";
 import { useTheme } from "@mui/material";
 import { FontStyle, newFont } from "../../types/font";
 import { WidgetAction } from "../widgets/widgetActions";
+import { useSelector } from "react-redux";
 
 vi.mock("@mui/material", () => ({
   useTheme: vi.fn()
 }));
 
-vi.mock("react-redux");
+vi.mock("react-redux", () => ({
+  useSelector: vi.fn()
+}));
 
 const mockTheme = {
   palette: {
@@ -60,6 +63,7 @@ const mockTheme = {
 beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(useTheme).mockReturnValue(mockTheme);
+  vi.mocked(useSelector).mockReturnValue("DEFAULT");
 });
 
 describe("useStyle", () => {
