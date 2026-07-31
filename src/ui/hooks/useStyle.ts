@@ -97,7 +97,6 @@ export const useStyle = (
 
   const theme = useTheme();
   const themeName = `${effectiveClass ?? ""}${widgetName}`;
-  console.log(themeName);
 
   // Overwrite normal props with class props
   const style = useSelector(state => selectClassStyle(state, themeName));
