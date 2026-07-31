@@ -6,6 +6,7 @@ import { borderToCss } from "../../types/border";
 import { WidgetActions } from "../widgets/widgetActions";
 import { useSelector } from "react-redux";
 import { selectClassStyle } from "../../redux/slices/styleSlice";
+import { selectCurrentClass } from "../../redux/slices/themeSlice";
 
 export interface UseStyleResult {
   border: {
@@ -90,8 +91,12 @@ export const useStyle = (
   widgetName?: string,
   className?: string
 ): [UseStyleResult, any] => {
+  const currentClass = useSelector(selectCurrentClass);
+
+  const effectiveClass = currentClass !== "DEFAULT" ? currentClass : className;
+
   const theme = useTheme();
-  const themeName = `${className ?? ""}${widgetName}`;
+  const themeName = `${effectiveClass ?? ""}${widgetName}`;
 
   // Overwrite normal props with class props
   const style = useSelector(state => selectClassStyle(state, themeName));
@@ -106,7 +111,7 @@ export const useStyle = (
 
   const propsBorder = borderToCss(props.border);
   const hasClassBorder = Boolean(
-    className && theme.borders && themeName in theme?.borders
+    effectiveClass && theme.borders && themeName in theme?.borders
   );
   const border = hasClassBorder
     ? themeBorder
@@ -118,7 +123,7 @@ export const useStyle = (
   const visible = props.visible === undefined || props.visible;
 
   const hasClassColour = Boolean(
-    className && theme.palette && themeName in theme?.palette
+    effectiveClass && theme.palette && themeName in theme?.palette
   );
   // If palette for class exists, use that
   const colors = hasClassColour
@@ -154,7 +159,7 @@ export const useStyle = (
   );
 
   const hasClassFont = Boolean(
-    className && theme.typography && themeName in theme?.typography
+    effectiveClass && theme.typography && themeName in theme?.typography
   );
   const font = hasClassFont ? themeFont : fontSelector(theme, props?.font);
 
