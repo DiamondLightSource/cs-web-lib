@@ -1,0 +1,10 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: cs-web-lib
+  title: cs-web-lib
+  description: A React component library for control systems
+spec:
+  type: library
+  lifecycle: experimental
+  owner: group:default/sscc
