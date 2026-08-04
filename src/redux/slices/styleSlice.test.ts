@@ -1,8 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import styleReducer, {
   addClassStyle,
+  setCurrentClass,
   initialStyleState,
   selectClassStyle,
+  selectCurrentClass,
   selectStyle
 } from "./styleSlice";
 
@@ -47,6 +49,16 @@ describe("style slice", () => {
         });
       });
     });
+
+    describe("setCurrentClass", () => {
+      it("should set the current class", () => {
+        const nextState = styleReducer(
+          initialStyleState,
+          setCurrentClass("MY_CLASSboolbutton")
+        );
+        expect(nextState.currentClass).toEqual("MY_CLASSboolbutton");
+      });
+    });
   });
 
   describe("selectors", () => {
@@ -69,6 +81,15 @@ describe("style slice", () => {
       it("should return undefined when class does not exist", () => {
         const result = selectClassStyle({ style: mockState }, "MY_CLASSlabel");
         expect(result).toBeUndefined();
+      });
+    });
+
+    describe("selectCurrentClass", () => {
+      it("should select the current class", () => {
+        const result = selectCurrentClass({
+          style: { ...mockState, currentClass: "MY_CLASSboolbutton" }
+        });
+        expect(result).toEqual("MY_CLASSboolbutton");
       });
     });
   });
