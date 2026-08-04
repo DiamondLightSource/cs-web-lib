@@ -17,7 +17,8 @@ const mockState = {
     MY_CLASSactionbutton: {
       textAlign: "right"
     }
-  }
+  },
+  currentClass: "MY_CLASS"
 };
 
 describe("style slice", () => {
@@ -87,9 +88,9 @@ describe("style slice", () => {
     describe("selectCurrentClass", () => {
       it("should select the current class", () => {
         const result = selectCurrentClass({
-          style: { ...mockState, currentClass: "MY_CLASSboolbutton" }
+          style: { ...mockState }
         });
-        expect(result).toEqual("MY_CLASSboolbutton");
+        expect(result).toEqual("MY_CLASS");
       });
     });
   });
