@@ -250,6 +250,39 @@ const fileCacheSlice = createSlice({
         state.displayInstanceIndex[hash] = uuid;
       }
     },
+    createDisplayInstanceFromQuickScreen(state, action) {
+      const { name, content, macros } = action.payload;
+      // Add to file cache if it doesn't exist
+      if (!state.fileCache[name]) state.fileCache[name] = content;
+
+      const hash = `${name}::${stringify(macros)}`;
+
+      if (
+        Object.values(state?.displayInstanceCache ?? {}).some(
+          inst => inst.hash === hash
+        )
+      ) {
+        return;
+      }
+
+      const uuid = content.embeddedDisplayUuid;
+
+      if (state.displayInstanceCache) {
+        const parentDir = content.fileId.slice(
+          0,
+          content.fileId.lastIndexOf("/")
+        );
+
+        state.displayInstanceCache[uuid] = {
+          description: resolveWidgetPathsAndMacros(content, parentDir, macros),
+          fileId: name,
+          macros: macros,
+          uuid,
+          hash
+        };
+        state.displayInstanceIndex[hash] = uuid;
+      }
+    },
     convertDisplayInstanceType(state, action) {
       const { uuid, file, macros, displayType } = action.payload;
       let id = uuid;
@@ -283,6 +316,7 @@ export const {
   displayInstanceUpdateGridLayout,
   displayInstanceUpdateResponsiveLayout,
   createDisplayInstanceFromFile,
+  createDisplayInstanceFromQuickScreen,
   convertDisplayInstanceType
 } = fileCacheSlice.actions;
 

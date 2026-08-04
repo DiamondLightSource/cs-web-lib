@@ -19,7 +19,8 @@ import fileCacheReducer, {
   convertDisplayInstanceType,
   clearLayoutProperties,
   convertDisplayType,
-  normaliseChildren
+  normaliseChildren,
+  createDisplayInstanceFromQuickScreen
 } from "./fileCacheSlice";
 
 const initialState: FileCacheState = {
@@ -570,6 +571,113 @@ describe("createDisplayInstanceFromFile", () => {
     const result = fileCacheReducer(state, action);
 
     expect(Object.keys(result.displayInstanceCache)).toHaveLength(1);
+  });
+});
+
+describe("createDisplayInstanceFromQuickScreen", () => {
+  it("creates a new display instance", () => {
+    const screenContent = {
+      id: "root",
+      type: "displayResponsive",
+      fileId: "file.bob",
+      embeddedDisplayUuid: "uuid5",
+      position: newAbsolutePosition("0", "0", "0", "0")
+    };
+    const state: FileCacheState = {
+      fileCache: {
+        "new screen": screenContent
+      },
+      displayInstanceCache: {},
+      displayInstanceIndex: {}
+    };
+
+    const action = createDisplayInstanceFromQuickScreen({
+      name: "new screen",
+      content: screenContent,
+      macros: { a: "b" }
+    });
+
+    const result = fileCacheReducer(state, action);
+
+    const instances = Object.values(result.displayInstanceCache);
+
+    expect(instances).toHaveLength(1);
+    expect(instances[0].fileId).toBe("new screen");
+
+    const hash = "new screen::" + JSON.stringify({ a: "b" });
+    expect(result.displayInstanceIndex[hash]).toBeDefined();
+  });
+
+  it("does not create duplicate display instance", () => {
+    const hash = "my screen::" + JSON.stringify({});
+
+    const state: FileCacheState = {
+      fileCache: {
+        "my screen": {
+          id: "root",
+          type: "displayGridLayout",
+          fileId: "file.bob",
+          embeddedDisplayUuid: "uuid1",
+          position: newAbsolutePosition("0", "0", "0", "0")
+        }
+      },
+      displayInstanceCache: {
+        uuid1: {
+          uuid: "uuid1",
+          fileId: "file.bob",
+          macros: {},
+          hash,
+          description: {} as any
+        }
+      },
+      displayInstanceIndex: {
+        [hash]: "uuid1"
+      }
+    };
+
+    const action = createDisplayInstanceFromQuickScreen({
+      name: "my screen",
+      macros: {},
+      content: {
+        id: "root",
+        type: "displayGridLayout",
+        fileId: "file.bob",
+        embeddedDisplayUuid: "uuid1",
+        position: newAbsolutePosition("0", "0", "0", "0")
+      }
+    });
+
+    const result = fileCacheReducer(state, action);
+
+    expect(Object.keys(result.displayInstanceCache)).toHaveLength(1);
+  });
+
+  it("adds to filecache if doesn't exist there already", () => {
+    const hash = "my screen::" + JSON.stringify({});
+
+    const state: FileCacheState = {
+      fileCache: {},
+      displayInstanceCache: {},
+      displayInstanceIndex: {}
+    };
+
+    const action = createDisplayInstanceFromQuickScreen({
+      name: "my screen",
+      macros: {},
+      content: {
+        id: "root",
+        type: "displayGridLayout",
+        fileId: "file.bob",
+        embeddedDisplayUuid: "uuid2",
+        position: newAbsolutePosition("0", "0", "0", "0")
+      }
+    });
+
+    const result = fileCacheReducer(state, action);
+
+    expect(Object.keys(result.displayInstanceCache)).toHaveLength(1);
+    expect(result.displayInstanceIndex[hash]).toBeDefined();
+    expect(result.fileCache["my screen"]).toBeDefined();
   });
 });
 
