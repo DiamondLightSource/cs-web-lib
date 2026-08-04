@@ -5,8 +5,10 @@ import { CSSProperties } from "react";
 import { borderToCss } from "../../types/border";
 import { WidgetActions } from "../widgets/widgetActions";
 import { useSelector } from "react-redux";
-import { selectClassStyle } from "../../redux/slices/styleSlice";
-import { selectCurrentClass } from "../../redux/slices/themeSlice";
+import {
+  selectClassStyle,
+  selectCurrentClass
+} from "../../redux/slices/styleSlice";
 
 export interface UseStyleResult {
   border: {
