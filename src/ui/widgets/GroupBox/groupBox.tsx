@@ -17,6 +17,8 @@ import { fontToCss, newFont } from "../../../types/font";
 import { ColorUtils } from "../../../types/color";
 import Box from "@mui/material/Box";
 import { MacroContext, MacroContextType } from "../../../types/macros";
+import { selectCurrentClass } from "../../../redux/slices/styleSlice";
+import { useSelector } from "react-redux";
 
 const INNER_DIV_STYLE: CSSProperties = {
   position: "relative",
@@ -43,7 +45,8 @@ const GroupBoxProps = {
 export const GroupBoxComponent = (
   props: InferWidgetProps<typeof GroupBoxProps>
 ): JSX.Element => {
-  const {
+  const currentClass = useSelector(selectCurrentClass);
+  let {
     backgroundColor = ColorUtils.fromRgba(240, 240, 240),
     foregroundColor = ColorUtils.fromRgba(0, 0, 0),
     lineColor = ColorUtils.fromRgba(0, 0, 0),
@@ -52,6 +55,12 @@ export const GroupBoxComponent = (
     transparent = false,
     visible = true
   } = props;
+
+  if (currentClass === "DARKMODE") {
+    backgroundColor = ColorUtils.fromRgba(26, 29, 38);
+    foregroundColor = ColorUtils.fromRgba(233, 233, 233);
+    lineColor = ColorUtils.fromRgba(233, 233, 233);
+  }
 
   const outerDivStyle: CSSProperties = {
     width: "100%",
