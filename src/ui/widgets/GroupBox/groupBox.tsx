@@ -45,15 +45,18 @@ const GroupBoxProps = {
 export const GroupBoxComponent = (
   props: InferWidgetProps<typeof GroupBoxProps>
 ): JSX.Element => {
-  const currentClass = useSelector(selectCurrentClass);
-  let {
-    backgroundColor = ColorUtils.fromRgba(240, 240, 240),
-    foregroundColor = ColorUtils.fromRgba(0, 0, 0),
-    lineColor = ColorUtils.fromRgba(0, 0, 0),
+  const {
     font = newFont(14),
     styleOpt = 0,
     transparent = false,
     visible = true
+  } = props;
+  const currentClass = useSelector(selectCurrentClass);
+
+  let {
+    backgroundColor = ColorUtils.fromRgba(240, 240, 240),
+    foregroundColor = ColorUtils.fromRgba(0, 0, 0),
+    lineColor = ColorUtils.fromRgba(0, 0, 0)
   } = props;
 
   if (currentClass === "DARKMODE") {
