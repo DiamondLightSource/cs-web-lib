@@ -1,11 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
 
 import { DisplayGridLayoutComponent } from "./displayGridLayout";
 import { MacroContext } from "../../../types/macros";
 import { createMockStyle } from "../../../test-utils/styleTestUtils";
-import { fireEvent } from "@testing-library/react";
 
 vi.mock("react-grid-layout", async () => {
   const actual = await vi.importActual<any>("react-grid-layout");
