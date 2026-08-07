@@ -5,6 +5,7 @@ import React from "react";
 import { DisplayGridLayoutComponent } from "./displayGridLayout";
 import { MacroContext } from "../../../types/macros";
 import { createMockStyle } from "../../../test-utils/styleTestUtils";
+import { fireEvent } from "@testing-library/react";
 
 vi.mock("react-grid-layout", async () => {
   const actual = await vi.importActual<any>("react-grid-layout");
@@ -13,7 +14,16 @@ vi.mock("react-grid-layout", async () => {
 
   const useGridLayout = vi.fn(({ layout, cols }: any) => ({
     layout,
-    cols
+    cols,
+    isInteracting: true,
+    dragState: {
+      activeDrag: { i: "a", w: 0, h: 0 },
+      oldDragItem: null,
+      oldLayout: null
+    },
+    onDragStart: vi.fn(),
+    onDragStop: vi.fn(),
+    onResizeStop: vi.fn()
   }));
 
   return {
@@ -95,15 +105,23 @@ vi.mock("../register", () => ({
   registerWidget: vi.fn()
 }));
 
-const TestChild = ({ id }: { id: string }) => (
-  <div data-testid={`child-${id}`}>child {id}</div>
+const TestChild = ({
+  id,
+  onClick
+}: {
+  id: string;
+  onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
+}) => (
+  <div data-testid={`child-${id}`} onClick={onClick}>
+    child {id}
+  </div>
 );
 
-const renderGrid = (props: any = {}) =>
+const renderGrid = (props: any = {}, clickHandler?: any) =>
   render(
     <MacroContext.Provider value={{ macros: {}, updateMacro: vi.fn() }}>
       <DisplayGridLayoutComponent id="grid-test" {...props}>
-        <TestChild id="a" />
+        <TestChild id="a" onClick={clickHandler} />
         <TestChild id="b" />
       </DisplayGridLayoutComponent>
     </MacroContext.Provider>
@@ -304,5 +322,23 @@ describe("DisplayGridLayoutComponent", () => {
     expect(config?.cols).toBe(20);
     expect(config?.margin).toEqual([10, 12]);
     expect(config?.rowHeight).toBe(25);
+  });
+
+  it("does not click through to child when dragging", async () => {
+    const rgl = (await import("react-grid-layout")) as any;
+    const childClickHandler = vi.fn();
+    renderGrid({ gridLayout: [{ i: "a", w: 8, h: 4 }] }, childClickHandler);
+
+    const wrapper = screen.getByTestId("child-a").parentElement;
+    expect(wrapper).toBeInTheDocument();
+
+    const gridProps = rgl.__getLastGridProps();
+    gridProps.onDragStart([], { i: "a" }, { i: "a" }, null, null, wrapper);
+
+    const overlay = screen.getByTestId("drag-overlay");
+    expect(overlay).toBeInTheDocument();
+
+    fireEvent.click(overlay);
+    expect(childClickHandler).not.toHaveBeenCalled();
   });
 });

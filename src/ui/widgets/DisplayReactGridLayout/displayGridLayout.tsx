@@ -205,7 +205,14 @@ export const DisplayGridLayoutComponent = (
     gridCellResizeEnabled
   ]);
 
-  const { layout } = useGridLayout({
+  const {
+    layout,
+    isInteracting,
+    dragState,
+    onDragStart: hookOnDragStart,
+    onDragStop: hookOnDragStop,
+    onResizeStop: hookOnResizeStop
+  } = useGridLayout({
     layout: (props.gridLayout || []) as Layout,
     cols: columns
   });
@@ -219,16 +226,38 @@ export const DisplayGridLayoutComponent = (
           throw new Error("All grid items must have a stable id");
         }
 
+        const activeId = dragState?.activeDrag?.i;
+        const isActiveDragging = isInteracting && activeId === id;
+
         return (
           <div
             key={id}
             style={{ cursor: gridCellDragEnabled ? "grab" : "default" }}
           >
             {child}
+            {isActiveDragging && (
+              // overlay captures clicks during drag so child won't toggle
+              <div
+                data-testid="drag-overlay"
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  zIndex: 10,
+                  background: "transparent"
+                }}
+                onClick={e => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                }}
+              />
+            )}
           </div>
         );
       }),
-    [childrenArray, gridCellDragEnabled]
+    [childrenArray, gridCellDragEnabled, isInteracting, dragState]
   );
 
   return (
@@ -261,10 +290,16 @@ export const DisplayGridLayoutComponent = (
             ) => {
               if (element?.style && gridCellDragEnabled)
                 element.style.cursor = "grabbing";
+              if (newItem) {
+                hookOnDragStart(newItem.i, newItem.x, newItem.y);
+              }
             }}
             onDragStop={(layout, oldItem, newItem, placeholder, e, element) => {
               if (element?.style && gridCellDragEnabled)
                 element.style.cursor = "grab";
+              if (newItem) {
+                hookOnDragStop(newItem.i, newItem.x, newItem.y);
+              }
               dispatch(
                 displayInstanceUpdateGridLayout({
                   embeddedDisplayUuid: props.embeddedDisplayUuid,
@@ -273,7 +308,10 @@ export const DisplayGridLayoutComponent = (
                 })
               );
             }}
-            onResizeStop={layout => {
+            onResizeStop={(layout, oldItem, newItem) => {
+              if (newItem) {
+                hookOnResizeStop(newItem.i, newItem.w, newItem.h);
+              }
               dispatch(
                 displayInstanceUpdateGridLayout({
                   embeddedDisplayUuid: props.embeddedDisplayUuid,
