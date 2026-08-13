@@ -5,6 +5,7 @@
   "description": "Control system web library",
   "main": "./dist/index.cjs",
   "scripts": {
+    "prerollup": "node scripts/generate-version.js",
     "rollup": "rollup -c",
     "test": "vitest",
     "lint": "eslint 'src/**/*.{ts,tsx}' --max-warnings=0",
