@@ -5,7 +5,7 @@
   "description": "Control system web library",
   "main": "./dist/index.cjs",
   "scripts": {
-    "prerollup": "node scripts/generate-version.js",
+    "generate-version": "node scripts/generate-version.js",
     "rollup": "rollup -c",
     "test": "vitest",
     "lint": "eslint 'src/**/*.{ts,tsx}' --max-warnings=0",
@@ -13,7 +13,7 @@
     "prettier-check": "prettier --check 'src/**/*.{ts,tsx}'",
     "prettier-write": "prettier --write 'src/**/*.{ts,tsx}'",
     "check-types": "tsc",
-    "all-checks": "npm run lint && npm run prettier-check && npm run check-types"
+    "all-checks": "npm run generate-version && npm run lint && npm run prettier-check && npm run check-types"
   },
   "author": "Will Rogers, Rebecca Williams, Abigail Alexander, Tom Kane, Gregory Harris",
   "license": "ISC",
