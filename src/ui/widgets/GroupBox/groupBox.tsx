@@ -68,6 +68,7 @@ export const GroupBoxComponent = (
   const effectiveForeground = style.colors.color ?? foregroundColor.colorString;
   const effectiveBorderColor =
     style.customColors?.lineColor ?? lineColor.colorString;
+  const effectiveStyleOpt = style.styleOpt ?? styleOpt;
 
   const outerDivStyle: CSSProperties = {
     width: "100%",
@@ -90,7 +91,7 @@ export const GroupBoxComponent = (
     ...fontToCss(font)
   };
 
-  if (styleOpt === 0) {
+  if (effectiveStyleOpt === 0) {
     // Typical group box with label
     outerDivStyle.paddingRight = "10px";
     boxStyle.paddingLeft = "8px";

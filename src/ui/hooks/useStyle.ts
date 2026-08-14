@@ -24,6 +24,7 @@ export interface UseStyleResult {
   };
   customColors: Record<string, string>;
   other: CSSProperties;
+  styleOpt?: number;
 }
 
 interface UseStyleProps {
@@ -183,7 +184,8 @@ export const useStyle = (
       font,
       colors: colors,
       customColors,
-      other
+      other,
+      styleOpt
     },
     newProps
   ];
