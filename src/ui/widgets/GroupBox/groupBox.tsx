@@ -14,11 +14,13 @@ import {
   MacrosPropOpt
 } from "../propTypes";
 import { fontToCss, newFont } from "../../../types/font";
+import { ComponentProps } from "../widgetProps";
 import { ColorUtils } from "../../../types/color";
 import Box from "@mui/material/Box";
 import { MacroContext, MacroContextType } from "../../../types/macros";
-import { selectCurrentClass } from "../../../redux/slices/styleSlice";
-import { useSelector } from "react-redux";
+import { useStyle } from "../../hooks/useStyle";
+
+const widgetName = "groupbox";
 
 const INNER_DIV_STYLE: CSSProperties = {
   position: "relative",
@@ -43,27 +45,29 @@ const GroupBoxProps = {
 // This could be replaced if we can implement this as part of the
 // border prop.
 export const GroupBoxComponent = (
-  props: InferWidgetProps<typeof GroupBoxProps>
+  props: InferWidgetProps<typeof GroupBoxProps> & ComponentProps
 ): JSX.Element => {
+  const [style, newProps] = useStyle(
+    { ...props, customColors: { lineColor: props.lineColor } },
+    widgetName,
+    props.class
+  );
   const {
     font = newFont(14),
     styleOpt = 0,
     transparent = false,
-    visible = true
-  } = props;
-  const currentClass = useSelector(selectCurrentClass);
-
-  let {
+    visible = true,
     backgroundColor = ColorUtils.fromRgba(240, 240, 240),
     foregroundColor = ColorUtils.fromRgba(0, 0, 0),
     lineColor = ColorUtils.fromRgba(0, 0, 0)
-  } = props;
+  } = newProps;
 
-  if (currentClass === "DARKMODE") {
-    backgroundColor = ColorUtils.fromRgba(26, 29, 38);
-    foregroundColor = ColorUtils.fromRgba(233, 233, 233);
-    lineColor = ColorUtils.fromRgba(233, 233, 233);
-  }
+  const effectiveBackground = transparent
+    ? "transparent"
+    : (style.colors.backgroundColor ?? backgroundColor.colorString);
+  const effectiveForeground = style.colors.color ?? foregroundColor.colorString;
+  const effectiveBorderColor =
+    style.customColors?.lineColor ?? lineColor.colorString;
 
   const outerDivStyle: CSSProperties = {
     width: "100%",
@@ -77,11 +81,11 @@ export const GroupBoxComponent = (
     width: "100%",
     height: "100%",
     padding: "0px",
-    border: "1px solid " + lineColor.colorString,
+    border: "1px solid " + effectiveBorderColor,
     whiteSpace: "nowrap",
     overflow: "visible",
-    backgroundColor: transparent ? "transparent" : backgroundColor.colorString,
-    color: foregroundColor.colorString,
+    backgroundColor: transparent ? "transparent" : effectiveBackground,
+    color: effectiveForeground,
     visibility: visible ? "visible" : "hidden",
     ...fontToCss(font)
   };
@@ -117,12 +121,12 @@ export const GroupBoxComponent = (
           {styleOpt === 1 ? (
             <div
               style={{
+                ...style.customColors,
+                ...style.font,
+                color: effectiveForeground,
+                backgroundColor: effectiveBackground,
                 height: "20px",
-                width: "100%",
-                backgroundColor: lineColor.colorString,
-                ...fontToCss(font),
-                textAlign: "left",
-                color: foregroundColor.colorString
+                width: "100%"
               }}
             >
               {name}
