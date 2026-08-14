@@ -1,7 +1,7 @@
 import React, { CSSProperties, useContext } from "react";
 
 import { Widget } from "../widget";
-import { WidgetPropType } from "../widgetProps";
+import { WidgetPropType , ComponentProps } from "../widgetProps";
 import { registerWidget } from "../register";
 import {
   ChildrenPropOpt,
@@ -14,7 +14,6 @@ import {
   MacrosPropOpt
 } from "../propTypes";
 import { fontToCss, newFont } from "../../../types/font";
-import { ComponentProps } from "../widgetProps";
 import { ColorUtils } from "../../../types/color";
 import Box from "@mui/material/Box";
 import { MacroContext, MacroContextType } from "../../../types/macros";
