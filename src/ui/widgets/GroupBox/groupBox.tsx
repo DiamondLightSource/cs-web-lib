@@ -14,7 +14,6 @@ import {
   MacrosPropOpt
 } from "../propTypes";
 import { fontToCss, newFont } from "../../../types/font";
-import { ColorUtils } from "../../../types/color";
 import Box from "@mui/material/Box";
 import { MacroContext, MacroContextType } from "../../../types/macros";
 import { useStyle } from "../../hooks/useStyle";
