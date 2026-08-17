@@ -61,14 +61,6 @@ export const GroupBoxComponent = (
     lineColor = ColorUtils.fromRgba(0, 0, 0)
   } = newProps;
 
-  const effectiveBackground = transparent
-    ? "transparent"
-    : (style.colors.backgroundColor ?? backgroundColor.colorString);
-  const effectiveForeground = style.colors.color ?? foregroundColor.colorString;
-  const effectiveBorderColor =
-    style.customColors?.lineColor ?? lineColor.colorString;
-  const effectiveStyleOpt = style.styleOpt ?? styleOpt;
-
   const outerDivStyle: CSSProperties = {
     width: "100%",
     height: "100%",
@@ -81,16 +73,16 @@ export const GroupBoxComponent = (
     width: "100%",
     height: "100%",
     padding: "0px",
-    border: "1px solid " + effectiveBorderColor,
+    border: "1px solid " + style.customColors.lineColor,
     whiteSpace: "nowrap",
     overflow: "visible",
-    backgroundColor: transparent ? "transparent" : effectiveBackground,
-    color: effectiveForeground,
+    backgroundColor: transparent ? "transparent" : style.colors.backgroundColor,
+    color: style.colors.color,
     visibility: visible ? "visible" : "hidden",
     ...fontToCss(font)
   };
 
-  if (effectiveStyleOpt === 0) {
+  if (style.styleOpt === 0) {
     // Typical group box with label
     outerDivStyle.paddingRight = "10px";
     boxStyle.paddingLeft = "8px";
@@ -118,13 +110,13 @@ export const GroupBoxComponent = (
     <MacroContext.Provider value={updatedMacroContext}>
       <div style={outerDivStyle}>
         <Box component="fieldset" sx={boxStyle}>
-          {styleOpt === 1 ? (
+          {style.styleOpt === 1 ? (
             <div
               style={{
                 ...style.customColors,
                 ...style.font,
-                color: effectiveForeground,
-                backgroundColor: effectiveBackground,
+                color: style.colors.color,
+                backgroundColor: style.colors.backgroundColor,
                 height: "20px",
                 width: "100%"
               }}
@@ -134,7 +126,7 @@ export const GroupBoxComponent = (
           ) : (
             <></>
           )}
-          {styleOpt === 0 ? <legend>{name}</legend> : <></>}
+          {style.styleOpt === 0 ? <legend>{name}</legend> : <></>}
           <div style={INNER_DIV_STYLE}>
             <>{props.children}</>
           </div>

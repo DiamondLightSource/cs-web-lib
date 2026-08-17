@@ -6,7 +6,7 @@ exports[`<GroupBoxComponent /> snapshots > it matches the snapshot for Group Box
     style="width: 100%; height: 100%; position: absolute; padding: 0px 10px 0px 0px; box-sizing: border-box;"
   >
     <fieldset
-      class="MuiBox-root css-18o6fw6"
+      class="MuiBox-root css-1gd7eh8"
     >
       <legend>
         Test
@@ -25,7 +25,7 @@ exports[`<GroupBoxComponent /> snapshots > it matches the snapshot for Line styl
     style="width: 100%; height: 100%; position: absolute; padding: 0px; box-sizing: border-box;"
   >
     <fieldset
-      class="MuiBox-root css-1oe59xy"
+      class="MuiBox-root css-17xtuq7"
     >
       <div
         style="position: relative; overflow: visible; color: black;"
@@ -41,7 +41,7 @@ exports[`<GroupBoxComponent /> snapshots > it matches the snapshot for Title Bar
     style="width: 100%; height: 100%; position: absolute; padding: 0px; box-sizing: border-box;"
   >
     <fieldset
-      class="MuiBox-root css-1oe59xy"
+      class="MuiBox-root css-17xtuq7"
     >
       <div
         style="font-family: "Roboto", "Helvetica", "Arial", sans-serif; font-size: 14px; color: rgb(255, 255, 255); background-color: rgb(25, 118, 210); height: 20px; width: 100%;"
