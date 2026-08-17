@@ -35,4 +35,5 @@ jobs:
           registry-url: https://registry.npmjs.org
       - run: npm ci
       - run: npm run rollup
+      - run: npm run generate-version
       - run: npm publish --access public

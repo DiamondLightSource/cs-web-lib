@@ -28,3 +28,4 @@ jobs:
       - run: npm run all-checks
       - run: npm run test
       - run: npm run rollup
+      - run: npm run generate-version
