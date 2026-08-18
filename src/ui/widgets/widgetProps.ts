@@ -70,7 +70,7 @@ type BaseWidgetProps = {
   baseWidget: React.FC<any>;
 };
 
-type ComponentProps = {
+export type ComponentProps = {
   style?: Record<string, string>;
   class?: string;
 };

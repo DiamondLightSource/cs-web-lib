@@ -24,6 +24,7 @@ export interface UseStyleResult {
   };
   customColors: Record<string, string>;
   other: CSSProperties;
+  styleOpt?: number;
 }
 
 interface UseStyleProps {
@@ -35,6 +36,7 @@ interface UseStyleProps {
   transparent?: boolean;
   actions?: WidgetActions;
   customColors?: { [key: string]: Color | undefined };
+  styleOpt?: number;
 }
 
 const selectPalette = (theme: Theme, themeName?: string): PaletteColor => {
@@ -79,6 +81,8 @@ const backgroundColorSelector = (
   transparent
     ? "transparent"
     : (backgroundColor?.colorString ?? themePalette?.main);
+
+const styleOptSelector = (styleOpt?: number): number => styleOpt ?? 0;
 
 const fontSelector = (theme: Theme, font?: Font): CSSProperties =>
   fontToCss(font) ?? (theme.typography as CSSProperties);
@@ -167,6 +171,8 @@ export const useStyle = (
 
   const cursor = props.actions?.actions.length ? "pointer" : "auto";
 
+  const styleOpt = styleOptSelector(props.styleOpt);
+
   const other: CSSProperties = {
     cursor,
     visibility: visible ? "visible" : "hidden"
@@ -178,7 +184,8 @@ export const useStyle = (
       font,
       colors: colors,
       customColors,
-      other
+      other,
+      styleOpt
     },
     newProps
   ];
