@@ -6,3 +6,4 @@ export * from "./ui/widgets";
 export * from "./ui/hooks";
 export * from "./types";
 export { contextRender } from "./testResources";
+export * from "./version";
