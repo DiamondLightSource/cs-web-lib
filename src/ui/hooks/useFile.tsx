@@ -126,7 +126,11 @@ export function useFile(
       fetchData();
     } else if (displayInstance == null) {
       dispatch(
-        createDisplayInstanceFromFile({ file: file.path, macros: macros ?? {}, editable: editable })
+        createDisplayInstanceFromFile({
+          file: file.path,
+          macros: macros ?? {},
+          editable: editable
+        })
       );
       if (targetDisplayType)
         dispatch(

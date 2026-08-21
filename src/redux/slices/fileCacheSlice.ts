@@ -314,7 +314,7 @@ const fileCacheSlice = createSlice({
       }
     },
     convertDisplayInstanceType(state, action) {
-      const { uuid, file, macros, displayType, editable } = action.payload;
+      const { uuid, file, macros, displayType } = action.payload;
       let id = uuid;
       if (!id) {
         const hash = `${file}::${stringify(macros)}`;
@@ -326,10 +326,9 @@ const fileCacheSlice = createSlice({
 
       instance.description = convertDisplayType(
         instance.description,
-        displayType,
-        editable
+        displayType
       );
-      console.log(instance.description)
+
       state.displayInstanceCache[id] = instance;
     }
   },
@@ -454,8 +453,7 @@ export function normaliseChildren(display: WidgetDescription) {
  */
 export function convertDisplayType(
   display: WidgetDescription,
-  displayType: string,
-  editable?: boolean
+  displayType: string
 ): WidgetDescription {
   //If no conversion passed in, don't do anything
   if (!displayType || displayType === display.type) return display;
@@ -467,7 +465,6 @@ export function convertDisplayType(
   if (displayType === "display") return newDisplay;
   newDisplay.gridCellDragEnabled = true;
   newDisplay.gridCellResizeEnabled = true;
-  if (editable) newDisplay.editable = true;
 
   return newDisplay;
 }
