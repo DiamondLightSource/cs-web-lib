@@ -39,9 +39,14 @@ const parsedWidget = {
   position: { positionType: PositionType.RELATIVE }
 };
 
-const FileTester = (props: { file: File }): JSX.Element => {
+const FileTester = (props: { file: File; editable?: boolean }): JSX.Element => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [contents, _] = useFile(props.file);
+  const [contents, _] = useFile(
+    props.file,
+    undefined,
+    undefined,
+    props.editable
+  );
   return <div>contents: {JSON.stringify(contents)}</div>;
 };
 
@@ -217,6 +222,59 @@ describe("useFile", (): void => {
 
       expect(text).toContain('"id":"1234"');
       expect(text).toContain('"fileId":"test.json"');
+    });
+  });
+  it("sets editable mode when creating a display instance from cached file", async () => {
+    const file = {
+      path: "test.json",
+      defaultProtocol: "ca",
+      macros: {}
+    };
+
+    mockedUseSelector
+      .mockReturnValueOnce(null)
+      .mockReturnValueOnce(parsedWidget);
+
+    contextRender(<FileTester file={file} editable={true} />);
+
+    await waitFor(() => {
+      expect(mockDispatch).toHaveBeenCalledWith(
+        createDisplayInstanceFromFile({
+          file: "test.json",
+          macros: {},
+          editable: true
+        })
+      );
+    });
+  });
+  it("sets editable mode when creating a display instance after fetching", async () => {
+    const file = {
+      path: "test.json",
+      defaultProtocol: "ca",
+      macros: {}
+    };
+
+    const mockResponse = JSON.stringify({
+      id: "1234",
+      type: "ellipse"
+    });
+
+    mockedHttpRequest.mockResolvedValue({
+      text: () => Promise.resolve(mockResponse)
+    });
+
+    mockedUseSelector.mockReturnValueOnce(null).mockReturnValueOnce(null);
+
+    contextRender(<FileTester file={file} editable={true} />);
+
+    await waitFor(() => {
+      expect(mockDispatch).toHaveBeenCalledWith(
+        createDisplayInstanceFromFile({
+          file: "test.json",
+          macros: {},
+          editable: true
+        })
+      );
     });
   });
 });

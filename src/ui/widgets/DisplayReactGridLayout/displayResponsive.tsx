@@ -482,6 +482,7 @@ const wrapChildrenForGridLayout = (
     return (
       <div
         key={id}
+        className="display-grid-layout-child"
         style={{ cursor: gridCellDragEnabled ? "grab" : "default" }}
       >
         {editable && (

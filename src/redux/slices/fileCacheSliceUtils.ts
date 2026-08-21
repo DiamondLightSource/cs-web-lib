@@ -67,13 +67,19 @@ export const deleteWidgetById = (
   widgetId: string
 ): WidgetDescription[] | undefined => {
   if (!children) {
-    return children;
+    return undefined;
   }
-  // Iterate over and filter out matching id
+
   return children
     .filter(child => child.id !== widgetId)
-    .map(child => ({
-      ...child,
-      children: deleteWidgetById(child.children, widgetId)
-    }));
+    .map(child => {
+      if (!child.children) {
+        return { ...child };
+      }
+
+      return {
+        ...child,
+        children: deleteWidgetById(child.children, widgetId)
+      };
+    });
 };
