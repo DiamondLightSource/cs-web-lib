@@ -106,7 +106,8 @@ export function useFile(
         dispatch(
           createDisplayInstanceFromFile({
             file: file.path,
-            macros: macros ?? {}
+            macros: macros ?? {},
+            editable: editable
           })
         );
         if (targetDisplayType)
@@ -114,8 +115,7 @@ export function useFile(
             convertDisplayInstanceType({
               file: file.path,
               macros: macros ?? {},
-              displayType: targetDisplayType,
-              editable: editable
+              displayType: targetDisplayType
             })
           );
       }
@@ -126,15 +126,14 @@ export function useFile(
       fetchData();
     } else if (displayInstance == null) {
       dispatch(
-        createDisplayInstanceFromFile({ file: file.path, macros: macros ?? {} })
+        createDisplayInstanceFromFile({ file: file.path, macros: macros ?? {}, editable: editable })
       );
       if (targetDisplayType)
         dispatch(
           convertDisplayInstanceType({
             file: file.path,
             macros: macros ?? {},
-            displayType: targetDisplayType,
-            editable: editable
+            displayType: targetDisplayType
           })
         );
     }

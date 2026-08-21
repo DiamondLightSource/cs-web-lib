@@ -241,7 +241,7 @@ const fileCacheSlice = createSlice({
     },
 
     createDisplayInstanceFromFile(state, action) {
-      const { file, macros } = action.payload;
+      const { file, macros, editable } = action.payload;
       const fileDescription = state.fileCache?.[file];
 
       const hash = `${file}::${stringify(macros)}`;
@@ -259,6 +259,8 @@ const fileCacheSlice = createSlice({
       injectFieldsIntoAllDescriptions(description, {
         embeddedDisplayUuid: uuid
       });
+      // If the file is loaded in an editable view, set editable prop
+      description.editable = editable ? true : false;
 
       if (state.displayInstanceCache) {
         const parentDir = file.slice(0, file.lastIndexOf("/"));
@@ -327,6 +329,7 @@ const fileCacheSlice = createSlice({
         displayType,
         editable
       );
+      console.log(instance.description)
       state.displayInstanceCache[id] = instance;
     }
   },
