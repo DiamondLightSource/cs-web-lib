@@ -39,7 +39,8 @@ const DynamicPageProps = {
   showCloseButton: BoolPropOpt,
   scroll: BoolPropOpt,
   mjpgEndpoint: StringPropOpt,
-  targetDisplayType: StringPropOpt
+  targetDisplayType: StringPropOpt,
+  editable: BoolPropOpt
 };
 
 type DynamicPageComponentProps = InferWidgetProps<typeof DynamicPageProps> &
@@ -150,6 +151,7 @@ export const DynamicPageComponent = (
           )}
           widgetIdsCallback={props?.widgetIdsCallback}
           targetDisplayType={newProps.targetDisplayType}
+          editable={newProps.editable}
         />
       </ExitFileContext.Provider>
     );
