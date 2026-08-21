@@ -13,7 +13,8 @@ import {
   useContainerWidth,
   Breakpoints,
   useResponsiveLayout,
-  Breakpoint
+  Breakpoint,
+  Layout
 } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
@@ -53,6 +54,8 @@ import {
 } from "../../../redux/slices/fileCacheSlice";
 import log from "loglevel";
 import { Dispatch } from "@reduxjs/toolkit";
+import IconButton from "@mui/material/IconButton";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 const widgetName = "displayResponsive";
 
@@ -78,7 +81,8 @@ const DisplayResponsiveProps = {
   gridCellDragEnabled: BoolPropOpt,
   gridCellResizeEnabled: BoolPropOpt,
   gridCellMargins: IntArrayPropOpt,
-  gridCellHeight: IntPropOpt
+  gridCellHeight: IntPropOpt,
+  editable: BoolPropOpt
 };
 
 type propsType = InferWidgetProps<typeof DisplayResponsiveProps> & {
@@ -246,10 +250,46 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
     width: 100
   });
 
+  const handleDelete = useCallback(
+    (id: string, event: React.MouseEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const newLayouts = Object.entries(layouts).reduce(
+        (acc, [breakpoint, layout]) => {
+          acc[breakpoint as Breakpoint] = (layout as Layout).filter(
+            item => item.i !== id
+          );
+          return acc;
+        },
+        {} as ResponsiveLayouts<Breakpoint>
+      );
+
+      dispatch(
+        displayInstanceUpdateResponsiveLayout({
+          embeddedDisplayUuid: props.embeddedDisplayUuid,
+          displayId: props.id,
+          responsiveLayouts: newLayouts,
+          update: {
+            type: "delete",
+            widgetId: id
+          }
+        })
+      );
+    },
+    [dispatch, layouts, props.embeddedDisplayUuid, props.id]
+  );
+
   // Wrap the child components in a div keyed by the child id. The key MUST map to the i field of Layout item for the component.
   const gridChildren = useMemo(
-    () => wrapChildrenForGridLayout(childrenArray, gridCellDragEnabled),
-    [childrenArray, gridCellDragEnabled]
+    () =>
+      wrapChildrenForGridLayout(
+        childrenArray,
+        gridCellDragEnabled,
+        newProps.editable,
+        handleDelete
+      ),
+    [childrenArray, gridCellDragEnabled, newProps.editable, handleDelete]
   );
 
   const hasLayouts = useMemo(() => {
@@ -429,7 +469,9 @@ const wrapChildrenForGridLayout = (
     PVWidgetComponent,
     string | React.JSXElementConstructor<any>
   >[],
-  gridCellDragEnabled: boolean
+  gridCellDragEnabled: boolean,
+  editable: boolean | undefined,
+  handleDelete: (id: string, event: React.MouseEvent) => void
 ) => {
   return childrenArray.map(child => {
     const id = child.props.id;
@@ -442,6 +484,45 @@ const wrapChildrenForGridLayout = (
         key={id}
         style={{ cursor: gridCellDragEnabled ? "grab" : "default" }}
       >
+        {editable && (
+          <IconButton
+            aria-label={`Delete widget ${id}`}
+            size="small"
+            onMouseDown={e => {
+              // Prevent default drag action
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            onClick={e => handleDelete(id, e)}
+            sx={{
+              position: "absolute",
+              top: 4,
+              right: 4,
+              zIndex: 20,
+              width: 24,
+              height: 24,
+              padding: 0,
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              color: "error",
+              // Invisible by default
+              opacity: 0,
+              visibility: "hidden",
+              pointerEvents: "none",
+              // Show on hover
+              ".display-grid-layout-child:hover &": {
+                opacity: 1,
+                visibility: "visible",
+                pointerEvents: "auto"
+              },
+              "&:hover": {
+                backgroundColor: "#fff",
+                color: "error.dark"
+              }
+            }}
+          >
+            <CancelIcon fontSize="small" />
+          </IconButton>
+        )}
         {child}
       </div>
     );

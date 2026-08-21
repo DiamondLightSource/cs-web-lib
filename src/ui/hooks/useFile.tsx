@@ -79,7 +79,8 @@ export async function fetchAndConvert(
 export function useFile(
   file: File,
   macros?: MacroMap,
-  targetDisplayType?: string
+  targetDisplayType?: string,
+  editable?: boolean
 ): [WidgetDescription, string] {
   const dispatch = useDispatch();
 
@@ -113,7 +114,8 @@ export function useFile(
             convertDisplayInstanceType({
               file: file.path,
               macros: macros ?? {},
-              displayType: targetDisplayType
+              displayType: targetDisplayType,
+              editable: editable
             })
           );
       }
@@ -131,7 +133,8 @@ export function useFile(
           convertDisplayInstanceType({
             file: file.path,
             macros: macros ?? {},
-            displayType: targetDisplayType
+            displayType: targetDisplayType,
+            editable: editable
           })
         );
     }
@@ -147,7 +150,8 @@ export function useFile(
     dispatch,
     macros,
     displayInstance,
-    targetDisplayType
+    targetDisplayType,
+    editable
   ]);
 
   return [

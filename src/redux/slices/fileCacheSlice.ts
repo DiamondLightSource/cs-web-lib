@@ -14,7 +14,10 @@ import { Position } from "../../types";
 import { MacroMap } from "../../types/macros";
 import stringify from "safe-stable-stringify";
 import { Breakpoints, Layout, ResponsiveLayouts } from "react-grid-layout";
-import { resolveWidgetPathsAndMacros } from "./fileCacheSliceUtils";
+import {
+  deleteWidgetById,
+  resolveWidgetPathsAndMacros
+} from "./fileCacheSliceUtils";
 
 export interface FileCache {
   [fileId: string]: WidgetDescription;
@@ -44,6 +47,12 @@ export interface FileCacheState {
   displayInstanceIndex: {
     [hash: string]: string;
   };
+}
+
+export interface DisplayInstanceUpdateType {
+  type: string; // is either add, delete or move
+  widgetId: string;
+  widgetDescription?: WidgetDescription;
 }
 
 const initialState: FileCacheState = {
@@ -128,22 +137,32 @@ const fileCacheSlice = createSlice({
         embeddedDisplayUuid: string;
         gridDisplayId: string;
         gridLayout: Layout;
+        update?: DisplayInstanceUpdateType;
       }>
     ) {
-      const { embeddedDisplayUuid, gridDisplayId, gridLayout } = action.payload;
+      const { embeddedDisplayUuid, gridDisplayId, gridLayout, update } =
+        action.payload;
 
       const displayInstance = state.displayInstanceCache?.[embeddedDisplayUuid];
       if (!displayInstance) {
         return;
       }
-
       const display = findWidgetById(
         [displayInstance.description],
         gridDisplayId
       );
 
       if (!display || display.type !== "displayGridLayout") return;
+
       display.gridLayout = gridLayout;
+      if (!update) return;
+      // Check what the update type is
+      if (update.type === "delete") {
+        // Find and remove widget by id
+        display.children = deleteWidgetById(display.children, update.widgetId);
+      } else if (update.type === "add") {
+        // TO DO - add support for adding widgets
+      }
     },
 
     displayInstanceSetResponsiveLayout(
@@ -200,9 +219,10 @@ const fileCacheSlice = createSlice({
         embeddedDisplayUuid: string;
         displayId: string;
         responsiveLayouts: ResponsiveLayouts<string>;
+        update?: DisplayInstanceUpdateType;
       }>
     ) {
-      const { embeddedDisplayUuid, displayId, responsiveLayouts } =
+      const { embeddedDisplayUuid, displayId, responsiveLayouts, update } =
         action.payload;
 
       const displayInstance = state.displayInstanceCache[embeddedDisplayUuid];
@@ -210,6 +230,14 @@ const fileCacheSlice = createSlice({
 
       if (!display || display.type !== "displayResponsive") return;
       display.responsiveLayouts = responsiveLayouts;
+      if (!update) return;
+      // Check what the update type is
+      if (update.type === "delete") {
+        // Find and remove widget by id
+        display.children = deleteWidgetById(display.children, update.widgetId);
+      } else if (update.type === "add") {
+        // TO DO - add support for adding widgets
+      }
     },
 
     createDisplayInstanceFromFile(state, action) {
@@ -284,7 +312,7 @@ const fileCacheSlice = createSlice({
       }
     },
     convertDisplayInstanceType(state, action) {
-      const { uuid, file, macros, displayType } = action.payload;
+      const { uuid, file, macros, displayType, editable } = action.payload;
       let id = uuid;
       if (!id) {
         const hash = `${file}::${stringify(macros)}`;
@@ -296,7 +324,8 @@ const fileCacheSlice = createSlice({
 
       instance.description = convertDisplayType(
         instance.description,
-        displayType
+        displayType,
+        editable
       );
       state.displayInstanceCache[id] = instance;
     }
@@ -422,7 +451,8 @@ export function normaliseChildren(display: WidgetDescription) {
  */
 export function convertDisplayType(
   display: WidgetDescription,
-  displayType: string
+  displayType: string,
+  editable?: boolean
 ): WidgetDescription {
   //If no conversion passed in, don't do anything
   if (!displayType || displayType === display.type) return display;
@@ -434,6 +464,7 @@ export function convertDisplayType(
   if (displayType === "display") return newDisplay;
   newDisplay.gridCellDragEnabled = true;
   newDisplay.gridCellResizeEnabled = true;
+  if (editable) newDisplay.editable = true;
 
   return newDisplay;
 }
