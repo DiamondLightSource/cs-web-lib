@@ -178,20 +178,27 @@ export type FileContextType = {
     location: string,
     fileDesc: FileDescription,
     pathname?: string,
-    pvwsHost?: string
+    pvwsHost?: string,
+    replace?: boolean
   ) => void;
-  removePage: (location: string, fileDesc?: FileDescription) => void;
+  removePage: (
+    location: string,
+    fileDesc?: FileDescription,
+    replace?: boolean
+  ) => void;
   addTab: (
     location: string,
     tabName: string,
-    fileDesc: FileDescription
+    fileDesc: FileDescription,
+    replace?: boolean
   ) => void;
   removeTab: (
     location: string,
     tabName: string,
-    fileDesc: FileDescription
+    fileDesc: FileDescription,
+    replace?: boolean
   ) => void;
-  selectTab: (location: string, index: number) => void;
+  selectTab: (location: string, index: number, replace?: boolean) => void;
 };
 
 // React.useContext(FileContext) gives access to each of the
@@ -249,7 +256,8 @@ export const FileProvider: React.FC<FileProviderProps> = (
       location: string,
       fileDesc: FileDescription,
       pathname?: string,
-      pvwsHost?: string
+      pvwsHost?: string,
+      replace?: boolean
     ): void => {
       dispatch(setPvwsSettings({ pvwsHost }));
       const newPageState = addPage(pageState, location, fileDesc);
@@ -258,23 +266,28 @@ export const FileProvider: React.FC<FileProviderProps> = (
           pageState: newPageState,
           tabState: historyLocation.state?.tabState ?? tabState
         },
-        replace: false
+        replace: replace ?? false
       });
     },
-    removePage: (location: string, fileDesc?: FileDescription): void => {
+    removePage: (
+      location: string,
+      fileDesc?: FileDescription,
+      replace?: boolean
+    ): void => {
       const newPageState = removePage(pageState, location, fileDesc);
       navigate(historyLocation.pathname, {
         state: {
           pageState: newPageState,
           tabState: historyLocation.state?.tabState ?? tabState
         },
-        replace: false
+        replace: replace ?? false
       });
     },
     addTab: (
       location: string,
       tabName: string,
-      fileDesc: FileDescription
+      fileDesc: FileDescription,
+      replace?: boolean
     ): void => {
       const newTabState = addTab(tabState, location, tabName, fileDesc);
       navigate(historyLocation.pathname, {
@@ -282,13 +295,14 @@ export const FileProvider: React.FC<FileProviderProps> = (
           pageState: historyLocation.state?.pageState ?? pageState,
           tabState: newTabState
         },
-        replace: false
+        replace: replace ?? false
       });
     },
     removeTab: (
       location: string,
       tabName: string,
-      fileDesc: FileDescription
+      fileDesc: FileDescription,
+      replace?: boolean
     ): void => {
       const newTabState = removeTab(tabState, location, tabName, fileDesc);
       navigate(historyLocation.pathname, {
@@ -296,17 +310,17 @@ export const FileProvider: React.FC<FileProviderProps> = (
           pageState: historyLocation.state?.pageState ?? pageState,
           tabState: newTabState
         },
-        replace: false
+        replace: replace ?? false
       });
     },
-    selectTab: (location: string, index: number): void => {
+    selectTab: (location: string, index: number, replace?: boolean): void => {
       const newTabState = selectTab(tabState, location, index);
       navigate(historyLocation.pathname, {
         state: {
           pageState: historyLocation.state?.pageState ?? pageState,
           tabState: newTabState
         },
-        replace: false
+        replace: replace ?? false
       });
     }
   };
