@@ -71,7 +71,8 @@ vi.mock("../../hooks/useStyle", () => ({
 }));
 
 const mocks = vi.hoisted(() => ({
-  calculateDefaultLayout: vi.fn()
+  calculateDefaultLayout: vi.fn(),
+  displayInstanceUpdateGridLayout: vi.fn()
 }));
 
 vi.mock("./displayLayoutUtilities", () => ({
@@ -79,8 +80,8 @@ vi.mock("./displayLayoutUtilities", () => ({
   toNumber: (v: any, fallback: number) => Number(v ?? fallback)
 }));
 
-vi.mock("../../../redux/csState", async () => {
-  const actual = await vi.importActual("../../../redux/csState");
+vi.mock("../../../redux/slices/fileCacheSlice", async () => {
+  const actual = await vi.importActual("../../../redux/slices/fileCacheSlice");
   return {
     ...actual,
     makeSelectWidgetPosition: () => {
@@ -88,7 +89,8 @@ vi.mock("../../../redux/csState", async () => {
         width: 1200
       });
     },
-    fileDisplaySetRGLayout: vi.fn()
+    displayInstanceSetGridLayout: vi.fn(),
+    displayInstanceUpdateGridLayout: mocks.displayInstanceUpdateGridLayout
   };
 });
 
@@ -339,5 +341,51 @@ describe("DisplayGridLayoutComponent", () => {
 
     fireEvent.click(overlay);
     expect(childClickHandler).not.toHaveBeenCalled();
+  });
+  it("renders delete buttons when editable", () => {
+    renderGrid({
+      editable: true,
+      gridLayout: [
+        { i: "a", w: 8, h: 4 },
+        { i: "b", w: 8, h: 4 }
+      ]
+    });
+
+    expect(screen.getByLabelText("Delete widget a")).toBeInTheDocument();
+
+    expect(screen.getByLabelText("Delete widget b")).toBeInTheDocument();
+  });
+
+  it("does not render delete buttons when not editable", () => {
+    renderGrid({
+      editable: false,
+      gridLayout: [{ i: "a", w: 8, h: 4 }]
+    });
+
+    expect(screen.queryByLabelText("Delete widget a")).not.toBeInTheDocument();
+  });
+  it("deletes a widget when the delete button is clicked", () => {
+    renderGrid({
+      editable: true,
+      embeddedDisplayUuid: "display-1",
+      gridLayout: [
+        { i: "a", x: 0, y: 0, w: 8, h: 4 },
+        { i: "b", x: 8, y: 0, w: 8, h: 4 }
+      ]
+    });
+
+    const deleteButton = screen.getByLabelText("Delete widget a");
+
+    fireEvent.click(deleteButton);
+
+    expect(mocks.displayInstanceUpdateGridLayout).toHaveBeenCalledWith({
+      embeddedDisplayUuid: "display-1",
+      gridDisplayId: "grid-test",
+      gridLayout: [{ i: "b", x: 8, y: 0, w: 8, h: 4 }],
+      update: {
+        type: "delete",
+        widgetId: "a"
+      }
+    });
   });
 });

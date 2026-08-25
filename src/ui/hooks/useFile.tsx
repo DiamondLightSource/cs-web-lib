@@ -79,7 +79,8 @@ export async function fetchAndConvert(
 export function useFile(
   file: File,
   macros?: MacroMap,
-  targetDisplayType?: string
+  targetDisplayType?: string,
+  editable?: boolean
 ): [WidgetDescription, string] {
   const dispatch = useDispatch();
 
@@ -105,7 +106,8 @@ export function useFile(
         dispatch(
           createDisplayInstanceFromFile({
             file: file.path,
-            macros: macros ?? {}
+            macros: macros ?? {},
+            editable: editable
           })
         );
         if (targetDisplayType)
@@ -124,7 +126,11 @@ export function useFile(
       fetchData();
     } else if (displayInstance == null) {
       dispatch(
-        createDisplayInstanceFromFile({ file: file.path, macros: macros ?? {} })
+        createDisplayInstanceFromFile({
+          file: file.path,
+          macros: macros ?? {},
+          editable: editable
+        })
       );
       if (targetDisplayType)
         dispatch(
@@ -147,7 +153,8 @@ export function useFile(
     dispatch,
     macros,
     displayInstance,
-    targetDisplayType
+    targetDisplayType,
+    editable
   ]);
 
   return [

@@ -45,6 +45,8 @@ import {
   makeSelectWidgetPosition
 } from "../../../redux/slices/fileCacheSlice";
 import { useDispatch, useSelector } from "react-redux";
+import IconButton from "@mui/material/IconButton";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 const widgetName = "displayGridLayout";
 
@@ -69,7 +71,8 @@ const DisplayGridLayoutProps = {
   gridCellHeight: IntPropOpt,
   gridCellMargins: IntArrayPropOpt,
   gridLayoutColumns: IntPropOpt,
-  gridLayout: ObjectArrayPropOpt
+  gridLayout: ObjectArrayPropOpt,
+  editable: BoolPropOpt
 };
 
 const overlapCompactor = getCompactor(
@@ -217,6 +220,28 @@ export const DisplayGridLayoutComponent = (
     cols: columns
   });
 
+  const handleDelete = React.useCallback(
+    (id: string, event: React.MouseEvent) => {
+      // Prevent default actions on click e.g drag
+      event.preventDefault();
+      event.stopPropagation();
+
+      const newLayout = layout.filter(item => item.i !== id);
+      dispatch(
+        displayInstanceUpdateGridLayout({
+          embeddedDisplayUuid: props.embeddedDisplayUuid,
+          gridDisplayId: props.id,
+          gridLayout: newLayout,
+          update: {
+            type: "delete",
+            widgetId: id
+          }
+        })
+      );
+    },
+    [dispatch, layout, props.embeddedDisplayUuid, props.id]
+  );
+
   // Wrap the child components in a div keyed by the child id. The key MUST map to the i field of Layout item for the component.
   const gridChildren = useMemo(
     () =>
@@ -232,8 +257,48 @@ export const DisplayGridLayoutComponent = (
         return (
           <div
             key={id}
+            className="display-grid-layout-child"
             style={{ cursor: gridCellDragEnabled ? "grab" : "default" }}
           >
+            {props.editable && (
+              <IconButton
+                aria-label={`Delete widget ${id}`}
+                size="small"
+                onMouseDown={e => {
+                  // Prevent default drag action
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                onClick={e => handleDelete(id, e)}
+                sx={{
+                  position: "absolute",
+                  top: 4,
+                  right: 4,
+                  zIndex: 20,
+                  width: 24,
+                  height: 24,
+                  padding: 0,
+                  backgroundColor: "rgba(255, 255, 255, 0.9)",
+                  color: "error",
+                  // Invisible by default
+                  opacity: 0,
+                  visibility: "hidden",
+                  pointerEvents: "none",
+                  // Show on hover
+                  ".display-grid-layout-child:hover &": {
+                    opacity: 1,
+                    visibility: "visible",
+                    pointerEvents: "auto"
+                  },
+                  "&:hover": {
+                    backgroundColor: "#fff",
+                    color: "error.dark"
+                  }
+                }}
+              >
+                <CancelIcon fontSize="small" />
+              </IconButton>
+            )}
             {child}
             {isActiveDragging && (
               // overlay captures clicks during drag so child won't toggle
@@ -257,7 +322,14 @@ export const DisplayGridLayoutComponent = (
           </div>
         );
       }),
-    [childrenArray, gridCellDragEnabled, isInteracting, dragState]
+    [
+      childrenArray,
+      gridCellDragEnabled,
+      isInteracting,
+      dragState,
+      handleDelete,
+      props.editable
+    ]
   );
 
   return (

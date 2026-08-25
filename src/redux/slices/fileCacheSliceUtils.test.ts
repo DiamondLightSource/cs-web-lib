@@ -1,5 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
-import { resolveWidgetPathsAndMacros } from "./fileCacheSliceUtils";
+import {
+  deleteWidgetById,
+  resolveWidgetPathsAndMacros
+} from "./fileCacheSliceUtils";
 import { resolveAndNormaliseWidgetPaths } from "../../ui/widgets/EmbeddedDisplay/parserPatcherUtils";
 import { WidgetDescription } from "../../ui/widgets/createComponent";
 
@@ -13,6 +16,8 @@ vi.mock("../../ui/widgets/EmbeddedDisplay/parserPatcherUtils", () => ({
     return widget;
   })
 }));
+
+const DEFAULT_WIDGET = { type: "display", fileId: "test" };
 
 describe("resolveWidgetPathsAndMacros", () => {
   afterEach(() => {
@@ -160,5 +165,77 @@ describe("resolveWidgetPathsAndMacros", () => {
     );
 
     expect(result).toBe(widget);
+  });
+});
+
+describe("deleteWidgetById()", () => {
+  it("returns undefined when children are undefined", () => {
+    expect(deleteWidgetById(undefined, "widget-1")).toBeUndefined();
+  });
+
+  it("returns an empty array when no children", () => {
+    expect(deleteWidgetById([], "widget-1")).toEqual([]);
+  });
+
+  it("deletes a widget from the top level", () => {
+    const children = [
+      { ...DEFAULT_WIDGET, id: "widget-1" },
+      { ...DEFAULT_WIDGET, id: "widget-2" }
+    ];
+
+    expect(deleteWidgetById(children, "widget-1")).toEqual([
+      { type: "display", fileId: "test", id: "widget-2" }
+    ]);
+  });
+
+  it("keeps all widgets when the id to delete does not exist", () => {
+    const children = [
+      { ...DEFAULT_WIDGET, id: "widget-1" },
+      { ...DEFAULT_WIDGET, id: "widget-2" }
+    ];
+
+    expect(deleteWidgetById(children, "widget-3")).toEqual([
+      { type: "display", fileId: "test", id: "widget-1" },
+      { type: "display", fileId: "test", id: "widget-2" }
+    ]);
+  });
+
+  it("deletes a nested widget", () => {
+    const children = [
+      {
+        ...DEFAULT_WIDGET,
+        id: "parent",
+        children: [
+          { ...DEFAULT_WIDGET, id: "child-1" },
+          { ...DEFAULT_WIDGET, id: "child-2" }
+        ]
+      }
+    ];
+    expect(deleteWidgetById(children, "child-1")).toEqual([
+      {
+        type: "display",
+        fileId: "test",
+        id: "parent",
+        children: [{ type: "display", fileId: "test", id: "child-2" }]
+      }
+    ]);
+  });
+
+  it("returns an empty children array when the last nested widget is deleted", () => {
+    const children = [
+      {
+        ...DEFAULT_WIDGET,
+        id: "parent",
+        children: [{ ...DEFAULT_WIDGET, id: "child" }]
+      }
+    ];
+    expect(deleteWidgetById(children, "child")).toEqual([
+      {
+        type: "display",
+        fileId: "test",
+        id: "parent",
+        children: []
+      }
+    ]);
   });
 });

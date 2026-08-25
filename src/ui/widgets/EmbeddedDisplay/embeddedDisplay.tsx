@@ -57,7 +57,8 @@ const EmbeddedDisplayProps = {
   macros: MacrosPropOpt,
   groupName: StringPropOpt,
   rules: RulesPropOpt,
-  targetDisplayType: StringPropOpt
+  targetDisplayType: StringPropOpt,
+  editable: BoolPropOpt
 };
 
 export const EmbeddedDisplay = (
@@ -92,7 +93,8 @@ export const EmbeddedDisplay = (
   const [description, embeddedDisplayUuid] = useFile(
     resolvedProps.file as File,
     embeddedDisplayMacroContext.macros,
-    props.targetDisplayType
+    props.targetDisplayType,
+    props.editable
   );
 
   const widgetIdsCallback = props?.widgetIdsCallback;

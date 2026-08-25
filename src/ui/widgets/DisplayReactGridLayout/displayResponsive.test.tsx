@@ -1,6 +1,6 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 import { DisplayResponsiveComponent } from "./displayResponsive";
@@ -13,6 +13,13 @@ let capturedBreakpoints: any;
 let capturedCols: any;
 let capturedDragEnabled: boolean | undefined;
 let capturedResizeEnabled: boolean | undefined;
+
+const mocks = vi.hoisted(() => ({
+  displayInstanceUpdateResponsiveLayout: vi.fn(),
+  calculateDefaultLayoutWithHorizontalCompactor: vi.fn(() => [
+    { i: "mock", x: 0, y: 0, w: 1, h: 1 }
+  ])
+}));
 
 vi.mock("react-grid-layout", async () => {
   const actual = await vi.importActual<any>("react-grid-layout");
@@ -36,7 +43,9 @@ vi.mock("react-grid-layout", async () => {
 
       return <div data-testid="rgl-responsive">{children}</div>;
     },
-
+    useResponsiveLayout: vi.fn(({ layouts }) => ({
+      layouts
+    })),
     useContainerWidth: () => ({
       width: 1200,
       mounted: true,
@@ -60,14 +69,25 @@ vi.mock("react-redux", () => ({
     })
 }));
 
+vi.mock("../../../redux/slices/fileCacheSlice", async () => {
+  const actual = await vi.importActual<any>(
+    "../../../redux/slices/fileCacheSlice"
+  );
+
+  return {
+    ...actual,
+    displayInstanceUpdateResponsiveLayout:
+      mocks.displayInstanceUpdateResponsiveLayout
+  };
+});
+
 vi.mock("./displayLayoutUtilities", async () => {
   const actual = await vi.importActual<any>("./displayLayoutUtilities");
 
   return {
     ...actual,
-    calculateDefaultLayoutWithHorizontalCompactor: vi.fn(() => [
-      { i: "mock", x: 0, y: 0, w: 1, h: 1 }
-    ])
+    calculateDefaultLayoutWithHorizontalCompactor:
+      mocks.calculateDefaultLayoutWithHorizontalCompactor
   };
 });
 
@@ -387,5 +407,86 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
     expect(dispatchedArg.payload.responsiveLayouts.lg).toEqual([
       { i: "mock", x: 0, y: 0, w: 1, h: 1 }
     ]);
+  });
+  it("renders delete buttons when editable", () => {
+    render(
+      <DisplayResponsiveComponent
+        id="display-1"
+        fileId="file-1"
+        embeddedDisplayUuid="uuid1"
+        editable={true}
+        responsiveLayouts={{
+          lg: [
+            { i: "a", x: 0, y: 0, w: 4, h: 3 },
+            { i: "b", x: 4, y: 0, w: 4, h: 3 }
+          ]
+        }}
+      >
+        <MockWidget id="a" />
+        <MockWidget id="b" />
+      </DisplayResponsiveComponent>
+    );
+
+    expect(screen.getByLabelText("Delete widget a")).toBeInTheDocument();
+
+    expect(screen.getByLabelText("Delete widget b")).toBeInTheDocument();
+  });
+
+  it("does not render delete buttons when not editable", () => {
+    render(
+      <DisplayResponsiveComponent
+        id="display-1"
+        fileId="file-1"
+        embeddedDisplayUuid="uuid1"
+        editable={false}
+        responsiveLayouts={{
+          lg: [{ i: "a", x: 0, y: 0, w: 4, h: 3 }]
+        }}
+      >
+        <MockWidget id="a" />
+      </DisplayResponsiveComponent>
+    );
+
+    expect(screen.queryByLabelText("Delete widget a")).not.toBeInTheDocument();
+  });
+  it("deletes a widget from all responsive layouts when the delete button is clicked", () => {
+    render(
+      <DisplayResponsiveComponent
+        id="display-1"
+        fileId="file-1"
+        embeddedDisplayUuid="uuid1"
+        editable={true}
+        responsiveLayouts={{
+          lg: [
+            { i: "a", x: 0, y: 0, w: 4, h: 3 },
+            { i: "b", x: 4, y: 0, w: 4, h: 3 }
+          ],
+          md: [
+            { i: "a", x: 0, y: 0, w: 3, h: 2 },
+            { i: "b", x: 3, y: 0, w: 5, h: 2 }
+          ]
+        }}
+      >
+        <MockWidget id="a" />
+        <MockWidget id="b" />
+      </DisplayResponsiveComponent>
+    );
+
+    const deleteButton = screen.getByLabelText("Delete widget a");
+
+    fireEvent.click(deleteButton);
+
+    expect(mocks.displayInstanceUpdateResponsiveLayout).toHaveBeenCalledWith({
+      embeddedDisplayUuid: "uuid1",
+      displayId: "display-1",
+      responsiveLayouts: {
+        lg: [{ i: "b", x: 4, y: 0, w: 4, h: 3 }],
+        md: [{ i: "b", x: 3, y: 0, w: 5, h: 2 }]
+      },
+      update: {
+        type: "delete",
+        widgetId: "a"
+      }
+    });
   });
 });

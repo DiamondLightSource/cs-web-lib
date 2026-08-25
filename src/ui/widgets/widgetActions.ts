@@ -121,43 +121,47 @@ export const openPage = (
   action: DynamicAction,
   fileContext?: FileContextType,
   parentMacros?: MacroMap,
-  pathname?: string
+  pathname?: string,
+  replace?: boolean
 ): void => {
   const { location, file, pvwsHost } = action.dynamicInfo;
   file.macros = {
     ...(parentMacros ?? {}),
     ...file.macros
   };
-  fileContext?.addPage(location, file, pathname, pvwsHost);
+  fileContext?.addPage(location, file, pathname, pvwsHost, replace);
 };
 
 export const closePage = (
   action: DynamicAction,
-  fileContext?: FileContextType
+  fileContext?: FileContextType,
+  replace?: boolean
 ): void => {
   const { location, file } = action.dynamicInfo;
-  fileContext?.removePage(location, file);
+  fileContext?.removePage(location, file, replace);
 };
 
 export const openTab = (
   action: DynamicAction,
   fileContext?: FileContextType,
-  parentMacros?: MacroMap
+  parentMacros?: MacroMap,
+  replace?: boolean
 ): void => {
   const { name, location, file } = action.dynamicInfo;
   file.macros = {
     ...(parentMacros ?? {}),
     ...file.macros
   };
-  fileContext?.addTab(location, name, file);
+  fileContext?.addTab(location, name, file, replace);
 };
 
 export const closeTab = (
   action: DynamicAction,
-  fileContext: FileContextType
+  fileContext: FileContextType,
+  replace?: boolean
 ): void => {
   const { name, location, file } = action.dynamicInfo;
-  fileContext.removeTab(location, name, file);
+  fileContext.removeTab(location, name, file, replace);
 };
 
 export const executeAction = (
@@ -165,33 +169,34 @@ export const executeAction = (
   files?: FileContextType,
   exitContext?: ExitContextType,
   parentMacros?: MacroMap,
-  pathname?: string
+  pathname?: string,
+  replace?: boolean
 ): void => {
   switch (action.type) {
     case OPEN_PAGE:
       if (files) {
-        openPage(action, files, parentMacros, pathname);
+        openPage(action, files, parentMacros, pathname, replace);
       } else {
         log.error("Tried to open a page but no file context passed");
       }
       break;
     case CLOSE_PAGE:
       if (files) {
-        closePage(action, files);
+        closePage(action, files, replace);
       } else {
         log.error("Tried to open a page but no file context passed");
       }
       break;
     case OPEN_TAB:
       if (files) {
-        openTab(action, files, parentMacros);
+        openTab(action, files, parentMacros, replace);
       } else {
         log.error("Tried to open a page but no file context passed");
       }
       break;
     case CLOSE_TAB:
       if (files) {
-        closeTab(action, files);
+        closeTab(action, files, replace);
       } else {
         log.error("Tried to open a page but no file context passed");
       }

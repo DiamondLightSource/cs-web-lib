@@ -55,3 +55,31 @@ export const resolveWidgetPathsAndMacros = (
 
   return widgetDescription;
 };
+
+/**
+ * Iterate over widget children and removed named widget
+ * @param children array of widget descriptions
+ * @param widgetId string id of widget to remove
+ * @returns array of widget descriptions, with named widget removed
+ */
+export const deleteWidgetById = (
+  children: WidgetDescription[] | undefined,
+  widgetId: string
+): WidgetDescription[] | undefined => {
+  if (!children) {
+    return undefined;
+  }
+
+  return children
+    .filter(child => child.id !== widgetId)
+    .map(child => {
+      if (!child.children) {
+        return { ...child };
+      }
+
+      return {
+        ...child,
+        children: deleteWidgetById(child.children, widgetId)
+      };
+    });
+};

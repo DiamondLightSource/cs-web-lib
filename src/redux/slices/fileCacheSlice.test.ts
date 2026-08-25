@@ -679,6 +679,58 @@ describe("createDisplayInstanceFromQuickScreen", () => {
     expect(result.displayInstanceIndex[hash]).toBeDefined();
     expect(result.fileCache["my screen"]).toBeDefined();
   });
+  it("sets editable to true when creating an editable display instance", () => {
+    const state: FileCacheState = {
+      fileCache: {
+        "file.bob": {
+          id: "root",
+          type: "display",
+          fileId: "file.bob",
+          position: newAbsolutePosition("0", "0", "100", "100")
+        }
+      },
+      displayInstanceCache: {},
+      displayInstanceIndex: {}
+    };
+
+    const action = createDisplayInstanceFromFile({
+      file: "file.bob",
+      macros: {},
+      editable: true
+    });
+
+    const result = fileCacheReducer(state, action);
+
+    const instance = Object.values(result.displayInstanceCache)[0];
+
+    expect(instance.description.editable).toBe(true);
+  });
+  it("sets editable to false when creating a non-editable display instance", () => {
+    const state: FileCacheState = {
+      fileCache: {
+        "file.bob": {
+          id: "root",
+          type: "display",
+          fileId: "file.bob",
+          position: newAbsolutePosition("0", "0", "100", "100")
+        }
+      },
+      displayInstanceCache: {},
+      displayInstanceIndex: {}
+    };
+
+    const action = createDisplayInstanceFromFile({
+      file: "file.bob",
+      macros: {},
+      editable: false
+    });
+
+    const result = fileCacheReducer(state, action);
+
+    const instance = Object.values(result.displayInstanceCache)[0];
+
+    expect(instance.description.editable).toBe(false);
+  });
 });
 
 describe("displayInstanceUpdateGridLayout", () => {
@@ -783,6 +835,55 @@ describe("displayInstanceUpdateGridLayout", () => {
 
     expect(result).toEqual(badState);
   });
+  it("deletes a widget when update type is delete", () => {
+    const state: FileCacheState = {
+      fileCache: {},
+      displayInstanceCache: {
+        UUID1: {
+          uuid: "UUID1",
+          fileId: "file.bob",
+          macros: {},
+          hash: "",
+          description: {
+            id: "display1",
+            type: "displayGridLayout",
+            fileId: "file.bob",
+            children: [
+              {
+                id: "child1",
+                type: "shape",
+                fileId: "file.bob"
+              },
+              {
+                id: "child2",
+                type: "shape",
+                fileId: "file.bob"
+              }
+            ]
+          } as any
+        }
+      },
+      displayInstanceIndex: {}
+    };
+
+    const result = fileCacheReducer(
+      state,
+      displayInstanceUpdateGridLayout({
+        embeddedDisplayUuid: "UUID1",
+        gridDisplayId: "display1",
+        gridLayout: [{ i: "child2", x: 0, y: 0, w: 2, h: 2 }],
+        update: {
+          type: "delete",
+          widgetId: "child1"
+        }
+      })
+    );
+
+    const children = result.displayInstanceCache.UUID1.description.children;
+
+    expect(children).toHaveLength(1);
+    expect(children?.[0].id).toBe("child2");
+  });
 });
 
 describe("displayInstanceUpdateResponsiveLayout", () => {
@@ -851,6 +952,60 @@ describe("displayInstanceUpdateResponsiveLayout", () => {
     );
 
     expect(result).toEqual(state);
+  });
+  it("deletes a widget when update type is delete", () => {
+    const state: FileCacheState = {
+      fileCache: {},
+      displayInstanceCache: {
+        uuid1: {
+          uuid: "uuid1",
+          fileId: "file",
+          macros: {},
+          hash: "",
+          description: {
+            id: "display1",
+            type: "displayResponsive",
+            responsiveLayouts: {},
+            children: [
+              {
+                id: "child1",
+                type: "shape",
+                fileId: "file"
+              },
+              {
+                id: "child2",
+                type: "shape",
+                fileId: "file"
+              }
+            ]
+          } as any
+        }
+      },
+      displayInstanceIndex: {}
+    };
+
+    const layouts = {
+      lg: [{ i: "child2", x: 0, y: 0, w: 2, h: 2 }]
+    };
+
+    const result = fileCacheReducer(
+      state,
+      displayInstanceUpdateResponsiveLayout({
+        embeddedDisplayUuid: "uuid1",
+        displayId: "display1",
+        responsiveLayouts: layouts,
+        update: {
+          type: "delete",
+          widgetId: "child1"
+        }
+      })
+    );
+
+    const display = result.displayInstanceCache.uuid1.description;
+
+    expect(display.responsiveLayouts).toEqual(layouts);
+    expect(display.children).toHaveLength(1);
+    expect(display.children?.[0].id).toBe("child2");
   });
 });
 
