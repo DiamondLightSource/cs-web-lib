@@ -30,7 +30,6 @@ import { ExitFileContext, FileContext } from "../../../misc/fileContext";
 import { phoebusTheme } from "../../../phoebusTheme";
 import { useSelector } from "react-redux";
 import { selectDefaultMjpgEndpoint } from "../../../redux/slices/configurationSlice";
-import { IconButton } from "@mui/material";
 
 const widgetName = "dynamicpage";
 
