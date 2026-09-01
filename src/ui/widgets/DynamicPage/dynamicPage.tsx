@@ -92,7 +92,7 @@ export const DynamicPageComponent = (
         <div style={fullStyle}>
           <EmbeddedDisplay
             file={file}
-            position={newRelativePosition()}
+            position={newRelativePosition(undefined, undefined, "100%", "100%")}
             scalingOrigin={"0 0"}
             scroll={newProps.scroll ?? false}
             theme={theme}
@@ -100,21 +100,30 @@ export const DynamicPageComponent = (
               x => x != null
             )}
             widgetIdsCallback={props?.widgetIdsCallback}
+            targetDisplayType={newProps.targetDisplayType}
+            editable={newProps.editable}
           />
           <div
             style={{
               position: "absolute",
               right: "5px",
               top: "5px",
-              width: "25px",
-              height: "25px",
-              backgroundColor: "green"
+              width: "100px",
+              height: "40px",
+              backgroundColor: "transparent"
             }}
           >
             <ActionButton
-              position={newRelativePosition("25px", "25px")}
-              backgroundColor={newColor("var(--light-background)")}
-              foregroundColor={newColor("#000000")}
+              position={newRelativePosition(
+                undefined,
+                undefined,
+                "100%",
+                "100%"
+              )}
+              backgroundColor={newColor(
+                style?.colors?.backgroundColor ?? "#060663"
+              )}
+              foregroundColor={newColor(style?.colors?.color ?? "#ffffff")}
               text={"\u2715"}
               actions={{
                 executeAsOne: false,
