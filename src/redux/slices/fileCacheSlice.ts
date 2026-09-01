@@ -164,6 +164,100 @@ const fileCacheSlice = createSlice({
         // TO DO - add support for adding widgets
       }
     },
+    displayInstanceMoveWidgetBetweenGridLayouts(
+      state,
+      action: PayloadAction<{
+        sourceEmbeddedDisplayUuid: string;
+        sourceGridId: string;
+        destinationEmbeddedDisplayUuid: string;
+        destinationGridId: string;
+        widgetId: string;
+        destinationItem: {
+          x: number;
+          y: number;
+          w: number;
+          h: number;
+        };
+      }>
+    ) {
+      const {
+        sourceEmbeddedDisplayUuid,
+        sourceGridId,
+        destinationEmbeddedDisplayUuid,
+        destinationGridId,
+        widgetId,
+        destinationItem
+      } = action.payload;
+      // Find source display instance
+      const sourceDisplayInstance =
+        state.displayInstanceCache?.[sourceEmbeddedDisplayUuid];
+      if (!sourceDisplayInstance) return;
+      const sourceDisplay = findWidgetById(
+        [sourceDisplayInstance.description],
+        sourceGridId
+      );
+      if (!sourceDisplay || sourceDisplay.type !== "displayGridLayout") return;
+
+      // Find destination display instance
+      const destinationDisplayInstance =
+        state.displayInstanceCache?.[destinationEmbeddedDisplayUuid];
+      if (!destinationDisplayInstance) return;
+      const destinationDisplay = findWidgetById(
+        [destinationDisplayInstance.description],
+        destinationGridId
+      );
+
+      if (
+        !destinationDisplay ||
+        destinationDisplay.type !== "displayGridLayout"
+      )
+        return;
+
+      // Ensure we're moving widgets the correct way
+      if (
+        sourceDisplay.editable !== false ||
+        destinationDisplay.editable !== true
+      )
+        return;
+
+      // Find widget to move
+      const widget = findWidgetById(sourceDisplay.children ?? [], widgetId);
+      if (!widget) return;
+
+      // Prevent duplicate widgets
+      const existingDestinationWidget = findWidgetById(
+        destinationDisplay.children ?? [],
+        widgetId
+      );
+
+      if (existingDestinationWidget) {
+        // TO DO - Error handling here?
+        return;
+      }
+
+      // Clone widget to move
+      const widgetToMove = structuredClone(current(widget));
+      // Widget gets placed at top level by default
+      if (!destinationDisplay.children) destinationDisplay.children = [];
+      destinationDisplay.children.push(widgetToMove);
+
+      // Clear possible existing layout for widget
+      const destinationLayout = (destinationDisplay.gridLayout ?? []).filter(
+        (item: WidgetDescription) => item.i !== widgetId
+      );
+
+      // Allow react-grid-layout to set position it calculates
+      destinationDisplay.gridLayout = [
+        ...destinationLayout,
+        {
+          i: widgetId,
+          x: destinationItem.x,
+          y: destinationItem.y,
+          w: destinationItem.w,
+          h: destinationItem.h
+        }
+      ];
+    },
 
     displayInstanceSetResponsiveLayout(
       state,
@@ -346,6 +440,7 @@ export const {
   displayInstanceSetResponsiveLayout,
   displayInstanceUpdateGridLayout,
   displayInstanceUpdateResponsiveLayout,
+  displayInstanceMoveWidgetBetweenGridLayouts,
   createDisplayInstanceFromFile,
   createDisplayInstanceFromQuickScreen,
   convertDisplayInstanceType

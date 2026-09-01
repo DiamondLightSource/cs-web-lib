@@ -3,7 +3,8 @@ import React, {
   useContext,
   ReactNode,
   useMemo,
-  useEffect
+  useEffect,
+  useCallback
 } from "react";
 import {
   Layout,
@@ -42,6 +43,7 @@ import { calculateDefaultLayout, toNumber } from "./displayLayoutUtilities";
 import {
   displayInstanceSetGridLayout,
   displayInstanceUpdateGridLayout,
+  displayInstanceMoveWidgetBetweenGridLayouts,
   makeSelectWidgetPosition
 } from "../../../redux/slices/fileCacheSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -54,6 +56,17 @@ const widgetName = "displayGridLayout";
 const defaultRowHeight = 15;
 const defaultColumnWidth = 64;
 const defaultMargins = [6, 6];
+
+// Widget information stored when dragging
+export interface CrossGridDragData {
+  widgetId: string;
+  sourceGridId: string;
+  sourceEmbeddedDisplayUuid: string;
+  w: number;
+  h: number;
+}
+
+let activeCrossGridDrag: CrossGridDragData | null = null;
 
 const DisplayGridLayoutProps = {
   position: PositionProp,
@@ -101,6 +114,9 @@ export const DisplayGridLayoutComponent = (
     props?.gridCellDragEnabled == null ? true : props?.gridCellDragEnabled;
   const gridCellResizeEnabled =
     props?.gridCellResizeEnabled == null ? true : props?.gridCellResizeEnabled;
+
+  const canReceiveCrossGridDrop = props.editable === true;
+  const canExportCrossGridDrop = props.editable === false;
 
   const inheritedMacros: MacroMap = useContext(MacroContext).macros;
   const [displayMacros, setDisplayMacros] = useState<MacroMap>(
@@ -242,6 +258,40 @@ export const DisplayGridLayoutComponent = (
     [dispatch, layout, props.embeddedDisplayUuid, props.id]
   );
 
+  // handle dragging out of display and into new one
+  const handleCrossGridDragStart = useCallback(
+    (event: React.DragEvent<HTMLDivElement>, widgetId: string) => {
+      if (!canExportCrossGridDrop) {
+        event.preventDefault();
+        return;
+      }
+
+      const layoutItem = layout.find(item => item.i === widgetId);
+      if (!layoutItem) {
+        event.preventDefault();
+        return;
+      }
+
+      const dragData: CrossGridDragData = {
+        widgetId,
+        sourceGridId: props.id,
+        sourceEmbeddedDisplayUuid: props.embeddedDisplayUuid,
+        w: layoutItem.w,
+        h: layoutItem.h
+      };
+
+      activeCrossGridDrag = dragData;
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
+    },
+    [canExportCrossGridDrop, layout, props.id, props.embeddedDisplayUuid]
+  );
+
+  // End drag
+  const handleCrossGridDragEnd = React.useCallback(() => {
+    activeCrossGridDrag = null;
+  }, []);
+
   // Wrap the child components in a div keyed by the child id. The key MUST map to the i field of Layout item for the component.
   const gridChildren = useMemo(
     () =>
@@ -258,7 +308,16 @@ export const DisplayGridLayoutComponent = (
           <div
             key={id}
             className="display-grid-layout-child"
-            style={{ cursor: gridCellDragEnabled ? "grab" : "default" }}
+            draggable={canExportCrossGridDrop}
+            onDragStart={event => handleCrossGridDragStart(event, id)}
+            onDragEnd={handleCrossGridDragEnd}
+            style={{
+              cursor: canExportCrossGridDrop
+                ? "grab"
+                : gridCellDragEnabled
+                  ? "grab"
+                  : "default"
+            }}
           >
             {props.editable && (
               <IconButton
@@ -324,83 +383,129 @@ export const DisplayGridLayoutComponent = (
       }),
     [
       childrenArray,
+      canExportCrossGridDrop,
       gridCellDragEnabled,
       isInteracting,
       dragState,
       handleDelete,
-      props.editable
+      props.editable,
+      handleCrossGridDragStart,
+      handleCrossGridDragEnd
     ]
   );
 
   return (
     <MacroContext.Provider value={displayMacroContext}>
       <div style={extendedStyle} className="display-grid-layout-container">
-        {layout && layout.length > 0 && (
-          <ReactGridLayout
-            key={`grid-${props.id}`}
-            className="layout"
-            layout={layout}
-            width={displayWidth}
-            gridConfig={{
-              cols: columns,
-              margin: cellMargins,
-              rowHeight: cellHeight
-            }}
-            dragConfig={{
-              enabled: gridCellDragEnabled,
-              cancel: ".no-drag"
-            }}
-            resizeConfig={{ enabled: gridCellResizeEnabled, handles: ["se"] }}
-            compactor={overlapCompactor}
-            onDragStart={(
-              layout,
-              oldItem,
-              newItem,
-              placeholder,
-              e,
-              element
-            ) => {
-              if (element?.style && gridCellDragEnabled)
-                element.style.cursor = "grabbing";
-              if (newItem) {
-                hookOnDragStart(newItem.i, newItem.x, newItem.y);
-              }
-            }}
-            onDragStop={(layout, oldItem, newItem, placeholder, e, element) => {
-              if (element?.style && gridCellDragEnabled)
-                element.style.cursor = "grab";
-              if (newItem) {
-                hookOnDragStop(newItem.i, newItem.x, newItem.y);
-              }
-              dispatch(
-                displayInstanceUpdateGridLayout({
-                  embeddedDisplayUuid: props.embeddedDisplayUuid,
-                  gridDisplayId: props.id,
-                  gridLayout: layout
-                })
-              );
-            }}
-            onResizeStop={(layout, oldItem, newItem) => {
-              if (newItem) {
-                hookOnResizeStop(newItem.i, newItem.w, newItem.h);
-              }
-              dispatch(
-                displayInstanceUpdateGridLayout({
-                  embeddedDisplayUuid: props.embeddedDisplayUuid,
-                  gridDisplayId: props.id,
-                  gridLayout: layout
-                })
-              );
-            }}
-            style={{
-              ...style.colors,
-              ...style.font,
-              height: "100%"
-            }}
-          >
-            {gridChildren}
-          </ReactGridLayout>
-        )}
+        <ReactGridLayout
+          key={`grid-${props.id}`}
+          className="layout"
+          layout={layout}
+          width={displayWidth}
+          gridConfig={{
+            cols: columns,
+            margin: cellMargins,
+            rowHeight: cellHeight
+          }}
+          dragConfig={{
+            enabled: gridCellDragEnabled && props.editable === true,
+            cancel: ".no-drag"
+          }}
+          resizeConfig={{ enabled: gridCellResizeEnabled, handles: ["se"] }}
+          compactor={overlapCompactor}
+          onDragStart={(layout, oldItem, newItem, placeholder, e, element) => {
+            if (element?.style && gridCellDragEnabled)
+              element.style.cursor = "grabbing";
+            if (newItem) {
+              hookOnDragStart(newItem.i, newItem.x, newItem.y);
+            }
+          }}
+          onDragStop={(layout, oldItem, newItem, placeholder, e, element) => {
+            if (element?.style && gridCellDragEnabled)
+              element.style.cursor = "grab";
+            if (newItem) {
+              hookOnDragStop(newItem.i, newItem.x, newItem.y);
+            }
+            dispatch(
+              displayInstanceUpdateGridLayout({
+                embeddedDisplayUuid: props.embeddedDisplayUuid,
+                gridDisplayId: props.id,
+                gridLayout: layout
+              })
+            );
+          }}
+          // Enable dropping if grid is editable
+          dropConfig={{
+            enabled: canReceiveCrossGridDrop,
+            defaultItem: {
+              w: 1,
+              h: 1
+            },
+            onDragOver: () => {
+              const data = activeCrossGridDrag;
+
+              if (!canReceiveCrossGridDrop || !data) return false;
+
+              if (
+                data.sourceGridId === props.id &&
+                data.sourceEmbeddedDisplayUuid === props.embeddedDisplayUuid
+              )
+                return false;
+
+              return {
+                w: data.w,
+                h: data.h
+              };
+            }
+          }}
+          // External dragging
+          onDrop={(_newLayout, droppedItem, _event) => {
+            const data = activeCrossGridDrag;
+            if (!data || !droppedItem) return;
+
+            if (
+              data.sourceGridId === props.id &&
+              data.sourceEmbeddedDisplayUuid === props.embeddedDisplayUuid
+            )
+              return;
+
+            dispatch(
+              displayInstanceMoveWidgetBetweenGridLayouts({
+                sourceEmbeddedDisplayUuid: data.sourceEmbeddedDisplayUuid,
+                sourceGridId: data.sourceGridId,
+                destinationEmbeddedDisplayUuid: props.embeddedDisplayUuid,
+                destinationGridId: props.id,
+                widgetId: data.widgetId,
+                destinationItem: {
+                  x: droppedItem.x,
+                  y: droppedItem.y,
+                  w: droppedItem.w,
+                  h: droppedItem.h
+                }
+              })
+            );
+            activeCrossGridDrag = null;
+          }}
+          onResizeStop={(layout, oldItem, newItem) => {
+            if (newItem) {
+              hookOnResizeStop(newItem.i, newItem.w, newItem.h);
+            }
+            dispatch(
+              displayInstanceUpdateGridLayout({
+                embeddedDisplayUuid: props.embeddedDisplayUuid,
+                gridDisplayId: props.id,
+                gridLayout: layout
+              })
+            );
+          }}
+          style={{
+            ...style.colors,
+            ...style.font,
+            height: "100%"
+          }}
+        >
+          {gridChildren}
+        </ReactGridLayout>
       </div>
     </MacroContext.Provider>
   );
