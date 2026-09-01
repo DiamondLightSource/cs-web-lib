@@ -408,7 +408,7 @@ export const DisplayGridLayoutComponent = (
             rowHeight: cellHeight
           }}
           dragConfig={{
-            enabled: gridCellDragEnabled && props.editable === true,
+            enabled: gridCellDragEnabled,
             cancel: ".no-drag"
           }}
           resizeConfig={{ enabled: gridCellResizeEnabled, handles: ["se"] }}

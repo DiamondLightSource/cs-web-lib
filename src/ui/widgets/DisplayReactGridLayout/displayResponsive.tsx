@@ -50,14 +50,18 @@ import {
 } from "./displayLayoutUtilities";
 import {
   displayInstanceSetResponsiveLayout,
-  displayInstanceUpdateResponsiveLayout
+  displayInstanceUpdateResponsiveLayout,
+  displayInstanceMoveWidgetBetweenGridLayouts
 } from "../../../redux/slices/fileCacheSlice";
 import log from "loglevel";
 import { Dispatch } from "@reduxjs/toolkit";
 import IconButton from "@mui/material/IconButton";
 import CancelIcon from "@mui/icons-material/Cancel";
+import { CrossGridDragData } from "./displayGridLayout";
 
 const widgetName = "displayResponsive";
+
+let activeCrossGridDrag: CrossGridDragData | null = null;
 
 // Default grid configuration
 const defaultBreakpoints = { lg: 1200, md: 800, sm: 600, xs: 400, xxs: 250 }; // These are minimum widths in pixels
@@ -116,6 +120,9 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
     newProps?.gridCellResizeEnabled == null
       ? true
       : newProps?.gridCellResizeEnabled;
+
+  const canReceiveCrossGridDrop = props.editable === true;
+  const canExportCrossGridDrop = props.editable === false;
 
   const inheritedMacros: MacroMap = useContext(MacroContext).macros;
   const [displayMacros, setDisplayMacros] = useState<MacroMap>(
@@ -280,6 +287,48 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
     [dispatch, layouts, props.embeddedDisplayUuid, props.id]
   );
 
+  // handle dragging out of display and into new one
+  const handleCrossGridDragStart = useCallback(
+    (event: React.DragEvent<HTMLDivElement>, widgetId: string) => {
+      if (!canExportCrossGridDrop) {
+        event.preventDefault();
+        return;
+      }
+      let layoutItem;
+
+      for (const layout of Object.values(layouts)) {
+        const item = (layout as Layout).find(item => item.i === widgetId);
+
+        if (item) {
+          layoutItem = item;
+          break;
+        }
+      }
+      if (!layoutItem) {
+        event.preventDefault();
+        return;
+      }
+
+      const dragData: CrossGridDragData = {
+        widgetId,
+        sourceGridId: props.id,
+        sourceEmbeddedDisplayUuid: props.embeddedDisplayUuid,
+        w: layoutItem.w,
+        h: layoutItem.h
+      };
+
+      activeCrossGridDrag = dragData;
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
+    },
+    [canExportCrossGridDrop, layouts, props.id, props.embeddedDisplayUuid]
+  );
+
+  // End drag
+  const handleCrossGridDragEnd = React.useCallback(() => {
+    activeCrossGridDrag = null;
+  }, []);
+
   // Wrap the child components in a div keyed by the child id. The key MUST map to the i field of Layout item for the component.
   const gridChildren = useMemo(
     () =>
@@ -287,7 +336,10 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
         childrenArray,
         gridCellDragEnabled,
         newProps.editable,
-        handleDelete
+        canExportCrossGridDrop,
+        handleDelete,
+        handleCrossGridDragStart,
+        handleCrossGridDragEnd
       ),
     [childrenArray, gridCellDragEnabled, newProps.editable, handleDelete]
   );
@@ -324,6 +376,28 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
             dragConfig={{
               enabled: gridCellDragEnabled,
               cancel: ".no-drag"
+            }}
+            dropConfig={{
+              enabled: canReceiveCrossGridDrop,
+              defaultItem: {
+                w: 1,
+                h: 1
+              },
+              onDragOver: () => {
+                const data = activeCrossGridDrag;
+                if (!canReceiveCrossGridDrop || !data) return false;
+
+                if (
+                  data.sourceGridId === props.id &&
+                  data.sourceEmbeddedDisplayUuid === props.embeddedDisplayUuid
+                )
+                  return false;
+
+                return {
+                  w: data.w,
+                  h: data.h
+                };
+              }
             }}
             resizeConfig={{
               enabled: gridCellResizeEnabled,
@@ -367,6 +441,33 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
             onResizeStop={() => {
               isInteractingRef.current = false;
               shouldCommitRef.current = true;
+            }}
+            onDrop={(_newLayout, droppedItem) => {
+              const data = activeCrossGridDrag;
+              if (!canReceiveCrossGridDrop || !data || !droppedItem) return;
+
+              if (
+                data.sourceGridId === props.id &&
+                data.sourceEmbeddedDisplayUuid === props.embeddedDisplayUuid
+              )
+                return;
+
+              dispatch(
+                displayInstanceMoveWidgetBetweenGridLayouts({
+                  sourceEmbeddedDisplayUuid: data.sourceEmbeddedDisplayUuid,
+                  sourceGridId: data.sourceGridId,
+                  destinationEmbeddedDisplayUuid: props.embeddedDisplayUuid,
+                  destinationGridId: props.id,
+                  widgetId: data.widgetId,
+                  destinationItem: {
+                    x: droppedItem.x,
+                    y: droppedItem.y,
+                    w: droppedItem.w,
+                    h: droppedItem.h
+                  }
+                })
+              );
+              activeCrossGridDrag = null;
             }}
             style={{
               ...style.colors,
@@ -471,7 +572,13 @@ const wrapChildrenForGridLayout = (
   >[],
   gridCellDragEnabled: boolean,
   editable: boolean | undefined,
-  handleDelete: (id: string, event: React.MouseEvent) => void
+  canExportCrossGridDrop: boolean,
+  handleDelete: (id: string, event: React.MouseEvent) => void,
+  handleCrossGridDragStart: (
+    event: React.DragEvent<HTMLDivElement>,
+    widgetId: string
+  ) => void,
+  handleCrossGridDragEnd: () => void
 ) => {
   return childrenArray.map(child => {
     const id = child.props.id;
@@ -483,7 +590,16 @@ const wrapChildrenForGridLayout = (
       <div
         key={id}
         className="display-grid-layout-child"
-        style={{ cursor: gridCellDragEnabled ? "grab" : "default" }}
+        draggable={canExportCrossGridDrop}
+        onDragStart={event => handleCrossGridDragStart(event, id)}
+        onDragEnd={handleCrossGridDragEnd}
+        style={{
+          cursor: canExportCrossGridDrop
+            ? "grab"
+            : gridCellDragEnabled
+              ? "grab"
+              : "default"
+        }}
       >
         {editable && (
           <IconButton
