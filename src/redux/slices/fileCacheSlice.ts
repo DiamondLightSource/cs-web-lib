@@ -1,4 +1,3 @@
-// fileCacheSlice.ts
 import {
   createSlice,
   PayloadAction,
@@ -172,6 +171,7 @@ const fileCacheSlice = createSlice({
         destinationEmbeddedDisplayUuid: string;
         destinationGridId: string;
         widgetId: string;
+        macros: MacroMap;
         destinationItem: {
           x: number;
           y: number;
@@ -186,6 +186,7 @@ const fileCacheSlice = createSlice({
         destinationEmbeddedDisplayUuid,
         destinationGridId,
         widgetId,
+        macros,
         destinationItem
       } = action.payload;
       // Find source display instance
@@ -237,6 +238,10 @@ const fileCacheSlice = createSlice({
 
       // Clone widget to move
       const widgetToMove = structuredClone(current(widget));
+      // Apply macros from source file
+      const {DID: _sourceDid, ...trimmedSourceMacros} = sourceDisplayInstance.macros ?? {};
+      widgetToMove.macros = { ...macros, ...trimmedSourceMacros, ...widget.macros };
+
       // Widget gets placed at top level by default
       if (!destinationDisplay.children) destinationDisplay.children = [];
       destinationDisplay.children.push(widgetToMove);

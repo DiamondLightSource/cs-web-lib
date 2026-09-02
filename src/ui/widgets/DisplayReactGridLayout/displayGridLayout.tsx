@@ -39,7 +39,11 @@ import {
   MacroContextType
 } from "../../../types/macros";
 import { useStyle } from "../../hooks/useStyle";
-import { calculateDefaultLayout, toNumber } from "./displayLayoutUtilities";
+import {
+  calculateDefaultLayout,
+  CrossGridDragData,
+  toNumber
+} from "./displayLayoutUtilities";
 import {
   displayInstanceSetGridLayout,
   displayInstanceUpdateGridLayout,
@@ -56,15 +60,6 @@ const widgetName = "displayGridLayout";
 const defaultRowHeight = 15;
 const defaultColumnWidth = 64;
 const defaultMargins = [6, 6];
-
-// Widget information stored when dragging
-export interface CrossGridDragData {
-  widgetId: string;
-  sourceGridId: string;
-  sourceEmbeddedDisplayUuid: string;
-  w: number;
-  h: number;
-}
 
 let activeCrossGridDrag: CrossGridDragData | null = null;
 
@@ -258,6 +253,13 @@ export const DisplayGridLayoutComponent = (
     [dispatch, layout, props.embeddedDisplayUuid, props.id]
   );
 
+  const getMacrosToTransfer = useCallback((): MacroMap => {
+    // Remove DID macro because new screen has its own
+    const { DID: _did, ...macros } = displayMacroContext.macros;
+
+    return macros;
+  }, [displayMacroContext.macros]);
+
   // handle dragging out of display and into new one
   const handleCrossGridDragStart = useCallback(
     (event: React.DragEvent<HTMLDivElement>, widgetId: string) => {
@@ -277,14 +279,21 @@ export const DisplayGridLayoutComponent = (
         sourceGridId: props.id,
         sourceEmbeddedDisplayUuid: props.embeddedDisplayUuid,
         w: layoutItem.w,
-        h: layoutItem.h
+        h: layoutItem.h,
+        macros: getMacrosToTransfer()
       };
 
       activeCrossGridDrag = dragData;
       event.dataTransfer.effectAllowed = "move";
       event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
     },
-    [canExportCrossGridDrop, layout, props.id, props.embeddedDisplayUuid]
+    [
+      canExportCrossGridDrop,
+      layout,
+      props.id,
+      props.embeddedDisplayUuid,
+      getMacrosToTransfer
+    ]
   );
 
   // End drag
@@ -420,7 +429,7 @@ export const DisplayGridLayoutComponent = (
               hookOnDragStart(newItem.i, newItem.x, newItem.y);
             }
           }}
-          onDragStop={(layout, oldItem, newItem, placeholder, e, element) => {
+          onDragStop={(layout, _oldItem, newItem, _placeholder, e, element) => {
             if (element?.style && gridCellDragEnabled)
               element.style.cursor = "grab";
             if (newItem) {
@@ -459,7 +468,7 @@ export const DisplayGridLayoutComponent = (
             }
           }}
           // External dragging
-          onDrop={(_newLayout, droppedItem, _event) => {
+          onDrop={(_newLayout, droppedItem, event) => {
             const data = activeCrossGridDrag;
             if (!data || !droppedItem) return;
 
@@ -476,6 +485,7 @@ export const DisplayGridLayoutComponent = (
                 destinationEmbeddedDisplayUuid: props.embeddedDisplayUuid,
                 destinationGridId: props.id,
                 widgetId: data.widgetId,
+                macros: getMacrosToTransfer(),
                 destinationItem: {
                   x: droppedItem.x,
                   y: droppedItem.y,
@@ -485,6 +495,10 @@ export const DisplayGridLayoutComponent = (
               })
             );
             activeCrossGridDrag = null;
+             if (event) { 
+              event.preventDefault();
+              event.stopPropagation();
+            }
           }}
           onResizeStop={(layout, oldItem, newItem) => {
             if (newItem) {
