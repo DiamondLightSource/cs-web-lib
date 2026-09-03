@@ -7,7 +7,9 @@ import { DisplayResponsiveComponent } from "./displayResponsive";
 import { displayInstanceSetResponsiveLayout } from "../../../redux/slices/fileCacheSlice";
 import { calculateDefaultLayoutWithHorizontalCompactor } from "./displayLayoutUtilities";
 import { createMockStyle } from "../../../test-utils/styleTestUtils";
+import { MacroContext } from "../../../types/macros";
 
+let capturedResponsiveProps: any;
 let capturedLayouts: any;
 let capturedBreakpoints: any;
 let capturedCols: any;
@@ -18,7 +20,8 @@ const mocks = vi.hoisted(() => ({
   displayInstanceUpdateResponsiveLayout: vi.fn(),
   calculateDefaultLayoutWithHorizontalCompactor: vi.fn(() => [
     { i: "mock", x: 0, y: 0, w: 1, h: 1 }
-  ])
+  ]),
+  displayInstanceMoveWidgetBetweenGridLayouts: vi.fn()
 }));
 
 vi.mock("react-grid-layout", async () => {
@@ -27,21 +30,15 @@ vi.mock("react-grid-layout", async () => {
   return {
     ...actual,
 
-    Responsive: ({
-      children,
-      layouts,
-      breakpoints,
-      cols,
-      dragConfig,
-      resizeConfig
-    }: any) => {
-      capturedLayouts = layouts;
-      capturedBreakpoints = breakpoints;
-      capturedCols = cols;
-      capturedDragEnabled = dragConfig?.enabled;
-      capturedResizeEnabled = resizeConfig?.enabled;
+    Responsive: (props: any) => {
+      capturedResponsiveProps = props;
+      capturedLayouts = props.layouts;
+      capturedBreakpoints = props.breakpoints;
+      capturedCols = props.cols;
+      capturedDragEnabled = props.dragConfig?.enabled;
+      capturedResizeEnabled = props.resizeConfig?.enabled;
 
-      return <div data-testid="rgl-responsive">{children}</div>;
+      return <div data-testid="rgl-responsive">{props.children}</div>;
     },
     useResponsiveLayout: vi.fn(({ layouts }) => ({
       layouts
@@ -77,7 +74,9 @@ vi.mock("../../../redux/slices/fileCacheSlice", async () => {
   return {
     ...actual,
     displayInstanceUpdateResponsiveLayout:
-      mocks.displayInstanceUpdateResponsiveLayout
+      mocks.displayInstanceUpdateResponsiveLayout,
+    displayInstanceMoveWidgetBetweenGridLayouts:
+      mocks.displayInstanceMoveWidgetBetweenGridLayouts
   };
 });
 
@@ -109,6 +108,7 @@ beforeEach(() => {
   capturedCols = undefined;
   capturedDragEnabled = undefined;
   capturedResizeEnabled = undefined;
+  capturedResponsiveProps = undefined;
   vi.clearAllMocks();
 });
 
@@ -486,6 +486,175 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
       update: {
         type: "delete",
         widgetId: "a"
+      }
+    });
+  });
+  it("enables cross-grid dropping when editable", () => {
+    render(
+      <DisplayResponsiveComponent
+        id="destination"
+        fileId="file-1"
+        embeddedDisplayUuid="destination-uuid"
+        editable={true}
+        responsiveLayouts={{
+          lg: [{ i: "a", x: 0, y: 0, w: 4, h: 3 }]
+        }}
+      >
+        <MockWidget id="a" />
+      </DisplayResponsiveComponent>
+    );
+
+    expect(capturedResponsiveProps.dropConfig.enabled).toBe(true);
+  });
+  it("disables cross-grid dropping when not editable", () => {
+    render(
+      <DisplayResponsiveComponent
+        id="destination"
+        fileId="file-1"
+        embeddedDisplayUuid="destination-uuid"
+        editable={false}
+        responsiveLayouts={{
+          lg: [{ i: "a", x: 0, y: 0, w: 4, h: 3 }]
+        }}
+      >
+        <MockWidget id="a" />
+      </DisplayResponsiveComponent>
+    );
+
+    expect(capturedResponsiveProps.dropConfig.enabled).toBe(false);
+  });
+  it("stores widget layout information when starting a cross-grid drag", () => {
+    render(
+      <MacroContext.Provider
+        value={{
+          macros: {
+            TEST_MACRO: "value"
+          },
+          updateMacro: vi.fn()
+        }}
+      >
+        <DisplayResponsiveComponent
+          id="source"
+          fileId="file-1"
+          embeddedDisplayUuid="source-uuid"
+          editable={false}
+          responsiveLayouts={{
+            lg: [
+              {
+                i: "a",
+                x: 2,
+                y: 3,
+                w: 6,
+                h: 7
+              }
+            ]
+          }}
+        >
+          <MockWidget id="a" />
+        </DisplayResponsiveComponent>
+      </MacroContext.Provider>
+    );
+
+    const wrapper = screen.getByTestId("widget-a").parentElement;
+    expect(wrapper).not.toBeNull();
+
+    const dataTransfer = {
+      effectAllowed: "",
+      setData: vi.fn(),
+      getData: vi.fn(),
+      dropEffect: "move"
+    };
+
+    fireEvent.dragStart(wrapper as HTMLElement, { dataTransfer });
+
+    expect(dataTransfer.setData).toHaveBeenCalledWith(
+      "text/plain",
+      JSON.stringify({
+        widgetId: "a",
+        sourceGridId: "source",
+        sourceEmbeddedDisplayUuid: "source-uuid",
+        w: 6,
+        h: 7,
+        macros: {
+          TEST_MACRO: "value"
+        }
+      })
+    );
+  });
+  it("moves widget from source grid to destination grid", () => {
+    render(
+      <MacroContext.Provider
+        value={{
+          macros: {
+            FOO: "bar"
+          },
+          updateMacro: vi.fn()
+        }}
+      >
+        <>
+          <DisplayResponsiveComponent
+            id="source"
+            fileId="file-1"
+            embeddedDisplayUuid="source-uuid"
+            editable={false}
+            responsiveLayouts={{
+              lg: [{ i: "a", x: 1, y: 2, w: 6, h: 7 }]
+            }}
+          >
+            <MockWidget id="a" />
+          </DisplayResponsiveComponent>
+
+          <DisplayResponsiveComponent
+            id="destination"
+            fileId="file-1"
+            embeddedDisplayUuid="destination-uuid"
+            editable={true}
+            responsiveLayouts={{
+              lg: [{ i: "b", x: 0, y: 0, w: 4, h: 3 }]
+            }}
+          >
+            <MockWidget id="b" />
+          </DisplayResponsiveComponent>
+        </>
+      </MacroContext.Provider>
+    );
+
+    const sourceWrapper = screen.getByTestId("widget-a").parentElement;
+    expect(sourceWrapper).not.toBeNull();
+
+    const dataTransfer = {
+      effectAllowed: "",
+      setData: vi.fn(),
+      getData: vi.fn(),
+      dropEffect: "move"
+    };
+
+    fireEvent.dragStart(sourceWrapper as HTMLElement, { dataTransfer });
+
+    capturedResponsiveProps.onDrop([], {
+      i: "a",
+      x: 10,
+      y: 20,
+      w: 6,
+      h: 7
+    });
+
+    expect(
+      mocks.displayInstanceMoveWidgetBetweenGridLayouts
+    ).toHaveBeenCalledWith({
+      sourceEmbeddedDisplayUuid: "source-uuid",
+      sourceGridId: "source",
+      destinationEmbeddedDisplayUuid: "destination-uuid",
+      destinationGridId: "destination",
+      widgetId: "a",
+      macros: {
+        FOO: "bar"
+      },
+      destinationItem: {
+        x: 10,
+        y: 20,
+        w: 6,
+        h: 7
       }
     });
   });

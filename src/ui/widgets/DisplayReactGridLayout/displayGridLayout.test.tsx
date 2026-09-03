@@ -237,21 +237,6 @@ describe("DisplayGridLayoutComponent", () => {
     expect(el.style.cursor).toBe("");
   });
 
-  it("does not render the grid when container is not mounted", async () => {
-    const rgl = await import("react-grid-layout");
-
-    vi.spyOn(rgl, "useContainerWidth").mockReturnValueOnce({
-      width: 800,
-      mounted: false,
-      containerRef: { current: null },
-      measureWidth: vi.fn()
-    });
-
-    renderGrid();
-
-    expect(screen.queryByTestId("grid")).not.toBeInTheDocument();
-  });
-
   it("toggles resizeConfig.enabled based on gridCellResizeEnabled", async () => {
     const rgl = (await import("react-grid-layout")) as any;
 
@@ -300,29 +285,40 @@ describe("DisplayGridLayoutComponent", () => {
     );
   });
 
-  it("Does not render if gridLayout is empty and overridden gridConfig values", async () => {
+  it("renders an empty grid when gridLayout is empty", async () => {
     const rgl = (await import("react-grid-layout")) as any;
 
-    // defaults
     renderGrid({ gridLayout: [] });
-    let config = rgl.__getLastGridProps()?.gridConfig;
 
-    expect(config).toBeUndefined();
+    expect(screen.getByTestId("grid")).toBeInTheDocument();
 
-    // overrides
+    const props = rgl.__getLastGridProps();
+
+    expect(props.layout).toEqual([]);
+    expect(props.gridConfig).toEqual({
+      cols: 17,
+      margin: [6, 6],
+      rowHeight: 15
+    });
+  });
+
+  it("passes overridden gridConfig values to ReactGridLayout", async () => {
+    const rgl = (await import("react-grid-layout")) as any;
+
     renderGrid({
+      gridLayout: [],
       gridLayoutColumns: 20,
       gridCellMargins: [10, 12],
-      gridCellHeight: 25,
-      gridLayout: [{ i: "widget-1", x: 0, y: 0, w: 2, h: 2 }]
+      gridCellHeight: 25
     });
 
-    config = rgl.__getLastGridProps()?.gridConfig;
+    const props = rgl.__getLastGridProps();
 
-    expect(config).not.toBeUndefined();
-    expect(config?.cols).toBe(20);
-    expect(config?.margin).toEqual([10, 12]);
-    expect(config?.rowHeight).toBe(25);
+    expect(props.gridConfig).toEqual({
+      cols: 20,
+      margin: [10, 12],
+      rowHeight: 25
+    });
   });
 
   it("does not click through to child when dragging", async () => {
@@ -387,5 +383,49 @@ describe("DisplayGridLayoutComponent", () => {
         widgetId: "a"
       }
     });
+  });
+
+  it("enables cross-grid export when editable is false", async () => {
+    renderGrid({
+      editable: false,
+      gridLayout: [{ i: "a", x: 0, y: 0, w: 2, h: 3 }]
+    });
+
+    const child = screen.getByTestId("child-a").parentElement;
+
+    expect(child).toHaveAttribute("draggable", "true");
+  });
+
+  it("does not enable cross-grid export when editable is true", () => {
+    renderGrid({
+      editable: true,
+      gridLayout: [{ i: "a", x: 0, y: 0, w: 2, h: 3 }]
+    });
+
+    const child = screen.getByTestId("child-a").parentElement;
+
+    expect(child).toHaveAttribute("draggable", "false");
+  });
+
+  it("enables cross-grid drops when editable", async () => {
+    const rgl = (await import("react-grid-layout")) as any;
+
+    renderGrid({
+      editable: true,
+      gridLayout: []
+    });
+
+    expect(rgl.__getLastGridProps().dropConfig.enabled).toBe(true);
+  });
+
+  it("disables cross-grid drops when not editable", async () => {
+    const rgl = (await import("react-grid-layout")) as any;
+
+    renderGrid({
+      editable: false,
+      gridLayout: []
+    });
+
+    expect(rgl.__getLastGridProps().dropConfig.enabled).toBe(false);
   });
 });

@@ -495,7 +495,7 @@ export const DisplayGridLayoutComponent = (
               })
             );
             activeCrossGridDrag = null;
-             if (event) { 
+            if (event) {
               event.preventDefault();
               event.stopPropagation();
             }

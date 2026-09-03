@@ -46,6 +46,7 @@ import { useDebouncedValue } from "../../hooks/useDebounce";
 import { useDispatch } from "react-redux";
 import {
   calculateDefaultLayoutWithHorizontalCompactor,
+  CrossGridDragData,
   sameKeys
 } from "./displayLayoutUtilities";
 import {
@@ -57,7 +58,6 @@ import log from "loglevel";
 import { Dispatch } from "@reduxjs/toolkit";
 import IconButton from "@mui/material/IconButton";
 import CancelIcon from "@mui/icons-material/Cancel";
-import { CrossGridDragData } from "./displayGridLayout";
 
 const widgetName = "displayResponsive";
 
@@ -287,6 +287,13 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
     [dispatch, layouts, props.embeddedDisplayUuid, props.id]
   );
 
+  const getMacrosToTransfer = useCallback((): MacroMap => {
+    // Remove DID macro because new screen has its own
+    const { DID: _did, ...macros } = displayMacroContext.macros;
+
+    return macros;
+  }, [displayMacroContext.macros]);
+
   // handle dragging out of display and into new one
   const handleCrossGridDragStart = useCallback(
     (event: React.DragEvent<HTMLDivElement>, widgetId: string) => {
@@ -314,14 +321,21 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
         sourceGridId: props.id,
         sourceEmbeddedDisplayUuid: props.embeddedDisplayUuid,
         w: layoutItem.w,
-        h: layoutItem.h
+        h: layoutItem.h,
+        macros: getMacrosToTransfer()
       };
 
       activeCrossGridDrag = dragData;
       event.dataTransfer.effectAllowed = "move";
       event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
     },
-    [canExportCrossGridDrop, layouts, props.id, props.embeddedDisplayUuid]
+    [
+      canExportCrossGridDrop,
+      layouts,
+      props.id,
+      props.embeddedDisplayUuid,
+      getMacrosToTransfer
+    ]
   );
 
   // End drag
@@ -341,7 +355,15 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
         handleCrossGridDragStart,
         handleCrossGridDragEnd
       ),
-    [childrenArray, gridCellDragEnabled, newProps.editable, handleDelete]
+    [
+      childrenArray,
+      gridCellDragEnabled,
+      newProps.editable,
+      handleDelete,
+      canExportCrossGridDrop,
+      handleCrossGridDragEnd,
+      handleCrossGridDragStart
+    ]
   );
 
   const hasLayouts = useMemo(() => {
@@ -459,6 +481,7 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
                   destinationEmbeddedDisplayUuid: props.embeddedDisplayUuid,
                   destinationGridId: props.id,
                   widgetId: data.widgetId,
+                  macros: getMacrosToTransfer(),
                   destinationItem: {
                     x: droppedItem.x,
                     y: droppedItem.y,

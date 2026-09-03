@@ -197,7 +197,12 @@ const fileCacheSlice = createSlice({
         [sourceDisplayInstance.description],
         sourceGridId
       );
-      if (!sourceDisplay || sourceDisplay.type !== "displayGridLayout") return;
+      if (
+        !sourceDisplay ||
+        (sourceDisplay.type !== "displayGridLayout" &&
+          sourceDisplay.type !== "displayResponsive")
+      )
+        return;
 
       // Find destination display instance
       const destinationDisplayInstance =
@@ -210,7 +215,8 @@ const fileCacheSlice = createSlice({
 
       if (
         !destinationDisplay ||
-        destinationDisplay.type !== "displayGridLayout"
+        (destinationDisplay.type !== "displayGridLayout" &&
+          destinationDisplay.type !== "displayResponsive")
       )
         return;
 
@@ -239,8 +245,13 @@ const fileCacheSlice = createSlice({
       // Clone widget to move
       const widgetToMove = structuredClone(current(widget));
       // Apply macros from source file
-      const {DID: _sourceDid, ...trimmedSourceMacros} = sourceDisplayInstance.macros ?? {};
-      widgetToMove.macros = { ...macros, ...trimmedSourceMacros, ...widget.macros };
+      const { DID: _sourceDid, ...trimmedSourceMacros } =
+        sourceDisplayInstance.macros ?? {};
+      widgetToMove.macros = {
+        ...macros,
+        ...trimmedSourceMacros,
+        ...widget.macros
+      };
 
       // Widget gets placed at top level by default
       if (!destinationDisplay.children) destinationDisplay.children = [];
