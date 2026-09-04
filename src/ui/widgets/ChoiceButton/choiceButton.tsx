@@ -173,7 +173,8 @@ export const ChoiceButtonComponent = (
               width: buttonWidth,
               height: buttonHeight,
               "&.Mui-selected": {
-                backgroundColor: style?.customColors?.selectedColor
+                backgroundColor: style?.customColors?.selectedColor,
+                color: style.colors.color
               },
               "&.Mui-selected:hover": {
                 backgroundColor: style?.customColors?.selectedColor,
@@ -181,6 +182,11 @@ export const ChoiceButtonComponent = (
               },
               "&:hover": {
                 backgroundColor: style.colors.backgroundColor,
+                opacity: 0.6
+              },
+              "&.Mui-disabled": {
+                backgroundColor: style.colors.backgroundColor,
+                color: style.colors.color,
                 opacity: 0.6
               }
             }}

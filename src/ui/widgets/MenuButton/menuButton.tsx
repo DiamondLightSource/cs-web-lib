@@ -261,6 +261,8 @@ export const MenuButtonComponent = (
         width: "100%",
         textAlignLast: "center",
         "& .MuiSelect-select": {
+          ...style?.font,
+          color: style?.colors?.color,
           paddingLeft: "3px"
         },
         "&:hover .MuiOutlinedInput-notchedOutline": {
@@ -274,6 +276,14 @@ export const MenuButtonComponent = (
         "& .MuiSelect-outlined": {
           ...style?.font,
           color: style?.colors?.color
+        },
+        "& .MuiSelect-select.Mui-disabled": {
+          color: style?.colors?.color,
+          WebkitTextFillColor: style?.colors?.color
+        },
+        "&.Mui-disabled .MuiSelect-select": {
+          color: style?.colors?.color,
+          WebkitTextFillColor: style?.colors?.color
         }
       }}
     >
