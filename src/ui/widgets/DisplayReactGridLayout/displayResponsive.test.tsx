@@ -1,6 +1,6 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 import { DisplayResponsiveComponent } from "./displayResponsive";
@@ -125,7 +125,7 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
       lg: 12
     };
 
-    render(
+    const { getByTestId } = render(
       <DisplayResponsiveComponent
         id="display-1"
         fileId="file-1"
@@ -141,7 +141,7 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
       document.querySelector(".display-responsive-container")
     ).toBeInTheDocument();
 
-    expect(screen.getByTestId("rgl-responsive")).toBeInTheDocument();
+    expect(getByTestId("rgl-responsive")).toBeInTheDocument();
   });
 
   it("throws an error if a child widget has no id", () => {
@@ -409,7 +409,7 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
     ]);
   });
   it("renders delete buttons when editable", () => {
-    render(
+    const { getByLabelText } = render(
       <DisplayResponsiveComponent
         id="display-1"
         fileId="file-1"
@@ -427,13 +427,13 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
       </DisplayResponsiveComponent>
     );
 
-    expect(screen.getByLabelText("Delete widget a")).toBeInTheDocument();
+    expect(getByLabelText("Delete widget a")).toBeInTheDocument();
 
-    expect(screen.getByLabelText("Delete widget b")).toBeInTheDocument();
+    expect(getByLabelText("Delete widget b")).toBeInTheDocument();
   });
 
   it("does not render delete buttons when not editable", () => {
-    render(
+    const { queryByLabelText } = render(
       <DisplayResponsiveComponent
         id="display-1"
         fileId="file-1"
@@ -447,10 +447,10 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
       </DisplayResponsiveComponent>
     );
 
-    expect(screen.queryByLabelText("Delete widget a")).not.toBeInTheDocument();
+    expect(queryByLabelText("Delete widget a")).not.toBeInTheDocument();
   });
   it("deletes a widget from all responsive layouts when the delete button is clicked", () => {
-    render(
+    const { getByLabelText } = render(
       <DisplayResponsiveComponent
         id="display-1"
         fileId="file-1"
@@ -472,7 +472,7 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
       </DisplayResponsiveComponent>
     );
 
-    const deleteButton = screen.getByLabelText("Delete widget a");
+    const deleteButton = getByLabelText("Delete widget a");
 
     fireEvent.click(deleteButton);
 
@@ -524,7 +524,7 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
     expect(capturedResponsiveProps.dropConfig.enabled).toBe(false);
   });
   it("stores widget layout information when starting a cross-grid drag", () => {
-    render(
+    const { getByLabelText } = render(
       <MacroContext.Provider
         value={{
           macros: {
@@ -555,8 +555,11 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
       </MacroContext.Provider>
     );
 
-    const wrapper = screen.getByTestId("widget-a").parentElement;
-    expect(wrapper).not.toBeNull();
+    const handle = getByLabelText("Drag widget a to Quick Screen");
+
+    expect(handle).toBeInTheDocument();
+    expect(handle).toHaveAttribute("draggable", "true");
+    expect(handle).toHaveClass("drag-handle");
 
     const dataTransfer = {
       effectAllowed: "",
@@ -565,7 +568,9 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
       dropEffect: "move"
     };
 
-    fireEvent.dragStart(wrapper as HTMLElement, { dataTransfer });
+    fireEvent.dragStart(handle, { dataTransfer });
+
+    expect(dataTransfer.effectAllowed).toBe("move");
 
     expect(dataTransfer.setData).toHaveBeenCalledWith(
       "text/plain",
@@ -581,8 +586,51 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
       })
     );
   });
+
+  it("renders the cross-grid drag handle when not editable", () => {
+    const { getByLabelText } = render(
+      <DisplayResponsiveComponent
+        id="display-1"
+        fileId="file-1"
+        embeddedDisplayUuid="uuid1"
+        editable={false}
+        responsiveLayouts={{
+          lg: [{ i: "a", x: 0, y: 0, w: 4, h: 3 }]
+        }}
+      >
+        <MockWidget id="a" />
+      </DisplayResponsiveComponent>
+    );
+
+    const handle = getByLabelText("Drag widget a to Quick Screen");
+
+    expect(handle).toBeInTheDocument();
+    expect(handle).toHaveAttribute("draggable", "true");
+    expect(handle).toHaveClass("drag-handle");
+  });
+
+  it("does not render the cross-grid drag handle when editable", () => {
+    const { queryByLabelText } = render(
+      <DisplayResponsiveComponent
+        id="display-1"
+        fileId="file-1"
+        embeddedDisplayUuid="uuid1"
+        editable={true}
+        responsiveLayouts={{
+          lg: [{ i: "a", x: 0, y: 0, w: 4, h: 3 }]
+        }}
+      >
+        <MockWidget id="a" />
+      </DisplayResponsiveComponent>
+    );
+
+    expect(
+      queryByLabelText("Drag widget a to Quick Screen")
+    ).not.toBeInTheDocument();
+  });
+
   it("moves widget from source grid to destination grid", () => {
-    render(
+    const { getByLabelText } = render(
       <MacroContext.Provider
         value={{
           macros: {
@@ -619,8 +667,9 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
       </MacroContext.Provider>
     );
 
-    const sourceWrapper = screen.getByTestId("widget-a").parentElement;
-    expect(sourceWrapper).not.toBeNull();
+    const sourceHandle = getByLabelText("Drag widget a to Quick Screen");
+
+    expect(sourceHandle).toBeInTheDocument();
 
     const dataTransfer = {
       effectAllowed: "",
@@ -629,7 +678,7 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
       dropEffect: "move"
     };
 
-    fireEvent.dragStart(sourceWrapper as HTMLElement, { dataTransfer });
+    fireEvent.dragStart(sourceHandle, { dataTransfer });
 
     capturedResponsiveProps.onDrop([], {
       i: "a",
