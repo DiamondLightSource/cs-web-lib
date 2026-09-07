@@ -89,7 +89,14 @@ export const DynamicPageComponent = (
       <ExitFileContext.Provider
         value={() => fileContext.removePage(newProps.location)}
       >
-        <div style={fullStyle}>
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            position: "relative",
+            ...fullStyle
+          }}
+        >
           <EmbeddedDisplay
             file={file}
             position={newRelativePosition(undefined, undefined, "100%", "100%")}
