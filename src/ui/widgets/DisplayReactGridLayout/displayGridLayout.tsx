@@ -51,8 +51,32 @@ import {
   makeSelectWidgetPosition
 } from "../../../redux/slices/fileCacheSlice";
 import { useDispatch, useSelector } from "react-redux";
-import IconButton from "@mui/material/IconButton";
 import CancelIcon from "@mui/icons-material/Cancel";
+import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
+import { IconButton as MuiIconButton, styled, Tooltip } from "@mui/material";
+
+// Set some default properties with styled
+const IconButton = styled(MuiIconButton)({
+  position: "absolute",
+  top: 4,
+  right: 4,
+  zIndex: 20,
+  width: 24,
+  height: 24,
+  padding: 0,
+  backgroundColor: "rgba(255, 255, 255, 0.9)",
+  opacity: 0, // Invisible by default
+  visibility: "hidden",
+  pointerEvents: "none",
+  ".display-grid-layout-child:hover &": {
+    opacity: 1, // Show on hover
+    visibility: "visible",
+    pointerEvents: "auto"
+  },
+  "&:hover": {
+    backgroundColor: "#fff"
+  }
+});
 
 const widgetName = "displayGridLayout";
 
@@ -62,6 +86,7 @@ const defaultColumnWidth = 64;
 const defaultMargins = [6, 6];
 
 let activeCrossGridDrag: CrossGridDragData | null = null;
+let crossGridDropCompleted = false;
 
 const DisplayGridLayoutProps = {
   position: PositionProp,
@@ -262,7 +287,7 @@ export const DisplayGridLayoutComponent = (
 
   // handle dragging out of display and into new one
   const handleCrossGridDragStart = useCallback(
-    (event: React.DragEvent<HTMLDivElement>, widgetId: string) => {
+    (event: React.DragEvent<HTMLButtonElement>, widgetId: string) => {
       if (!canExportCrossGridDrop) {
         event.preventDefault();
         return;
@@ -296,10 +321,21 @@ export const DisplayGridLayoutComponent = (
     ]
   );
 
-  // End drag
-  const handleCrossGridDragEnd = React.useCallback(() => {
-    activeCrossGridDrag = null;
-  }, []);
+  // End drag in both source and destination
+  const handleCrossGridDragEnd = useCallback(
+    (event: React.DragEvent<HTMLButtonElement>, widgetId: string) => {
+      const wasCrossGridDrop = crossGridDropCompleted;
+
+      activeCrossGridDrag = null;
+      crossGridDropCompleted = false;
+
+      if (wasCrossGridDrop) {
+        const item = layout.find(item => item.i === widgetId);
+        if (item) hookOnDragStop(item.i, item.x, item.y);
+      }
+    },
+    [layout, hookOnDragStop]
+  );
 
   // Wrap the child components in a div keyed by the child id. The key MUST map to the i field of Layout item for the component.
   const gridChildren = useMemo(
@@ -317,15 +353,8 @@ export const DisplayGridLayoutComponent = (
           <div
             key={id}
             className="display-grid-layout-child"
-            draggable={canExportCrossGridDrop}
-            onDragStart={event => handleCrossGridDragStart(event, id)}
-            onDragEnd={handleCrossGridDragEnd}
             style={{
-              cursor: canExportCrossGridDrop
-                ? "grab"
-                : gridCellDragEnabled
-                  ? "grab"
-                  : "default"
+              cursor: gridCellDragEnabled ? "grab" : "default"
             }}
           >
             {props.editable && (
@@ -339,33 +368,46 @@ export const DisplayGridLayoutComponent = (
                 }}
                 onClick={e => handleDelete(id, e)}
                 sx={{
-                  position: "absolute",
-                  top: 4,
-                  right: 4,
-                  zIndex: 20,
-                  width: 24,
-                  height: 24,
-                  padding: 0,
-                  backgroundColor: "rgba(255, 255, 255, 0.9)",
                   color: "error",
-                  // Invisible by default
-                  opacity: 0,
-                  visibility: "hidden",
-                  pointerEvents: "none",
-                  // Show on hover
-                  ".display-grid-layout-child:hover &": {
-                    opacity: 1,
-                    visibility: "visible",
-                    pointerEvents: "auto"
-                  },
                   "&:hover": {
-                    backgroundColor: "#fff",
                     color: "error.dark"
                   }
                 }}
               >
                 <CancelIcon fontSize="small" />
               </IconButton>
+            )}
+            {canExportCrossGridDrop && (
+              <Tooltip title="Drag widget to Quick Screen" placement="top">
+                <IconButton
+                  className="drag-handle"
+                  aria-label={`Drag widget ${id} to Quick Screen`}
+                  size="small"
+                  draggable
+                  // Prevent react-grid-layout from treating this as a grid drag.
+                  onMouseDown={e => e.stopPropagation()}
+                  onDragStart={e => {
+                    e.stopPropagation();
+                    handleCrossGridDragStart(e, id);
+                  }}
+                  onDragEnd={e => {
+                    e.stopPropagation();
+                    handleCrossGridDragEnd(e, id);
+                  }}
+                  sx={{
+                    color: "text.secondary",
+                    "&:hover": {
+                      color: "primary.main"
+                    },
+                    cursor: "grab",
+                    "&:active": {
+                      cursor: "grabbing"
+                    }
+                  }}
+                >
+                  <DragIndicatorIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
             )}
             {child}
             {isActiveDragging && (
@@ -418,7 +460,7 @@ export const DisplayGridLayoutComponent = (
           }}
           dragConfig={{
             enabled: gridCellDragEnabled,
-            cancel: ".no-drag"
+            cancel: ".no-drag, .drag-handle"
           }}
           resizeConfig={{ enabled: gridCellResizeEnabled, handles: ["se"] }}
           compactor={overlapCompactor}
@@ -485,7 +527,7 @@ export const DisplayGridLayoutComponent = (
                 destinationEmbeddedDisplayUuid: props.embeddedDisplayUuid,
                 destinationGridId: props.id,
                 widgetId: data.widgetId,
-                macros: getMacrosToTransfer(),
+                macros: data.macros || {},
                 destinationItem: {
                   x: droppedItem.x,
                   y: droppedItem.y,
@@ -494,6 +536,7 @@ export const DisplayGridLayoutComponent = (
                 }
               })
             );
+            crossGridDropCompleted = true;
             activeCrossGridDrag = null;
             if (event) {
               event.preventDefault();

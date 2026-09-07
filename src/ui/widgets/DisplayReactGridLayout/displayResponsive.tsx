@@ -56,8 +56,32 @@ import {
 } from "../../../redux/slices/fileCacheSlice";
 import log from "loglevel";
 import { Dispatch } from "@reduxjs/toolkit";
-import IconButton from "@mui/material/IconButton";
 import CancelIcon from "@mui/icons-material/Cancel";
+import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
+import { IconButton as MuiIconButton, styled, Tooltip } from "@mui/material";
+
+// Set some default properties with styled
+const IconButton = styled(MuiIconButton)({
+  position: "absolute",
+  top: 4,
+  right: 4,
+  zIndex: 20,
+  width: 24,
+  height: 24,
+  padding: 0,
+  backgroundColor: "rgba(255, 255, 255, 0.9)",
+  opacity: 0, // Invisible by default
+  visibility: "hidden",
+  pointerEvents: "none",
+  ".display-grid-layout-child:hover &": {
+    opacity: 1, // Show on hover
+    visibility: "visible",
+    pointerEvents: "auto"
+  },
+  "&:hover": {
+    backgroundColor: "#fff"
+  }
+});
 
 const widgetName = "displayResponsive";
 
@@ -296,7 +320,7 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
 
   // handle dragging out of display and into new one
   const handleCrossGridDragStart = useCallback(
-    (event: React.DragEvent<HTMLDivElement>, widgetId: string) => {
+    (event: React.DragEvent<HTMLButtonElement>, widgetId: string) => {
       if (!canExportCrossGridDrop) {
         event.preventDefault();
         return;
@@ -397,7 +421,7 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
             width={debouncedWidth}
             dragConfig={{
               enabled: gridCellDragEnabled,
-              cancel: ".no-drag"
+              cancel: ".no-drag, .drag-handle"
             }}
             dropConfig={{
               enabled: canReceiveCrossGridDrop,
@@ -598,7 +622,7 @@ const wrapChildrenForGridLayout = (
   canExportCrossGridDrop: boolean,
   handleDelete: (id: string, event: React.MouseEvent) => void,
   handleCrossGridDragStart: (
-    event: React.DragEvent<HTMLDivElement>,
+    event: React.DragEvent<HTMLButtonElement>,
     widgetId: string
   ) => void,
   handleCrossGridDragEnd: () => void
@@ -613,16 +637,7 @@ const wrapChildrenForGridLayout = (
       <div
         key={id}
         className="display-grid-layout-child"
-        draggable={canExportCrossGridDrop}
-        onDragStart={event => handleCrossGridDragStart(event, id)}
-        onDragEnd={handleCrossGridDragEnd}
-        style={{
-          cursor: canExportCrossGridDrop
-            ? "grab"
-            : gridCellDragEnabled
-              ? "grab"
-              : "default"
-        }}
+        style={{ cursor: gridCellDragEnabled ? "grab" : "default" }}
       >
         {editable && (
           <IconButton
@@ -635,33 +650,47 @@ const wrapChildrenForGridLayout = (
             }}
             onClick={e => handleDelete(id, e)}
             sx={{
-              position: "absolute",
-              top: 4,
-              right: 4,
-              zIndex: 20,
-              width: 24,
-              height: 24,
-              padding: 0,
-              backgroundColor: "rgba(255, 255, 255, 0.9)",
               color: "error",
-              // Invisible by default
-              opacity: 0,
-              visibility: "hidden",
-              pointerEvents: "none",
-              // Show on hover
-              ".display-grid-layout-child:hover &": {
-                opacity: 1,
-                visibility: "visible",
-                pointerEvents: "auto"
-              },
               "&:hover": {
-                backgroundColor: "#fff",
                 color: "error.dark"
               }
             }}
           >
             <CancelIcon fontSize="small" />
           </IconButton>
+        )}
+        {canExportCrossGridDrop && (
+          <Tooltip title="Drag widget to Quick Screen" placement="top">
+            <IconButton
+              className="drag-handle"
+              aria-label={`Drag widget ${id} to Quick Screen`}
+              size="small"
+              draggable
+              onMouseDown={e => {
+                e.stopPropagation();
+              }}
+              onDragStart={e => {
+                e.stopPropagation();
+                handleCrossGridDragStart(e, id);
+              }}
+              onDragEnd={e => {
+                e.stopPropagation();
+                handleCrossGridDragEnd();
+              }}
+              sx={{
+                color: "text.secondary",
+                "&:hover": {
+                  color: "primary.main"
+                },
+                cursor: "grab",
+                "&:active": {
+                  cursor: "grabbing"
+                }
+              }}
+            >
+              <DragIndicatorIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
         )}
         {child}
       </div>
