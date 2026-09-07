@@ -409,7 +409,7 @@ describe("DisplayGridLayoutComponent", () => {
   });
 
   it("does not enable cross-grid drag handle when editable is true", () => {
-    const { getByTestId, queryByLabelText } = renderGrid({
+    const { queryByLabelText } = renderGrid({
       editable: true,
       gridLayout: [{ i: "a", x: 0, y: 0, w: 2, h: 3 }]
     });
