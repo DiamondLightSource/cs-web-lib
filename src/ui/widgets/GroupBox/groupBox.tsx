@@ -13,7 +13,6 @@ import {
   StringPropOpt,
   MacrosPropOpt
 } from "../propTypes";
-import { fontToCss, newFont } from "../../../types/font";
 import Box from "@mui/material/Box";
 import { MacroContext, MacroContextType } from "../../../types/macros";
 import { useStyle } from "../../hooks/useStyle";
@@ -50,15 +49,12 @@ export const GroupBoxComponent = (
     widgetName,
     props.class
   );
-  const {
-    font = newFont(14),
-    styleOpt = style.styleOpt,
-    transparent = false,
-    visible = true,
-    backgroundColor = style.colors.backgroundColor,
-    foregroundColor = style.colors.color,
-    lineColor = style.customColors.lineColor
-  } = newProps;
+  const { transparent = false, visible = true } = newProps;
+
+  const { styleOpt } = style;
+  const { backgroundColor, color: foregroundColor } = style.colors;
+  const { lineColor } = style.customColors;
+  const { font } = style.font;
 
   const outerDivStyle: CSSProperties = {
     width: "100%",
@@ -78,7 +74,7 @@ export const GroupBoxComponent = (
     backgroundColor: transparent ? "transparent" : backgroundColor,
     color: foregroundColor,
     visibility: visible ? "visible" : "hidden",
-    ...fontToCss(font)
+    font: font
   };
 
   if (styleOpt === 0) {
