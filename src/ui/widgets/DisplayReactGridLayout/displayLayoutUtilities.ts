@@ -4,6 +4,17 @@ import {
   verticalCompactor
 } from "react-grid-layout";
 import { PVWidgetComponent } from "../widgetProps";
+import { MacroMap } from "../../../types/macros";
+
+// Widget information stored when dragging
+export interface CrossGridDragData {
+  widgetId: string;
+  sourceGridId: string;
+  sourceEmbeddedDisplayUuid: string;
+  w: number;
+  h: number;
+  macros?: MacroMap;
+}
 
 export const calculateDefaultLayoutWithHorizontalCompactor = (
   childrenArray: React.ReactElement<PVWidgetComponent>[],

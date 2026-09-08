@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, fireEvent } from "@testing-library/react";
 import React from "react";
 
 import { DisplayGridLayoutComponent } from "./displayGridLayout";
@@ -72,7 +72,8 @@ vi.mock("../../hooks/useStyle", () => ({
 
 const mocks = vi.hoisted(() => ({
   calculateDefaultLayout: vi.fn(),
-  displayInstanceUpdateGridLayout: vi.fn()
+  displayInstanceUpdateGridLayout: vi.fn(),
+  displayInstanceMoveWidgetBetweenGridLayouts: vi.fn()
 }));
 
 vi.mock("./displayLayoutUtilities", () => ({
@@ -90,7 +91,9 @@ vi.mock("../../../redux/slices/fileCacheSlice", async () => {
       });
     },
     displayInstanceSetGridLayout: vi.fn(),
-    displayInstanceUpdateGridLayout: mocks.displayInstanceUpdateGridLayout
+    displayInstanceUpdateGridLayout: mocks.displayInstanceUpdateGridLayout,
+    displayInstanceMoveWidgetBetweenGridLayouts:
+      mocks.displayInstanceMoveWidgetBetweenGridLayouts
   };
 });
 
@@ -136,28 +139,32 @@ describe("DisplayGridLayoutComponent", () => {
   });
 
   it("renders the grid and children", () => {
-    renderGrid({ gridLayout: [{ i: "a", w: 8, h: 4 }] });
+    const { getByTestId } = renderGrid({
+      gridLayout: [{ i: "a", w: 8, h: 4 }]
+    });
 
     expect(mocks.calculateDefaultLayout).not.toHaveBeenCalled();
-    expect(screen.getByTestId("grid")).toBeInTheDocument();
-    expect(screen.getByTestId("child-a")).toBeInTheDocument();
-    expect(screen.getByTestId("child-b")).toBeInTheDocument();
+    expect(getByTestId("grid")).toBeInTheDocument();
+    expect(getByTestId("child-a")).toBeInTheDocument();
+    expect(getByTestId("child-b")).toBeInTheDocument();
   });
 
   it("sets cursor to grab when gridCellDragEnabled=true (default)", () => {
-    renderGrid({ gridLayout: [{ i: "a", w: 8, h: 4 }] });
+    const { getByTestId } = renderGrid({
+      gridLayout: [{ i: "a", w: 8, h: 4 }]
+    });
 
-    const wrapper = screen.getByTestId("child-a").parentElement;
+    const wrapper = getByTestId("child-a").parentElement;
     expect(wrapper?.style.cursor).toBe("grab");
   });
 
   it("sets cursor to default when gridCellDragEnabled=false", () => {
-    renderGrid({
+    const { getByTestId } = renderGrid({
       gridCellDragEnabled: false,
       gridLayout: [{ i: "a", w: 8, h: 4 }]
     });
 
-    const wrapper = screen.getByTestId("child-a").parentElement;
+    const wrapper = getByTestId("child-a").parentElement;
     expect(wrapper?.style.cursor).toBe("default");
   });
 
@@ -237,21 +244,6 @@ describe("DisplayGridLayoutComponent", () => {
     expect(el.style.cursor).toBe("");
   });
 
-  it("does not render the grid when container is not mounted", async () => {
-    const rgl = await import("react-grid-layout");
-
-    vi.spyOn(rgl, "useContainerWidth").mockReturnValueOnce({
-      width: 800,
-      mounted: false,
-      containerRef: { current: null },
-      measureWidth: vi.fn()
-    });
-
-    renderGrid();
-
-    expect(screen.queryByTestId("grid")).not.toBeInTheDocument();
-  });
-
   it("toggles resizeConfig.enabled based on gridCellResizeEnabled", async () => {
     const rgl = (await import("react-grid-layout")) as any;
 
@@ -300,50 +292,64 @@ describe("DisplayGridLayoutComponent", () => {
     );
   });
 
-  it("Does not render if gridLayout is empty and overridden gridConfig values", async () => {
+  it("renders an empty grid when gridLayout is empty", async () => {
     const rgl = (await import("react-grid-layout")) as any;
 
-    // defaults
-    renderGrid({ gridLayout: [] });
-    let config = rgl.__getLastGridProps()?.gridConfig;
+    const { getByTestId } = renderGrid({ gridLayout: [] });
 
-    expect(config).toBeUndefined();
+    expect(getByTestId("grid")).toBeInTheDocument();
 
-    // overrides
+    const props = rgl.__getLastGridProps();
+
+    expect(props.layout).toEqual([]);
+    expect(props.gridConfig).toEqual({
+      cols: 17,
+      margin: [6, 6],
+      rowHeight: 15
+    });
+  });
+
+  it("passes overridden gridConfig values to ReactGridLayout", async () => {
+    const rgl = (await import("react-grid-layout")) as any;
+
     renderGrid({
+      gridLayout: [],
       gridLayoutColumns: 20,
       gridCellMargins: [10, 12],
-      gridCellHeight: 25,
-      gridLayout: [{ i: "widget-1", x: 0, y: 0, w: 2, h: 2 }]
+      gridCellHeight: 25
     });
 
-    config = rgl.__getLastGridProps()?.gridConfig;
+    const props = rgl.__getLastGridProps();
 
-    expect(config).not.toBeUndefined();
-    expect(config?.cols).toBe(20);
-    expect(config?.margin).toEqual([10, 12]);
-    expect(config?.rowHeight).toBe(25);
+    expect(props.gridConfig).toEqual({
+      cols: 20,
+      margin: [10, 12],
+      rowHeight: 25
+    });
   });
 
   it("does not click through to child when dragging", async () => {
     const rgl = (await import("react-grid-layout")) as any;
     const childClickHandler = vi.fn();
-    renderGrid({ gridLayout: [{ i: "a", w: 8, h: 4 }] }, childClickHandler);
+    const { getByTestId } = renderGrid(
+      { gridLayout: [{ i: "a", w: 8, h: 4 }] },
+      childClickHandler
+    );
 
-    const wrapper = screen.getByTestId("child-a").parentElement;
+    const wrapper = getByTestId("child-a").parentElement;
     expect(wrapper).toBeInTheDocument();
 
     const gridProps = rgl.__getLastGridProps();
     gridProps.onDragStart([], { i: "a" }, { i: "a" }, null, null, wrapper);
 
-    const overlay = screen.getByTestId("drag-overlay");
+    const overlay = getByTestId("drag-overlay");
     expect(overlay).toBeInTheDocument();
 
     fireEvent.click(overlay);
     expect(childClickHandler).not.toHaveBeenCalled();
   });
   it("renders delete buttons when editable", () => {
-    renderGrid({
+    const { getByLabelText } = renderGrid({
       editable: true,
       gridLayout: [
         { i: "a", w: 8, h: 4 },
@@ -351,21 +357,21 @@ describe("DisplayGridLayoutComponent", () => {
       ]
     });
 
-    expect(screen.getByLabelText("Delete widget a")).toBeInTheDocument();
+    expect(getByLabelText("Delete widget a")).toBeInTheDocument();
 
-    expect(screen.getByLabelText("Delete widget b")).toBeInTheDocument();
+    expect(getByLabelText("Delete widget b")).toBeInTheDocument();
   });
 
   it("does not render delete buttons when not editable", () => {
-    renderGrid({
+    const { queryByLabelText } = renderGrid({
       editable: false,
       gridLayout: [{ i: "a", w: 8, h: 4 }]
     });
 
-    expect(screen.queryByLabelText("Delete widget a")).not.toBeInTheDocument();
+    expect(queryByLabelText("Delete widget a")).not.toBeInTheDocument();
   });
   it("deletes a widget when the delete button is clicked", () => {
-    renderGrid({
+    const { getByLabelText } = renderGrid({
       editable: true,
       embeddedDisplayUuid: "display-1",
       gridLayout: [
@@ -374,7 +380,7 @@ describe("DisplayGridLayoutComponent", () => {
       ]
     });
 
-    const deleteButton = screen.getByLabelText("Delete widget a");
+    const deleteButton = getByLabelText("Delete widget a");
 
     fireEvent.click(deleteButton);
 
@@ -387,5 +393,85 @@ describe("DisplayGridLayoutComponent", () => {
         widgetId: "a"
       }
     });
+  });
+
+  it("renders cross-grid drag handle when editable is false", async () => {
+    const { getByLabelText } = renderGrid({
+      editable: false,
+      gridLayout: [{ i: "a", x: 0, y: 0, w: 2, h: 3 }]
+    });
+
+    const handle = getByLabelText("Drag widget a to Quick Screen");
+
+    expect(handle).toBeInTheDocument();
+    expect(handle).toHaveAttribute("draggable", "true");
+    expect(handle).toHaveClass("drag-handle");
+  });
+
+  it("does not enable cross-grid drag handle when editable is true", () => {
+    const { queryByLabelText } = renderGrid({
+      editable: true,
+      gridLayout: [{ i: "a", x: 0, y: 0, w: 2, h: 3 }]
+    });
+
+    expect(
+      queryByLabelText("Drag widget a to Quick Screen")
+    ).not.toBeInTheDocument();
+  });
+
+  it("enables cross-grid drops when editable", async () => {
+    const rgl = (await import("react-grid-layout")) as any;
+
+    renderGrid({
+      editable: true,
+      gridLayout: []
+    });
+
+    expect(rgl.__getLastGridProps().dropConfig.enabled).toBe(true);
+  });
+
+  it("disables cross-grid drops when not editable", async () => {
+    const rgl = (await import("react-grid-layout")) as any;
+
+    renderGrid({
+      editable: false,
+      gridLayout: []
+    });
+
+    expect(rgl.__getLastGridProps().dropConfig.enabled).toBe(false);
+  });
+  it("starts a cross-grid drag from the drag handle", () => {
+    const { getByLabelText } = renderGrid({
+      editable: false,
+      embeddedDisplayUuid: "display-1",
+      gridLayout: [{ i: "a", x: 2, y: 3, w: 4, h: 5 }]
+    });
+
+    const handle = getByLabelText("Drag widget a to Quick Screen");
+
+    const dataTransfer = {
+      effectAllowed: "",
+      setData: vi.fn()
+    };
+
+    fireEvent.dragStart(handle, { dataTransfer });
+
+    expect(dataTransfer.effectAllowed).toBe("move");
+    expect(dataTransfer.setData).toHaveBeenCalledWith(
+      "text/plain",
+      expect.any(String)
+    );
+
+    const dragData = JSON.parse(dataTransfer.setData.mock.calls[0][1]);
+
+    expect(dragData).toEqual(
+      expect.objectContaining({
+        widgetId: "a",
+        sourceGridId: "grid-test",
+        sourceEmbeddedDisplayUuid: "display-1",
+        w: 4,
+        h: 5
+      })
+    );
   });
 });

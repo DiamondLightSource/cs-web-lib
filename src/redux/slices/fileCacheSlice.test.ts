@@ -20,7 +20,8 @@ import fileCacheReducer, {
   clearLayoutProperties,
   convertDisplayType,
   normaliseChildren,
-  createDisplayInstanceFromQuickScreen
+  createDisplayInstanceFromQuickScreen,
+  displayInstanceMoveWidgetBetweenGridLayouts
 } from "./fileCacheSlice";
 
 const initialState: FileCacheState = {
@@ -1166,5 +1167,298 @@ describe("normaliseChildren()", () => {
       width: "100%",
       height: "100%"
     });
+  });
+});
+describe("displayInstanceMoveWidgetBetweenGridLayouts", () => {
+  const widget = {
+    id: "widget1",
+    type: "shape",
+    fileId: "file.bob",
+    macros: {
+      test: "hi"
+    }
+  };
+
+  const sourceGrid = {
+    id: "sourceGrid",
+    type: "displayGridLayout",
+    editable: false,
+    children: [widget],
+    gridLayout: [
+      {
+        i: "widget1",
+        x: 0,
+        y: 0,
+        w: 2,
+        h: 2
+      }
+    ]
+  };
+
+  const destinationGrid = {
+    id: "destinationGrid",
+    type: "displayGridLayout",
+    editable: true,
+    children: [
+      {
+        id: "existingWidget",
+        type: "shape",
+        fileId: "file.bob"
+      }
+    ],
+    gridLayout: [
+      {
+        i: "existingWidget",
+        x: 0,
+        y: 0,
+        w: 2,
+        h: 2
+      }
+    ]
+  };
+
+  const initialState: FileCacheState = {
+    fileCache: {},
+    displayInstanceCache: {
+      sourceUuid: {
+        uuid: "sourceUuid",
+        fileId: "file.bob",
+        macros: {
+          source: "first"
+        },
+        hash: "",
+        description: {
+          id: "sourceDisplay",
+          type: "display",
+          children: [sourceGrid]
+        } as any
+      },
+      destinationUuid: {
+        uuid: "destinationUuid",
+        fileId: "file.bob",
+        macros: {
+          destination: "second"
+        },
+        hash: "",
+        description: {
+          id: "destinationDisplay",
+          type: "display",
+          children: [destinationGrid]
+        } as any
+      }
+    },
+    displayInstanceIndex: {}
+  };
+
+  it("moves a widget to the destination grid", () => {
+    const result = fileCacheReducer(
+      initialState,
+      displayInstanceMoveWidgetBetweenGridLayouts({
+        sourceEmbeddedDisplayUuid: "sourceUuid",
+        sourceGridId: "sourceGrid",
+        destinationEmbeddedDisplayUuid: "destinationUuid",
+        destinationGridId: "destinationGrid",
+        widgetId: "widget1",
+        macros: {},
+        destinationItem: {
+          x: 2,
+          y: 3,
+          w: 4,
+          h: 5
+        }
+      })
+    );
+
+    const destination =
+      result.displayInstanceCache.destinationUuid.description.children?.[0];
+
+    expect(destination?.children).toContainEqual({
+      fileId: "file.bob",
+      id: "widget1",
+      macros: {
+        source: "first",
+        test: "hi"
+      },
+      type: "shape"
+    });
+  });
+
+  it("doesn't modify source widget", () => {
+    const result = fileCacheReducer(
+      initialState,
+      displayInstanceMoveWidgetBetweenGridLayouts({
+        sourceEmbeddedDisplayUuid: "sourceUuid",
+        sourceGridId: "sourceGrid",
+        destinationEmbeddedDisplayUuid: "destinationUuid",
+        destinationGridId: "destinationGrid",
+        widgetId: "widget1",
+        macros: {},
+        destinationItem: {
+          x: 2,
+          y: 3,
+          w: 4,
+          h: 5
+        }
+      })
+    );
+
+    const source =
+      result.displayInstanceCache.sourceUuid.description.children?.[0];
+
+    expect(source?.children).toContainEqual(widget);
+  });
+
+  it("adds widget to destination grid with supplied layout", () => {
+    const result = fileCacheReducer(
+      initialState,
+      displayInstanceMoveWidgetBetweenGridLayouts({
+        sourceEmbeddedDisplayUuid: "sourceUuid",
+        sourceGridId: "sourceGrid",
+        destinationEmbeddedDisplayUuid: "destinationUuid",
+        destinationGridId: "destinationGrid",
+        widgetId: "widget1",
+        macros: {},
+        destinationItem: {
+          x: 2,
+          y: 3,
+          w: 4,
+          h: 5
+        }
+      })
+    );
+
+    const destination =
+      result.displayInstanceCache.destinationUuid.description.children?.[0];
+
+    expect(destination?.gridLayout).toContainEqual({
+      i: "widget1",
+      x: 2,
+      y: 3,
+      w: 4,
+      h: 5
+    });
+  });
+
+  it("preserves existing destination grid layout", () => {
+    const result = fileCacheReducer(
+      initialState,
+      displayInstanceMoveWidgetBetweenGridLayouts({
+        sourceEmbeddedDisplayUuid: "sourceUuid",
+        sourceGridId: "sourceGrid",
+        destinationEmbeddedDisplayUuid: "destinationUuid",
+        destinationGridId: "destinationGrid",
+        widgetId: "widget1",
+        macros: {},
+        destinationItem: {
+          x: 2,
+          y: 3,
+          w: 4,
+          h: 5
+        }
+      })
+    );
+
+    const destination =
+      result.displayInstanceCache.destinationUuid.description.children?.[0];
+
+    expect(destination?.gridLayout).toEqual([
+      {
+        i: "existingWidget",
+        x: 0,
+        y: 0,
+        w: 2,
+        h: 2
+      },
+      {
+        i: "widget1",
+        x: 2,
+        y: 3,
+        w: 4,
+        h: 5
+      }
+    ]);
+  });
+
+  it("does not duplicate a widget already in destination grid", () => {
+    const state = structuredClone(initialState);
+
+    const destination =
+      state.displayInstanceCache.destinationUuid.description.children?.[0];
+
+    destination?.children?.push({
+      id: "widget1",
+      type: "shape",
+      fileId: "file.bob"
+    });
+
+    const result = fileCacheReducer(
+      state,
+      displayInstanceMoveWidgetBetweenGridLayouts({
+        sourceEmbeddedDisplayUuid: "sourceUuid",
+        sourceGridId: "sourceGrid",
+        destinationEmbeddedDisplayUuid: "destinationUuid",
+        destinationGridId: "destinationGrid",
+        widgetId: "widget1",
+        macros: {},
+        destinationItem: {
+          x: 2,
+          y: 3,
+          w: 4,
+          h: 5
+        }
+      })
+    );
+
+    const destinationChildren =
+      result.displayInstanceCache.destinationUuid.description.children?.[0]
+        .children;
+
+    expect(
+      destinationChildren?.filter(child => child.id === "widget1")
+    ).toHaveLength(1);
+  });
+
+  it("does nothing if the source grid does not exist", () => {
+    const result = fileCacheReducer(
+      initialState,
+      displayInstanceMoveWidgetBetweenGridLayouts({
+        sourceEmbeddedDisplayUuid: "sourceUuid",
+        sourceGridId: "missing",
+        destinationEmbeddedDisplayUuid: "destinationUuid",
+        destinationGridId: "destinationGrid",
+        widgetId: "widget1",
+        macros: {},
+        destinationItem: {
+          x: 0,
+          y: 0,
+          w: 1,
+          h: 1
+        }
+      })
+    );
+
+    expect(result).toEqual(initialState);
+  });
+
+  it("does nothing if the destination display instance does not exist", () => {
+    const result = fileCacheReducer(
+      initialState,
+      displayInstanceMoveWidgetBetweenGridLayouts({
+        sourceEmbeddedDisplayUuid: "sourceUuid",
+        sourceGridId: "sourceGrid",
+        destinationEmbeddedDisplayUuid: "missing",
+        destinationGridId: "destinationGrid",
+        widgetId: "widget1",
+        macros: {},
+        destinationItem: {
+          x: 0,
+          y: 0,
+          w: 1,
+          h: 1
+        }
+      })
+    );
+
+    expect(result).toEqual(initialState);
   });
 });
