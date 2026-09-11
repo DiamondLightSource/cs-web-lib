@@ -181,6 +181,11 @@ export type FileContextType = {
     pvwsHost?: string,
     replace?: boolean
   ) => void;
+  updatePage: (
+    location: string,
+    fileDesc?: FileDescription,
+    replace?: boolean
+  ) => void;
   removePage: (
     location: string,
     fileDesc?: FileDescription,
@@ -207,6 +212,7 @@ const initialState: FileContextType = {
   pageState: {},
   tabState: {},
   addPage: () => {},
+  updatePage: () => {},
   removePage: () => {},
   addTab: () => {},
   removeTab: () => {},
@@ -267,6 +273,23 @@ export const FileProvider: React.FC<FileProviderProps> = (
           tabState: historyLocation.state?.tabState ?? tabState
         },
         replace: replace ?? false
+      });
+    },
+    updatePage: (
+      location: string,
+      fileDesc?: FileDescription,
+      replace = false
+    ): void => {
+      if (!fileDesc) return;
+
+      const currentPageState = historyLocation.state?.pageState ?? pageState;
+
+      navigate(historyLocation.pathname, {
+        state: {
+          pageState: { ...currentPageState, [location]: fileDesc },
+          tabState: historyLocation.state?.tabState ?? tabState
+        },
+        replace
       });
     },
     removePage: (
