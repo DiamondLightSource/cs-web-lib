@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import {
   createDisplayInstanceFromQuickScreen,
+  removeDisplayInstanceByFile,
   selectDisplayInstance
 } from "../../redux/slices/fileCacheSlice";
 import { MacroMap } from "../../types/macros";
@@ -27,8 +28,13 @@ export const useDisplayInstance = (uuid: string) => {
     );
   };
 
+  const removeDisplayInstance = (file: string) => {
+    dispatch(removeDisplayInstanceByFile({ file }));
+  };
+
   return {
     displayInstance,
-    addDisplayInstanceByDescription
+    addDisplayInstanceByDescription,
+    removeDisplayInstance
   };
 };

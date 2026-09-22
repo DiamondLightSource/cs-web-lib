@@ -21,7 +21,8 @@ import fileCacheReducer, {
   convertDisplayType,
   normaliseChildren,
   createDisplayInstanceFromQuickScreen,
-  displayInstanceMoveWidgetBetweenGridLayouts
+  displayInstanceMoveWidgetBetweenGridLayouts,
+  removeDisplayInstanceByFile
 } from "./fileCacheSlice";
 
 const initialState: FileCacheState = {
@@ -731,6 +732,69 @@ describe("createDisplayInstanceFromQuickScreen", () => {
     const instance = Object.values(result.displayInstanceCache)[0];
 
     expect(instance.description.editable).toBe(false);
+  });
+});
+
+describe("removeDisplayInstanceByFile", () => {
+  it("removes display instances linked to the file", () => {
+    const state: FileCacheState = {
+      fileCache: {},
+      displayInstanceCache: {
+        UUID1: {
+          uuid: "UUID1",
+          fileId: "file",
+          macros: {},
+          hash: "file::{}",
+          description: {} as any
+        },
+        UUID2: {
+          uuid: "UUID2",
+          fileId: "other",
+          macros: {},
+          hash: "other::{}",
+          description: {} as any
+        }
+      },
+      displayInstanceIndex: {
+        "file::{}": "UUID1",
+        "other::{}": "UUID2"
+      }
+    };
+
+    const result = fileCacheReducer(
+      state,
+      removeDisplayInstanceByFile({ file: "file" })
+    );
+
+    expect(result.displayInstanceCache.UUID1).toBeUndefined();
+    expect(result.displayInstanceCache.UUID2).toBeDefined();
+    expect(result.displayInstanceIndex["file::{}"]).toBeUndefined();
+    expect(result.displayInstanceIndex["other::{}"]).toBe("UUID2");
+  });
+
+  it("does nothing if there are no display instances for file", () => {
+    const state: FileCacheState = {
+      fileCache: {},
+      displayInstanceCache: {
+        UUID1: {
+          uuid: "UUID1",
+          fileId: "other",
+          macros: {},
+          hash: "other::{}",
+          description: {} as any
+        }
+      },
+      displayInstanceIndex: {
+        "other::{}": "UUID1"
+      }
+    };
+
+    const result = fileCacheReducer(
+      state,
+      removeDisplayInstanceByFile({ file: "missing" })
+    );
+
+    expect(result).toEqual(state);
   });
 });
 

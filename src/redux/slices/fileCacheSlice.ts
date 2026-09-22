@@ -405,16 +405,24 @@ const fileCacheSlice = createSlice({
         return;
       }
 
-      const uuid = content.embeddedDisplayUuid;
+      const uuid = crypto.randomUUID();
+      const description = structuredClone(content);
+      injectFieldsIntoAllDescriptions(description, {
+        embeddedDisplayUuid: uuid
+      });
+      description.fileId = name;
+      description.name = name;
+      description.id = `${description.type}_${uuid}`;
 
       if (state.displayInstanceCache) {
-        const parentDir = content.fileId.slice(
-          0,
-          content.fileId.lastIndexOf("/")
-        );
+        const parentDir = name.slice(0, name.lastIndexOf("/"));
 
         state.displayInstanceCache[uuid] = {
-          description: resolveWidgetPathsAndMacros(content, parentDir, macros),
+          description: resolveWidgetPathsAndMacros(
+            description,
+            parentDir,
+            macros
+          ),
           fileId: name,
           macros: macros,
           uuid,
@@ -422,6 +430,22 @@ const fileCacheSlice = createSlice({
         };
         state.displayInstanceIndex[hash] = uuid;
       }
+    },
+    removeDisplayInstanceByFile(
+      state,
+      action: PayloadAction<{ file: string }>
+    ) {
+      const file = action.payload.file;
+
+      Object.entries(state.displayInstanceCache).forEach(([uuid, instance]) => {
+        if (instance.fileId !== file) return;
+
+        if (state.displayInstanceIndex[instance.hash] === uuid) {
+          delete state.displayInstanceIndex[instance.hash];
+        }
+
+        delete state.displayInstanceCache[uuid];
+      });
     },
     convertDisplayInstanceType(state, action) {
       const { uuid, file, macros, displayType } = action.payload;
@@ -459,6 +483,7 @@ export const {
   displayInstanceMoveWidgetBetweenGridLayouts,
   createDisplayInstanceFromFile,
   createDisplayInstanceFromQuickScreen,
+  removeDisplayInstanceByFile,
   convertDisplayInstanceType
 } = fileCacheSlice.actions;
 
