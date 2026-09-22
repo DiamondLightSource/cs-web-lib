@@ -260,11 +260,12 @@ export const FileProvider: React.FC<FileProviderProps> = (
       replace?: boolean
     ): void => {
       dispatch(setPvwsSettings({ pvwsHost }));
-      const newPageState = addPage(pageState, location, fileDesc);
+      const currentState = historyLocation.state ?? { pageState, tabState };
+      const newPageState = addPage(currentState.pageState, location, fileDesc);
       navigate(pathname ?? historyLocation.pathname, {
         state: {
           pageState: newPageState,
-          tabState: historyLocation.state?.tabState ?? tabState
+          tabState: currentState.tabState ?? tabState
         },
         replace: replace ?? false
       });
