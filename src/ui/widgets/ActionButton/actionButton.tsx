@@ -159,7 +159,12 @@ export const ActionButtonComponent = (
           display: visible ? "flex" : "none",
           height: typeof height === "string" ? "100%" : inputHeight,
           width: typeof width === "string" ? "100%" : inputWidth,
-          transform: transform
+          transform: transform,
+          "&.Mui-disabled": {
+            backgroundColor: style.colors.backgroundColor,
+            color: style.colors.color,
+            opacity: 0.5
+          }
         }}
         onClick={onClick}
       >

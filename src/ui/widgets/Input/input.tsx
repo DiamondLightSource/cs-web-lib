@@ -235,15 +235,10 @@ export const SmartInputComponent = (
         "& .MuiInputBase-input": {
           cursor: readOnly ? "not-allowed" : "default",
           textAlign: textAlign,
-          ...style.font,
-          "& .MuiOutlinedInput-input": {
-            "&.Mui-disabled": {
-              WebkitTextFillColor: foregroundColor?.replace(
-                /[^,]+(?=\))/,
-                "0.4"
-              )
-            }
-          }
+          ...style.font
+        },
+        "& .MuiInputBase-input.Mui-disabled": {
+          WebkitTextFillColor: foregroundColor
         },
         "& .MuiInputBase-root": {
           alignItems: alignmentV,
