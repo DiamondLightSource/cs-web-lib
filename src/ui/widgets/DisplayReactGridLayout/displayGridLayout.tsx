@@ -82,7 +82,7 @@ const widgetName = "displayGridLayout";
 
 // Default grid configuration
 const defaultRowHeight = 15;
-const defaultColumnWidth = 64;
+const defaultColumnWidth = 44;
 const defaultMargins = [6, 6];
 
 let activeCrossGridDrag: CrossGridDragData | null = null;
