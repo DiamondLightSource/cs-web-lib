@@ -268,7 +268,7 @@ describe("DisplayGridLayoutComponent", () => {
     expect(mocks.calculateDefaultLayout).toHaveBeenCalledWith(
       expect.any(Array),
       1200,
-      17,
+      24,
       [6, 6],
       15
     );
@@ -303,7 +303,7 @@ describe("DisplayGridLayoutComponent", () => {
 
     expect(props.layout).toEqual([]);
     expect(props.gridConfig).toEqual({
-      cols: 17,
+      cols: 24,
       margin: [6, 6],
       rowHeight: 15
     });
