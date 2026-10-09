@@ -105,7 +105,8 @@ const DisplayGridLayoutProps = {
   gridCellMargins: IntArrayPropOpt,
   gridLayoutColumns: IntPropOpt,
   gridLayout: ObjectArrayPropOpt,
-  editable: BoolPropOpt
+  editable: BoolPropOpt,
+  crossGridDragEnabled: BoolPropOpt
 };
 
 const overlapCompactor = getCompactor(
@@ -130,13 +131,13 @@ export const DisplayGridLayoutComponent = (
   // can set macros by using the updateMacro function on the
   // context.
   const dispatch = useDispatch();
-  const gridCellDragEnabled =
-    props?.gridCellDragEnabled == null ? true : props?.gridCellDragEnabled;
-  const gridCellResizeEnabled =
-    props?.gridCellResizeEnabled == null ? true : props?.gridCellResizeEnabled;
+  const canEdit = props.editable === true;
+  const canExportCrossGridDrop = props.crossGridDragEnabled === true;
+  const canReceiveCrossGridDrop = canEdit || canExportCrossGridDrop;
 
-  const canReceiveCrossGridDrop = props.editable === true;
-  const canExportCrossGridDrop = props.editable === false;
+  const gridCellDragEnabled = canEdit && (props.gridCellDragEnabled ?? true);
+  const gridCellResizeEnabled =
+    canEdit && (props.gridCellResizeEnabled ?? true);
 
   const inheritedMacros: MacroMap = useContext(MacroContext).macros;
   const [displayMacros, setDisplayMacros] = useState<MacroMap>(

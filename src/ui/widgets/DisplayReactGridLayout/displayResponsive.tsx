@@ -110,7 +110,8 @@ const DisplayResponsiveProps = {
   gridCellResizeEnabled: BoolPropOpt,
   gridCellMargins: IntArrayPropOpt,
   gridCellHeight: IntPropOpt,
-  editable: BoolPropOpt
+  editable: BoolPropOpt,
+  crossGridDragEnabled: BoolPropOpt
 };
 
 type propsType = InferWidgetProps<typeof DisplayResponsiveProps> & {

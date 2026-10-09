@@ -58,7 +58,8 @@ const EmbeddedDisplayProps = {
   groupName: StringPropOpt,
   rules: RulesPropOpt,
   targetDisplayType: StringPropOpt,
-  editable: BoolPropOpt
+  editable: BoolPropOpt,
+  crossGridDragEnabled: BoolPropOpt
 };
 
 export const EmbeddedDisplay = (
@@ -94,7 +95,8 @@ export const EmbeddedDisplay = (
     resolvedProps.file as File,
     embeddedDisplayMacroContext.macros,
     props.targetDisplayType,
-    props.editable
+    props.editable,
+    props.crossGridDragEnabled
   );
 
   const widgetIdsCallback = props?.widgetIdsCallback;

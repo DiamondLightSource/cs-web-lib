@@ -349,9 +349,28 @@ const fileCacheSlice = createSlice({
         // TO DO - add support for adding widgets
       }
     },
-
-    createDisplayInstanceFromFile(state, action) {
+    displayInstanceUpdateEditability(
+      state,
+      action: PayloadAction<{
+        file: string;
+        macros: MacroMap;
+        editable: boolean;
+      }>
+    ) {
       const { file, macros, editable } = action.payload;
+
+      const hash = `${file}::${stringify(macros)}`;
+      const uuid = state.displayInstanceIndex[hash];
+
+      if (!uuid) return;
+
+      const instance = state.displayInstanceCache[uuid];
+      if (!instance) return;
+
+      instance.description.editable = editable;
+    },
+    createDisplayInstanceFromFile(state, action) {
+      const { file, macros, editable, crossGridDragEnabled } = action.payload;
       const fileDescription = state.fileCache?.[file];
 
       const hash = `${file}::${stringify(macros)}`;
@@ -371,6 +390,7 @@ const fileCacheSlice = createSlice({
       });
       // If the file is loaded in an editable view, set editable prop
       description.editable = editable ? true : false;
+      description.crossGridDragEnabled = crossGridDragEnabled ? true : false;
 
       if (state.displayInstanceCache) {
         const parentDir = file.slice(0, file.lastIndexOf("/"));
@@ -481,6 +501,7 @@ export const {
   displayInstanceUpdateGridLayout,
   displayInstanceUpdateResponsiveLayout,
   displayInstanceMoveWidgetBetweenGridLayouts,
+  displayInstanceUpdateEditability,
   createDisplayInstanceFromFile,
   createDisplayInstanceFromQuickScreen,
   removeDisplayInstanceByFile,

@@ -6,7 +6,8 @@ import {
   fileComparator,
   selectDisplayInstanceByFileAndMacros,
   createDisplayInstanceFromFile,
-  convertDisplayInstanceType
+  convertDisplayInstanceType,
+  displayInstanceUpdateEditability
 } from "../../redux/slices/fileCacheSlice";
 import { MacroMap } from "../../types/macros";
 import { errorWidget, WidgetDescription } from "../widgets/createComponent";
@@ -80,7 +81,8 @@ export function useFile(
   file: File,
   macros?: MacroMap,
   targetDisplayType?: string,
-  editable?: boolean
+  editable?: boolean,
+  crossGridDragEnabled?: boolean
 ): [WidgetDescription, string] {
   const dispatch = useDispatch();
 
@@ -107,7 +109,8 @@ export function useFile(
           createDisplayInstanceFromFile({
             file: file.path,
             macros: macros ?? {},
-            editable: editable
+            editable: editable,
+            crossGridDragEnabled: crossGridDragEnabled
           })
         );
         if (targetDisplayType)
@@ -129,7 +132,8 @@ export function useFile(
         createDisplayInstanceFromFile({
           file: file.path,
           macros: macros ?? {},
-          editable: editable
+          editable: editable,
+          crossGridDragEnabled: crossGridDragEnabled
         })
       );
       if (targetDisplayType)
@@ -154,8 +158,22 @@ export function useFile(
     macros,
     displayInstance,
     targetDisplayType,
-    editable
+    editable,
+    crossGridDragEnabled
   ]);
+
+  // Check if the editable of a screen has changed
+  useEffect(() => {
+    if (!displayInstance || editable === undefined) return;
+
+    dispatch(
+      displayInstanceUpdateEditability({
+        file: file.path,
+        macros: macros ?? {},
+        editable
+      })
+    );
+  }, [dispatch, file.path, macros, editable, displayInstance]);
 
   return [
     displayInstance?.description || EMPTY_WIDGET,
