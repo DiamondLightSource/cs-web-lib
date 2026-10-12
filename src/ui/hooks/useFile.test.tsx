@@ -12,6 +12,7 @@ import {
 } from "../../redux/slices/fileCacheSlice";
 import { httpRequest } from "../../misc";
 import { useSelector } from "react-redux";
+import { DisplayInteractivity } from "../../types/interactivity";
 
 ensureWidgetsRegistered();
 
@@ -39,13 +40,16 @@ const parsedWidget = {
   position: { positionType: PositionType.RELATIVE }
 };
 
-const FileTester = (props: { file: File; editable?: boolean }): JSX.Element => {
+const FileTester = (props: {
+  file: File;
+  interactivity?: DisplayInteractivity;
+}): JSX.Element => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [contents, _] = useFile(
     props.file,
     undefined,
     undefined,
-    props.editable
+    props.interactivity
   );
   return <div>contents: {JSON.stringify(contents)}</div>;
 };
@@ -136,7 +140,8 @@ describe("useFile", (): void => {
     expect(mockDispatch).toHaveBeenCalledWith(
       createDisplayInstanceFromFile({
         file: "test.json",
-        macros: {}
+        macros: {},
+        interactivity: {}
       })
     );
 
@@ -203,7 +208,8 @@ describe("useFile", (): void => {
     expect(mockDispatch).toHaveBeenCalledWith(
       createDisplayInstanceFromFile({
         file: "test.json",
-        macros: {}
+        macros: {},
+        interactivity: {}
       })
     );
 
@@ -224,7 +230,7 @@ describe("useFile", (): void => {
       expect(text).toContain('"fileId":"test.json"');
     });
   });
-  it("sets editable mode when creating a display instance from cached file", async () => {
+  it("sets interactive mode when creating a display instance from cached file", async () => {
     const file = {
       path: "test.json",
       defaultProtocol: "ca",
@@ -235,14 +241,27 @@ describe("useFile", (): void => {
       .mockReturnValueOnce(null)
       .mockReturnValueOnce(parsedWidget);
 
-    contextRender(<FileTester file={file} editable={true} />);
+    contextRender(
+      <FileTester
+        file={file}
+        interactivity={{
+          editable: true,
+          crossGridDragEnabled: false,
+          crossGridDropEnabled: true
+        }}
+      />
+    );
 
     await waitFor(() => {
       expect(mockDispatch).toHaveBeenCalledWith(
         createDisplayInstanceFromFile({
           file: "test.json",
           macros: {},
-          editable: true
+          interactivity: {
+            editable: true,
+            crossGridDragEnabled: false,
+            crossGridDropEnabled: true
+          }
         })
       );
     });
@@ -265,14 +284,27 @@ describe("useFile", (): void => {
 
     mockedUseSelector.mockReturnValueOnce(null).mockReturnValueOnce(null);
 
-    contextRender(<FileTester file={file} editable={true} />);
+    contextRender(
+      <FileTester
+        file={file}
+        interactivity={{
+          editable: true,
+          crossGridDragEnabled: false,
+          crossGridDropEnabled: true
+        }}
+      />
+    );
 
     await waitFor(() => {
       expect(mockDispatch).toHaveBeenCalledWith(
         createDisplayInstanceFromFile({
           file: "test.json",
           macros: {},
-          editable: true
+          interactivity: {
+            editable: true,
+            crossGridDragEnabled: false,
+            crossGridDropEnabled: true
+          }
         })
       );
     });

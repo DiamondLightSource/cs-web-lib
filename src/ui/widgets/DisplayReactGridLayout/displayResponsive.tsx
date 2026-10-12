@@ -34,7 +34,8 @@ import {
   StringArrayPropOpt,
   ObjectPropOpt,
   IntArrayPropOpt,
-  IntPropOpt
+  IntPropOpt,
+  InteractivityPropOpt
 } from "../propTypes";
 import {
   MacroMap,
@@ -59,6 +60,7 @@ import { Dispatch } from "@reduxjs/toolkit";
 import CancelIcon from "@mui/icons-material/Cancel";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import { IconButton as MuiIconButton, styled, Tooltip } from "@mui/material";
+import { DEFAULT_INTERACTIVITY } from "../../../types/interactivity";
 
 // Set some default properties with styled
 const IconButton = styled(MuiIconButton)({
@@ -110,8 +112,7 @@ const DisplayResponsiveProps = {
   gridCellResizeEnabled: BoolPropOpt,
   gridCellMargins: IntArrayPropOpt,
   gridCellHeight: IntPropOpt,
-  editable: BoolPropOpt,
-  crossGridDragEnabled: BoolPropOpt
+  interactivity: InteractivityPropOpt
 };
 
 type propsType = InferWidgetProps<typeof DisplayResponsiveProps> & {
@@ -126,6 +127,10 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
   // can set macros by using the updateMacro function on the
   // context.
   const dispatch = useDispatch();
+  const interactivity = {
+    ...DEFAULT_INTERACTIVITY,
+    ...props.interactivity
+  };
 
   const isInteractingRef = useRef(false);
   const shouldCommitRef = useRef(false);
@@ -137,17 +142,13 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
   // Get base style from common CSS
   const [style, rawProps] = useStyle(props, widgetName);
   const newProps = rawProps as propsType;
-  const gridCellDragEnabled =
-    newProps?.gridCellDragEnabled == null
-      ? true
-      : newProps?.gridCellDragEnabled;
-  const gridCellResizeEnabled =
-    newProps?.gridCellResizeEnabled == null
-      ? true
-      : newProps?.gridCellResizeEnabled;
+  const canEdit = interactivity.editable === true;
+  const canExportCrossGridDrop = interactivity.crossGridDragEnabled === true;
+  const canReceiveCrossGridDrop = canEdit || canExportCrossGridDrop;
 
-  const canReceiveCrossGridDrop = props.editable === true;
-  const canExportCrossGridDrop = props.editable === false;
+  const gridCellDragEnabled = canEdit && (newProps.gridCellDragEnabled ?? true);
+  const gridCellResizeEnabled =
+    canEdit && (newProps.gridCellResizeEnabled ?? true);
 
   const inheritedMacros: MacroMap = useContext(MacroContext).macros;
   const [displayMacros, setDisplayMacros] = useState<MacroMap>(
@@ -374,7 +375,7 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
       wrapChildrenForGridLayout(
         childrenArray,
         gridCellDragEnabled,
-        newProps.editable,
+        interactivity.editable,
         canExportCrossGridDrop,
         handleDelete,
         handleCrossGridDragStart,
@@ -383,7 +384,7 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
     [
       childrenArray,
       gridCellDragEnabled,
-      newProps.editable,
+      interactivity.editable,
       handleDelete,
       canExportCrossGridDrop,
       handleCrossGridDragEnd,

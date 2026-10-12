@@ -350,7 +350,7 @@ describe("DisplayGridLayoutComponent", () => {
   });
   it("renders delete buttons when editable", () => {
     const { getByLabelText } = renderGrid({
-      editable: true,
+      interactivity: { editable: true },
       gridLayout: [
         { i: "a", w: 8, h: 4 },
         { i: "b", w: 8, h: 4 }
@@ -364,7 +364,7 @@ describe("DisplayGridLayoutComponent", () => {
 
   it("does not render delete buttons when not editable", () => {
     const { queryByLabelText } = renderGrid({
-      editable: false,
+      interactivity: { editable: false },
       gridLayout: [{ i: "a", w: 8, h: 4 }]
     });
 
@@ -372,7 +372,7 @@ describe("DisplayGridLayoutComponent", () => {
   });
   it("deletes a widget when the delete button is clicked", () => {
     const { getByLabelText } = renderGrid({
-      editable: true,
+      interactivity: { editable: true },
       embeddedDisplayUuid: "display-1",
       gridLayout: [
         { i: "a", x: 0, y: 0, w: 8, h: 4 },
@@ -397,7 +397,7 @@ describe("DisplayGridLayoutComponent", () => {
 
   it("renders cross-grid drag handle when editable is false", async () => {
     const { getByLabelText } = renderGrid({
-      editable: false,
+      interactivity: { editable: false, crossGridDragEnabled: true },
       gridLayout: [{ i: "a", x: 0, y: 0, w: 2, h: 3 }]
     });
 
@@ -410,7 +410,7 @@ describe("DisplayGridLayoutComponent", () => {
 
   it("does not enable cross-grid drag handle when editable is true", () => {
     const { queryByLabelText } = renderGrid({
-      editable: true,
+      interactivity: { editable: true },
       gridLayout: [{ i: "a", x: 0, y: 0, w: 2, h: 3 }]
     });
 
@@ -423,7 +423,7 @@ describe("DisplayGridLayoutComponent", () => {
     const rgl = (await import("react-grid-layout")) as any;
 
     renderGrid({
-      editable: true,
+      interactivity: { editable: true, crossGridDropEnabled: true },
       gridLayout: []
     });
 
@@ -434,7 +434,7 @@ describe("DisplayGridLayoutComponent", () => {
     const rgl = (await import("react-grid-layout")) as any;
 
     renderGrid({
-      editable: false,
+      interactivity: { editable: false, crossGridDropEnabled: false },
       gridLayout: []
     });
 
@@ -442,7 +442,7 @@ describe("DisplayGridLayoutComponent", () => {
   });
   it("starts a cross-grid drag from the drag handle", () => {
     const { getByLabelText } = renderGrid({
-      editable: false,
+      interactivity: { editable: false, crossGridDragEnabled: true },
       embeddedDisplayUuid: "display-1",
       gridLayout: [{ i: "a", x: 2, y: 3, w: 4, h: 5 }]
     });

@@ -18,7 +18,8 @@ import {
   InferWidgetProps,
   BorderPropOpt,
   BoolPropOpt,
-  StringPropOpt
+  StringPropOpt,
+  InteractivityPropOpt
 } from "../propTypes";
 import {
   EmbeddedDisplay,
@@ -40,8 +41,7 @@ const DynamicPageProps = {
   scroll: BoolPropOpt,
   mjpgEndpoint: StringPropOpt,
   targetDisplayType: StringPropOpt,
-  editable: BoolPropOpt,
-  crossGridDragEnabled: BoolPropOpt
+  interactivity: InteractivityPropOpt
 };
 
 type DynamicPageComponentProps = InferWidgetProps<typeof DynamicPageProps> &
@@ -109,8 +109,7 @@ export const DynamicPageComponent = (
             )}
             widgetIdsCallback={props?.widgetIdsCallback}
             targetDisplayType={newProps.targetDisplayType}
-            editable={newProps.editable}
-            crossGridDragEnabled={newProps.crossGridDragEnabled}
+            interactivity={newProps.interactivity}
           />
           <div
             style={{
@@ -169,8 +168,7 @@ export const DynamicPageComponent = (
           )}
           widgetIdsCallback={props?.widgetIdsCallback}
           targetDisplayType={newProps.targetDisplayType}
-          editable={newProps.editable}
-          crossGridDragEnabled={newProps.crossGridDragEnabled}
+          interactivity={newProps.interactivity}
         />
       </ExitFileContext.Provider>
     );
