@@ -141,7 +141,7 @@ describe("useFile", (): void => {
       createDisplayInstanceFromFile({
         file: "test.json",
         macros: {},
-        interactivity: {}
+        interactivity: undefined
       })
     );
 
@@ -209,7 +209,7 @@ describe("useFile", (): void => {
       createDisplayInstanceFromFile({
         file: "test.json",
         macros: {},
-        interactivity: {}
+        interactivity: undefined
       })
     );
 

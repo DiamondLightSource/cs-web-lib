@@ -109,7 +109,7 @@ export function useFile(
           createDisplayInstanceFromFile({
             file: file.path,
             macros: macros ?? {},
-            interactivity: interactivity ?? {}
+            interactivity: interactivity
           })
         );
         if (targetDisplayType)
@@ -131,7 +131,7 @@ export function useFile(
         createDisplayInstanceFromFile({
           file: file.path,
           macros: macros ?? {},
-          interactivity: interactivity ?? {}
+          interactivity: interactivity
         })
       );
       if (targetDisplayType)
