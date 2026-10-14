@@ -4,11 +4,17 @@ import {
   dTypeCoerceString,
   dTypeGetAlarm,
   dTypeGetTime,
-  AlarmQuality
+  AlarmQuality,
+  dTypeGetArrayValue,
+  dTypeByteArrToString
 } from "../../types/dtypes";
 import { getPvValueAndName } from "./utils";
 
-function tooltipValue(connected?: boolean, value?: DType): string {
+function tooltipValue(
+  connected?: boolean,
+  value?: DType,
+  formatType?: string
+): string {
   if (value) {
     const time = dTypeGetTime(value);
     const alarm = dTypeGetAlarm(value);
@@ -19,7 +25,12 @@ function tooltipValue(connected?: boolean, value?: DType): string {
       if (!value) {
         displayValue = "Warning: Waiting for value";
       } else {
-        displayValue = dTypeCoerceString(value);
+        const valarr = dTypeGetArrayValue(value);
+        if (valarr !== undefined && formatType === "string") {
+          displayValue = dTypeByteArrToString(valarr);
+        } else {
+          displayValue = dTypeCoerceString(value);
+        }
         if (alarm.quality !== AlarmQuality.VALID) {
           displayValue += ` [${alarm.quality}]`;
         }
@@ -40,6 +51,7 @@ function tooltipValue(connected?: boolean, value?: DType): string {
 export function resolveTooltip(props: {
   pvData: PvDatum[];
   tooltip: string;
+  formatType?: string;
 }): string | undefined {
   const pvValueRegex = /\${pvValue}|\${pv_value}/g;
   const { pvData, tooltip } = props;
@@ -47,7 +59,7 @@ export function resolveTooltip(props: {
   const { value, connected } = getPvValueAndName(pvData);
 
   if (tooltip.match(pvValueRegex)) {
-    const ttval = tooltipValue(connected, value);
+    const ttval = tooltipValue(connected, value, props.formatType);
     return tooltip.replace(pvValueRegex, ttval);
   } else {
     return tooltip;
