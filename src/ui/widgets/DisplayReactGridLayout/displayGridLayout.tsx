@@ -31,7 +31,8 @@ import {
   IntPropOpt,
   ObjectArrayPropOpt,
   IntArrayPropOpt,
-  PositionProp
+  PositionProp,
+  InteractivityPropOpt
 } from "../propTypes";
 import {
   MacroMap,
@@ -54,6 +55,7 @@ import { useDispatch, useSelector } from "react-redux";
 import CancelIcon from "@mui/icons-material/Cancel";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import { IconButton as MuiIconButton, styled, Tooltip } from "@mui/material";
+import { DEFAULT_INTERACTIVITY } from "../../../types/interactivity";
 
 // Set some default properties with styled
 const IconButton = styled(MuiIconButton)({
@@ -105,7 +107,7 @@ const DisplayGridLayoutProps = {
   gridCellMargins: IntArrayPropOpt,
   gridLayoutColumns: IntPropOpt,
   gridLayout: ObjectArrayPropOpt,
-  editable: BoolPropOpt
+  interactivity: InteractivityPropOpt
 };
 
 const overlapCompactor = getCompactor(
@@ -130,13 +132,15 @@ export const DisplayGridLayoutComponent = (
   // can set macros by using the updateMacro function on the
   // context.
   const dispatch = useDispatch();
-  const gridCellDragEnabled =
-    props?.gridCellDragEnabled == null ? true : props?.gridCellDragEnabled;
-  const gridCellResizeEnabled =
-    props?.gridCellResizeEnabled == null ? true : props?.gridCellResizeEnabled;
+  const { editable, crossGridDragEnabled, crossGridDropEnabled } = {
+    ...DEFAULT_INTERACTIVITY,
+    ...props.interactivity
+  };
+  const canReceiveCrossGridDrop = editable && crossGridDropEnabled;
 
-  const canReceiveCrossGridDrop = props.editable === true;
-  const canExportCrossGridDrop = props.editable === false;
+  const gridCellDragEnabled = editable && (props.gridCellDragEnabled ?? true);
+  const gridCellResizeEnabled =
+    editable && (props.gridCellResizeEnabled ?? true);
 
   const inheritedMacros: MacroMap = useContext(MacroContext).macros;
   const [displayMacros, setDisplayMacros] = useState<MacroMap>(
@@ -288,7 +292,7 @@ export const DisplayGridLayoutComponent = (
   // handle dragging out of display and into new one
   const handleCrossGridDragStart = useCallback(
     (event: React.DragEvent<HTMLButtonElement>, widgetId: string) => {
-      if (!canExportCrossGridDrop) {
+      if (!crossGridDragEnabled) {
         event.preventDefault();
         return;
       }
@@ -313,7 +317,7 @@ export const DisplayGridLayoutComponent = (
       event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
     },
     [
-      canExportCrossGridDrop,
+      crossGridDragEnabled,
       layout,
       props.id,
       props.embeddedDisplayUuid,
@@ -357,7 +361,7 @@ export const DisplayGridLayoutComponent = (
               cursor: gridCellDragEnabled ? "grab" : "default"
             }}
           >
-            {props.editable && (
+            {editable && (
               <IconButton
                 aria-label={`Delete widget ${id}`}
                 size="small"
@@ -377,7 +381,7 @@ export const DisplayGridLayoutComponent = (
                 <CancelIcon fontSize="small" />
               </IconButton>
             )}
-            {canExportCrossGridDrop && (
+            {crossGridDragEnabled && (
               <Tooltip title="Drag widget to Quick Screen" placement="top">
                 <IconButton
                   className="drag-handle"
@@ -410,36 +414,37 @@ export const DisplayGridLayoutComponent = (
               </Tooltip>
             )}
             {child}
-            {isActiveDragging && (
-              // overlay captures clicks during drag so child won't toggle
-              <div
-                data-testid="drag-overlay"
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  zIndex: 10,
-                  background: "transparent"
-                }}
-                onClick={e => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                }}
-              />
-            )}
+            {!editable ||
+              (isActiveDragging && (
+                // overlay captures clicks during drag so child won't toggle
+                <div
+                  data-testid="drag-overlay"
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    zIndex: 10,
+                    background: "transparent"
+                  }}
+                  onClick={e => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                  }}
+                />
+              ))}
           </div>
         );
       }),
     [
       childrenArray,
-      canExportCrossGridDrop,
+      crossGridDragEnabled,
       gridCellDragEnabled,
       isInteracting,
       dragState,
       handleDelete,
-      props.editable,
+      editable,
       handleCrossGridDragStart,
       handleCrossGridDragEnd
     ]

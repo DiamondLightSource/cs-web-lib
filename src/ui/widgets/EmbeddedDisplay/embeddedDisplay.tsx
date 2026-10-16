@@ -20,7 +20,8 @@ import {
   StringPropOpt,
   StringOrNumPropOpt,
   MacrosPropOpt,
-  RulesPropOpt
+  RulesPropOpt,
+  InteractivityPropOpt
 } from "../propTypes";
 import { GroupBoxComponent } from "../GroupBox/groupBox";
 import { useId } from "react-id-generator";
@@ -58,7 +59,7 @@ const EmbeddedDisplayProps = {
   groupName: StringPropOpt,
   rules: RulesPropOpt,
   targetDisplayType: StringPropOpt,
-  editable: BoolPropOpt
+  interactivity: InteractivityPropOpt
 };
 
 export const EmbeddedDisplay = (
@@ -94,7 +95,7 @@ export const EmbeddedDisplay = (
     resolvedProps.file as File,
     embeddedDisplayMacroContext.macros,
     props.targetDisplayType,
-    props.editable
+    props.interactivity
   );
 
   const widgetIdsCallback = props?.widgetIdsCallback;

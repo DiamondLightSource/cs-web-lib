@@ -22,7 +22,8 @@ import fileCacheReducer, {
   normaliseChildren,
   createDisplayInstanceFromQuickScreen,
   displayInstanceMoveWidgetBetweenGridLayouts,
-  removeDisplayInstanceByFile
+  removeDisplayInstanceByFile,
+  displayInstanceUpdateEditability
 } from "./fileCacheSlice";
 
 const initialState: FileCacheState = {
@@ -698,14 +699,18 @@ describe("createDisplayInstanceFromQuickScreen", () => {
     const action = createDisplayInstanceFromFile({
       file: "file.bob",
       macros: {},
-      editable: true
+      interactivity: {
+        editable: true,
+        crossGridDragEnabled: false,
+        crossGridDropEnabled: true
+      }
     });
 
     const result = fileCacheReducer(state, action);
 
     const instance = Object.values(result.displayInstanceCache)[0];
 
-    expect(instance.description.editable).toBe(true);
+    expect(instance.description.interactivity.editable).toBe(true);
   });
   it("sets editable to false when creating a non-editable display instance", () => {
     const state: FileCacheState = {
@@ -724,14 +729,18 @@ describe("createDisplayInstanceFromQuickScreen", () => {
     const action = createDisplayInstanceFromFile({
       file: "file.bob",
       macros: {},
-      editable: false
+      interactivity: {
+        editable: false,
+        crossGridDragEnabled: true,
+        crossGridDropEnabled: false
+      }
     });
 
     const result = fileCacheReducer(state, action);
 
     const instance = Object.values(result.displayInstanceCache)[0];
 
-    expect(instance.description.editable).toBe(false);
+    expect(instance.description.interactivity.editable).toBe(false);
   });
 });
 
@@ -1103,6 +1112,81 @@ describe("convertDisplayInstanceType", () => {
   });
 });
 
+describe("displayInstanceUpdateEditability", () => {
+  const macros = { a: "b" };
+  const hash = "file.bob::" + JSON.stringify(macros);
+
+  const initialState: FileCacheState = {
+    fileCache: {},
+    displayInstanceCache: {
+      UUID1: {
+        uuid: "UUID1",
+        fileId: "file.bob",
+        macros,
+        hash,
+        description: {
+          id: "display1",
+          type: "display",
+          fileId: "file.bob",
+          interactivity: {
+            editable: false,
+            crossGridDragEnabled: false,
+            crossGridDropEnabled: false
+          }
+        } as any
+      }
+    },
+    displayInstanceIndex: {
+      [hash]: "UUID1"
+    }
+  };
+  it("sets editable to true on an existing display instance", () => {
+    const result = fileCacheReducer(
+      initialState,
+      displayInstanceUpdateEditability({
+        file: "file.bob",
+        macros,
+        editable: true
+      })
+    );
+
+    expect(
+      result.displayInstanceCache.UUID1.description.interactivity.editable
+    ).toBe(true);
+  });
+  it("sets editable to false on an existing display instance", () => {
+    const state: FileCacheState = {
+      ...initialState,
+      displayInstanceCache: {
+        UUID1: {
+          ...initialState.displayInstanceCache.UUID1,
+          description: {
+            ...initialState.displayInstanceCache.UUID1.description,
+            interactivity: {
+              editable: true,
+              crossGridDragEnabled: true,
+              crossGridDropEnabled: true
+            }
+          } as any
+        }
+      }
+    };
+
+    const result = fileCacheReducer(
+      state,
+      displayInstanceUpdateEditability({
+        file: "file.bob",
+        macros,
+        editable: false
+      })
+    );
+
+    expect(
+      result.displayInstanceCache.UUID1.description.interactivity.editable
+    ).toBe(false);
+  });
+});
+
 describe("clearLayoutProperties", () => {
   it("clears all specificed properties on grid display", () => {
     const display: WidgetDescription = {
@@ -1246,7 +1330,11 @@ describe("displayInstanceMoveWidgetBetweenGridLayouts", () => {
   const sourceGrid = {
     id: "sourceGrid",
     type: "displayGridLayout",
-    editable: false,
+    interactivity: {
+      editable: false,
+      crossGridDragEnabled: true,
+      crossGridDropEnabled: false
+    },
     children: [widget],
     gridLayout: [
       {
@@ -1263,6 +1351,11 @@ describe("displayInstanceMoveWidgetBetweenGridLayouts", () => {
     id: "destinationGrid",
     type: "displayGridLayout",
     editable: true,
+    interactivity: {
+      editable: true,
+      crossGridDragEnabled: false,
+      crossGridDropEnabled: true
+    },
     children: [
       {
         id: "existingWidget",

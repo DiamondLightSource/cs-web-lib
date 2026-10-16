@@ -222,8 +222,8 @@ const fileCacheSlice = createSlice({
 
       // Ensure we're moving widgets the correct way
       if (
-        sourceDisplay.editable !== false ||
-        destinationDisplay.editable !== true
+        sourceDisplay.interactivity.editable !== false ||
+        destinationDisplay.interactivity.editable !== true
       )
         return;
 
@@ -349,9 +349,28 @@ const fileCacheSlice = createSlice({
         // TO DO - add support for adding widgets
       }
     },
-
-    createDisplayInstanceFromFile(state, action) {
+    displayInstanceUpdateEditability(
+      state,
+      action: PayloadAction<{
+        file: string;
+        macros: MacroMap;
+        editable: boolean;
+      }>
+    ) {
       const { file, macros, editable } = action.payload;
+
+      const hash = `${file}::${stringify(macros)}`;
+      const uuid = state.displayInstanceIndex[hash];
+
+      if (!uuid) return;
+
+      const instance = state.displayInstanceCache[uuid];
+      if (!instance) return;
+
+      instance.description.interactivity.editable = editable;
+    },
+    createDisplayInstanceFromFile(state, action) {
+      const { file, macros, interactivity } = action.payload;
       const fileDescription = state.fileCache?.[file];
 
       const hash = `${file}::${stringify(macros)}`;
@@ -369,8 +388,8 @@ const fileCacheSlice = createSlice({
       injectFieldsIntoAllDescriptions(description, {
         embeddedDisplayUuid: uuid
       });
-      // If the file is loaded in an editable view, set editable prop
-      description.editable = editable ? true : false;
+      // If the file is loaded in an editable view, set editable props
+      description.interactivity = interactivity;
 
       if (state.displayInstanceCache) {
         const parentDir = file.slice(0, file.lastIndexOf("/"));
@@ -481,6 +500,7 @@ export const {
   displayInstanceUpdateGridLayout,
   displayInstanceUpdateResponsiveLayout,
   displayInstanceMoveWidgetBetweenGridLayouts,
+  displayInstanceUpdateEditability,
   createDisplayInstanceFromFile,
   createDisplayInstanceFromQuickScreen,
   removeDisplayInstanceByFile,

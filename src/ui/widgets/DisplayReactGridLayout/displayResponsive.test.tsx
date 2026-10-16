@@ -414,7 +414,11 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
         id="display-1"
         fileId="file-1"
         embeddedDisplayUuid="uuid1"
-        editable={true}
+        interactivity={{
+          editable: true,
+          crossGridDragEnabled: false,
+          crossGridDropEnabled: true
+        }}
         responsiveLayouts={{
           lg: [
             { i: "a", x: 0, y: 0, w: 4, h: 3 },
@@ -438,7 +442,11 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
         id="display-1"
         fileId="file-1"
         embeddedDisplayUuid="uuid1"
-        editable={false}
+        interactivity={{
+          editable: false,
+          crossGridDragEnabled: false,
+          crossGridDropEnabled: true
+        }}
         responsiveLayouts={{
           lg: [{ i: "a", x: 0, y: 0, w: 4, h: 3 }]
         }}
@@ -455,7 +463,11 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
         id="display-1"
         fileId="file-1"
         embeddedDisplayUuid="uuid1"
-        editable={true}
+        interactivity={{
+          editable: true,
+          crossGridDragEnabled: false,
+          crossGridDropEnabled: true
+        }}
         responsiveLayouts={{
           lg: [
             { i: "a", x: 0, y: 0, w: 4, h: 3 },
@@ -495,7 +507,11 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
         id="destination"
         fileId="file-1"
         embeddedDisplayUuid="destination-uuid"
-        editable={true}
+        interactivity={{
+          editable: true,
+          crossGridDragEnabled: false,
+          crossGridDropEnabled: true
+        }}
         responsiveLayouts={{
           lg: [{ i: "a", x: 0, y: 0, w: 4, h: 3 }]
         }}
@@ -512,7 +528,11 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
         id="destination"
         fileId="file-1"
         embeddedDisplayUuid="destination-uuid"
-        editable={false}
+        interactivity={{
+          editable: false,
+          crossGridDragEnabled: false,
+          crossGridDropEnabled: false
+        }}
         responsiveLayouts={{
           lg: [{ i: "a", x: 0, y: 0, w: 4, h: 3 }]
         }}
@@ -537,7 +557,11 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
           id="source"
           fileId="file-1"
           embeddedDisplayUuid="source-uuid"
-          editable={false}
+          interactivity={{
+            editable: false,
+            crossGridDragEnabled: true,
+            crossGridDropEnabled: false
+          }}
           responsiveLayouts={{
             lg: [
               {
@@ -593,7 +617,11 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
         id="display-1"
         fileId="file-1"
         embeddedDisplayUuid="uuid1"
-        editable={false}
+        interactivity={{
+          editable: false,
+          crossGridDragEnabled: true,
+          crossGridDropEnabled: false
+        }}
         responsiveLayouts={{
           lg: [{ i: "a", x: 0, y: 0, w: 4, h: 3 }]
         }}
@@ -615,7 +643,11 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
         id="display-1"
         fileId="file-1"
         embeddedDisplayUuid="uuid1"
-        editable={true}
+        interactivity={{
+          editable: true,
+          crossGridDragEnabled: false,
+          crossGridDropEnabled: true
+        }}
         responsiveLayouts={{
           lg: [{ i: "a", x: 0, y: 0, w: 4, h: 3 }]
         }}
@@ -644,7 +676,11 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
             id="source"
             fileId="file-1"
             embeddedDisplayUuid="source-uuid"
-            editable={false}
+            interactivity={{
+              editable: false,
+              crossGridDragEnabled: true,
+              crossGridDropEnabled: false
+            }}
             responsiveLayouts={{
               lg: [{ i: "a", x: 1, y: 2, w: 6, h: 7 }]
             }}
@@ -656,7 +692,11 @@ describe("DisplayResponsiveComponent – high‑value behaviors", () => {
             id="destination"
             fileId="file-1"
             embeddedDisplayUuid="destination-uuid"
-            editable={true}
+            interactivity={{
+              editable: true,
+              crossGridDragEnabled: false,
+              crossGridDropEnabled: true
+            }}
             responsiveLayouts={{
               lg: [{ i: "b", x: 0, y: 0, w: 4, h: 3 }]
             }}

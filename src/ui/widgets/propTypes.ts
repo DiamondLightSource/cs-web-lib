@@ -86,6 +86,13 @@ export const BorderPropOpt = PropTypes.shape({
 });
 export const BorderProp = BorderPropOpt.isRequired;
 
+export const InteractivityPropOpt = PropTypes.shape({
+  editable: BoolProp,
+  crossGridDragEnabled: BoolProp,
+  crossGridDropEnabled: BoolProp
+});
+export const InteractivityProp = InteractivityPropOpt.isRequired;
+
 export const TracePropOpt = PropTypes.shape({
   name: StringProp,
   axis: IntProp,

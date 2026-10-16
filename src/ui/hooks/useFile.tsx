@@ -6,7 +6,8 @@ import {
   fileComparator,
   selectDisplayInstanceByFileAndMacros,
   createDisplayInstanceFromFile,
-  convertDisplayInstanceType
+  convertDisplayInstanceType,
+  displayInstanceUpdateEditability
 } from "../../redux/slices/fileCacheSlice";
 import { MacroMap } from "../../types/macros";
 import { errorWidget, WidgetDescription } from "../widgets/createComponent";
@@ -19,6 +20,7 @@ import { parseOpi } from "../widgets/EmbeddedDisplay/opiParser";
 import { Store } from "redux";
 import { newAbsolutePosition } from "../../types/position";
 import { parseBcf } from "../widgets/EmbeddedDisplay/bcfParser";
+import { DisplayInteractivity } from "../../types/interactivity";
 
 export const EMPTY_WIDGET_ID = "EMPTY_WIDGET";
 export const EMPTY_WIDGET: WidgetDescription = {
@@ -80,7 +82,7 @@ export function useFile(
   file: File,
   macros?: MacroMap,
   targetDisplayType?: string,
-  editable?: boolean
+  interactivity?: DisplayInteractivity
 ): [WidgetDescription, string] {
   const dispatch = useDispatch();
 
@@ -107,7 +109,7 @@ export function useFile(
           createDisplayInstanceFromFile({
             file: file.path,
             macros: macros ?? {},
-            editable: editable
+            interactivity: interactivity
           })
         );
         if (targetDisplayType)
@@ -129,7 +131,7 @@ export function useFile(
         createDisplayInstanceFromFile({
           file: file.path,
           macros: macros ?? {},
-          editable: editable
+          interactivity: interactivity
         })
       );
       if (targetDisplayType)
@@ -154,8 +156,21 @@ export function useFile(
     macros,
     displayInstance,
     targetDisplayType,
-    editable
+    interactivity
   ]);
+
+  // Check if the editable of a screen has changed
+  useEffect(() => {
+    if (!displayInstance || interactivity === undefined) return;
+
+    dispatch(
+      displayInstanceUpdateEditability({
+        file: file.path,
+        macros: macros ?? {},
+        editable: interactivity.editable ?? false
+      })
+    );
+  }, [dispatch, file.path, macros, interactivity, displayInstance]);
 
   return [
     displayInstance?.description || EMPTY_WIDGET,
