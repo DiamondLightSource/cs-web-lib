@@ -218,7 +218,10 @@ export const ConnectingComponent = (props: {
   );
 
   if (widgetTooltipProps.tooltip) {
-    const resolvedTooltip = resolveTooltip(widgetTooltipProps);
+    const resolvedTooltip = resolveTooltip({
+      ...widgetTooltipProps,
+      formatType: props.widgetProps.formatType
+    });
     const popoverContent = (): JSX.Element => {
       return <div className={tooltipClasses.Tooltip}>{resolvedTooltip}</div>;
     };

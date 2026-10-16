@@ -46,7 +46,8 @@ export const WidgetPropType = {
 const PvPropsAndMetdataType = {
   alarmBorder: BoolPropOpt,
   pvType: PvTypePropOpt,
-  pvMetadataList: PropTypes.arrayOf(PVMetadataType)
+  pvMetadataList: PropTypes.arrayOf(PVMetadataType),
+  formatType: StringPropOpt
 };
 
 // PropTypes object for a PV widget which can be expanded
