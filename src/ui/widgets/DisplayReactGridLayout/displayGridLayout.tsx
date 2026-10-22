@@ -230,8 +230,8 @@ export const DisplayGridLayoutComponent = (
         gridLayoutColumns: columns,
         gridCellMargins: cellMargins,
         gridCellHeight: cellHeight,
-        gridCellDragEnabled,
-        gridCellResizeEnabled
+        gridCellDragEnabled: props.gridCellDragEnabled ?? true,
+        gridCellResizeEnabled: props.gridCellResizeEnabled ?? true
       })
     );
   }, [
