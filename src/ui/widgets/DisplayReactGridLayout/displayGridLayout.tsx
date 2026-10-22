@@ -244,8 +244,8 @@ export const DisplayGridLayoutComponent = (
     displayWidth,
     cellMargins,
     cellHeight,
-    gridCellDragEnabled,
-    gridCellResizeEnabled
+    props.gridCellDragEnabled,
+    props.gridCellResizeEnabled
   ]);
 
   const {
