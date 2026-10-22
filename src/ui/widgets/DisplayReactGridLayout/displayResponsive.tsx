@@ -252,8 +252,8 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
         cellMargins,
         cellHeight,
         dispatch,
-        gridCellDragEnabled,
-        gridCellResizeEnabled
+        newProps.gridCellDragEnabled ?? true,
+        newProps.gridCellResizeEnabled ?? true
       ),
     [
       dispatch,
@@ -265,8 +265,8 @@ export const DisplayResponsiveComponent = (props: propsType): JSX.Element => {
       breakpoints,
       cellMargins,
       cellHeight,
-      gridCellDragEnabled,
-      gridCellResizeEnabled,
+      newProps.gridCellDragEnabled,
+      newProps.gridCellResizeEnabled,
       areBreakpointsConsistent
     ]
   );
