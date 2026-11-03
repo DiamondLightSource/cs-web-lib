@@ -91,9 +91,8 @@ export const buildServiceConnection = (
   const plugins: [string, Connection][] = [["sim://", simulator]];
 
   if (PVWS_SOCKET && PVWS_SOCKET !== "") {
-    pvwsConnection =
-      pvwsConnection ??
-      new PvwsPlugin(
+    if (!pvwsConnection) {
+      pvwsConnection = new PvwsPlugin(
         PVWS_SOCKET,
         PVWS_SSL,
         onConnectionChangedCallback(dispatch),
@@ -101,6 +100,7 @@ export const buildServiceConnection = (
         onConnectionClosedCallback(dispatch),
         onErrorMessageCallback(dispatch)
       );
+    }
     plugins.unshift(["pva://", pvwsConnection]);
     plugins.unshift(["ca://", pvwsConnection]);
     plugins.unshift(["loc://", pvwsConnection]);

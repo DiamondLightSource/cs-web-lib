@@ -376,15 +376,9 @@ const fileCacheSlice = createSlice({
 
       const hash = `${file}::${stringify(macros)}`;
 
-      if (
-        Object.values(state?.displayInstanceCache ?? {}).some(
-          inst => inst.hash === hash
-        )
-      ) {
-        return;
-      }
+      if (state.displayInstanceIndex[hash]) return;
 
-      const uuid = crypto.randomUUID();
+      const uuid = generateUUID();
       const description = structuredClone(current(fileDescription));
       injectFieldsIntoAllDescriptions(description, {
         embeddedDisplayUuid: uuid
@@ -417,15 +411,9 @@ const fileCacheSlice = createSlice({
 
       const hash = `${name}::${stringify(macros)}`;
 
-      if (
-        Object.values(state?.displayInstanceCache ?? {}).some(
-          inst => inst.hash === hash
-        )
-      ) {
-        return;
-      }
+      if (state.displayInstanceIndex[hash]) return;
 
-      const uuid = crypto.randomUUID();
+      const uuid = generateUUID();
       const description = structuredClone(content);
       injectFieldsIntoAllDescriptions(description, {
         embeddedDisplayUuid: uuid
@@ -566,21 +554,11 @@ export const fileComparator = (
   before: WidgetDescription,
   after: WidgetDescription
 ): boolean => {
-  if (!before || !after) {
-    return false;
-  }
-  if (Object.keys(before).length !== Object.keys(after).length) {
-    return false;
-  }
-  if (before.children?.length !== after.children?.length) {
-    return false;
-  }
+  if (before === after) return true;
+  if (!before || !after) return false;
   // Can't compare objects directly because they are in different memory locations
   // But we can compare strings
-  if (JSON.stringify(before) !== JSON.stringify(after)) {
-    return false;
-  }
-  return true;
+  return JSON.stringify(before) === JSON.stringify(after);
 };
 
 /**
