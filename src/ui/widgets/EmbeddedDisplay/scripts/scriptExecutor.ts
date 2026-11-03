@@ -1,6 +1,7 @@
 import log from "loglevel";
 import { ScriptResponse } from "./scriptTypes";
 import { enqueueScript, executeAllScriptsInQueue } from "./scriptQueue";
+import { generateUUID } from "../../../../misc/stringUtils";
 
 const parentOrigin = window.location.origin;
 
@@ -171,7 +172,7 @@ const postScriptToIframe = (
   }
 
   return new Promise<ScriptResponse>((resolve, reject) => {
-    const id = crypto.randomUUID();
+    const id = generateUUID();
     let hasTimedOut = false;
 
     const cleanup = () => {

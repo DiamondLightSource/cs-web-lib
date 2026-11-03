@@ -19,6 +19,7 @@ import { Box } from "@mui/material";
 import { useStyle } from "../../hooks/useStyle";
 import { getPvValueAndName } from "../utils";
 import { useNotification } from "../../hooks";
+import { generateUUID } from "../../../misc/stringUtils";
 // import { newAxis } from "../../../types/axis";
 // import { ColorMap, newColorBar } from "../../../types/color";
 
@@ -93,7 +94,7 @@ export const DemoImageComponent = (
   return (
     <Box
       component="img"
-      key={`image_${crypto.randomUUID()}`}
+      key={`image_${generateUUID()}`}
       src={src}
       alt={`PvName: ${effectivePvName}`}
       onError={handleError}

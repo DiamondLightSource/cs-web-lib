@@ -27,6 +27,7 @@ import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { newColor } from "../../../types/color";
 import { useStyle } from "../../hooks/useStyle";
 import { parseToPixelInt } from "../utils";
+import { generateUUID } from "../../../misc/stringUtils";
 
 const widgetName = "tabcontainer";
 
@@ -71,7 +72,7 @@ export const TabContainerComponent = (
           name: tab.name,
           children: widgetDescriptionToComponent({
             type: "display",
-            id: newProps?.id ?? `tabContainer_${crypto.randomUUID()}`,
+            id: newProps?.id ?? `tabContainer_${generateUUID()}`,
             fileId: newProps?.fileId,
             position: newRelativePosition(
               "0px",

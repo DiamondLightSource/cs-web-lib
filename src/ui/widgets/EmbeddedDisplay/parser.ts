@@ -19,6 +19,7 @@ import { ElementCompact } from "xml-js";
 import { snakeCaseToCamelCase } from "../utils";
 import { MacroMap } from "../../../types/macros";
 import { PVUtils } from "../../../types/pv";
+import { generateUUID } from "../../../misc/stringUtils";
 
 // Specific widgets we should allow empty string parsing for
 const PARSE_EMPTY_STRINGS = [
@@ -157,7 +158,7 @@ export async function genericParser(
 
   // attach an id if it does not exist
   if (!newProps?.id) {
-    newProps["id"] = `${newProps.type}_${crypto.randomUUID()}`;
+    newProps["id"] = `${newProps.type}_${generateUUID()}`;
   }
 
   return newProps;

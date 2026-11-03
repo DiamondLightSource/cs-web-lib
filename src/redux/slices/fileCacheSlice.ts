@@ -17,6 +17,7 @@ import {
   deleteWidgetById,
   resolveWidgetPathsAndMacros
 } from "./fileCacheSliceUtils";
+import { generateUUID } from "../../misc/stringUtils";
 
 export interface FileCache {
   [fileId: string]: WidgetDescription;
