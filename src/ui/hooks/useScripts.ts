@@ -3,9 +3,10 @@ import log from "loglevel";
 import { useSubscription } from "./useSubscription";
 import { useSelector } from "react-redux";
 import {
-  selectPvStates,
+  makeSelectPvStates,
   pvStateComparator,
-  PvArrayResults
+  PvArrayResults,
+  CsState
 } from "../../redux/csState";
 
 import { dTypeCoerceString, dTypeGetDoubleValue } from "../../types/dtypes";
@@ -38,8 +39,9 @@ export const useScripts = (
   useSubscription(widgetId, allPvs, allTypes);
 
   // Get results from all PVs.
-  const pvDataMap = useSelector(
-    (state): PvArrayResults => selectPvStates(state, allPvs),
+  const selectPvStates = useMemo(() => makeSelectPvStates(), []);
+  const pvDataMap: PvArrayResults = useSelector(
+    (state: { cs: CsState }) => selectPvStates(state, allPvs),
     pvStateComparator
   );
 
