@@ -22,6 +22,11 @@ export class PvwsClient {
     isConnected: boolean,
     isReadonly: boolean
   ) => void;
+  private pvConnState: {
+    [pvName: string]: { connected: boolean; readonly?: boolean };
+  } = {};
+  private pendingSubscribes: string[] = [];
+  private flushScheduled = false;
 
   public constructor(
     url: string,
@@ -60,7 +65,7 @@ export class PvwsClient {
     if (this.socket?.readyState === WebSocket.OPEN) {
       // Socket is set up, we can send message
       this.socket?.send(message);
-    } else if (this.socket?.readyState !== WebSocket.OPEN) {
+    } else {
       // Socket is not set up, wait until open to send message
       const sendOnOpen = () => {
         this.socket?.send(message);
@@ -117,6 +122,7 @@ export class PvwsClient {
         this.onConnectionChangedCallback(pvName, false, true);
       }
     }
+    this.pvConnState = {};
 
     if (event.code !== CLOSE_SOCKET_FOR_SERVICE_SWITCH) {
       log.debug(
@@ -136,8 +142,19 @@ export class PvwsClient {
   handleMessage = (event: MessageEvent) => {
     const jm = JSON.parse(event.data);
     if (jm.type === "update") {
-      if (this.onConnectionChangedCallback) {
-        this.onConnectionChangedCallback(jm.pv, true, jm.readonly);
+      const prev = this.pvConnState[jm.pv];
+      const readonlyChanged =
+        jm.readonly !== undefined && jm.readonly !== prev?.readonly;
+
+      // Only notify when the connection state actually changed
+      if (!prev || !prev.connected || readonlyChanged) {
+        this.pvConnState[jm.pv] = {
+          connected: true,
+          readonly: jm.readonly ?? prev?.readonly
+        };
+        if (this.onConnectionChangedCallback) {
+          this.onConnectionChangedCallback(jm.pv, true, jm.readonly);
+        }
       }
       if (this.onValueChangedCallback) {
         this.onValueChangedCallback(jm.pv, pvwsToDType(jm));
@@ -154,16 +171,38 @@ export class PvwsClient {
   public subscribe(pvName: string, type?: SubscriptionType): string {
     // TODO: How to handle multiple subscriptions of different types to the same channel?
     if (!this.subscriptions[pvName]) {
-      this.sendMessage(JSON.stringify({ type: "subscribe", pvs: [pvName] }));
+      this.pendingSubscribes.push(pvName);
+      this.scheduleSubscribeFlush();
       this.subscriptions[pvName] = true;
     }
     return pvName;
   }
 
+  // Batches subscriptions together
+  private scheduleSubscribeFlush() {
+    if (this.flushScheduled) return;
+    this.flushScheduled = true;
+    queueMicrotask(() => {
+      this.flushScheduled = false;
+      const pvs = this.pendingSubscribes;
+      this.pendingSubscribes = [];
+      if (pvs.length > 0) {
+        this.sendMessage(JSON.stringify({ type: "subscribe", pvs }));
+      }
+    });
+  }
+
   public unsubscribe(pvName: string): void {
     if (this.subscriptions[pvName]) {
-      this.sendMessage(JSON.stringify({ type: "clear", pvs: [pvName] }));
+      const pendingIdx = this.pendingSubscribes.indexOf(pvName);
+      if (pendingIdx >= 0) {
+        // Never sent, so just cancel it rather than send "clear" before "subscribe"
+        this.pendingSubscribes.splice(pendingIdx, 1);
+      } else {
+        this.sendMessage(JSON.stringify({ type: "clear", pvs: [pvName] }));
+      }
       delete this.subscriptions[pvName];
+      delete this.pvConnState[pvName];
     }
 
     if (this.onConnectionClosedCallback) {

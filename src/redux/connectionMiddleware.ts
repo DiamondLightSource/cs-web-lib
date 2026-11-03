@@ -33,7 +33,7 @@ export const connectionMiddleware =
       );
     }
 
-    return next => async action => {
+    return next => action => {
       if (subscribe.match(action)) {
         const { pvName, type } = action.payload;
         // Are we already subscribed?
@@ -101,7 +101,9 @@ export const connectionMiddleware =
           log.error(error);
         }
       } else if (setPvwsSettings.match(action)) {
-        await updatePvwsHostname(action.payload.pvwsHost);
+        return updatePvwsHostname(action.payload.pvwsHost).then(() =>
+          next(action)
+        );
       }
 
       return next(action);
