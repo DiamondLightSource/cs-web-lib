@@ -77,6 +77,13 @@ export const buildServiceConnection = (
     config?.PVWS_SSL ??
     (process.env.VITE_PVWS_SSL ?? import.meta.env.VITE_PVWS_SSL) === "true"
   );
+  const baseCacheTime =
+    Number(config?.PVWS_CACHE_PRESERVE_MS ??
+    process.env.VITE_PVWS_CACHE_PRESERVE_MS ??
+    import.meta.env.VITE_PVWS_CACHE_PRESERVE_MS ??
+    0);
+  const PVWS_CACHE_PRESERVE_MS =
+    Number.isFinite(baseCacheTime) && baseCacheTime >= 0 ? baseCacheTime : 0;
 
   const simulator = new SimulatorPlugin();
   simulator.connect(
@@ -98,7 +105,9 @@ export const buildServiceConnection = (
         onConnectionChangedCallback(dispatch),
         onValueChangedCallback(dispatch),
         onConnectionClosedCallback(dispatch),
-        onErrorMessageCallback(dispatch)
+        onErrorMessageCallback(dispatch),
+        undefined, //fetchTimeout,
+        PVWS_CACHE_PRESERVE_MS
       );
     }
     plugins.unshift(["pva://", pvwsConnection]);

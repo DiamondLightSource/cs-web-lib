@@ -10,4 +10,5 @@ export type CsWebLibConfig = {
   defaultMjpgEndpoint: string | undefined;
   csWebLibFeatureFlags: FeatureFlags;
   classFile?: string;
+  PVWS_CACHE_PRESERVE_MS?: number;
 };

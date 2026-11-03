@@ -113,7 +113,8 @@ const csSlice = createSlice({
     ) {
       log.debug(action);
       const { pvName } = action.payload;
-      if (pvName in state.valueCache) {
+      // only delete if no new resubs
+      if (!state.subscriptions[pvName] && pvName in state.valueCache) {
         delete state.valueCache[pvName];
       }
     },
@@ -261,27 +262,43 @@ export const selectDevice = createSelector(
   (deviceCache, deviceId) => deviceCache[deviceId]
 );
 
-export const makeSelectPvStates = () =>
-  createSelector(
-    [
-      (state: { cs: CsState }) => state.cs.effectivePvNameMap,
-      (state: { cs: CsState }) => state.cs.valueCache,
-      (_state: { cs: CsState }, pvNames: string[]) => pvNames
-    ],
-    (pvNameMap, valueCache, pvNames) => {
-      const results: {
-        [pvName: string]: [PvState, string];
-      } = {};
+export const makeSelectPvStates = () => {
+  let lastNames: string[] = [];
+  let lastEffective: string[] = [];
+  let lastEntries: (FullPvState | undefined)[] = [];
+  let lastResult: PvArrayResults = {};
 
-      for (const pvName of pvNames) {
-        const effectivePvName = pvNameMap[pvName] || pvName;
+  return (state: { cs: CsState }, pvNames: string[]): PvArrayResults => {
+    const { effectivePvNameMap: map, valueCache: cache } = state.cs;
 
-        results[pvName] = [valueCache[effectivePvName], effectivePvName];
-      }
-
-      return results;
+    // Pass 1: no allocation, bail out if nothing relevant changed
+    let same = pvNames.length === lastNames.length;
+    for (let i = 0; same && i < pvNames.length; i++) {
+      const eff = map[pvNames[i]] || pvNames[i];
+      same =
+        pvNames[i] === lastNames[i] &&
+        eff === lastEffective[i] &&
+        cache[eff] === lastEntries[i];
     }
-  );
+    if (same) return lastResult;
+
+    // Pass 2: something changed, rebuild
+    const result: PvArrayResults = {};
+    const effective: string[] = [];
+    const entries: (FullPvState | undefined)[] = [];
+    for (const name of pvNames) {
+      const eff = map[name] || name;
+      effective.push(eff);
+      entries.push(cache[eff]);
+      result[name] = [cache[eff], eff];
+    }
+    lastNames = [...pvNames];
+    lastEffective = effective;
+    lastEntries = entries;
+    lastResult = result;
+    return result;
+  };
+};
 
 /* Used for preventing re-rendering if the results are equivalent.
    Note that if the state for a particular PV hasn't changed, we will

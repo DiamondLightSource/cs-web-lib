@@ -27,6 +27,8 @@ export class PvwsClient {
   } = {};
   private pendingSubscribes: string[] = [];
   private flushScheduled = false;
+  private cachePreserveMs: number;
+  private closeTimers: { [pvName: string]: ReturnType<typeof setTimeout> } = {};
 
   public constructor(
     url: string,
@@ -37,11 +39,13 @@ export class PvwsClient {
     ) => void,
     onValueChangedCallback: (pvName: string, value: DType) => void,
     onConnectionClosedCallback: (message: string | undefined) => void,
-    onErrorMessageCallback: (message: string | undefined) => void
+    onErrorMessageCallback: (message: string | undefined) => void,
+    cachePreserveMs = 0
   ) {
     this.url = url;
     this.socket = this.newSocket();
     this.subscriptions = {};
+    this.cachePreserveMs = cachePreserveMs;
     this.onErrorMessageCallback = onErrorMessageCallback;
     this.onValueChangedCallback = onValueChangedCallback;
     this.onConnectionChangedCallback = onConnectionChangedCallback;
@@ -169,6 +173,11 @@ export class PvwsClient {
   };
 
   public subscribe(pvName: string, type?: SubscriptionType): string {
+    // Cancel pending unsubscribes if we are resubscribing to that pv
+    if (this.closeTimers[pvName]) {
+      clearTimeout(this.closeTimers[pvName]);
+      delete this.closeTimers[pvName];
+    }
     // TODO: How to handle multiple subscriptions of different types to the same channel?
     if (!this.subscriptions[pvName]) {
       this.pendingSubscribes.push(pvName);
@@ -193,20 +202,24 @@ export class PvwsClient {
   }
 
   public unsubscribe(pvName: string): void {
-    if (this.subscriptions[pvName]) {
-      const pendingIdx = this.pendingSubscribes.indexOf(pvName);
-      if (pendingIdx >= 0) {
-        // Never sent, so just cancel it rather than send "clear" before "subscribe"
-        this.pendingSubscribes.splice(pendingIdx, 1);
-      } else {
-        this.sendMessage(JSON.stringify({ type: "clear", pvs: [pvName] }));
-      }
-      delete this.subscriptions[pvName];
-      delete this.pvConnState[pvName];
+    if (!(pvName in this.subscriptions)) return;
+
+    const pendingIdx = this.pendingSubscribes.indexOf(pvName);
+    if (pendingIdx >= 0) {
+      this.pendingSubscribes.splice(pendingIdx, 1);
+    } else if (this.subscriptions[pvName]) {
+      this.sendMessage(JSON.stringify({ type: "clear", pvs: [pvName] }));
     }
 
+    delete this.subscriptions[pvName];
+    delete this.pvConnState[pvName];
+
     if (this.onConnectionClosedCallback) {
-      this.onConnectionClosedCallback(pvName);
+      clearTimeout(this.closeTimers[pvName]);
+      this.closeTimers[pvName] = setTimeout(() => {
+        delete this.closeTimers[pvName];
+        this.onConnectionClosedCallback(pvName);
+      }, this.cachePreserveMs);
     }
   }
 }
