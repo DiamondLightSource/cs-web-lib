@@ -1,5 +1,6 @@
 import log from "loglevel";
 import { WidgetDescription } from "../createComponent";
+import { generateUUID } from "../../../misc/stringUtils";
 
 type Typename = "NamedChild" | "Channel" | "Group" | "Device";
 
@@ -51,7 +52,7 @@ export const wordSplitter = (word: string): string =>
 
 export function createLabel(value: string, fileId: string): WidgetDescription {
   return {
-    id: `label_${crypto.randomUUID()}`,
+    id: `label_${generateUUID()}`,
     fileId,
     type: "label",
     position: "relative",
@@ -64,7 +65,7 @@ export function createLabel(value: string, fileId: string): WidgetDescription {
 
 export function createReadback(pv: string, fileId: string): WidgetDescription {
   return {
-    id: `readback_${crypto.randomUUID()}`,
+    id: `readback_${generateUUID()}`,
     fileId,
     type: "readback",
     position: "relative",
@@ -76,7 +77,7 @@ export function createReadback(pv: string, fileId: string): WidgetDescription {
 
 export function createInput(pv: string, fileId: string): WidgetDescription {
   return {
-    id: `input_${crypto.randomUUID()}`,
+    id: `input_${generateUUID()}`,
     fileId,
     type: "input",
     position: "relative",
@@ -92,7 +93,7 @@ export function createButton(
   description?: string
 ): WidgetDescription {
   return {
-    id: `actionbutton_${crypto.randomUUID()}`,
+    id: `actionbutton_${generateUUID()}`,
     fileId,
     type: "actionbutton",
     position: "relative",

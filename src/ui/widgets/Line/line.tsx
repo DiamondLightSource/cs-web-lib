@@ -15,6 +15,7 @@ import { registerWidget } from "../register";
 import { Point } from "../../../types/points";
 import { useStyle } from "../../hooks/useStyle";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
+import { generateUUID } from "../../../misc/stringUtils";
 
 const widgetName = "line";
 
@@ -78,7 +79,7 @@ export const LineComponent = (props: LineComponentProps): JSX.Element => {
   const transform = `rotate(${rotationAngle},0,0)`;
 
   // Each marker definition needs a unique ID or colours overlap
-  const uid = crypto.randomUUID();
+  const uid = generateUUID();
 
   // Create a marker if arrows set
   let arrowConfig = {};

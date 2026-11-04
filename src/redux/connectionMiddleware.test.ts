@@ -9,11 +9,12 @@ const mockStore = { dispatch: vi.fn(), getState: vi.fn() };
 
 vi.mock("../connection/serviceConnection", () => {
   const subscribe = vi.fn();
+  const unsubscribe = vi.fn();
   const putPv = vi.fn();
   const getDevice = vi.fn();
   const mockConnection = vi.fn(() => ({
     subscribe,
-    unsubscribe: vi.fn(),
+    unsubscribe,
     putPv,
     getDevice
   }));
@@ -23,6 +24,7 @@ vi.mock("../connection/serviceConnection", () => {
     updatePvwsHostname: vi.fn(),
     getServiceConnection: mockConnection,
     __subscribe: subscribe,
+    __unsubscribe: unsubscribe,
     __putPv: putPv,
     __getDevice: getDevice
   };
@@ -40,6 +42,8 @@ const config: CsWebLibConfig = {
 };
 
 let mockSubscribe: any;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+let mockUnsubscribe: any;
 let mockPutPv: any;
 let mockGetDevice: any;
 
@@ -51,30 +55,62 @@ describe("connectionMiddleware", (): void => {
     mockSubscribe = mod.__subscribe;
     mockPutPv = mod.__putPv;
     mockGetDevice = mod.__getDevice;
+    mockUnsubscribe = mod.__unsubscribe;
   });
 
-  it("calls subscribe() when receiving Subscribe", (): void => {
-    const middleware = connectionMiddleware(config);
-    // nextHandler takes next() and returns the actual middleware function
-    const nextHandler = middleware(mockStore);
+  const run = (action: any) => {
     const mockNext = vi.fn();
-    // actionHandler takes an action
-    const actionHandler = nextHandler(mockNext);
+    connectionMiddleware(config)(mockStore)(mockNext)(action);
+    return mockNext;
+  };
 
-    const subscribeAction: ReturnType<typeof subscribe> = {
-      type: "cs/subscribe",
-      payload: {
+  describe("subscribe", () => {
+    it("injects the effective PV name returned by the connection", () => {
+      mockSubscribe.mockReturnValueOnce("effective");
+      const mockNext = run(
+        subscribe({ pvName: "pv(1)", componentId: "1", type: { double: true } })
+      );
+      expect(mockNext.mock.calls[0][0].payload.effectivePvName).toBe(
+        "effective"
+      );
+    });
+
+    it("still forwards the action if subscribing throws", () => {
+      mockSubscribe.mockImplementationOnce(() => {
+        throw new Error("boom");
+      });
+      const mockNext = run(
+        subscribe({ pvName: "pv", componentId: "1", type: { double: true } })
+      );
+      expect(mockNext).toHaveBeenCalledTimes(1);
+      expect(mockNext.mock.calls[0][0].payload.effectivePvName).toBe("pv");
+    });
+
+    it("preserves the auto-batch meta on the forwarded action", () => {
+      const action = subscribe({ pvName: "pv", componentId: "1", type: {} });
+      const mockNext = run(action);
+      expect(mockNext.mock.calls[0][0].meta).toEqual(action.meta);
+    });
+    it("calls subscribe() when receiving Subscribe", (): void => {
+      const middleware = connectionMiddleware(config);
+      // nextHandler takes next() and returns the actual middleware function
+      const nextHandler = middleware(mockStore);
+      const mockNext = vi.fn();
+      // actionHandler takes an action
+      const actionHandler = nextHandler(mockNext);
+
+      const subscribeAction = subscribe({
         pvName: "pv",
         componentId: "2",
         effectivePvName: "pv",
         type: { double: true }
-      }
-    };
-    actionHandler(subscribeAction);
-    expect(mockSubscribe).toHaveBeenCalledTimes(1);
-    // The action is passed on.
-    expect(mockNext).toHaveBeenCalledTimes(1);
-    expect(mockNext.mock.calls[0][0].type).toEqual("cs/subscribe");
+      });
+      actionHandler(subscribeAction);
+      expect(mockSubscribe).toHaveBeenCalledTimes(1);
+      // The action is passed on.
+      expect(mockNext).toHaveBeenCalledTimes(1);
+      expect(mockNext.mock.calls[0][0].type).toEqual("cs/subscribe");
+    });
   });
 
   it("calls putPv() when receiving WritePv", (): void => {

@@ -3,9 +3,10 @@ import log from "loglevel";
 import { useSubscription } from "./useSubscription";
 import { useSelector } from "react-redux";
 import {
-  selectPvStates,
+  makeSelectPvStates,
   pvStateComparator,
-  PvArrayResults
+  PvArrayResults,
+  CsState
 } from "../../redux/csState";
 
 import { AnyProps } from "../widgets/widgetProps";
@@ -21,6 +22,7 @@ import { ColorUtils } from "../../types/color";
 import { opiParseColor } from "../widgets/EmbeddedDisplay/opiParser";
 import { parseArrayString } from "../../misc/stringUtils";
 import { pvQualifiedName } from "../../types/pv";
+import { useMemo } from "react";
 
 // See https://stackoverflow.com/questions/54542318/using-an-enum-as-a-dictionary-key
 type EnumDictionary<T extends string | symbol | number, U> = {
@@ -51,8 +53,10 @@ export function useRules(props: AnyProps): AnyProps {
   // Subscribe to all PVs.
   useSubscription(props.id, allPvs, allTypes);
   // Get results from all PVs.
-  const results = useSelector(
-    (state): PvArrayResults => selectPvStates(state, allPvs),
+
+  const selectPvStates = useMemo(() => makeSelectPvStates(), []);
+  const results: PvArrayResults = useSelector(
+    (state: { cs: CsState }) => selectPvStates(state, allPvs),
     pvStateComparator
   );
 

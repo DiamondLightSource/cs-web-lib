@@ -105,6 +105,7 @@ The configuration parameters are:
 | PVWS_SOCKET | string | The fully qualified hostname and port of the instance of the PVWS web service |
 | PVWS_SSL | boolean | If true use https, if false use http for connecting to the PVWS web service |
 | THROTTLE_PERIOD | integer | The period in milliseconds between updates of the PV state variables |
+| CACHE_PRESERVE_PERIOD | integer | The period in milliseconds to retain the PV value cache when a websocket connection is closed. This can be used to keep cache values if screens are cycled round or regularly reloade
 
 At the root of your client app, create a `config.ts` file to load the config from this file.
 

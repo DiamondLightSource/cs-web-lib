@@ -78,10 +78,10 @@ describe("throttleMidddlware", (): void => {
     const mockNext = vi.fn();
     // actionHandler takes an action
     const actionHandler = nextHandler(mockNext);
-    const connectionAction: ReturnType<typeof connectionChanged> = {
-      type: "cs/connectionChanged",
-      payload: { pvName: "pv", value: { isReadonly: false, isConnected: true } }
-    };
+    const connectionAction = connectionChanged({
+      pvName: "pv",
+      value: { isReadonly: false, isConnected: true }
+    });
     actionHandler(connectionAction);
     expect(mockStore.dispatch).toHaveBeenCalledTimes(0);
     expect(mockNext).toHaveBeenCalledWith(connectionAction);

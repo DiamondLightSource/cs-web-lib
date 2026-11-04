@@ -1,5 +1,6 @@
 import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { TypeOptions } from "react-toastify";
+import { generateUUID } from "../../misc/stringUtils";
 
 export interface NotificationStack {
   notifications: NotificationWithId[];
@@ -39,7 +40,7 @@ const notificationsSlice = createSlice({
 
       state.notifications.push({
         ...action.payload,
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         timestamp: new Date().toISOString()
       });
     },

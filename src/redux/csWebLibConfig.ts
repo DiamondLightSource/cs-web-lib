@@ -10,4 +10,5 @@ export type CsWebLibConfig = {
   defaultMjpgEndpoint: string | undefined;
   csWebLibFeatureFlags: FeatureFlags;
   classFile?: string;
+  CACHE_PRESERVE_PERIOD?: number;
 };

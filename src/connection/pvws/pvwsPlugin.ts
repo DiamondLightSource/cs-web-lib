@@ -22,6 +22,7 @@ export class PvwsPlugin implements Connection {
     isReadonly: boolean
   ) => void;
   private fetchTimeout: number;
+  private cachePreservePeriod: number;
 
   public constructor(
     socketHost: string,
@@ -34,7 +35,8 @@ export class PvwsPlugin implements Connection {
     onValueChangedCallback: (pvName: string, value: DType) => void,
     onConnectionClosedCallback: (message: string | undefined) => void,
     onErrorMessageCallback: (message: string | undefined) => void,
-    fetchTimeout = 2000
+    fetchTimeout = 2000,
+    cachePreservePeriod = 0
   ) {
     if (ssl) {
       this.wsProtocol = "wss";
@@ -45,6 +47,7 @@ export class PvwsPlugin implements Connection {
     this.onConnectionChangedCallback = onConnectionChangedCallback;
     this.onConnectionClosedCallback = onConnectionClosedCallback;
     this.fetchTimeout = fetchTimeout;
+    this.cachePreservePeriod = cachePreservePeriod;
 
     this.client = this.newPvwsClient(this.fallbackUrl);
   }
@@ -141,7 +144,8 @@ export class PvwsPlugin implements Connection {
       this.onConnectionChangedCallback,
       this.onValueChangedCallback,
       this.onConnectionClosedCallback,
-      this.onErrorMessageCallback
+      this.onErrorMessageCallback,
+      this.cachePreservePeriod
     );
   }
 
