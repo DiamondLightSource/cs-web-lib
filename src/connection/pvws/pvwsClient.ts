@@ -27,8 +27,10 @@ export class PvwsClient {
   } = {};
   private pendingSubscribes: string[] = [];
   private flushScheduled = false;
-  private cachePreserveMs: number;
+  private cachePreservePeriod: number;
   private closeTimers: { [pvName: string]: ReturnType<typeof setTimeout> } = {};
+  private reconnectTimer?: ReturnType<typeof setTimeout>;
+  private shuttingDown = false;
 
   public constructor(
     url: string,
@@ -40,12 +42,12 @@ export class PvwsClient {
     onValueChangedCallback: (pvName: string, value: DType) => void,
     onConnectionClosedCallback: (message: string | undefined) => void,
     onErrorMessageCallback: (message: string | undefined) => void,
-    cachePreserveMs = 0
+    cachePreservePeriod = 0
   ) {
     this.url = url;
     this.socket = this.newSocket();
     this.subscriptions = {};
-    this.cachePreserveMs = cachePreserveMs;
+    this.cachePreservePeriod = cachePreservePeriod;
     this.onErrorMessageCallback = onErrorMessageCallback;
     this.onValueChangedCallback = onValueChangedCallback;
     this.onConnectionChangedCallback = onConnectionChangedCallback;
@@ -80,6 +82,11 @@ export class PvwsClient {
   }
 
   public close(code?: number, reason?: string) {
+    if (code === CLOSE_SOCKET_FOR_SERVICE_SWITCH) {
+      // Permanent shutdown: cancel any pending reconnect
+      this.shuttingDown = true;
+      clearTimeout(this.reconnectTimer);
+    }
     this.socket?.close(code, reason);
   }
 
@@ -128,7 +135,7 @@ export class PvwsClient {
     }
     this.pvConnState = {};
 
-    if (event.code !== CLOSE_SOCKET_FOR_SERVICE_SWITCH) {
+    if (event.code !== CLOSE_SOCKET_FOR_SERVICE_SWITCH && !this.shuttingDown) {
       log.debug(
         "Scheduling re-connect to " +
           this.url +
@@ -136,8 +143,8 @@ export class PvwsClient {
           RECONNECT_MILLISECONDS +
           "ms"
       );
-
-      setTimeout(() => {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = setTimeout(() => {
         this.socket = this.newSocket();
       }, RECONNECT_MILLISECONDS);
     }
@@ -219,7 +226,7 @@ export class PvwsClient {
       this.closeTimers[pvName] = setTimeout(() => {
         delete this.closeTimers[pvName];
         this.onConnectionClosedCallback(pvName);
-      }, this.cachePreserveMs);
+      }, this.cachePreservePeriod);
     }
   }
 }

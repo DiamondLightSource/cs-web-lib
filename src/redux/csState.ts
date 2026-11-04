@@ -126,6 +126,7 @@ const csSlice = createSlice({
           value: { isConnected: boolean; isReadonly?: boolean };
         }>
       ) {
+        log.debug(action);
         const { pvName, value } = action.payload;
         const existing = state.valueCache[pvName];
         const readonly = value.isReadonly ?? existing?.readonly ?? true;
@@ -160,6 +161,8 @@ const csSlice = createSlice({
           type: SubscriptionType;
         }>
       ) {
+        // the connection middleware intercepts this action and injects the effectivePvName before forwarding it
+        log.debug(action);
         const { componentId, pvName } = action.payload;
         const effectivePvName = action.payload?.effectivePvName || pvName;
 
@@ -185,6 +188,7 @@ const csSlice = createSlice({
         state,
         action: PayloadAction<{ componentId: string; pvName: string }>
       ) {
+        log.debug(action);
         const { componentId, pvName } = action.payload;
         const effectivePvName = state.effectivePvNameMap[pvName] ?? pvName;
 
