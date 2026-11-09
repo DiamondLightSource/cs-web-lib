@@ -8,6 +8,7 @@ import {
   PvArrayResults,
   pvStateComparator,
   subscribe,
+  subscribeBatch,
   unsubscribe,
   valueChanged,
   valuesChanged
@@ -61,6 +62,18 @@ export const pvNotifyMiddleware: Middleware = () => next => action => {
     unsubscribe.match(action)
   ) {
     notify([action.payload.pvName]);
+  } else if (subscribeBatch.match(action)) {
+    for (const { pvName, effectivePvName } of action.payload) {
+      if (effectivePvName && effectivePvName !== pvName) {
+        let set = aliases.get(effectivePvName);
+        if (!set) {
+          set = new Set();
+          aliases.set(effectivePvName, set);
+        }
+        set.add(pvName);
+      }
+    }
+    notify(action.payload.map(p => p.pvName));
   } else if (subscribe.match(action)) {
     const { pvName, effectivePvName } = action.payload;
     if (effectivePvName && effectivePvName !== pvName) {

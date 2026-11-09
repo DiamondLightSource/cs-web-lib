@@ -81,6 +81,26 @@ function updateValueCache(
   valueCache[pvName] = { ...existing, value: mergedValue };
 }
 
+export type SubscribePayload = {
+  componentId: string;
+  pvName: string;
+  effectivePvName?: string;
+  type: SubscriptionType;
+};
+
+function addSubscription(state: CsState, payload: SubscribePayload): void {
+  const { componentId, pvName } = payload;
+  const effectivePvName = payload?.effectivePvName || pvName;
+  const list = state.subscriptions[effectivePvName] ?? [];
+  if (!list.includes(componentId)) {
+    list.push(componentId);
+    state.subscriptions[effectivePvName] = list;
+  }
+  if (pvName !== effectivePvName) {
+    state.effectivePvNameMap[pvName] = effectivePvName;
+  }
+}
+
 const csSlice = createSlice({
   name: "cs",
   initialState: initialCsState,
@@ -133,28 +153,16 @@ const csSlice = createSlice({
       };
     },
 
-    subscribe(
-      state,
-      action: PayloadAction<{
-        componentId: string;
-        pvName: string;
-        effectivePvName?: string;
-        type: SubscriptionType;
-      }>
-    ) {
+    subscribe(state, action: PayloadAction<SubscribePayload>) {
       // the connection middleware intercepts this action and injects the effectivePvName before forwarding it
       log.debug(action);
-      const { componentId, pvName } = action.payload;
-      const effectivePvName = action.payload?.effectivePvName || pvName;
+      addSubscription(state, action.payload);
+    },
 
-      const list = state.subscriptions[effectivePvName] ?? [];
-      if (!list.includes(componentId)) {
-        list.push(componentId);
-        state.subscriptions[effectivePvName] = list;
-      }
-
-      if (pvName !== effectivePvName) {
-        state.effectivePvNameMap[pvName] = effectivePvName;
+    subscribeBatch(state, action: PayloadAction<SubscribePayload[]>) {
+      log.debug(action);
+      for (const payload of action.payload) {
+        addSubscription(state, payload);
       }
     },
 
@@ -214,6 +222,7 @@ export const {
   connectionClosed,
   connectionChanged,
   subscribe,
+  subscribeBatch,
   unsubscribe,
   writePv,
   deviceQueried,

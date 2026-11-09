@@ -4,10 +4,29 @@ import { DType } from "../../types/dtypes";
 import { SubscriptionType } from "../../connection/plugin";
 import { store } from "../../redux/store";
 import {
-  subscribe,
+  subscribeBatch,
+  SubscribePayload,
   unsubscribe,
   writePv as writePvAction
 } from "../../redux/csState";
+
+// Subscribe actions from one React commit are sent as one batch, so a screen of N widgets
+// mounts with one dispatch instead of N (each of which runs every mounted selector).
+let pending: SubscribePayload[] = [];
+let flushDispatch: ((a: any) => void) | null = null;
+function queueSubscribe(dispatch: (a: any) => void, p: SubscribePayload) {
+  pending.push(p);
+  if (!flushDispatch) {
+    flushDispatch = dispatch;
+    const flush = dispatch;
+    queueMicrotask(() => {
+      const batch = pending;
+      pending = [];
+      flushDispatch = null;
+      flush(subscribeBatch(batch));
+    });
+  }
+}
 
 export function useSubscription(
   componentId: string,
@@ -30,7 +49,7 @@ export function useSubscription(
   // - returns a function that takes no arguments and returns nothing
   useEffect((): (() => void) => {
     pvsAndTypes.forEach(([pvName, type]): void => {
-      dispatch(subscribe({ componentId, pvName, type }));
+      queueSubscribe(dispatch, { componentId, pvName, type });
     });
     return (): void => {
       pvNames.forEach((pvName): void => {
