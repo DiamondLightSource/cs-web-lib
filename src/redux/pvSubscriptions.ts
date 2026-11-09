@@ -3,6 +3,7 @@ import { useCallback, useRef, useSyncExternalStore } from "react";
 import { useStore } from "react-redux";
 import {
   connectionChanged,
+  connectionsChanged,
   connectionClosed,
   CsState,
   PvArrayResults,
@@ -53,7 +54,9 @@ function notify(pvNames: Iterable<string>): void {
 
 export const pvNotifyMiddleware: Middleware = () => next => action => {
   const result = next(action);
-  if (valuesChanged.match(action)) {
+  if (connectionsChanged.match(action)) {
+    notify(action.payload.map(a => a.payload.pvName));
+  } else if (valuesChanged.match(action)) {
     notify(new Set(action.payload.map(a => a.payload.pvName)));
   } else if (
     valueChanged.match(action) ||

@@ -101,6 +101,28 @@ function addSubscription(state: CsState, payload: SubscribePayload): void {
   }
 }
 
+type ConnectionChangedActionType = PayloadAction<{
+  pvName: string;
+  value: { isConnected: boolean; isReadonly?: boolean };
+}>;
+
+function updateConnection(
+  state: CsState,
+  action: ConnectionChangedActionType
+): void {
+  const { pvName, value } = action.payload;
+  const existing = state.valueCache[pvName] ?? {
+    connected: false,
+    readonly: true,
+    initializingPvName: pvName
+  };
+  state.valueCache[pvName] = {
+    ...existing,
+    connected: value.isConnected,
+    readonly: value.isReadonly ?? existing.readonly
+  };
+}
+
 const csSlice = createSlice({
   name: "cs",
   initialState: initialCsState,
@@ -132,25 +154,18 @@ const csSlice = createSlice({
         delete state.valueCache[pvName];
       }
     },
-    connectionChanged(
+    connectionsChanged(
       state,
-      action: PayloadAction<{
-        pvName: string;
-        value: { isConnected: boolean; isReadonly?: boolean };
-      }>
+      action: PayloadAction<Array<ConnectionChangedActionType>>
     ) {
       log.debug(action);
-      const { pvName, value } = action.payload;
-      const existing = state.valueCache[pvName] ?? {
-        connected: false,
-        readonly: true,
-        initializingPvName: pvName
-      };
-      state.valueCache[pvName] = {
-        ...existing,
-        connected: value.isConnected,
-        readonly: value.isReadonly ?? existing.readonly
-      };
+      for (const a of action.payload) {
+        updateConnection(state, a);
+      }
+    },
+    connectionChanged(state, action: ConnectionChangedActionType) {
+      log.debug(action);
+      updateConnection(state, action);
     },
 
     subscribe(state, action: PayloadAction<SubscribePayload>) {
@@ -221,6 +236,7 @@ export const {
   valuesChanged,
   connectionClosed,
   connectionChanged,
+  connectionsChanged,
   subscribe,
   subscribeBatch,
   unsubscribe,
