@@ -1,12 +1,7 @@
 import log from "loglevel";
 
 import { useSubscription } from "./useSubscription";
-import { useSelector } from "react-redux";
-import {
-  selectPvStates,
-  pvStateComparator,
-  PvArrayResults
-} from "../../redux/csState";
+import { usePvStates } from "../../redux/pvSubscriptions";
 
 import { AnyProps } from "../widgets/widgetProps";
 import {
@@ -51,10 +46,7 @@ export function useRules(props: AnyProps): AnyProps {
   // Subscribe to all PVs.
   useSubscription(props.id, allPvs, allTypes);
   // Get results from all PVs.
-  const results = useSelector(
-    (state): PvArrayResults => selectPvStates(state, allPvs),
-    pvStateComparator
-  );
+  const results = usePvStates(allPvs);
 
   for (const rule of rules) {
     const { name, pvs, prop, outExp, expressions } = rule;

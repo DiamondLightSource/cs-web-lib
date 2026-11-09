@@ -25,7 +25,6 @@ import {
   dTypeGetDisplay,
   AlarmQuality
 } from "../../../types/dtypes";
-import { TextField as MuiTextField, styled } from "@mui/material";
 import { calculateRotationTransform, getPvValueAndName } from "../utils";
 import { WIDGET_DEFAULT_SIZES } from "../EmbeddedDisplay/bobParser";
 import { useStyle } from "../../hooks/useStyle";
@@ -53,33 +52,6 @@ const ReadbackProps = {
   height: StringOrNumPropOpt,
   width: StringOrNumPropOpt
 };
-
-const TextField = styled(MuiTextField)({
-  // MUI Textfield contains a fieldset with a legend that needs to be removed
-  "& .css-w4cd9x": {
-    lineHeight: "0px"
-  },
-  "& .MuiInputBase-root": {
-    height: "100%",
-    width: "100%",
-    padding: "0px"
-  },
-  "& .MuiInputBase-input": {
-    padding: "0px",
-    lineHeight: 1.2,
-    textOverflow: "clip",
-    whiteSpace: "pre-wrap",
-    height: "100%",
-    width: "100%"
-  },
-  "& .MuiOutlinedInput-root": {
-    "& .MuiOutlinedInput-notchedOutline": {
-      borderRadius: "4px",
-      borderWidth: "0px",
-      inset: "0px"
-    }
-  }
-});
 
 // Needs to be exported for testing
 export type ReadbackComponentProps = InferWidgetProps<typeof ReadbackProps> &
@@ -191,52 +163,41 @@ export const ReadbackComponent = (
   );
 
   return (
-    <TextField
-      disabled={!enabled}
-      value={displayedValue}
-      multiline={wrapWords}
-      variant="outlined"
-      slotProps={{
-        input: {
-          readOnly: true
-        }
-      }}
-      sx={{
-        "&.MuiFormControl-root": {
+    <div
+      aria-disabled={!enabled}
+      style={
+        {
           display: visible ? "flex" : "none",
-          // If size is given as %, rem or vh, allow element to fill parent div
-          // Otherwise, use the calculated height that accounts for rotationStep
+          flexDirection: "column",
+          justifyContent: alignmentV,
           height: typeof height === "string" ? "100%" : inputHeight,
           width: typeof width === "string" ? "100%" : inputWidth,
-          transform: transform
-        },
-        "& .MuiInputBase-input": {
-          textAlign: textAlign,
-          ...style?.font
-        },
-        "& .MuiInputBase-root": {
-          justifyContent: alignmentV,
-          flexDirection: "column",
-          alignItems: alignmentV,
+          transform: transform,
           overflow: "hidden",
+          boxSizing: "border-box",
+          borderRadius: "4px",
           color: foregroundColor,
-          backgroundColor: style?.colors?.backgroundColor
-        },
-        "& .MuiOutlinedInput-root": {
-          "& .MuiOutlinedInput-notchedOutline": {
-            outlineWidth: borderWidth as string | number,
-            outlineStyle: borderStyle as string | number,
-            outlineColor: borderColor as string | number
-          },
-          "&.Mui-focused": {
-            "& .MuiOutlinedInput-notchedOutline": {
-              outlineWidth: "2px",
-              borderWidth: "0px"
-            }
-          }
+          backgroundColor: style?.colors?.backgroundColor,
+          outlineWidth: borderWidth,
+          outlineStyle: borderStyle,
+          outlineColor: borderColor
+        } as React.CSSProperties
+      }
+    >
+      <div
+        style={
+          {
+            textAlign: textAlign,
+            whiteSpace: wrapWords ? "pre-wrap" : "pre",
+            lineHeight: 1.2,
+            width: "100%",
+            ...style?.font
+          } as React.CSSProperties
         }
-      }}
-    />
+      >
+        {displayedValue}
+      </div>
+    </div>
   );
 };
 

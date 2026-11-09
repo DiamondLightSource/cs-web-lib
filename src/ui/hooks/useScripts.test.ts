@@ -3,6 +3,7 @@ import { renderHook } from "@testing-library/react";
 import { useScripts } from "./useScripts";
 import { useSubscription } from "./useSubscription";
 import { useSelector } from "react-redux";
+import { usePvStates } from "../../redux/pvSubscriptions";
 import { executeDynamicScriptInSandbox } from "../widgets/EmbeddedDisplay/scripts/scriptExecutor";
 import { newPV } from "../../types/pv";
 import { Script } from "../../types/props";
@@ -10,6 +11,7 @@ import { newDType } from "../../types/dtypes";
 
 vi.mock("./useSubscription");
 vi.mock("react-redux");
+vi.mock("../../redux/pvSubscriptions");
 vi.mock("../widgets/EmbeddedDisplay/scripts/scriptExecutor");
 
 describe("useScripts", () => {
@@ -19,7 +21,8 @@ describe("useScripts", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    (useSelector as ReturnType<typeof vi.fn>).mockImplementation(selector => {
+    (useSelector as ReturnType<typeof vi.fn>).mockReturnValue(true);
+    (usePvStates as ReturnType<typeof vi.fn>).mockImplementation(() => {
       return {
         "ca://pv1": [
           {

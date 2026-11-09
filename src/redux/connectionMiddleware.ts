@@ -8,6 +8,7 @@ import {
   selectSubscriptions,
   setPvwsSettings,
   subscribe,
+  subscribeBatch,
   unsubscribe,
   writePv
 } from "./csState";
@@ -33,8 +34,27 @@ export const connectionMiddleware =
       );
     }
 
+    const effectiveName = (pvName: string, type: any): string => {
+      try {
+        return getServiceConnection().subscribe(pvName, type);
+      } catch (error) {
+        showError(`Failed to subscribe to pv ${pvName}`);
+        log.error(`Failed to subscribe to pv ${pvName}`);
+        log.error(error);
+        return pvName;
+      }
+    };
+
     return next => async action => {
-      if (subscribe.match(action)) {
+      if (subscribeBatch.match(action)) {
+        action = {
+          ...action,
+          payload: action.payload.map(p => ({
+            ...p,
+            effectivePvName: effectiveName(p.pvName, p.type)
+          }))
+        };
+      } else if (subscribe.match(action)) {
         const { pvName, type } = action.payload;
         // Are we already subscribed?
         let effectivePvName = pvName;

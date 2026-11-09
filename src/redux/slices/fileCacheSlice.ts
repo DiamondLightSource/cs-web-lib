@@ -565,6 +565,9 @@ export const fileComparator = (
   before: WidgetDescription,
   after: WidgetDescription
 ): boolean => {
+  if (before === after) {
+    return true;
+  }
   if (!before || !after) {
     return false;
   }

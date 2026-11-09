@@ -81,6 +81,48 @@ function updateValueCache(
   valueCache[pvName] = { ...existing, value: mergedValue };
 }
 
+export type SubscribePayload = {
+  componentId: string;
+  pvName: string;
+  effectivePvName?: string;
+  type: SubscriptionType;
+};
+
+function addSubscription(state: CsState, payload: SubscribePayload): void {
+  const { componentId, pvName } = payload;
+  const effectivePvName = payload?.effectivePvName || pvName;
+  const list = state.subscriptions[effectivePvName] ?? [];
+  if (!list.includes(componentId)) {
+    list.push(componentId);
+    state.subscriptions[effectivePvName] = list;
+  }
+  if (pvName !== effectivePvName) {
+    state.effectivePvNameMap[pvName] = effectivePvName;
+  }
+}
+
+type ConnectionChangedActionType = PayloadAction<{
+  pvName: string;
+  value: { isConnected: boolean; isReadonly?: boolean };
+}>;
+
+function updateConnection(
+  state: CsState,
+  action: ConnectionChangedActionType
+): void {
+  const { pvName, value } = action.payload;
+  const existing = state.valueCache[pvName] ?? {
+    connected: false,
+    readonly: true,
+    initializingPvName: pvName
+  };
+  state.valueCache[pvName] = {
+    ...existing,
+    connected: value.isConnected,
+    readonly: value.isReadonly ?? existing.readonly
+  };
+}
+
 const csSlice = createSlice({
   name: "cs",
   initialState: initialCsState,
@@ -112,49 +154,30 @@ const csSlice = createSlice({
         delete state.valueCache[pvName];
       }
     },
-    connectionChanged(
+    connectionsChanged(
       state,
-      action: PayloadAction<{
-        pvName: string;
-        value: { isConnected: boolean; isReadonly?: boolean };
-      }>
+      action: PayloadAction<Array<ConnectionChangedActionType>>
     ) {
       log.debug(action);
-      const { pvName, value } = action.payload;
-      const existing = state.valueCache[pvName] ?? {
-        connected: false,
-        readonly: true,
-        initializingPvName: pvName
-      };
-      state.valueCache[pvName] = {
-        ...existing,
-        connected: value.isConnected,
-        readonly: value.isReadonly ?? existing.readonly
-      };
+      for (const a of action.payload) {
+        updateConnection(state, a);
+      }
+    },
+    connectionChanged(state, action: ConnectionChangedActionType) {
+      log.debug(action);
+      updateConnection(state, action);
     },
 
-    subscribe(
-      state,
-      action: PayloadAction<{
-        componentId: string;
-        pvName: string;
-        effectivePvName?: string;
-        type: SubscriptionType;
-      }>
-    ) {
+    subscribe(state, action: PayloadAction<SubscribePayload>) {
       // the connection middleware intercepts this action and injects the effectivePvName before forwarding it
       log.debug(action);
-      const { componentId, pvName } = action.payload;
-      const effectivePvName = action.payload?.effectivePvName || pvName;
+      addSubscription(state, action.payload);
+    },
 
-      const list = state.subscriptions[effectivePvName] ?? [];
-      if (!list.includes(componentId)) {
-        list.push(componentId);
-        state.subscriptions[effectivePvName] = list;
-      }
-
-      if (pvName !== effectivePvName) {
-        state.effectivePvNameMap[pvName] = effectivePvName;
+    subscribeBatch(state, action: PayloadAction<SubscribePayload[]>) {
+      log.debug(action);
+      for (const payload of action.payload) {
+        addSubscription(state, payload);
       }
     },
 
@@ -213,7 +236,9 @@ export const {
   valuesChanged,
   connectionClosed,
   connectionChanged,
+  connectionsChanged,
   subscribe,
+  subscribeBatch,
   unsubscribe,
   writePv,
   deviceQueried,

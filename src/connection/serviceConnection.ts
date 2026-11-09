@@ -23,11 +23,15 @@ const onErrorMessageCallback =
     showError(`${message}`);
   };
 
+// Last connection state dispatched per PV, so an unchanged state is not re-dispatched.
+const lastConnection = new Map<string, string>();
+
 const onConnectionClosedCallback =
   (dispatch: Dispatch) => (pvName: string | undefined) => {
     if (!pvName) {
       return;
     }
+    lastConnection.delete(pvName);
     dispatch(connectionClosed({ pvName }));
   };
 
@@ -46,6 +50,14 @@ const onConnectionChangedCallback =
     if (!pvName) {
       return;
     }
+    // isReadonly is undefined on PVWS updates after the first: the reducer keeps the old value.
+    const prev = lastConnection.get(pvName);
+    const prevReadonly = prev?.split("|")[1];
+    const key = `${isConnected}|${isReadonly ?? prevReadonly}`;
+    if (prev === key) {
+      return;
+    }
+    lastConnection.set(pvName, key);
 
     dispatch(
       connectionChanged({

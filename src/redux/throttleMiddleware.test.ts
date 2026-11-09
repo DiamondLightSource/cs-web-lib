@@ -71,7 +71,7 @@ describe("throttleMidddlware", (): void => {
     expect(mockNext).not.toHaveBeenCalled();
   });
 
-  it("doesn't dispatch when receiving ConnectionChanged", (): void => {
+  it("queues ConnectionChanged and dispatches one batch", (): void => {
     const middleware = throttleMiddleware(updater);
     // nextHandler takes next() and returns the actual middleware function
     const nextHandler = middleware(mockStore);
@@ -83,7 +83,15 @@ describe("throttleMidddlware", (): void => {
       payload: { pvName: "pv", value: { isReadonly: false, isConnected: true } }
     };
     actionHandler(connectionAction);
+    // The connection update is queued, not dispatched or passed on.
     expect(mockStore.dispatch).toHaveBeenCalledTimes(0);
-    expect(mockNext).toHaveBeenCalledWith(connectionAction);
+    expect(mockNext).not.toHaveBeenCalled();
+
+    // manually trigger the dispatch
+    updater.sendQueue(mockStore);
+    expect(mockStore.dispatch).toHaveBeenCalledTimes(1);
+    expect(mockStore.dispatch.mock.calls[0][0].type).toEqual(
+      "cs/connectionsChanged"
+    );
   });
 });
