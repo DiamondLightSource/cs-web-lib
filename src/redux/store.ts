@@ -12,6 +12,7 @@ import styleReducer from "./slices/styleSlice";
 import { connectionMiddleware } from "./connectionMiddleware";
 import { throttleMiddleware, UpdateThrottle } from "./throttleMiddleware";
 import { CsWebLibConfig } from "./csWebLibConfig";
+import { pvNotifyMiddleware } from "./pvSubscriptions";
 
 // Store singleton
 let storeInstance: ReturnType<typeof configureStore> | null = null;
@@ -64,7 +65,8 @@ const createStoreInstance = (config?: CsWebLibConfig) => {
               )
             )
           )
-        );
+        )
+        .concat(pvNotifyMiddleware);
     },
     devTools: isDevMode
   });

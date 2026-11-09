@@ -1,13 +1,7 @@
 import React from "react";
 import { useSubscription } from "./useSubscription";
-import { useSelector } from "react-redux";
-import {
-  CsState,
-  PvDataCollection,
-  selectPvStates,
-  pvStateComparator,
-  PvArrayResults
-} from "../../redux/csState";
+import { usePvStates } from "../../redux/pvSubscriptions";
+import { PvDataCollection } from "../../redux/csState";
 import { SubscriptionType } from "../../connection/plugin";
 import { DType } from "../../types/dtypes";
 
@@ -24,10 +18,7 @@ export function useConnection(
   const pvNameArray = pvName === undefined ? [] : [pvName];
   const typeArray = type === undefined ? [] : [type];
   useSubscription(id, pvNameArray, typeArray);
-  const pvResults = useSelector(
-    (state): PvArrayResults => selectPvStates(state, pvNameArray),
-    pvStateComparator
-  );
+  const pvResults = usePvStates(pvNameArray);
   let connected = false;
   let readonly = false;
   let value = undefined;
@@ -56,10 +47,7 @@ export const useConnectionMultiplePv = (
 
   useSubscription(id, pvNameArray, typeArray);
 
-  const pvResults = useSelector(
-    (state: CsState): PvArrayResults => selectPvStates(state, pvNameArray),
-    pvStateComparator
-  );
+  const pvResults = usePvStates(pvNameArray);
 
   return {
     pvData: pvNameArray.map(pvName => {
