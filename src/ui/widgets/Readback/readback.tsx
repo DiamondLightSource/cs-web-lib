@@ -198,7 +198,9 @@ export const ReadbackComponent = (
       variant="outlined"
       slotProps={{
         input: {
-          readOnly: true
+          readOnly: true,
+          // a plain textarea: sized by CSS, no per-render self-measurement (forced layout)
+          ...(wrapWords ? { inputComponent: "textarea" } : {})
         }
       }}
       sx={{
