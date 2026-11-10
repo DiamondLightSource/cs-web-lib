@@ -61,9 +61,9 @@ describe("<Readback />", (): void => {
         } as Partial<PvDatum> as PvDatum
       ]
     };
-    const { getByRole } = render(ReadbackRenderer(props));
+    const { getByText } = render(ReadbackRenderer(props));
     // Check for precision.
-    expect(getByRole("textbox").textContent).toBe("3.14");
+    expect(getByText("3.14")).toBeInTheDocument();
   });
 
   test("string value with units", (): void => {
@@ -128,6 +128,9 @@ describe("<Readback />", (): void => {
     };
 
     const { getByText } = render(ReadbackRenderer(props));
-    expect(getByText("hello")).toBeDisabled();
+    expect(getByText("hello").parentElement).toHaveAttribute(
+      "aria-disabled",
+      "true"
+    );
   });
 });
