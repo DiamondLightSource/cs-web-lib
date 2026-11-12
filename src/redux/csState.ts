@@ -131,7 +131,7 @@ const csSlice = createSlice({
         const existing = state.valueCache[pvName];
         const readonly = value.isReadonly ?? existing?.readonly ?? true;
 
-        // Nothing changed: keep the same object reference so selectors/comparators don't fire
+        // nothing changed so keep same object ref so selectors/comparators don't fire
         if (
           existing &&
           existing.connected === value.isConnected &&
@@ -275,7 +275,7 @@ export const makeSelectPvStates = () => {
   return (state: { cs: CsState }, pvNames: string[]): PvArrayResults => {
     const { effectivePvNameMap: map, valueCache: cache } = state.cs;
 
-    // Pass 1: no allocation, bail out if nothing relevant changed
+    // do nothing if nothing has changed
     let same = pvNames.length === lastNames.length;
     for (let i = 0; same && i < pvNames.length; i++) {
       const eff = map[pvNames[i]] || pvNames[i];
@@ -286,7 +286,7 @@ export const makeSelectPvStates = () => {
     }
     if (same) return lastResult;
 
-    // Pass 2: something changed, rebuild
+    // Pif something changed, rebuild
     const result: PvArrayResults = {};
     const effective: string[] = [];
     const entries: (FullPvState | undefined)[] = [];

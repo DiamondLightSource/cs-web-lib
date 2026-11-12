@@ -83,7 +83,7 @@ export class PvwsClient {
 
   public close(code?: number, reason?: string) {
     if (code === CLOSE_SOCKET_FOR_SERVICE_SWITCH) {
-      // Permanent shutdown: cancel any pending reconnect
+      // cancel all pending reconnects for true shutdown
       this.shuttingDown = true;
       clearTimeout(this.reconnectTimer);
     }

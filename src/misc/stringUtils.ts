@@ -22,7 +22,7 @@ export const parseArrayString = (
 };
 
 /**
- * Generate a uuid. crypot.randomUUID is not available in insecure
+ * Generate a uuid.to.randomUUID is not available in insecure
  * (http) contexts, so we fall back to .getRandomValues instead
  */
 export function generateUUID(): string {
