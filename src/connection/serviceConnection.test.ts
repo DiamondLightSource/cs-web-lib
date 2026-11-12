@@ -20,7 +20,7 @@ const {
   MockSimulatorPlugin: vi.fn(function (this: any) {
     this.connect = mockSimulatorConnect;
   }),
-  MockPvwsPlugin: vi.fn(function (this: any) {
+  MockPvwsPlugin: vi.fn(function (this: any, ..._args: any[]) {
     this.updatePvwsHost = mockPvwsUpdateHost;
   })
 }));
@@ -39,7 +39,7 @@ vi.mock("./pvws/pvwsPlugin", () => ({
   PvwsPlugin: MockPvwsPlugin
 }));
 
-vi.mock("./redux/notificationUtils", () => ({
+vi.mock("../redux/notificationUtils", () => ({
   notificationDispatcher: () => ({ showError: vi.fn() })
 }));
 
@@ -56,11 +56,15 @@ const config: CsWebLibConfig = {
 
 describe("buildServiceConnection", () => {
   let dispatch: Mock;
+  const preserveMs = () => MockPvwsPlugin.mock.calls[0][7];
 
   beforeEach(() => {
     clearStateForTests();
     vi.clearAllMocks();
     dispatch = vi.fn();
+  });
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   it("creates a connection once (singleton)", () => {
@@ -117,6 +121,21 @@ describe("buildServiceConnection", () => {
 
     const mockedPvwsModule = await vi.importMock("./pvws/pvwsPlugin");
     expect(mockedPvwsModule.PvwsPlugin).not.toHaveBeenCalled();
+  });
+
+  it("uses the CACHE_PRESERVE_PERIOD config value", () => {
+    buildServiceConnection(dispatch, {
+      ...config,
+      CACHE_PRESERVE_PERIOD: 5000
+    });
+    expect(preserveMs()).toBe(5000);
+  });
+
+  it("defaults CACHE_PRESERVE_PERIOD to 0 for none or negative", () => {
+    buildServiceConnection(dispatch, config);
+    expect(preserveMs()).toBe(0);
+    buildServiceConnection(dispatch, { ...config, CACHE_PRESERVE_PERIOD: -1 });
+    expect(preserveMs()).toBe(0);
   });
 });
 

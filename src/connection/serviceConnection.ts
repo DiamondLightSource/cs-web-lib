@@ -77,6 +77,14 @@ export const buildServiceConnection = (
     config?.PVWS_SSL ??
     (process.env.VITE_PVWS_SSL ?? import.meta.env.VITE_PVWS_SSL) === "true"
   );
+  const baseCacheTime = Number(
+    config?.CACHE_PRESERVE_PERIOD ??
+      process.env.VITE_CACHE_PRESERVE_PERIOD ??
+      import.meta.env.VITE_CACHE_PRESERVE_PERIOD ??
+      0
+  );
+  const CACHE_PRESERVE_PERIOD =
+    Number.isFinite(baseCacheTime) && baseCacheTime >= 0 ? baseCacheTime : 0;
 
   const simulator = new SimulatorPlugin();
   simulator.connect(
@@ -91,16 +99,18 @@ export const buildServiceConnection = (
   const plugins: [string, Connection][] = [["sim://", simulator]];
 
   if (PVWS_SOCKET && PVWS_SOCKET !== "") {
-    pvwsConnection =
-      pvwsConnection ??
-      new PvwsPlugin(
+    if (!pvwsConnection) {
+      pvwsConnection = new PvwsPlugin(
         PVWS_SOCKET,
         PVWS_SSL,
         onConnectionChangedCallback(dispatch),
         onValueChangedCallback(dispatch),
         onConnectionClosedCallback(dispatch),
-        onErrorMessageCallback(dispatch)
+        onErrorMessageCallback(dispatch),
+        undefined, //fetchTimeout,
+        CACHE_PRESERVE_PERIOD
       );
+    }
     plugins.unshift(["pva://", pvwsConnection]);
     plugins.unshift(["ca://", pvwsConnection]);
     plugins.unshift(["loc://", pvwsConnection]);

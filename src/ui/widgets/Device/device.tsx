@@ -17,6 +17,7 @@ import { BorderStyle, newBorder, borderNONE } from "../../../types/border";
 import { ColorUtils } from "../../../types/color";
 import { MacroContext } from "../../../types/macros";
 import { Box } from "@mui/material";
+import { generateUUID } from "../../../misc/stringUtils";
 
 const widgetName = "device";
 
@@ -72,7 +73,7 @@ export const DeviceComponent = (
       }
       setComponent(
         widgetDescriptionToComponent({
-          id: props?.id ?? `device_${crypto.randomUUID()}`,
+          id: props?.id ?? `device_${generateUUID()}`,
           fileId: replacedDeviceName,
           position: newRelativePosition("100%", "100%"),
           type: "display",

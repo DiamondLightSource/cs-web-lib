@@ -6,13 +6,14 @@ import csReducer, {
   valueChanged,
   valuesChanged,
   unsubscribe,
-  selectPvStates,
+  makeSelectPvStates,
   pvStateComparator,
   selectDevice,
   FullPvState,
   PvState,
   deviceComparator,
-  PvArrayResults
+  PvArrayResults,
+  connectionClosed
 } from "./csState";
 import { findWidgetById } from "./slices/storeUtils";
 import {
@@ -164,12 +165,29 @@ describe("VALUE_CHANGED", (): void => {
 
 describe("CONNECTION_CHANGED", (): void => {
   test("csReducer handles value update", (): void => {
-    const action: ReturnType<typeof connectionChanged> = {
-      type: "cs/connectionChanged",
-      payload: { pvName: "PV", value: { isConnected: false, isReadonly: true } }
-    };
+    const action = connectionChanged({
+      pvName: "PV",
+      value: { isConnected: false, isReadonly: true }
+    });
     const newState = csReducer(initialState, action);
     expect(newState.valueCache["PV"].connected).toEqual(false);
+  });
+});
+
+describe("CONNECTION_CLOSED", () => {
+  test("deletes the cached value when nobody is subscribed", () => {
+    const next = csReducer(initialState, connectionClosed({ pvName: "PV" }));
+    expect(next.valueCache.PV).toBeUndefined();
+  });
+  test("keeps the value when a component is subscribed", () => {
+    const s = { ...initialState, subscriptions: { PV: ["c1"] } };
+    expect(
+      csReducer(s, connectionClosed({ pvName: "PV" })).valueCache.PV
+    ).toBeDefined();
+  });
+  test("ignores unknown PVs", () => {
+    const next = csReducer(initialState, connectionClosed({ pvName: "X" }));
+    expect(next.valueCache).toEqual(initialState.valueCache);
   });
 });
 
@@ -188,37 +206,26 @@ describe("DEVICE_QUERIED", (): void => {
 });
 
 test("handles initializers", (): void => {
-  const action: ReturnType<typeof subscribe> = {
-    type: "cs/subscribe",
-    payload: {
-      pvName: "PV(1)",
-      effectivePvName: "PV",
-      componentId: "0",
-      type: { double: true }
-    }
-  };
-  const action2: ReturnType<typeof subscribe> = {
-    type: "cs/subscribe",
-    payload: {
-      pvName: "PV(1)",
-      effectivePvName: "PV",
-      componentId: "1",
-      type: { double: true }
-    }
-  };
+  const action = subscribe({
+    pvName: "PV(1)",
+    effectivePvName: "PV",
+    componentId: "0",
+    type: { double: true }
+  });
+
+  const action2 = subscribe({
+    pvName: "PV(1)",
+    effectivePvName: "PV",
+    componentId: "1",
+    type: { double: true }
+  });
+
   const state2 = csReducer(initialState, action);
   const state3 = csReducer(state2, action2);
   expect(state3.effectivePvNameMap["PV(1)"]).toEqual("PV");
 
-  const unsubAction: ReturnType<typeof unsubscribe> = {
-    type: "cs/unsubscribe",
-    payload: { pvName: "PV(1)", componentId: "0" }
-  };
-
-  const unsubAction2: ReturnType<typeof unsubscribe> = {
-    type: "cs/unsubscribe",
-    payload: { pvName: "PV(1)", componentId: "1" }
-  };
+  const unsubAction = unsubscribe({ pvName: "PV(1)", componentId: "0" });
+  const unsubAction2 = unsubscribe({ pvName: "PV(1)", componentId: "1" });
 
   const state4 = csReducer(state3, unsubAction);
   expect(state4.effectivePvNameMap["PV(1)"]).toEqual("PV");
@@ -248,7 +255,10 @@ describe("Selectors", () => {
 
   const state = createRootStoreState(testCsState);
 
-  describe("selectPvStates", (): void => {
+  describe("makeSelectPvStates", (): void => {
+    const mk = (cs: Partial<CsState>) =>
+      createRootStoreState({ ...testCsState, ...cs });
+    const selectPvStates = makeSelectPvStates();
     it("returns appropriate values if PV present", (): void => {
       const results = selectPvStates(state, [pv1]);
       const [resultsPvState, effectivePv] = results[pv1];
@@ -268,6 +278,24 @@ describe("Selectors", () => {
       const [resultsPvState, shortName] = results["not-a-pv"];
       expect(resultsPvState).toBeUndefined();
       expect(shortName).toEqual("not-a-pv");
+    });
+
+    it("keeps same result object for unrelated PV changes", () => {
+      const sel = makeSelectPvStates();
+      const r1 = sel(mk({}), ["pv1"]);
+      const s2 = mk({ valueCache: { pv1: pvState, other: { ...pvState } } });
+      expect(sel(s2, ["pv1"])).toBe(r1);
+    });
+
+    it("returns a new object when pvNames or the effective name changes", () => {
+      const sel = makeSelectPvStates();
+      const r1 = sel(mk({}), ["pv1"]);
+      expect(sel(mk({}), ["pv1", "pv2"])).not.toBe(r1);
+      const sel2 = makeSelectPvStates();
+      const a = sel2(mk({}), ["pv2"]);
+      const b = sel2(mk({ effectivePvNameMap: { pv2: "pv9" } }), ["pv2"]);
+      expect(b).not.toBe(a);
+      expect(b.pv2[1]).toBe("pv9");
     });
   });
 

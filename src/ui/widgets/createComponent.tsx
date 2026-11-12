@@ -7,6 +7,7 @@ import { REGISTERED_WIDGETS } from "./register";
 import { newRelativePosition, Position } from "../../types/position";
 import { FontStyle, newFont } from "../../types/font";
 import { BorderStyle, newBorder } from "../../types/border";
+import { generateUUID } from "../../misc/stringUtils";
 
 export interface WidgetDescription {
   type: string;
@@ -18,7 +19,7 @@ export interface WidgetDescription {
 }
 const ERROR_WIDGET: WidgetDescription = {
   type: "label",
-  id: `label_${crypto.randomUUID()}`,
+  id: `label_${generateUUID()}`,
   fileId: "NO_FILE",
   position: newRelativePosition(),
   font: newFont(16, FontStyle.Bold),

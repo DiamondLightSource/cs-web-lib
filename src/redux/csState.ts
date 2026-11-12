@@ -1,7 +1,12 @@
 import log from "loglevel";
 import { MacroMap } from "../types/macros";
 import { mergeDType, DType } from "../types/dtypes";
-import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {
+  createSelector,
+  createSlice,
+  PayloadAction,
+  prepareAutoBatched
+} from "@reduxjs/toolkit";
 import { SubscriptionType } from "../connection";
 
 export const initialCsState: CsState = {
@@ -108,77 +113,100 @@ const csSlice = createSlice({
     ) {
       log.debug(action);
       const { pvName } = action.payload;
-      if (pvName in state.valueCache) {
+      // only delete if no new resubs
+      if (!state.subscriptions[pvName] && pvName in state.valueCache) {
         delete state.valueCache[pvName];
       }
     },
-    connectionChanged(
-      state,
-      action: PayloadAction<{
+    connectionChanged: {
+      reducer(
+        state,
+        action: PayloadAction<{
+          pvName: string;
+          value: { isConnected: boolean; isReadonly?: boolean };
+        }>
+      ) {
+        log.debug(action);
+        const { pvName, value } = action.payload;
+        const existing = state.valueCache[pvName];
+        const readonly = value.isReadonly ?? existing?.readonly ?? true;
+
+        // nothing changed so keep same object ref so selectors/comparators don't fire
+        if (
+          existing &&
+          existing.connected === value.isConnected &&
+          existing.readonly === readonly
+        ) {
+          return;
+        }
+
+        state.valueCache[pvName] = {
+          ...(existing ?? { initializingPvName: pvName }),
+          connected: value.isConnected,
+          readonly
+        };
+      },
+      prepare: prepareAutoBatched<{
         pvName: string;
         value: { isConnected: boolean; isReadonly?: boolean };
-      }>
-    ) {
-      log.debug(action);
-      const { pvName, value } = action.payload;
-      const existing = state.valueCache[pvName] ?? {
-        connected: false,
-        readonly: true,
-        initializingPvName: pvName
-      };
-      state.valueCache[pvName] = {
-        ...existing,
-        connected: value.isConnected,
-        readonly: value.isReadonly ?? existing.readonly
-      };
+      }>()
     },
+    subscribe: {
+      reducer(
+        state,
+        action: PayloadAction<{
+          componentId: string;
+          pvName: string;
+          effectivePvName?: string;
+          type: SubscriptionType;
+        }>
+      ) {
+        // the connection middleware intercepts this action and injects the effectivePvName before forwarding it
+        log.debug(action);
+        const { componentId, pvName } = action.payload;
+        const effectivePvName = action.payload?.effectivePvName || pvName;
 
-    subscribe(
-      state,
-      action: PayloadAction<{
+        const list = state.subscriptions[effectivePvName] ?? [];
+        if (!list.includes(componentId)) {
+          list.push(componentId);
+          state.subscriptions[effectivePvName] = list;
+        }
+
+        if (pvName !== effectivePvName) {
+          state.effectivePvNameMap[pvName] = effectivePvName;
+        }
+      },
+      prepare: prepareAutoBatched<{
         componentId: string;
         pvName: string;
         effectivePvName?: string;
         type: SubscriptionType;
-      }>
-    ) {
-      // the connection middleware intercepts this action and injects the effectivePvName before forwarding it
-      log.debug(action);
-      const { componentId, pvName } = action.payload;
-      const effectivePvName = action.payload?.effectivePvName || pvName;
-
-      const list = state.subscriptions[effectivePvName] ?? [];
-      if (!list.includes(componentId)) {
-        list.push(componentId);
-        state.subscriptions[effectivePvName] = list;
-      }
-
-      if (pvName !== effectivePvName) {
-        state.effectivePvNameMap[pvName] = effectivePvName;
-      }
+      }>()
     },
+    unsubscribe: {
+      reducer(
+        state,
+        action: PayloadAction<{ componentId: string; pvName: string }>
+      ) {
+        log.debug(action);
+        const { componentId, pvName } = action.payload;
+        const effectivePvName = state.effectivePvNameMap[pvName] ?? pvName;
 
-    unsubscribe(
-      state,
-      action: PayloadAction<{ componentId: string; pvName: string }>
-    ) {
-      log.debug(action);
-      const { componentId, pvName } = action.payload;
-      const effectivePvName = state.effectivePvNameMap[pvName] ?? pvName;
+        const current = state.subscriptions[effectivePvName] ?? [];
+        const next = current.filter(id => id !== componentId);
+        if (next.length === 0) {
+          delete state.subscriptions[effectivePvName];
 
-      const current = state.subscriptions[effectivePvName] ?? [];
-      const next = current.filter(id => id !== componentId);
-      if (next.length === 0) {
-        delete state.subscriptions[effectivePvName];
-
-        Object.keys(state.effectivePvNameMap).forEach((key: string) => {
-          if (state.effectivePvNameMap[key] === effectivePvName) {
-            delete state.effectivePvNameMap[key];
-          }
-        });
-      } else {
-        state.subscriptions[effectivePvName] = next;
-      }
+          Object.keys(state.effectivePvNameMap).forEach((key: string) => {
+            if (state.effectivePvNameMap[key] === effectivePvName) {
+              delete state.effectivePvNameMap[key];
+            }
+          });
+        } else {
+          state.subscriptions[effectivePvName] = next;
+        }
+      },
+      prepare: prepareAutoBatched<{ componentId: string; pvName: string }>()
     },
 
     writePv(_state, _action: PayloadAction<{ pvName: string; value: DType }>) {
@@ -238,23 +266,43 @@ export const selectDevice = createSelector(
   (deviceCache, deviceId) => deviceCache[deviceId]
 );
 
-export const selectPvStates = createSelector(
-  [
-    selectEffectivePvNameMap,
-    selectValueCache,
-    (_state, pvNames: string[]) => pvNames
-  ],
-  (pvNameMap, valueCache, pvNames) => {
-    const results: {
-      [pvName: string]: [PvState, string];
-    } = {};
-    for (const pvName of pvNames) {
-      const effectivePvName = pvNameMap[pvName] || pvName;
-      results[pvName] = [valueCache[effectivePvName], effectivePvName];
+export const makeSelectPvStates = () => {
+  let lastNames: string[] = [];
+  let lastEffective: string[] = [];
+  let lastEntries: (FullPvState | undefined)[] = [];
+  let lastResult: PvArrayResults = {};
+
+  return (state: { cs: CsState }, pvNames: string[]): PvArrayResults => {
+    const { effectivePvNameMap: map, valueCache: cache } = state.cs;
+
+    // do nothing if nothing has changed
+    let same = pvNames.length === lastNames.length;
+    for (let i = 0; same && i < pvNames.length; i++) {
+      const eff = map[pvNames[i]] || pvNames[i];
+      same =
+        pvNames[i] === lastNames[i] &&
+        eff === lastEffective[i] &&
+        cache[eff] === lastEntries[i];
     }
-    return results;
-  }
-);
+    if (same) return lastResult;
+
+    // Pif something changed, rebuild
+    const result: PvArrayResults = {};
+    const effective: string[] = [];
+    const entries: (FullPvState | undefined)[] = [];
+    for (const name of pvNames) {
+      const eff = map[name] || name;
+      effective.push(eff);
+      entries.push(cache[eff]);
+      result[name] = [cache[eff], eff];
+    }
+    lastNames = [...pvNames];
+    lastEffective = effective;
+    lastEntries = entries;
+    lastResult = result;
+    return result;
+  };
+};
 
 /* Used for preventing re-rendering if the results are equivalent.
    Note that if the state for a particular PV hasn't changed, we will

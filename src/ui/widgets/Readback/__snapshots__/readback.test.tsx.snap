@@ -3,42 +3,13 @@
 exports[`<Readback /> > alarm-sensitive foreground colour 1`] = `
 <DocumentFragment>
   <div
-    class="MuiFormControl-root MuiTextField-root css-9yl3fs-MuiFormControl-root-MuiTextField-root"
+    aria-disabled="false"
+    style="display: flex; flex-direction: column; justify-content: start; height: 20px; width: 100px; transform: rotate(0deg); overflow: hidden; box-sizing: border-box; border-radius: 4px; color: var(--alarm); background-color: rgb(0, 0, 0); outline-width: 2px; outline-style: solid; outline-color: var(--alarm);"
   >
     <div
-      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline Mui-readOnly MuiInputBase-readOnly css-36tf00-MuiInputBase-root-MuiOutlinedInput-root"
+      style="text-align: left; white-space: pre-wrap; line-height: 1.2; width: 100%;"
     >
-      <textarea
-        aria-invalid="false"
-        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline Mui-readOnly MuiInputBase-readOnly css-ecmmtb-MuiInputBase-input-MuiOutlinedInput-input"
-        id=":r5:"
-        readonly=""
-        style="height: 0px; overflow: hidden;"
-      >
-        hello
-      </textarea>
-      <textarea
-        aria-hidden="true"
-        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline Mui-readOnly MuiInputBase-readOnly css-ecmmtb-MuiInputBase-input-MuiOutlinedInput-input"
-        readonly=""
-        style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding-top: 0px; padding-bottom: 0px; width: 100%;"
-        tabindex="-1"
-      />
-      <fieldset
-        aria-hidden="true"
-        class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
-      >
-        <legend
-          class="css-1nf2c5d-MuiNotchedOutlined-root"
-        >
-          <span
-            aria-hidden="true"
-            class="notranslate"
-          >
-            ​
-          </span>
-        </legend>
-      </fieldset>
+      hello
     </div>
   </div>
 </DocumentFragment>
