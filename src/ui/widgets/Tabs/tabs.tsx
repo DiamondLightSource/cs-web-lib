@@ -95,6 +95,7 @@ export const TabBar = (props: TabComponentProps): JSX.Element => {
     <Box
       sx={{
         display: "flex",
+        backgroundColor: "transparent",
         visibility: visible ? "visible" : "hidden",
         flexDirection: direction ? "row" : "column",
         width: "100%",
@@ -173,7 +174,8 @@ export const TabBar = (props: TabComponentProps): JSX.Element => {
             aria-labelledby={`simple-tab-${index}`}
             sx={{
               overflow: "scroll",
-              backgroundColor: "transparent"
+              backgroundColor: "transparent",
+              backgroundImage: "none"
             }}
           >
             {value === index && <>{tab.children}</>}
