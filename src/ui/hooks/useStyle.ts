@@ -102,7 +102,6 @@ export const useStyle = (
   const effectiveClass = currentClass === "DEFAULT" ? className : currentClass;
 
   const theme = useTheme();
-  console.log(theme);
   const themeName = `${effectiveClass ?? ""}${widgetName}`;
 
   // Overwrite normal props with class props
