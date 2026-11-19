@@ -21,6 +21,8 @@ import {
   MacroContextType
 } from "../../../types/macros";
 import { getOptionalValue } from "../utils";
+import { Theme, ThemeProvider } from "@mui/material";
+import { phoebusTheme } from "../../../phoebusTheme";
 
 const widgetName = "display";
 
@@ -38,6 +40,7 @@ const DisplayProps = {
 type DisplayComponentProps = InferWidgetProps<typeof DisplayProps> & {
   id: string;
   class?: string;
+  theme?: Theme;
 };
 
 // Generic display widget to put other things inside
@@ -92,11 +95,13 @@ export const DisplayComponent = (props: DisplayComponentProps): JSX.Element => {
     };
   }
   return (
-    <MacroContext.Provider value={displayMacroContext}>
-      <div style={extendedStyle} className="display">
-        <>{newProps.children}</>
-      </div>
-    </MacroContext.Provider>
+    <ThemeProvider theme={props.theme ?? phoebusTheme}>
+      <MacroContext.Provider value={displayMacroContext}>
+        <div style={extendedStyle} className="display">
+          <>{newProps.children}</>
+        </div>
+      </MacroContext.Provider>
+    </ThemeProvider>
   );
 };
 
